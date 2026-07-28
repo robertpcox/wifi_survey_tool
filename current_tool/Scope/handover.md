@@ -9,18 +9,20 @@ compares, maps, exports, and plays one shared V3 result without reloading it.
 Focused unit and headless Chrome acceptance are green. The final complete build passed
 366 tests with zero skipped and emitted 150 staged files.
 
-Source commit `06c589f` is pushed to `wifi_survey_tool/main`. With the data owner's explicit
-authorization, the byte-identical 150-file build, including the physical `292` field result,
-was deployed to the demo and recorded in `demo.mazemap_nginx` commit `6a9bffd`.
+Implementation commit `06c589f` and deployment-subpath hotfix `dbbd13a` are pushed to
+`wifi_survey_tool/main`. With the data owner's explicit authorization, the byte-identical
+150-file build, including the physical `292` field result, is deployed in pushed
+`demo.mazemap_nginx` commit `f97b6af`.
 
 ## Step 5 outcome
 
 - Dashboard shell and composition:
   `src/apps/dashboard/index.html`, `main.mjs`, and
   `src/features/dashboard/dashboard.mjs`.
-- `customerIdFromUrl(url)`, `createDashboardModel(manifest, expectedCustomerId)`, and
-  `reportPlayerUrl(result)` in `src/domain/dashboard-selection.mjs` own customer URL
-  identity, completed-result projection, device labels, and launch URLs.
+- `customerIdFromUrl(url)`, `reportPlayerBaseFromUrl(url)`,
+  `createDashboardModel(manifest, expectedCustomerId)`, and
+  `reportPlayerUrl(result, base)` in `src/domain/dashboard-selection.mjs` own customer
+  URL identity, deployment-aware launch paths, completed-result projection, and labels.
 - `createManifestSource(options)` in `src/adapters/manifest-source.mjs` resolves generated
   customer/result discovery and accepts only repository V3 result paths.
 - `generateManifests(options)` now preserves device type, OS, name, and band for selection
@@ -71,7 +73,7 @@ was deployed to the demo and recorded in `demo.mazemap_nginx` commit `6a9bffd`.
   `result-manifest.v3.json` and per-customer manifests under `customers/`.
 - Primary field result:
   `results/292__566__5ef73912-3851-406a-81cc-93ca19cec12b__2026-07-28T09-00-54Z.result.v3.json`.
-  It remains analysis evidence, not approved public content.
+  Its owner explicitly authorized this demo publication.
 - The reference report's extracted literal is
   `data/reference/report_player/report_data.inline.json`; `index.html` fetches it.
   The reference player now prompts for runtime private access and persists none.
@@ -84,9 +86,9 @@ was deployed to the demo and recorded in `demo.mazemap_nginx` commit `6a9bffd`.
   tests pass against the shared fixture.
 - Header tests prove complete headers pass and missing/blank fields fail by file and field.
   A deterministic planted violation exercises the CLI failure path.
-- Dashboard-to-Report Player Chrome acceptance passes through customer `292`, launches a
-  generated completed result, fetches it exactly once, declines private access, changes a
-  live threshold, switches to playback, reads floor names from meta, and writes no storage.
+- Dashboard-to-Report Player Chrome acceptance mounts beneath a nested deployment path,
+  passes through customer `292`, launches and fetches its result once, declines private
+  access, changes a threshold, switches playback, reads floor names, and writes no storage.
 - Reference migration and source/staged secret gates cover the preserved report family.
 - The complete build passed 366 tests with zero skipped, emitted 150 files, booted all
   four shells, passed Creator Chrome, both Runner mobile profiles, and the

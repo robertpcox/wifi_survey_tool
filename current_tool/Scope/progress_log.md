@@ -1,5 +1,9 @@
 # Progress log — newest entry first
 
+## 2026-07-28 — Steps 5a/5b assigned
+
+- Player recast is 5a; smarter Report is 5b. Handoff only; no code started.
+
 ## 2026-07-28 — Step 5 Dashboard and merged Report Player complete
 
 - Replaced the shell Dashboard with generated customer discovery, completed-result device

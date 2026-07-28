@@ -1,146 +1,145 @@
-# Handover — Step 5 Dashboard and Report Player boundary
+# Handover — Step 5a full-screen Player recast
 
-## Current status
+## Current state
 
-Step 5 implementation is complete at its requested boundary. The Dashboard now selects
-generated, customer-filtered completed results, and the merged Report Player analyzes,
-compares, maps, exports, and plays one shared V3 result without reloading it.
+Step 5 is implemented, pushed, and deployed. Dashboard selects generated customer results,
+and one Report Player shell loads, analyzes, compares, exports, and replays one V3 result.
 
-Focused unit and headless Chrome acceptance are green. The final complete build passed
-366 tests with zero skipped and emitted 150 staged files.
+- Implementation commit: `06c589f`.
+- Deployment-path hotfix: `dbbd13a`.
+- Source handover/deployment record: `638ebec`.
+- Demo repository deployment: `f97b6af`.
+- Last complete build: 366 tests, zero skipped, 150 staged files.
 
-Implementation commit `06c589f` and deployment-subpath hotfix `dbbd13a` are pushed to
-`wifi_survey_tool/main`. With the data owner's explicit authorization, the byte-identical
-150-file build, including the physical `292` field result, is deployed in pushed
-`demo.mazemap_nginx` commit `f97b6af`.
+The deployed nested-path Report Player and the authorized customer `292` result return 200.
+This handoff and the 5a/5b step files are planning work only; no 5a feature code has begun.
 
-## Step 5 outcome
+## Assigned work and stop boundary
 
-- Dashboard shell and composition:
-  `src/apps/dashboard/index.html`, `main.mjs`, and
-  `src/features/dashboard/dashboard.mjs`.
-- `customerIdFromUrl(url)`, `reportPlayerBaseFromUrl(url)`,
-  `createDashboardModel(manifest, expectedCustomerId)`, and
-  `reportPlayerUrl(result, base)` in `src/domain/dashboard-selection.mjs` own customer
-  URL identity, deployment-aware launch paths, completed-result projection, and labels.
-- `createManifestSource(options)` in `src/adapters/manifest-source.mjs` resolves generated
-  customer/result discovery and accepts only repository V3 result paths.
-- `generateManifests(options)` now preserves device type, OS, name, and band for selection
-  while omitting the device Client IP from generated discovery.
-- Report Player shell and composition:
-  `src/apps/report-player/index.html`, `main.mjs`, and
-  `mountReportPlayer(options)` in
-  `src/features/report-player/report-player.mjs`.
-- Generated URL selection uses `customer_id` plus `result_id`; a local V3 file upload
-  remains available when selection or manifest loading is unavailable.
-- Independent identity, KPI, timeline, floor/route, heatmap, comparison, methodology/export,
-  and playback views live under `src/features/report-player/`.
-- `createReportMapSurface(options)` keeps a public canvas with embedded route overlays.
-  Private MazeMap access is optional, prompted only when required, held in memory, and
-  declining it keeps the public map usable.
-- Threshold changes recalculate analysis, heatmaps, and active comparisons immediately.
-  Analysis/playback view changes reuse the same result, meta, and analysis context.
+Execute `Scope/steps/05a_recast_player.md`.
 
-## Analysis, comparison, and playback contracts
+Recast the existing Playback tab as the full-screen V3 Player, using the preserved V2 Player
+as the behavior reference and a real public-first MazeMap as the shared surface. Keep the
+current Report working on that map, but do not perform its information redesign, aggregation,
+or issue ranking. Those belong to `Scope/steps/05b_improve_report.md`.
 
-- `REPORT_THRESHOLDS` and `analyzeReportResult(result, thresholds)` are in
-  `src/domain/report-analysis.mjs`.
-- `buildGroundTruthModel(result)` in `src/domain/report-ground-truth.mjs` models planned
-  dwell followed by interpolation between exact check-ins.
-- `buildReportTimeline(result, truth, thresholds)` and supporting sample helpers are in
-  `src/domain/report-samples.mjs`.
-- Exact threshold equality is not a failure. Sticky heat measures elapsed excess freshness
-  only while ground truth moves and excludes planned dwell. Accuracy heat measures elapsed
-  excess distance at ground-truth positions. Both are partitioned by meta z-level.
-- `compareReportResults(results, thresholds)` in `src/domain/report-comparison.mjs` accepts
-  completed same-survey/same-route results, chooses the oldest start as baseline, uses
-  shared thresholds, and labels each absolute/delta with device and band. Comments stay
-  attached to their runs.
-- `playbackBounds(result)` and `playbackFrame(result, atMs)` in
-  `src/domain/report-playback.mjs` expose raw timing, fixes/trails, check-ins, events,
-  capture events, and the ground-truth walker while excluding preflight from the walk trail.
-- `createReportPlayerStore(options)` in `src/features/report-player/report-store.mjs`
-  holds one result reference, its meta block, one analysis, comparisons, thresholds, and
-  active view. A view switch invokes neither parsing nor analysis.
+The Player is not a second application or URL. Report and Player reuse one parsed result,
+one analysis context, and one map instance. Stop after completing and handing off 5a.
 
-## Data, discovery, and preserved references
+## Settled evidence meaning
 
-- Shared synthetic fixture:
-  `data/fixtures/report-player/result.fixture.v3.json`.
-  It has three ordered check-ins, planned dwell, two named floors, repeated fix times,
-  raw timing evidence, one operator comment, and eight successful polls.
-- Generated discovery remains under `data/manifests/`, including
-  `result-manifest.v3.json` and per-customer manifests under `customers/`.
-- Primary field result:
+The Player explains what was polled and when, where route/check-in evidence infers the tester
+was, where positioning reported the device, and their timing, distance, floor, and freshness
+difference. It does not diagnose RSSI, BSSID, roaming, AP, RF, or Wi-Fi root cause.
+
+The Report will later answer where problems recur and how serious they are. The Player answers
+what happened at one selected moment. Raw provider evidence always remains visible and immutable.
+
+## Defects in the current baseline
+
+- `map-surface.mjs` makes its no-token mode a schematic canvas, not a MazeMap.
+- `floor-route-view.mjs` starts the MazeMap container hidden.
+- `map-surface.mjs` launches while that container is hidden, then reveals it without calling
+  the existing `resizeMapSoon()` lifecycle.
+- `createMazeMapAdapter.launch()` rejects a missing token before attempting public access.
+- No typed, recorded-error classifier currently separates access denial from generic map failure.
+- `map-model.mjs` independently normalizes longitude and latitude into x/y and can distort
+  geometry or change bounds as overlays change.
+- The real adapter's `features.mjs` and `layers.mjs` already preserve exact `[lng, lat]`.
+- `report-ground-truth.mjs` interpolates straight check-in chords instead of route geometry.
+- `report-playback.mjs` exposes a poll only at receipt, so it cannot show the in-flight walk
+  from request to response. Failed polls must remain evidence but never move the raw IPS dot.
+- The current private map receives route, stops, waypoints, and trail only. It lacks walker,
+  raw IPS, connector, poll, snap, and heat layers.
+- `report_player_browser_smoke.mjs` deliberately chooses the schematic public path and does
+  not exercise public MazeMap, unlock retry, resizing, or the complete Player.
+
+Treat those as starting facts, not permission for unrelated rewrites.
+
+## Public-first map contract
+
+Use `result.meta.campusId` to launch the actual MazeMap without a token in a visible, sized
+container. Public success must neither request nor reveal access UI. Only a provider access
+denial may reveal the runtime unlock prompt. Retry with submitted access held in memory only.
+
+Add a typed classifier backed by recorded provider-error fixtures. An SDK, network, unknown,
+or generic launch failure must not masquerade as an authorization failure.
+It leaves the labelled schematic fallback. Declining an actual unlock request does the same.
+After reveal, tab switch, or layout change, resize and then fit exact route geometry. Never
+construct a second map when switching modes.
+
+## Player fidelity and geometry
+
+Read `data/reference/report_player/ndh_player.html` completely. Restore its applicable
+full-map workspace, transport, scrub, event stepping, follow behavior, live evidence rail,
+poll timing, route walker, raw IPS point/history, connector, stale/wrong-floor state,
+checkpoints, and capture events. Keep production V3-only and modular.
+
+Implement the exact poll-map evidence rules in `Scope/contracts/report_analysis.md`. They add
+persistent failed and changed-fix outcomes that neither the V2 source nor current V3 map has.
+Red failures never move the live blue IPS dot; pointer, keyboard, and touch expose each pair.
+
+Leaving Player pauses it, preserves its timestamp, and prevents hidden Player-layer writes.
+Expose programmatic mode-and-seek control so Step 5b can focus a reported issue without reload.
+
+Ground truth follows cumulative distance on the embedded route polyline, anchored
+monotonically by check-ins and planned dwell. All real map sources use exact GeoJSON
+`[lng, lat]` and z-levels.
+
+For 5a, restore the snap-to-path tester despite its old Step 6 deferral. It is a separate,
+visualization-only candidate constrained by radius, active route interval, and floor. It
+never replaces, mutates, persists, or exports the raw position.
+
+## Data and preserved references
+
+- Primary fixture: `data/fixtures/report-player/result.fixture.v3.json`.
+- Authorized field result:
   `results/292__566__5ef73912-3851-406a-81cc-93ca19cec12b__2026-07-28T09-00-54Z.result.v3.json`.
-  Its owner explicitly authorized this demo publication.
-- The reference report's extracted literal is
-  `data/reference/report_player/report_data.inline.json`; `index.html` fetches it.
-  The reference player now prompts for runtime private access and persists none.
-- `referenceReportFindings(root)` in `tools/check_reference_report.mjs` verifies that no
-  inline `DATA` literal or embedded `MAP_TOKEN` returns.
+- That field result has 32 route points, six check-ins, and 41 successful polls.
+- Current default analysis yields 25 sticky points / 60.028 seconds and two outside-accuracy
+  points / 2.963 seconds. Record them before correcting route truth, then review and explain
+  the new shared-model goldens rather than preserving a known chord-interpolation defect.
+- Player reference: `data/reference/report_player/ndh_player.html`.
+- Heat rendering reference: `Scope/data/scoping_inputs/heatmap example.md`.
 
-## Validation performed
+The data owner explicitly authorized the existing field result for the demo. Results captured
+later are not automatically authorized; publishing each requires an explicit review/allowlist.
 
-- Adjacent Dashboard, manifest, report-domain, store, renderer, map, export, and playback
-  tests pass against the shared fixture.
-- Header tests prove complete headers pass and missing/blank fields fail by file and field.
-  A deterministic planted violation exercises the CLI failure path.
-- Dashboard-to-Report Player Chrome acceptance mounts beneath a nested deployment path,
-  passes through customer `292`, launches and fetches its result once, declines private
-  access, changes a threshold, switches playback, reads floor names, and writes no storage.
-- Reference migration and source/staged secret gates cover the preserved report family.
-- The complete build passed 366 tests with zero skipped, emitted 150 files, booted all
-  four shells, passed Creator Chrome, both Runner mobile profiles, and the
-  Dashboard-to-Report Player Chrome path.
-- The deployed directory is byte-identical to `dist`; all four deployed shells and the
-  customer-292 Report Player path pass Chrome. Live HTML, manifest, module, and field-result
-  endpoints return HTTP 200 with the expected content types.
-- The complete boundary command, including source size, headers, imports, schemas,
-  manifests, reference migration, secrets, goldens, module-map freshness, all tests,
-  staging, four shell boots, and all feature browser paths, is:
+## Required read order
+
+1. This handover.
+2. `Scope/steps/05a_recast_player.md`.
+3. `Scope/step_standard.md`, `Scope/coding_pattern.md`, and `Scope/test_standard.md`.
+4. `Scope/contracts/report_analysis.md`.
+5. The full V2 Player reference named above.
+6. `src/features/report-player/report-player.mjs`, `report-shell.mjs`,
+   `report-interactions.mjs`, `playback-view.mjs`, and `playback-controller.mjs`.
+7. `src/features/report-player/map-surface.mjs`, `map-access.mjs`, `map-model.mjs`,
+   `floor-route-view.mjs`, and `report-player.css`.
+8. `src/domain/report-playback.mjs` and `report-ground-truth.mjs`.
+9. The map adapter/runtime/source/layer modules listed in the 5a step.
+10. The fixture, field result, heat reference, and `tools/report_player_browser_smoke.mjs`.
+
+## Locked project rules
+
+- No embedded or persisted secrets; map access stays out of URLs, data, exports, and storage.
+- Static Nginx runtime, browser-native modules, V3-only data, and no new runtime dependency.
+- Preserve captured raw/normalized provider evidence and the result schema.
+- Keep Creator, Runner, proxy, manifests, and unrelated Step 6 work out of scope.
+- New or changed authored files need all six metadata fields and must satisfy file limits.
+- Untouched legacy header debt remains behind its exact exception baseline for a later
+  knowledge/context recovery pass.
+- Customer filtering is not authorization, and build staging is not publication approval.
+
+## Validation and completion
+
+Add focused domain, map lifecycle, layer, view, and fake-MazeMap browser coverage described
+by 5a. The complete boundary remains:
 
 ```sh
 node tools/build.mjs
 ```
 
-## Known defects, exceptions, and release gates
-
-- At the user's direction, untouched legacy metadata-header debt is deferred behind the
-  exact sorted baseline in
-  `data/characterization/step5/legacy-header-exceptions.json`.
-  New or changed files must have all six fields; the gate also fails stale exceptions.
-  The later pass must recover missed knowledge/context, not merely insert banners.
-- Snap-to-current-path-segment playback correction remains low priority and is not present.
-- Customer filtering is convenience, not authorization. Generated manifest projection
-  omits Client IP, but host access and release content still require a real security boundary.
-- `stageDistribution(root, destination)` still copies every validated result. The live
-  field result contains exact indoor positions/times, an internal Client IP, and
-  operator/device metadata. Its owner explicitly authorized this demo release; later
-  publishing still requires an explicit sensitive-result allowlist or equivalent review.
-- The live Dunedin definition still says `Australia/Melbourne`; confirm or re-export it
-  as `Pacific/Auckland` if intended before interpreting local report times.
-- Physical Android, current OS/browser versions, green-start, and full-length battery
-  acceptance remain field gates inherited from Step 4.
-- The public report surface is a zero-token canvas with route overlays, not a tiled basemap.
-  A basemap enhancement is optional and must retain the working no-token fallback.
-
-## Ownership and next read order
-
-Step 5 owns the Dashboard feature, generated-manifest adapter/projection, report analysis,
-comparison, playback, Report Player views/store/map surface, reference migration gate,
-shared report fixture, and Dashboard-to-player browser smoke. Keep their contracts stable
-during provider work unless a recorded response or fixture proves a defect.
-
-The downstream backlog is recorded, not automatically assigned. When a work package is
-explicitly authorized, read:
-
-1. This handover.
-2. `Scope/steps/06_backlog_future_adapters.md`.
-3. `src/adapters/positioning/source-contract.mjs`.
-4. `src/domain/survey-meta-v3.mjs`.
-5. `src/features/survey-runner/survey-runner.mjs`.
-6. `data/fixtures/report-player/result.fixture.v3.json`.
-7. The exact work-package owner and its adjacent test named by Step 6.
-
-Stop at this Step 5 boundary until the downstream work package is explicitly assigned.
+It must finish with zero skipped tests and include the full Player browser path. On completion,
+update Step 5b with actual shared-map exports and Player seek/deep-link contracts, rewrite this
+handover, record progress, and stop before implementing 5b.

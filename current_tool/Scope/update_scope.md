@@ -26,9 +26,11 @@ The immediate priority is capturing valid field data in New Zealand today.
 - Step 3, Creator: `Scope/steps/03_build_creator.md`
 - Step 4, Runner: `Scope/steps/04_build_runner.md`
 - Step 5, dashboard and Report Player: `Scope/steps/05_dashboard_report_player.md`
+- Step 5a, full-screen Player recast: `Scope/steps/05a_recast_player.md`
+- Step 5b, smarter mapped Report: `Scope/steps/05b_improve_report.md`
 
 Capture is the priority. Creator and Runner come first, and Step 4 is the field-ready release.
-The Report Player is split, merged, and built last, in Step 5.
+Step 5 delivered the merged Report Player; 5a recasts its Player, then 5b improves its Report.
 
 Agents start only from `Scope/handover.md`.
 The handover points to one current step, which links other files only when needed.
@@ -86,21 +88,20 @@ URL filtering is convenience, not authorization.
 Report sections and playback are independent modules inside a single shell.
 Sticky and accuracy thresholds are interactive controls.
 Completed matching runs can compare against the oldest completed baseline.
-Playback uses the embedded route, check-ins, fixes, events, and timing.
-Private map access is optional; public map and route overlays remain available.
+The full-screen Player uses embedded route, check-ins, fixes, events, and poll timing.
+Both modes reuse one real public-first MazeMap; a schematic route is only its failure fallback.
 
 ## Map access
 
 No page carries an embedded map access token.
-Each application asks the user for private map access when the campus requires it,
-holds it in memory for that session only, and applies it through the MazeMap view token API
-when the map is launched.
+Report Player first launches the actual MazeMap without one. Only a runtime access denial
+reveals its unlock prompt. Creator and Runner retain their required-access workflows.
+Any submitted access is held in memory only and applied through the MazeMap view token API.
 
-The current tools hard-code a token in source. That was an expedient for one site
-and is removed, not carried forward.
+The preserved V2 tools once hard-coded a token. V3 removes it rather than carrying it forward.
 
 Cloud positioning continues to be polled through the server-side positioning proxy.
-That is deliberate and unchanged. Only the map token moves into the page.
+That is deliberate and unchanged. Map access, when needed, is entered only at runtime.
 
 ## Non-negotiable architecture
 
@@ -109,7 +110,7 @@ That is deliberate and unchanged. Only the map token moves into the page.
 - No npm runtime or development dependencies.
 - Browser-native JavaScript modules.
 - V3-only new workflow. Existing v1 and v2 captures are not migrated or supported.
-- Map access token entered by the user, never embedded in source.
+- Map access entered only when required, never embedded in source.
 - Cloud positioning stays behind the server-side positioning proxy.
 - No secrets in persistence, URLs, definitions, results, fixtures, or source.
 - Large data only under `data/` or `results/`.

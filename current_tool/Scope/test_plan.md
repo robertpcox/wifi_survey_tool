@@ -101,22 +101,23 @@ Field acceptance, which no automated test replaces:
 - private campus access entered by hand and map rendering (passed in Rob's iPhone smoke)
 - a full-length run without memory or battery collapse
 
-## Step 5 — dashboard and Report Player
+## Step 5 — delivered Dashboard/Report baseline
 
-- header gate inverted: complete passes, missing or blank names file/field, and the planted
-  violation proves the failure path
-- every module renders from one fixture result
-- threshold changes recalculate without reload, including a value exactly on the threshold
-- sticky excludes planned dwell and includes stale fixes while ground truth moves
-- floors and floor names come from the meta block, including a single-floor result
-- comparison rejects a mismatched survey ID, a mismatched route hash, and an aborted run
-- comparison accepts two runs of one route from different devices or different bands
-- every compared value and delta is labelled with its device and band
-- an operator comment is shown with the run it belongs to
-- the oldest completed run becomes the baseline
-- a customer URL shows only that customer's manifest entries
-- declining the token leaves a working public map with route overlays
-- no inline data literal and no hard-coded token survive from the reference sources
+- Header, fixture, threshold, dwell, floor, comparison, customer, and reference gates stay green.
+
+## Step 5a — full-screen Player
+
+- Recorded errors distinguish access denial from prompt-free unknown/network failures.
+- One resized map is reused; leaving Player pauses and disables its layers without another fetch.
+- Exact GeoJSON Report heat filters by floor and never leaks into active Player layers.
+- In-flight rings, red failures, and changed-fix pairs obey the persistent poll-map contract.
+- Shared route truth follows turns/dwell and produces reviewed before/after analysis goldens.
+- Snap accepts/rejects by radius, active interval, and floor without changing raw fix or export.
+- Desktop/narrow Chrome drives full-screen controls, programmatic seek, and Report restoration.
+
+## Step 5b — smarter mapped Report
+
+- Matching runs stack deterministically; issue-to-map, evidence, export, and Player seek stay linked.
 
 ## Risk register
 
@@ -126,10 +127,9 @@ Standing risks, rechecked every step rather than assumed closed.
 - **Meta propagation.** Verified at Steps 3, 4, and 5. Step 5 is unbuildable if it breaks.
 - **Manifest determinism.** A non-deterministic build makes every later diff untrustworthy.
 - **Module serving.** The deployed Nginx explicitly maps `.mjs`; the serving test proves it.
-- **Configuration activation.** Keep Nginx's dedicated `.mjs` mapping and verify live MIME after reload.
-- **Map runtime availability.** The self-contained build has no bundled remote SDK asset.
-  Creator fetches v3.0.6 after Engage, reports failure/timeout, binds the entered campus,
-  and claims routed geometry only after the SDK-backed map loads.
+- **Configuration activation.** Keep Nginx's `.mjs` mapping; verify live MIME after reload.
+- **Map runtime availability.** Report Player tries public MazeMap first and prompts only on
+  access denial; Creator reports remote-SDK failure and binds campus only after SDK load.
 - **Proxy reachability.** Cloud polling needs the proxy CORS allowlist to match the served origin.
 - **Host access control.** Confirm field-device host access before release, not during a run.
 - **Mobile behavior.** Only field acceptance covers it.

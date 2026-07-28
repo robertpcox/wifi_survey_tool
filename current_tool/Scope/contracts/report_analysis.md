@@ -6,8 +6,10 @@ Report and playback are one application, the Report Player.
 Analysis sections and playback are independent modules sharing one shell, one loaded result,
 and one meta block, so a run can be read and replayed without changing page.
 
-The page runs in a desktop browser and prompts for private map access only when the campus
-requires it. Declining leaves the public map plus embedded route overlays.
+The page runs in a desktop browser and first launches the actual MazeMap for the result's
+campus without a view token. Only a runtime access failure reveals the in-memory unlock
+prompt. SDK/network failure or declined access leaves a labelled schematic route fallback.
+Report and Player modes reuse the same map, result, meta block, and analysis context.
 
 ## Interactive thresholds
 
@@ -70,9 +72,35 @@ explains a result that metrics alone make look like a fault.
 
 ## Playback
 
-Playback uses embedded paths and exact check-ins.
-It displays v3 metadata, poll timing, raw and normalized evidence, and capture events.
-It shares the loaded result, meta block, and map surface with the analysis sections.
+The Playback tab becomes a full-screen Player using embedded route geometry and exact
+check-ins. Its ground-truth walker follows the authored polyline and planned dwell.
+It displays V3 metadata, poll request/response timing, raw and normalized IPS evidence,
+capture events, floor state, and the distance between reported and inferred positions.
 
-Snap-to-path should eventually use only the current route segment.
-That correction is low priority and must not delay capture delivery.
+## Playback poll map evidence
+
+Exclude preflight polls. For every capture poll, derive route-constrained estimated tester
+positions at `sentAt` and `receivedAt`; label them as estimates, not measured truth.
+
+- While in flight, show a hollow request ring at the `sentAt` route estimate.
+- On failure, turn the `sentAt` request ring into a persistent red dot and retain the
+  failure-time route estimate in its details. A failure never moves the live blue IPS dot.
+- On a usable success whose fix identity changed, persist a route outcome marker and a paired
+  blue point at the exact returned normalized `lng`, `lat`, and z-level.
+- On an unchanged success, add no outcome pair; the existing live blue dot remains.
+- If no defensible route estimate exists, retain unlocated evidence instead of inventing one.
+
+Fix identity uses a valid provider fix time first, otherwise normalized `lat`, `lng`, and
+z-level. Separately expose whether the coordinates moved so a fresh same-position fix is clear.
+
+All completed outcomes at or before the playback clock persist. Scrubbing backward removes
+future outcomes deterministically. The live blue dot is the latest usable successful fix
+received by that clock.
+
+Hover, keyboard focus, or tap on either member highlights the pair and shows poll ID, outcome,
+HTTP/error, sent/received/RTT, send/receive route estimates, returned fix/fix time/confidence,
+fix age, distance at receipt, and floor match. Draw the connector only on one floor; for a
+floor mismatch, show each endpoint on its own floor and explain the mismatch in text.
+
+Snap-to-path is an optional tester constrained to the active route interval and floor.
+Raw IPS evidence stays visible and immutable; snapped candidates are never exported as truth.

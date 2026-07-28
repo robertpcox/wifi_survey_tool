@@ -61,8 +61,8 @@ copies the complete `results/` family, so any `dist/` containing it is sensitive
 - Heatmaps are separated by the ordered z-levels and names in `result.meta`.
 - Comparison accepts completed runs only, requires survey ID and route hash equality,
   chooses the oldest start as baseline, and applies one threshold pair to every run.
-- Private map credentials stay in memory. Declining them preserves the public canvas,
-  embedded route, floor selection, trails, walker, and heat overlays.
+- Step 5a supersedes the canvas-first map rule: Report Player attempts real MazeMap publicly,
+  keeps submitted access in memory, and uses the labelled schematic only on actual failure.
 - `SurveyResultV3` remains provider-neutral: every poll retains raw response, normalized
   fix, sent/received timestamps, round trip, HTTP state, success, and error.
 
@@ -90,16 +90,10 @@ The default publishable artifact must exclude physical field results; selecting 
 require named authority and produce a reviewable inventory. Secret scans do not make
 position histories, internal IPs, or operator metadata public-safe.
 
-## Work package C — playback path snapping
+## Work package C — superseded by Step 5a
 
-Keep snap-to-current-path-segment correction low priority and visualization-only.
-The current owners are `playbackFrame(result, atMs)`,
-`createMapFrame(result, options)` in `src/features/report-player/map-model.mjs`, and
-`createReportMapSurface(options)` in `src/features/report-player/map-surface.mjs`.
-
-If implemented, add `snapPlaybackFixToCurrentSegment(frame, route)` in a separate
-`src/domain/report-path-snap.mjs`. It must use the current embedded route leg and floor,
-must not mutate raw or normalized evidence, and must not alter analysis or comparison.
+Step 5a now owns the visualization-only path-snap tester. Do not implement a second version
+from this backlog; retain its immutable-evidence rule and actual 5a owner in the handover.
 
 ## Work package D — LiPi v3 adapter
 
@@ -125,8 +119,6 @@ recorded response demonstrates a missing provider-neutral field.
 
 ## Remaining low-priority and field work
 
-- Consider an optional public basemap enhancement without removing the zero-token canvas
-  fallback or adding an unapproved runtime dependency.
 - Confirm or re-export the Dunedin definition timezone; it still says
   `Australia/Melbourne` rather than `Pacific/Auckland`.
 - Complete Android, current OS/browser, green-start, and full-length battery acceptance.

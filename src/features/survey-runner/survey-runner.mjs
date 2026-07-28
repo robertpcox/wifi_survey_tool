@@ -82,9 +82,14 @@ export function mountSurveyRunner(options = {}) {
       setTimer: options.setTimer,
       clearTimer: options.clearTimer,
       onRender: run => runView.renderRun(run),
-      onFinish: run => runView.showFinish(run.completionStatus),
+      onFinish: run => {
+        formView.setRunning(false);
+        mapAdapter.resizeMapSoon?.();
+        runView.showFinish(run.completionStatus);
+      },
     });
     formView.setRunning(true);
+    mapAdapter.resizeMapSoon?.();
     state.activeRun.start();
   }
 

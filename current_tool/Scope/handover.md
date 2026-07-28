@@ -2,13 +2,14 @@
 
 ## Current status
 
-Step 4 Runner implementation is complete and `node tools/build.mjs` is green.
-The build emits `dist/` with both the deterministic development survey and the
-user-supplied `NDH Straight` definition. The byte-identical 120-file artifact is live at
-`https://demo.mazemap.com.au/wifi-survey-v3/`.
+Step 4 Runner implementation is closed and `node tools/build.mjs` is green. Rob completed
+the first physical iPhone field run against the `NDH Straight` survey: private map rendering
+worked, all six checkpoints completed, and all 41 live proxy polls returned HTTP 200.
+The downloaded result validates and is now a build-discovered input for Step 5.
 
-The live code is ready for capture, but the New Zealand field release remains open until
-physical iPhone and Android runs prove private map access and live proxy reachability.
+The follow-up map-first capture refinements are built and smoke-tested locally. They have
+not been committed or deployed. The existing 120-file artifact remains live at
+`https://demo.mazemap.com.au/wifi-survey-v3/`; the current local build stages 122 files.
 
 ## Step 4 outcome
 
@@ -25,6 +26,11 @@ physical iPhone and Android runs prove private map access and live proxy reachab
 - Capture consumes embedded legs/checkpoints unchanged, polls at the definition cadence,
   counts down the definition dwell, renders a bounded V3 trail, and supports completion
   or early stop with no resume state.
+- Once the private map is available, survey selection and initial preflight fit its route.
+  Starting capture makes the map full-viewport, keeps the current checkpoint north-up, and
+  overlays source health, poll count, target distance, authored floor name, and controls.
+- Capture polling compensates for request duration to keep the start cadence when RTT
+  permits; overrun requests never overlap.
 - Finish presents a non-modal optional comment and download action on both paths.
 - Asset capture polls only the asset Client IP and never requests Runner-device geolocation.
 - A minimal upload viewer validates downloaded `SurveyResultV3` files.
@@ -57,10 +63,15 @@ physical iPhone and Android runs prove private map access and live proxy reachab
   `results/health-new-zealand__566__56600000-0000-4000-8000-000000000001__2026-07-28T01-01-00Z.result.v3.json`.
 - Aborted fixture: the same prefix ending
   `2026-07-28T02-00-05Z.result.v3.json`.
+- Rob's validated physical iPhone result:
+  `results/292__566__5ef73912-3851-406a-81cc-93ca19cec12b__2026-07-28T09-00-54Z.result.v3.json`.
+  It completed 6/6 checkpoints with 41/41 successful HTTP 200 polls and the operator
+  comment `First test run`.
 - Generated discovery:
   `data/manifests/survey-manifest.v3.json`,
   `result-manifest.v3.json`, `validation-summary.v3.json`, and
   per-customer manifests for `health-new-zealand` and `292`.
+  Discovery now contains two surveys, three results, and two customers.
 - `tools/generate_runner_fixtures.mjs` reproduces both deterministic result fixtures.
 
 ## Validation performed
@@ -68,17 +79,20 @@ physical iPhone and Android runs prove private map access and live proxy reachab
 - Focused adapter, preflight, progress, export, view, controller, and validator tests pass.
 - The Cloud adapter and live-definition preflight use the recorded NDH provider body;
   the raw `x`, `y`, `locationName`, and provider-specific confidence remain intact.
-- A full unsandboxed `node --test` passed 313 tests before final UI wiring; the final build
-  passes 314 tests with zero skipped.
+- The final local build passes 318 tests with zero skipped.
 - Source size, dependency, headers, Nginx, schemas, deterministic manifests, golden outputs,
   module-map freshness, and source/staged secret scans pass.
-- The staged distribution contains 120 files.
+- The staged distribution contains 122 files, including the validated live result.
 - Four staged application shells boot in Chrome.
 - Creator's staged browser path passes.
 - Runner completes and downloads validated results at iPhone (390×844) and Android
-  (412×915) mobile viewports, with raw/normalized evidence and empty browser storage.
+  (412×915) mobile viewports. The smoke now also proves survey bounds fitting, full-viewport
+  active capture, north-up checkpoint focus, visible HUD/actions, and target progression.
+- Rob's physical iPhone result passes the V3 validator and definition/route-hash match.
+  Its 41 polls contain raw and normalized evidence, no poll errors, and no credentials.
 - Source commit `1138080` built without generated drift. Demo commit `d47ec1d` contains
-  the byte-identical artifact; live JavaScript/JSON headers and all four Chrome shells pass.
+  the prior byte-identical artifact; live JavaScript/JSON headers and all four Chrome
+  shells passed before these local refinements.
 - Re-run the complete boundary with:
 
 ```sh
@@ -87,17 +101,20 @@ node tools/build.mjs
 
 ## Known defects, exceptions, and field gates
 
-- Physical current iPhone and Android completion remains unperformed.
-- A live provider body is recorded, but its standalone JSON has no HTTP/timing envelope.
-  The Runner's browser proxy request and hand-entered private map access remain unproved on site.
+- Rob's physical iPhone run proves live proxy reachability and private map rendering on site.
+  A physical Android run and explicit current OS/browser-version coverage remain.
+- The accepted run started from an acknowledged amber preflight because its first provider
+  fix was 262 seconds old. Capture then completed cleanly, but a green-start field run
+  remains useful acceptance evidence.
 - Full-length battery and memory behavior remains a physical field check.
 - The live `NDH Straight` export uses `Australia/Melbourne` for Dunedin campus 566.
-  Runner preserves it correctly, but it should be confirmed or re-exported as
-  `Pacific/Auckland` before field evidence is accepted.
-- The live export has no live result. Step 5 should use the completed deterministic fixture
-  until a validated field result exists.
-- The Step 4 artifact is deployed under `/wifi-survey-v3/`; deployment does not close
-  the physical field gates above.
+  Runner and result preserve it correctly, but it should be confirmed or re-exported as
+  `Pacific/Auckland`.
+- The live result contains exact indoor positions/timestamps, an internal Client IP, and
+  Rob/device metadata. Treat it as sensitive evidence; build staging does not authorize
+  publishing it.
+- The map-first refinements and live result are present only in the local 122-file build.
+  The deployed `/wifi-survey-v3/` artifact has not been updated in this close-out.
 
 ## Ownership and next read order
 
@@ -109,8 +126,8 @@ Begin Step 5 with:
 
 1. This handover.
 2. `Scope/steps/05_dashboard_report_player.md`.
-3. The completed result fixture and `data/manifests/result-manifest.v3.json`.
-4. `data/manifests/customers/health-new-zealand.manifest.v3.json`.
+3. Rob's live result, the deterministic fixtures, and `data/manifests/result-manifest.v3.json`.
+4. `data/manifests/customers/292.manifest.v3.json`.
 5. `src/domain/survey-result-v3.mjs`.
 6. `data/reference/report_player/analyze-survey.js`, `index.html`, and `ndh_player.html`.
 

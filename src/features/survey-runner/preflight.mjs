@@ -24,6 +24,7 @@ export async function runRunnerPreflight(options) {
     mapAdapter.drawRoute?.(definition.route.legs);
     mapAdapter.drawStops?.(definition.route.stops);
     mapAdapter.drawWaypoints?.(definition.route.checkpoints);
+    mapAdapter.fitRoute?.(definition.route);
     mapReady = true;
   } catch (error) {
     mapError = error?.message || String(error);

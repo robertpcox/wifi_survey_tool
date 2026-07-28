@@ -1,10 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import {
-  createRunnerFormView,
-  preflightMetrics,
-} from "./form-view.mjs";
+import { createRunnerFormView, preflightMetrics } from "./form-view.mjs";
 
 function harness() {
   const nodes = new Map();
@@ -48,19 +45,30 @@ function harness() {
     "[data-preflight-light]", "[data-preflight-reasons]",
     "[data-preflight-position]", "[data-preflight-floor]",
     "[data-preflight-age]", "[data-preflight-rtt]",
-    "[data-setup-panel]", "[data-runner-status]", '[name="override"]',
+    "[data-setup-panel]", "[data-setup-controls]",
+    "[data-runner-status]", '[name="override"]',
   ]) make(selector);
+  const classes = new Set();
   return {
+    classes,
     nodes,
     values,
     view: createRunnerFormView({
+      body: {
+        classList: {
+          toggle(name, enabled) {
+            if (enabled) classes.add(name);
+            else classes.delete(name);
+          },
+        },
+      },
       querySelector: selector => nodes.get(selector) ?? null,
     }),
   };
 }
 
 test("form view reads operator values and keeps Go gated by green", () => {
-  const { nodes, values, view } = harness();
+  const { classes, nodes, values, view } = harness();
   assert.equal(view.readValues().deviceOs, "ExampleOS 1");
   view.setActions({ entryComplete: true, preflight: { verdict: "amber" } });
   assert.equal(nodes.get('[data-action="go"]').disabled, true);
@@ -81,7 +89,11 @@ test("form view reads operator values and keeps Go gated by green", () => {
   nodes.get('[name="override"]').listeners.input();
   assert.equal(changes, 1);
   view.setRunning(true);
-  assert.equal(nodes.get("[data-setup-panel]").hidden, true);
+  assert.equal(nodes.get("[data-setup-panel]").dataset.running, "true");
+  assert.equal(nodes.get("[data-setup-controls]").hidden, true);
+  assert.equal(classes.has("runner-running"), true);
+  view.setRunning(false);
+  assert.equal(classes.has("runner-running"), false);
   view.setStatus("Ready", "ok");
   assert.equal(nodes.get("[data-runner-status]").dataset.kind, "ok");
 });
@@ -120,12 +132,10 @@ test("definition summary and preflight evidence render without secrets", () => {
 });
 
 test("preflight metrics expose empty and usable samples", () => {
-  assert.deepEqual(preflightMetrics(null, 1000), {
-    position: "No position",
-    floor: "—",
-    age: "—",
-    rtt: "—",
-  });
+  assert.deepEqual(
+    preflightMetrics(null, 1000),
+    { position: "No position", floor: "—", age: "—", rtt: "—" },
+  );
   const metrics = preflightMetrics({
     normalized: {
       lat: -45.87,

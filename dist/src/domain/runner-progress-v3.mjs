@@ -1,7 +1,16 @@
 export function createRunnerProgress(definition) {
+  const stopNames = new Map((definition.route.stops ?? []).map(stop => [
+    stop.id,
+    stop.name || stop.poiName || stop.tag || stop.id,
+  ]));
+  const floorNames = definition.meta.zLevelNames ?? {};
   return {
     checkpoints: definition.route.checkpoints.map(checkpoint => ({
       ...checkpoint,
+      label: checkpoint.type === "stop"
+        ? stopNames.get(checkpoint.stopId) || checkpoint.stopId
+        : `Checkpoint ${checkpoint.sequence + 1}`,
+      floorLabel: floorNames[String(checkpoint.z)] || `Floor ${checkpoint.z}`,
       state: "pending",
     })),
     currentIndex: 0,

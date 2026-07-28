@@ -6,6 +6,7 @@ export function createRunnerPollLoop(options) {
   if (!(intervalMs > 0)) throw new TypeError("Definition polling interval is required");
   const setTimer = options.setTimer ?? globalThis.setTimeout;
   const clearTimer = options.clearTimer ?? globalThis.clearTimeout;
+  const nowMs = options.nowMs ?? Date.now;
   let active = false;
   let generation = 0;
   let timer = null;
@@ -24,10 +25,14 @@ export function createRunnerPollLoop(options) {
   }
 
   async function pollAndSchedule(current) {
+    if (!active || current !== generation) return;
+    const startedMs = nowMs();
     const sample = await source.poll(options.request());
     if (!active || current !== generation) return;
     options.onSample(sample, "capture");
-    timer = setTimer(() => void pollAndSchedule(current), intervalMs);
+    const elapsedMs = Math.max(0, nowMs() - startedMs);
+    const delayMs = Math.max(0, intervalMs - elapsedMs);
+    timer = setTimer(() => void pollAndSchedule(current), delayMs);
   }
 
   function stop() {

@@ -5,6 +5,8 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
+  readRunnerActiveView,
+  runnerActiveViewFindings,
   runnerDownloadFindings,
   setRunnerEntry,
 } from "./runner_browser_assertions.mjs";
@@ -94,10 +96,17 @@ async function exerciseProfile({ browser, definition, origin, path, profile }) {
   await page.waitForFunction(() => document
     .querySelector("[data-preflight-light]").textContent === "GREEN");
   await page.click('[data-action="go"]');
+  await page.waitForFunction(() => document.body.classList.contains("runner-running"));
+  const firstCheckpoint = definition.route.checkpoints[0];
+  const expectedFloor = definition.meta.zLevelNames[String(firstCheckpoint.z)];
+  failures.push(...runnerActiveViewFindings(await readRunnerActiveView(page), expectedFloor));
   for (let index = 0; index < definition.route.checkpoints.length; index++) {
     await page.waitForFunction(() => !document
       .querySelector('[data-action="check-in"]').disabled);
     await page.click('[data-action="check-in"]');
+    if (index === 0 && definition.route.checkpoints.length > 1) {
+      await page.waitForFunction(() => window.__runnerMarker?.glyph === "2");
+    }
   }
   await page.waitForSelector("[data-finish-panel]:not([hidden])");
   await page.type("[data-operator-comment]", `${profile.name} browser run`);

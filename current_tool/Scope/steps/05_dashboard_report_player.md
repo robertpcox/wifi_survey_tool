@@ -17,15 +17,19 @@ Follow `Scope/step_standard.md`.
   round-trip time remain in every sample.
 - The shared map adapter now exposes `drawPositionTrail(polls)` and bounds the rendered
   V3 fix trail without changing the embedded route.
-- Representative completed result:
+- Primary field result:
+  `results/292__566__5ef73912-3851-406a-81cc-93ca19cec12b__2026-07-28T09-00-54Z.result.v3.json`.
+  Rob's physical iPhone run completed all six checkpoints with 41/41 HTTP 200 polls and
+  a matching route hash.
+- Deterministic completed result:
   `results/health-new-zealand__566__56600000-0000-4000-8000-000000000001__2026-07-28T01-01-00Z.result.v3.json`.
   The adjacent aborted fixture ends in `2026-07-28T02-00-05Z.result.v3.json`.
 - Result discovery is `data/manifests/result-manifest.v3.json`; customer discovery is
-  under `data/manifests/customers/`. The build currently emits two surveys, two results,
+  under `data/manifests/customers/`. The build currently emits two surveys, three results,
   and two customers.
 - The user-supplied live Creator export is
   `data/surveys/5ef73912-3851-406a-81cc-93ca19cec12b.definition.v3.json`
-  (`NDH Straight`, 49.16 m, six checkpoints). It has no corresponding live result yet.
+  (`NDH Straight`, 49.16 m, six checkpoints).
 - Its recorded live provider body is
   `data/positioning/ndh-outpatient-level-00.mazemap-cloud.response.json`.
   It is normalization/preflight evidence only, with no HTTP/timing envelope or run result.
@@ -33,18 +37,18 @@ Follow `Scope/step_standard.md`.
   `data/reference/report_player/analyze-survey.js`; Step 4 added no analysis module.
 - Runner includes a minimal result-file validation viewer, but Report Player remains the
   first full result consumer.
-- `node tools/build.mjs` is the complete validation boundary. It runs 314 tests, stages
-  120 files, and includes iPhone- and Android-sized Runner Chrome paths.
+- `node tools/build.mjs` is the complete validation boundary. It runs 318 tests, stages
+  122 files, and includes iPhone- and Android-sized Runner Chrome paths.
 
 ## Field-release status from Step 4
 
-The code and staged artifact are capture-ready, but the New Zealand field release is not
-marked complete. Physical current-device acceptance, hand-entered private campus access,
-and live proxy reachability still require an iPhone and Android on site.
+Rob's iPhone run proves private map rendering and live proxy reachability. Android,
+current OS/browser versions, and a green start remain; amber began on a 262-second-old fix.
 
 The live `NDH Straight` definition also says `Australia/Melbourne` while campus 566 is
-Dunedin. Runner correctly preserves that meta block unchanged; correct and re-export the
-definition before treating it as field evidence if `Pacific/Auckland` was intended.
+Dunedin. Runner and result preserve that meta block unchanged; confirm or re-export it if
+`Pacific/Auckland` was intended. The field result contains exact indoor positions/times,
+an internal Client IP, and operator/device metadata, so do not publish it implicitly.
 
 ## Report Player sources
 

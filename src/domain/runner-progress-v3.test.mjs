@@ -10,10 +10,22 @@ import {
 
 function definition(dwellSeconds = 2) {
   return {
-    meta: { route: { checkpointDwellSeconds: dwellSeconds } },
+    meta: {
+      route: { checkpointDwellSeconds: dwellSeconds },
+      zLevelNames: { "3": "Level 2", "6": "Level 5" },
+    },
     route: {
+      stops: [{ id: "stop-a", name: "Room A" }],
       checkpoints: [
-        { id: "a", sequence: 0, lng: 1, lat: 2, z: 3 },
+        {
+          id: "a",
+          sequence: 0,
+          type: "stop",
+          stopId: "stop-a",
+          lng: 1,
+          lat: 2,
+          z: 3,
+        },
         { id: "b", sequence: 1, lng: 4, lat: 5, z: 6 },
       ],
     },
@@ -23,6 +35,10 @@ function definition(dwellSeconds = 2) {
 test("checkpoint sequence and dwell countdown come from the definition", () => {
   const progress = startRunnerProgress(createRunnerProgress(definition(2)));
   assert.equal(progress.checkpoints[0].state, "current");
+  assert.equal(progress.checkpoints[0].label, "Room A");
+  assert.equal(progress.checkpoints[1].label, "Checkpoint 2");
+  assert.equal(progress.checkpoints[0].floorLabel, "Level 2");
+  assert.equal(progress.checkpoints[1].floorLabel, "Level 5");
   assert.equal(progress.dwellSeconds, 2);
   assert.deepEqual(
     checkInCurrent(progress, "2026-07-28T01:00:00.000Z"),

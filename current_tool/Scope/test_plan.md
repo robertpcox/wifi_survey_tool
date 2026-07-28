@@ -74,11 +74,11 @@ Adapter tests from recorded responses only:
 
 Runner tests:
 
-- poll cadence and dwell come from the definition, not from Runner defaults
-- checkpoint progression and dwell countdown follow the embedded sequence
+- poll starts honor cadence when RTT permits and never overlap overruns; dwell has no default
+- map launch and later survey selection fit the route; Go opens a no-scroll viewport map
+- checkpoint progression keeps the target lit, north-up, named, distance- and floor-labelled
 - stopping early exports `completionStatus: "aborted"` and prompts download
-- completion exports `completionStatus: "completed"` and prompts download
-- filename matches the v3 contract
+- completion exports `completionStatus: "completed"` and prompts a contract-named download
 - the meta block in the result is identical to the definition's
 - device type, operating system, name, Client IP, and band are present in every export
 - band is required at load and the entered value reaches the export
@@ -101,8 +101,8 @@ Preflight, one test per verdict from recorded responses:
 
 Field acceptance, which no automated test replaces:
 
-- one complete survey on a current iPhone and on a current Android device
-- private campus access entered by hand and the map rendering
+- one complete survey on current iPhone and Android (Rob's iPhone smoke passed; Android remains)
+- private campus access entered by hand and map rendering (passed in Rob's iPhone smoke)
 - a full-length run without memory or battery collapse
 
 ## Step 5 — dashboard and Report Player

@@ -1,13 +1,19 @@
+import { haversine } from "../../domain/geometry.mjs";
+
 export function createRunnerRunView(documentRef) {
   const find = selector => documentRef.querySelector(selector);
+  let activeState = null;
+  let latestFix = null;
   const setText = (selector, value) => {
     const node = find(selector);
     if (node) node.textContent = String(value);
   };
 
   function renderRun(state) {
+    activeState = state;
     const panel = find("[data-run-panel]");
-    if (panel) panel.hidden = false;
+    if (panel) panel.hidden = Boolean(state.completionStatus);
+    if (state.completionStatus) return;
     const progress = state.progress;
     const checkpoint = progress.checkpoints[progress.currentIndex];
     setText(
@@ -16,7 +22,8 @@ export function createRunnerRunView(documentRef) {
         + ` of ${progress.checkpoints.length}`,
     );
     setText("[data-current-target]", targetName(checkpoint));
-    setText("[data-current-floor]", checkpoint ? `Floor ${checkpoint.z}` : "—");
+    setText("[data-current-floor]", checkpoint?.floorLabel ?? "—");
+    renderTargetDistance();
     setText(
       "[data-dwell-countdown]",
       progress.phase === "dwelling"
@@ -28,11 +35,24 @@ export function createRunnerRunView(documentRef) {
   }
 
   function renderSource(sample, count) {
+    if (sample?.success && sample.normalized) latestFix = sample;
     setText("[data-poll-count]", count);
-    setText("[data-poll-state]", sample.success ? "Receiving fixes" : "Source error");
+    setText("[data-poll-state]", sample.success ? "Live" : "Source error");
+    const indicator = find("[data-poll-indicator]");
+    if (indicator) indicator.dataset.state = sample.success ? "ok" : "error";
     setText(
       "[data-source-health]",
       sample.success ? `${sample.roundTripMs} ms` : sample.error,
+    );
+    renderTargetDistance();
+  }
+
+  function renderTargetDistance() {
+    const progress = activeState?.progress;
+    const checkpoint = progress?.checkpoints?.[progress.currentIndex];
+    setText(
+      "[data-target-distance]",
+      checkpointDistanceText(latestFix, checkpoint),
     );
   }
 
@@ -71,6 +91,14 @@ export function createRunnerRunView(documentRef) {
 
 export function targetName(checkpoint) {
   if (!checkpoint) return "No target";
-  if (checkpoint.type === "stop") return `Stop: ${checkpoint.stopId}`;
-  return `Route checkpoint ${checkpoint.sequence + 1}`;
+  return checkpoint.label || `Checkpoint ${checkpoint.sequence + 1}`;
+}
+
+export function checkpointDistanceText(sample, checkpoint) {
+  const fix = sample?.normalized;
+  if (!fix || !checkpoint) return "Waiting for fix";
+  if (Number.isFinite(fix.z) && Number.isFinite(checkpoint.z) && fix.z !== checkpoint.z) {
+    return `Change to ${checkpoint.floorLabel || `Floor ${checkpoint.z}`}`;
+  }
+  return `≈ ${Math.round(haversine(fix, checkpoint))} m`;
 }

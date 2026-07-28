@@ -43,8 +43,19 @@ export function createRunnerSetup(options) {
     state.activeRun = null;
     formView.setRunning(false);
     formView.showDefinition(state.definition);
+    drawSelectedRoute();
     entryChanged();
     pollLoop = createPollLoop();
+  }
+
+  function drawSelectedRoute() {
+    if (!mapAdapter.ready) return;
+    if (String(mapAdapter.campusId) !== String(state.definition.meta.campusId)) return;
+    mapAdapter.drawRoute?.(state.definition.route.legs);
+    mapAdapter.drawStops?.(state.definition.route.stops);
+    mapAdapter.drawWaypoints?.(state.definition.route.checkpoints);
+    mapAdapter.fitRoute?.(state.definition.route);
+    mapAdapter.resizeMapSoon?.();
   }
 
   function createPollLoop() {

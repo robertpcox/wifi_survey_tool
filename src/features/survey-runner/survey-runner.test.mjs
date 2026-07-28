@@ -22,7 +22,8 @@ function harness(sampleOverrides = {}) {
     consent: true,
     override: false,
   };
-  const calls = { actions: null, finishes: [], sources: [], statuses: [] };
+  const calls = { actions: null, finishes: [], resizes: 0,
+    runningStates: [], sources: [], statuses: [] };
   const formView = {
     bind: actions => { calls.actions = actions; },
     populateSurveys() {},
@@ -30,7 +31,7 @@ function harness(sampleOverrides = {}) {
     renderPreflight: value => { calls.preflight = value; },
     selectedSurveyId: () => definition.meta.surveyId,
     setActions: value => { calls.buttons = value; },
-    setRunning: value => { calls.running = value; },
+    setRunning: value => calls.runningStates.push(value),
     setStatus: (...value) => calls.statuses.push(value),
     showDefinition: value => { calls.definition = value; },
   };
@@ -72,14 +73,13 @@ function harness(sampleOverrides = {}) {
       drawRoute() {},
       drawStops() {},
       drawWaypoints() {},
+      focusWaypoint() {},
+      resizeMapSoon: () => calls.resizes++,
     },
     source: { id: "mazemap-cloud", poll: async () => sample },
     loadManifest: async () => ({
       schemaVersion: 3,
-      surveys: [{
-        surveyId: definition.meta.surveyId,
-        path: "data/survey.json",
-      }],
+      surveys: [{ surveyId: definition.meta.surveyId, path: "data/survey.json" }],
     }),
     loadDefinition: async () => structuredClone(definition),
     nowDate: () => new Date("2026-07-28T01:00:05.000Z"),
@@ -102,9 +102,12 @@ test("Runner loads one survey, gates Go, preflights, and aborts with export", as
   assert.equal(runner.state.polls.length, 1);
   assert.equal(calls.buttons.preflight.verdict, "green");
   runner.actions.go();
-  assert.equal(calls.running, true);
+  assert.equal(calls.runningStates.at(-1), true);
+  assert.equal(calls.resizes, 1);
   runner.actions.stop();
   assert.deepEqual(calls.finishes, ["aborted"]);
+  assert.equal(calls.runningStates.at(-1), false);
+  assert.equal(calls.resizes, 2);
   const downloaded = runner.actions.download();
   assert.equal(downloaded.result.run.completionStatus, "aborted");
   assert.equal(downloaded.result.run.band, "5");

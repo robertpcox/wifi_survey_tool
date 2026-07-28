@@ -15,6 +15,71 @@ export async function setRunnerEntry(page, name) {
   await page.click('[name="consent"]');
 }
 
+export async function readRunnerActiveView(page) {
+  return page.evaluate(() => {
+    const rect = selector => {
+      const value = document.querySelector(selector)?.getBoundingClientRect();
+      return value && {
+        bottom: value.bottom,
+        height: value.height,
+        left: value.left,
+        right: value.right,
+        top: value.top,
+        width: value.width,
+      };
+    };
+    return {
+      actions: rect(".capture-actions"),
+      active: document.body.classList.contains("runner-running"),
+      bodyOverflow: getComputedStyle(document.body).overflow,
+      camera: window.__runnerCamera,
+      checkIn: rect('[data-action="check-in"]'),
+      distance: document.querySelector("[data-target-distance]")?.textContent,
+      fitBounds: window.__runnerFitBounds,
+      floor: document.querySelector("[data-current-floor]")?.textContent,
+      hud: rect(".run-hud"),
+      map: rect("#runner-map"),
+      marker: window.__runnerMarker,
+      pollCount: Number(document.querySelector("[data-poll-count]")?.textContent),
+      pollState: document.querySelector("[data-poll-indicator]")?.dataset.state,
+      setupHidden: document.querySelector("[data-setup-controls]")?.hidden,
+      target: document.querySelector("[data-current-target]")?.textContent,
+      viewport: { height: innerHeight, width: innerWidth },
+    };
+  });
+}
+
+export function runnerActiveViewFindings(view, expectedFloor) {
+  const findings = [];
+  const inside = rect => rect
+    && rect.top >= -1
+    && rect.left >= -1
+    && rect.bottom <= view.viewport.height + 1
+    && rect.right <= view.viewport.width + 1;
+  if (!view.active || view.bodyOverflow !== "hidden") findings.push("run is not viewport locked");
+  if (!view.setupHidden) findings.push("setup controls remain visible");
+  if (!inside(view.map)
+    || view.map.width < view.viewport.width - 2
+    || view.map.height < view.viewport.height - 2) {
+    findings.push("map does not fill the viewport");
+  }
+  if (!inside(view.hud) || !inside(view.actions) || !inside(view.checkIn)) {
+    findings.push("run controls leave the viewport");
+  }
+  if (!view.fitBounds) findings.push("survey bounds were not fitted");
+  if (view.camera?.bearing !== 0 || view.camera?.pitch !== 0) {
+    findings.push("checkpoint camera is not north-up");
+  }
+  if (view.marker?.glyph !== "1") findings.push("first checkpoint is not highlighted");
+  if (view.pollState !== "ok" || view.pollCount < 1) findings.push("poll health is not visible");
+  if (!/^≈ \d+ m$|^Change to floor /.test(view.distance || "")) {
+    findings.push("checkpoint distance is not visible");
+  }
+  if (!view.target?.trim()) findings.push("checkpoint target is not visible");
+  if (expectedFloor && view.floor !== expectedFloor) findings.push("authored floor name is not visible");
+  return findings;
+}
+
 export function runnerDownloadFindings(download, checkpointCount) {
   const text = JSON.stringify(download.result);
   const findings = [];

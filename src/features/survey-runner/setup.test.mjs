@@ -31,6 +31,7 @@ test("setup selects definitions, reads entry state, and records poll samples", a
   const calls = { buttons: [], source: [] };
   const definition = {
     meta: {
+      campusId: "566",
       credentialRequirements: {
         mapAccess: true,
         appId: true,
@@ -42,12 +43,25 @@ test("setup selects definitions, reads entry state, and records poll samples", a
         proxyBase: "/proxy",
       },
     },
+    route: {
+      checkpoints: [{ id: "checkpoint-1" }],
+      legs: [{ id: "leg-1" }],
+      stops: [{ id: "stop-1" }],
+    },
   };
   const setup = createRunnerSetup({
     state,
     credentials: createMemoryCredentialStore(),
     source,
-    mapAdapter: {},
+    mapAdapter: {
+      campusId: "566",
+      ready: true,
+      drawRoute: value => { calls.route = value; },
+      drawStops: value => { calls.stops = value; },
+      drawWaypoints: value => { calls.points = value; },
+      fitRoute: value => { calls.fit = value; },
+      resizeMapSoon: () => { calls.resized = true; },
+    },
     formView: {
       readValues: () => values,
       selectedSurveyId: () => "survey-1",
@@ -73,6 +87,8 @@ test("setup selects definitions, reads entry state, and records poll samples", a
   assert.equal(state.entry.deviceType, "asset");
   assert.equal(setup.entryComplete(), true);
   assert.equal(setup.pollLoop.intervalMs, 2000);
+  assert.equal(calls.fit, definition.route);
+  assert.equal(calls.resized, true);
   await setup.pollLoop.sampleOnce("preflight");
   assert.equal(state.polls[0].id, "poll-1");
   assert.equal(calls.source[0].id, "poll-1");

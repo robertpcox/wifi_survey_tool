@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Survey Runner</title>
   <link rel="stylesheet" href="../../shared/app-shell.css">
   <link rel="stylesheet" href="../../features/survey-runner/runner.css">
+  <link rel="stylesheet" href="../../features/survey-runner/runner-active.css">
   <script type="module" src="./main.mjs"></script>
 </head>
 <body data-app="runner">
@@ -23,12 +24,9 @@
     <p data-shell-status>Starting Runner shell…</p>
     <p class="runner-status" data-runner-status aria-live="polite">Loading surveys…</p>
     <section class="runner-grid" data-setup-panel>
-      <div class="runner-controls">
+      <div class="runner-controls" data-setup-controls>
         <section class="runner-card">
-          <label>
-            Customer survey
-            <select data-survey-select></select>
-          </label>
+          <label>Customer survey<select data-survey-select></select></label>
           <div class="survey-summary">
             <div><span>Survey</span><strong data-survey-name>—</strong></div>
             <div><span>Campus</span><strong data-campus-name>—</strong></div>
@@ -89,9 +87,7 @@
         </form>
         <section class="runner-card preflight-card">
           <div class="button-row">
-            <button class="primary" type="button" data-action="preflight" disabled>
-              Run preflight
-            </button>
+            <button class="primary" type="button" data-action="preflight" disabled>Run preflight</button>
             <button class="go-button" type="button" data-action="go" disabled>Go</button>
           </div>
           <div class="preflight-result" data-preflight-result hidden>
@@ -118,18 +114,22 @@
       </section>
     </section>
     <section class="runner-card active-run" data-run-panel hidden>
-      <div class="run-heading">
-        <div><span>Progress</span><strong data-run-progress>—</strong></div>
-        <div><span>Polling</span><strong data-poll-state>Starting</strong></div>
-        <div><span>Samples</span><strong data-poll-count>0</strong></div>
-        <div><span>Source health</span><strong data-source-health>—</strong></div>
+      <div class="run-hud">
+        <div class="run-vitals">
+          <span class="poll-status"><i class="poll-dot" data-poll-indicator></i>
+            <strong data-poll-state>Starting</strong></span>
+          <span><strong data-poll-count>0</strong> polls</span>
+          <span><strong data-target-distance>Waiting for fix</strong> to checkpoint</span>
+          <span data-source-health>—</span>
+        </div>
+        <p class="target-label">Next checkpoint · <span data-run-progress>—</span>
+          · <span data-current-floor>—</span></p>
+        <h2 data-current-target>—</h2>
+        <strong class="dwell-status" data-dwell-countdown>Ready</strong>
       </div>
-      <p class="target-label">Current target</p>
-      <h2 data-current-target>—</h2>
-      <p><span data-current-floor>—</span> · <strong data-dwell-countdown>Ready</strong></p>
       <div class="capture-actions">
         <button class="check-in-button" data-action="check-in">I’m at the checkpoint</button>
-        <button class="stop-button" data-action="stop">Stop and export aborted run</button>
+        <button class="stop-button" data-action="stop">Stop run</button>
       </div>
     </section>
     <section class="runner-card finish-panel" data-finish-panel hidden>

@@ -69,16 +69,28 @@ function installBrowserDoubles() {
     getZLevel() { return this.zLevel; }
     setZLevel(value) { this.zLevel = value; }
     getZoom() { return 18; }
-    easeTo() {}
-    flyTo() {}
+    easeTo(camera) { window.__runnerCamera = structuredClone(camera); }
+    flyTo(camera) { window.__runnerCamera = structuredClone(camera); }
+    fitBounds(bounds, options) {
+      window.__runnerFitBounds = {
+        bounds: structuredClone(bounds),
+        options: structuredClone(options),
+      };
+    }
     remove() {}
-    resize() {}
+    resize() { window.__runnerResizeCount = (window.__runnerResizeCount || 0) + 1; }
     setFilter() {}
     setPaintProperty() {}
     stop() {}
   }
   class Marker {
-    setLngLat() { return this; }
+    constructor(options) {
+      window.__runnerMarker = structuredClone(options);
+    }
+    setLngLat(point) {
+      window.__runnerMarkerPoint = structuredClone(point);
+      return this;
+    }
     addTo() { return this; }
     remove() {}
   }

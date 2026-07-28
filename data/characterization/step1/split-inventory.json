@@ -31,7 +31,7 @@
       "symbol": "applyZStyling"
     },
     "bearing": {
-      "path": "src/domain/checkpoints.mjs",
+      "path": "src/adapters/map/mazemap-controls.mjs",
       "symbol": "bearing"
     },
     "buildRoute": {

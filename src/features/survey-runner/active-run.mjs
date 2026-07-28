@@ -20,6 +20,7 @@ export function createActiveRunner(options) {
   const setTimer = options.setTimer ?? globalThis.setTimeout;
   const clearTimer = options.clearTimer ?? globalThis.clearTimeout;
   let dwellTimer = null;
+  let focusedCheckpointId = null;
 
   function start() {
     state.startedAt = nowIso();
@@ -40,8 +41,11 @@ export function createActiveRunner(options) {
       at,
       checkpointId: checkpoint.id,
     });
-    if (transition.completed) finish("completed");
-    else if (progress.phase === "dwelling") scheduleDwell();
+    if (transition.completed) {
+      finish("completed");
+      return;
+    }
+    if (progress.phase === "dwelling") scheduleDwell();
     refresh();
   }
 
@@ -54,8 +58,11 @@ export function createActiveRunner(options) {
         at: nowIso(),
         remainingSeconds: progress.dwellRemainingSeconds,
       });
-      if (transition.completed) finish("completed");
-      else if (progress.phase === "dwelling") scheduleDwell();
+      if (transition.completed) {
+        finish("completed");
+        return;
+      }
+      if (progress.phase === "dwelling") scheduleDwell();
       refresh();
     }, 1000);
   }
@@ -75,6 +82,11 @@ export function createActiveRunner(options) {
 
   function refresh() {
     options.mapAdapter.drawWaypoints?.(progress.checkpoints);
+    const checkpoint = progress.checkpoints[progress.currentIndex];
+    if (checkpoint && checkpoint.id !== focusedCheckpointId) {
+      options.mapAdapter.focusWaypoint?.(checkpoint);
+      focusedCheckpointId = checkpoint.id;
+    }
     options.onRender(state);
   }
 

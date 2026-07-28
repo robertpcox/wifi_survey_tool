@@ -57,6 +57,7 @@ test("preflight loads the configured campus, draws immutable route, and samples"
     drawRoute: route => calls.push(["route", route]),
     drawStops: stops => calls.push(["stops", stops]),
     drawWaypoints: points => calls.push(["points", points]),
+    fitRoute: route => calls.push(["fit", route]),
   };
   const result = await runRunnerPreflight({
     ...value,
@@ -71,7 +72,10 @@ test("preflight loads the configured campus, draws immutable route, and samples"
     null,
     { campusId: "566" },
   ]);
-  assert.deepEqual(calls.slice(1).map(call => call[0]), ["route", "stops", "points"]);
+  assert.deepEqual(
+    calls.slice(1).map(call => call[0]),
+    ["route", "stops", "points", "fit"],
+  );
 });
 
 test("map failure remains a red sample result", async () => {

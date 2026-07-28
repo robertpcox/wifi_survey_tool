@@ -1,5 +1,20 @@
 # Progress log — newest entry first
 
+## 2026-07-28 — Step 4 closed with Rob field smoke and map-first refinement
+
+- Validated and archived Rob's first physical iPhone `NDH Straight` export: completed,
+  route hash matched, 6/6 checkpoints, 41/41 HTTP 200 polls, and no poll errors or secrets.
+- Accepted the explicitly acknowledged amber start caused by a 262-second-old first fix;
+  recorded Android, current OS/browser-version, green-start, battery, and timezone follow-ups.
+- Confirmed through Rob's run that private map rendering and live proxy access work on site.
+- Added the sensitive live result to deterministic build discovery without authorizing deploy.
+- Fit the route when the private map becomes available and made capture a full-viewport,
+  north-up map with a lit checkpoint, poll health/count, target distance, authored floor
+  name, progress/dwell, and always-visible stop controls.
+- Corrected response-plus-interval drift; cadence is maintained when RTT permits, without overlap.
+- Passed the full local boundary: 318 tests, all gates, 122 staged files, four shell boots,
+  Creator smoke, and two map-first mobile Runner profiles. No commit or deployment performed.
+
 ## 2026-07-28 — Step 4 Runner complete, physical field acceptance pending
 
 - Built the mobile-first v3 Runner with survey discovery, one-screen run identity,

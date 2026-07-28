@@ -93,7 +93,10 @@ export function createRunnerFormView(documentRef) {
     setActions,
     setRunning(running) {
       const panel = find("[data-setup-panel]");
-      if (panel) panel.hidden = running;
+      const controls = find("[data-setup-controls]");
+      if (panel) panel.dataset.running = String(running);
+      if (controls) controls.hidden = running;
+      documentRef.body?.classList?.toggle("runner-running", running);
     },
     setStatus(message, kind = "") {
       const output = find("[data-runner-status]");

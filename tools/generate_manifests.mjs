@@ -1,3 +1,10 @@
+// FEATURE:      Deterministic survey and result discovery manifests
+// SURFACE:      generateManifests(options), CLI
+// WHY TOGETHER: Source validation, privacy-safe projections, and customer indexes form one generator.
+// STATE:        Generated data/manifests output
+// RULES:        Discovery manifests omit operational credentials such as device Client IP.
+// PROVENANCE:   Scope/steps/05_dashboard_report_player.md
+
 import { readFile, readdir, mkdir, rm, writeFile } from "node:fs/promises";
 import { dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -6,7 +13,6 @@ import { validateSurveyDefinitionV3 } from "../src/domain/survey-definition-v3.m
 import { validateSurveyResultV3 } from "../src/domain/survey-result-v3.mjs";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-
 export async function generateManifests({
   root = repositoryRoot,
   outputDir = resolve(root, "data/manifests"),
@@ -17,17 +23,9 @@ export async function generateManifests({
     throw error;
   });
   const surveys = await loadFamily(
-    resolve(root, "data/surveys"),
-    root,
-    validateSurveyDefinitionV3,
-    surveyEntry,
-  );
+    resolve(root, "data/surveys"), root, validateSurveyDefinitionV3, surveyEntry);
   const results = await loadFamily(
-    resolve(root, "results"),
-    root,
-    validateSurveyResultV3,
-    resultEntry,
-  );
+    resolve(root, "results"), root, validateSurveyResultV3, resultEntry);
   const surveyManifest = { schemaVersion: 3, surveys };
   const resultManifest = { schemaVersion: 3, results };
   const customers = customerManifests(surveys, results);
@@ -102,7 +100,11 @@ function resultEntry(result, path) {
     customerId: result.run.customerId,
     campusId: result.run.campusId,
     routeHash: result.run.routeHash,
-    device: result.run.device,
+    device: {
+      type: result.run.device.type,
+      os: result.run.device.os,
+      name: result.run.device.name,
+    },
     band: result.run.band,
     completionStatus: result.run.completionStatus,
     exportedAt: result.run.exportedAt,
@@ -138,13 +140,11 @@ async function writeJson(path, value) {
   await writeFile(path, `${JSON.stringify(value, null, 2)}\n`);
 }
 
-const isCli = process.argv[1]
-  && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+const isCli = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isCli) {
-  const generated = await generateManifests();
+  const summary = (await generateManifests()).summary;
   console.log(
-    `Generated manifests: ${generated.summary.surveyCount} surveys, `
-      + `${generated.summary.resultCount} results, `
-      + `${generated.summary.customerCount} customers.`,
+    `Generated manifests: ${summary.surveyCount} surveys, `
+      + `${summary.resultCount} results, ${summary.customerCount} customers.`,
   );
 }

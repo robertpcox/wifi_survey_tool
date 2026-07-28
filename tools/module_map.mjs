@@ -1,11 +1,21 @@
-#!/usr/bin/env node
-import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+// FEATURE:      Generated source-module inventory
+// SURFACE:      node tools/module_map.mjs
+// WHY TOGETHER: Source discovery and static module facts form one inventory pass
+// STATE:        None
+// RULES:        Output is deterministic, sharded, and derived only from src/
+// PROVENANCE:   Scope/coding_pattern.md generated module-map requirement
+
+import { mkdir, readdir, readFile, unlink, writeFile } from "node:fs/promises";
 import { dirname, extname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { compactImportPath, compactModuleFields } from "./module_map_format.mjs";
+import {
+  isModuleMapDocumentName,
+  moduleMapDocuments,
+} from "./module_map_documents.mjs";
+import { compactImportPath } from "./module_map_format.mjs";
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const sourceRoot = resolve(repositoryRoot, "src");
-const outputPath = resolve(repositoryRoot, "docs/module-map.md");
+const outputDirectory = resolve(repositoryRoot, "docs");
 const SOURCE_EXTENSIONS = new Set([".cjs", ".css", ".html", ".js", ".mjs"]);
 const TEST_SUFFIX = ".test.mjs";
 function compareText(left, right) {
@@ -78,24 +88,6 @@ function measure(buffer) {
     ),
   };
 }
-function fieldLines(label, values) {
-  if (!values.length) return [];
-  const lines = [];
-  let line = `  - ${label} `;
-  const tokens = values.map((value, index) => (
-    `${value}${index === values.length - 1 ? "" : ", "}`
-  ));
-  for (const token of tokens) {
-    if (Buffer.byteLength(line + token) > 159) {
-      lines.push(line.trimEnd());
-      line = `    ${token}`;
-    } else {
-      line += token;
-    }
-  }
-  lines.push(line.trimEnd());
-  return lines;
-}
 const sourceFiles = (await collectSourceFiles(sourceRoot)).sort(compareText);
 const allPaths = new Set(sourceFiles.map(repositoryPath));
 const modules = sourceFiles.filter(path => !path.endsWith(TEST_SUFFIX));
@@ -113,35 +105,14 @@ const rows = await Promise.all(modules.map(async path => {
     ...measure(buffer),
   };
 }));
-const outputLines = [
-  "# Module map",
-  "`node tools/module_map.mjs`; `src/` paths; `.mjs` omitted; L/B=lines/bytes.",
-  "T-=no test; E exports; I imports; @a/, @d/, @f/, @s/.",
-  "",
-];
-let currentDirectory;
-const rowGroup = row => `${dirname(row.path)}/${row.path}`;
-const groupedRows = rows.sort((left, right) => compareText(rowGroup(left), rowGroup(right)));
-for (const row of groupedRows) {
-  const sourcePath = row.path.startsWith("src/") ? row.path.slice(4) : row.path;
-  const directory = dirname(sourcePath);
-  if (directory !== currentDirectory) {
-    outputLines.push(`## ${directory === "." ? "." : `${directory}/`}`);
-    currentDirectory = directory;
-  }
-  const rawName = sourcePath.split("/").at(-1);
-  const fileName = rawName.endsWith(".mjs") ? rawName.slice(0, -4) : rawName;
-  outputLines.push(
-    ...compactModuleFields(
-      `- ${fileName} ${row.lines}/${row.bytes}${row.test ? "" : " T-"}`,
-      [...fieldLines("E", row.exports), ...fieldLines("I", row.imports)],
-      159,
-    ),
-  );
-}
-outputLines.push("");
-const output = outputLines.join("\n");
-
-await mkdir(dirname(outputPath), { recursive: true });
-await writeFile(outputPath, output, "utf8");
-console.log(`Wrote docs/module-map.md (${rows.length} modules).`);
+const documents = moduleMapDocuments(rows);
+const expectedNames = new Set(documents.map(document => document.name));
+await mkdir(outputDirectory, { recursive: true });
+const existingNames = await readdir(outputDirectory);
+await Promise.all(existingNames
+  .filter(name => isModuleMapDocumentName(name) && !expectedNames.has(name))
+  .map(name => unlink(resolve(outputDirectory, name))));
+await Promise.all(documents.map(document => (
+  writeFile(resolve(outputDirectory, document.name), document.content, "utf8")
+)));
+console.log(`Wrote ${documents.length} module-map documents (${rows.length} modules).`);

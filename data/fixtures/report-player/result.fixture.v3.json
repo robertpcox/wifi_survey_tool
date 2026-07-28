@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 3,
+  "meta": {
+    "surveyId": "22222222-2222-4222-8222-222222222222",
+    "surveyName": "Report fixture route",
+    "customerId": "customer-report",
+    "customerName": "Report Customer",
+    "campusId": "566",
+    "campusName": "Fixture Campus",
+    "timezone": "Pacific/Auckland",
+    "buildings": [{ "id": "building-a", "name": "Building A" }],
+    "zLevels": [0, 1],
+    "zLevelNames": { "0": "Ground", "1": "First" },
+    "positionSourceId": "mazemap-cloud",
+    "authorNotes": "Synthetic fixture proving Report Player composition.",
+    "authorName": null,
+    "sourceConfig": {
+      "configId": "fixture-config", "pollIntervalMs": 2000,
+      "proxyBase": "/mm-positioning-proxy"
+    },
+    "credentialRequirements": {
+      "mapAccess": true, "appId": true, "appKey": true, "clientIp": true
+    },
+    "route": {
+      "routeId": "route-report", "version": 1,
+      "hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "distanceM": 30, "estimatedDurationSeconds": 24,
+      "checkpointSpacingM": 10, "checkpointDwellSeconds": 2
+    },
+    "createdAt": "2026-07-28T00:00:00.000Z"
+  },
+  "route": {
+    "routeId": "route-report", "version": 1,
+    "hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "stops": [
+      {
+        "id": "stop-a", "name": "Start", "lng": 170.5000, "lat": -45.8700, "z": 0,
+        "poiId": null, "poiName": null, "locationType": "room",
+        "provenance": { "method": "map" }
+      },
+      {
+        "id": "stop-c", "name": "Finish", "lng": 170.5004, "lat": -45.8700, "z": 1,
+        "poiId": null, "poiName": null, "locationType": "room",
+        "provenance": { "method": "map" }
+      }
+    ],
+    "legs": [{
+      "id": "leg-a-c", "fromStopId": "stop-a", "toStopId": "stop-c", "distanceM": 30,
+      "geometry": [
+        { "lng": 170.5000, "lat": -45.8700, "z": 0 },
+        { "lng": 170.5002, "lat": -45.8700, "z": 0 },
+        { "lng": 170.5004, "lat": -45.8700, "z": 1 }
+      ]
+    }],
+    "checkpoints": [
+      {
+        "id": "checkpoint-a", "sequence": 0, "type": "stop",
+        "lng": 170.5000, "lat": -45.8700, "z": 0,
+        "stopId": "stop-a", "legId": null, "spacingBasisM": 10
+      },
+      {
+        "id": "checkpoint-b", "sequence": 1, "type": "intermediate",
+        "lng": 170.5002, "lat": -45.8700, "z": 0,
+        "stopId": null, "legId": "leg-a-c", "spacingBasisM": 10
+      },
+      {
+        "id": "checkpoint-c", "sequence": 2, "type": "stop",
+        "lng": 170.5004, "lat": -45.8700, "z": 1,
+        "stopId": "stop-c", "legId": null, "spacingBasisM": 10
+      }
+    ],
+    "totalDistanceM": 30
+  },
+  "run": {
+    "resultId": "result-report-1",
+    "surveyId": "22222222-2222-4222-8222-222222222222",
+    "routeId": "route-report",
+    "routeHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "customerId": "customer-report", "campusId": "566",
+    "sourceId": "mazemap-cloud",
+    "device": {
+      "type": "mobile", "os": "FixtureOS 1", "name": "Report handset",
+      "clientIp": "192.0.2.20"
+    },
+    "band": "5",
+    "operatorComment": "Lift unavailable; stairs used.",
+    "startedAt": "2026-07-28T01:00:00.000Z",
+    "stoppedAt": "2026-07-28T01:00:20.000Z",
+    "exportedAt": "2026-07-28T01:00:21.000Z",
+    "completionStatus": "completed",
+    "pollingIntervalMs": 2000,
+    "checkpointDwellSeconds": 2,
+    "preflight": {
+      "verdict": "green", "sampleId": "poll-1", "acknowledged": true,
+      "reasons": []
+    }
+  },
+  "checkIns": [
+    {
+      "checkpointId": "checkpoint-a", "at": "2026-07-28T01:00:02.000Z",
+      "groundTruth": { "lng": 170.5000, "lat": -45.8700, "z": 0 }
+    },
+    {
+      "checkpointId": "checkpoint-b", "at": "2026-07-28T01:00:10.000Z",
+      "groundTruth": { "lng": 170.5002, "lat": -45.8700, "z": 0 }
+    },
+    {
+      "checkpointId": "checkpoint-c", "at": "2026-07-28T01:00:18.000Z",
+      "groundTruth": { "lng": 170.5004, "lat": -45.8700, "z": 1 }
+    }
+  ],
+  "events": [
+    { "type": "run-started", "at": "2026-07-28T01:00:00.000Z" },
+    { "type": "capture-note", "at": "2026-07-28T01:00:11.000Z" },
+    { "type": "run-completed", "at": "2026-07-28T01:00:20.000Z" }
+  ],
+  "polls": [
+    {
+      "id": "poll-1", "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-28T01:00:01.900Z", "receivedAt": "2026-07-28T01:00:02.000Z",
+      "roundTripMs": 100, "httpStatus": 200, "success": true,
+      "normalized": {
+        "lat": -45.8700, "lng": 170.5000, "z": 0,
+        "fixTime": "2026-07-28T01:00:02.000Z", "confidence": 0.9
+      },
+      "raw": { "provider": "fixture" }, "error": null
+    },
+    {
+      "id": "poll-2", "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-28T01:00:03.900Z", "receivedAt": "2026-07-28T01:00:04.000Z",
+      "roundTripMs": 100, "httpStatus": 200, "success": true,
+      "normalized": {
+        "lat": -45.8700, "lng": 170.5000, "z": 0,
+        "fixTime": "2026-07-28T01:00:02.000Z", "confidence": 0.9
+      },
+      "raw": { "provider": "fixture" }, "error": null
+    },
+    {
+      "id": "poll-3", "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-28T01:00:05.900Z", "receivedAt": "2026-07-28T01:00:06.000Z",
+      "roundTripMs": 100, "httpStatus": 200, "success": true,
+      "normalized": {
+        "lat": -45.8700, "lng": 170.5000, "z": 0,
+        "fixTime": "2026-07-28T01:00:02.000Z", "confidence": 0.8
+      },
+      "raw": { "provider": "fixture" }, "error": null
+    },
+    {
+      "id": "poll-4", "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-28T01:00:07.900Z", "receivedAt": "2026-07-28T01:00:08.000Z",
+      "roundTripMs": 100, "httpStatus": 200, "success": true,
+      "normalized": {
+        "lat": -45.8700, "lng": 170.5003, "z": 0,
+        "fixTime": "2026-07-28T01:00:08.000Z", "confidence": 0.8
+      },
+      "raw": { "provider": "fixture" }, "error": null
+    },
+    {
+      "id": "poll-5", "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-28T01:00:09.900Z", "receivedAt": "2026-07-28T01:00:10.000Z",
+      "roundTripMs": 100, "httpStatus": 200, "success": true,
+      "normalized": {
+        "lat": -45.8700, "lng": 170.5003, "z": 0,
+        "fixTime": "2026-07-28T01:00:08.000Z", "confidence": 0.8
+      },
+      "raw": { "provider": "fixture" }, "error": null
+    },
+    {
+      "id": "poll-6", "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-28T01:00:11.900Z", "receivedAt": "2026-07-28T01:00:12.000Z",
+      "roundTripMs": 100, "httpStatus": 200, "success": true,
+      "normalized": {
+        "lat": -45.8700, "lng": 170.5003, "z": 0,
+        "fixTime": "2026-07-28T01:00:08.000Z", "confidence": 0.7
+      },
+      "raw": { "provider": "fixture" }, "error": null
+    },
+    {
+      "id": "poll-7", "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-28T01:00:13.900Z", "receivedAt": "2026-07-28T01:00:14.000Z",
+      "roundTripMs": 100, "httpStatus": 200, "success": true,
+      "normalized": {
+        "lat": -45.8700, "lng": 170.5003, "z": 0,
+        "fixTime": "2026-07-28T01:00:08.000Z", "confidence": 0.7
+      },
+      "raw": { "provider": "fixture" }, "error": null
+    },
+    {
+      "id": "poll-8", "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-28T01:00:15.900Z", "receivedAt": "2026-07-28T01:00:16.000Z",
+      "roundTripMs": 100, "httpStatus": 200, "success": true,
+      "normalized": {
+        "lat": -45.8700, "lng": 170.5004, "z": 1,
+        "fixTime": "2026-07-28T01:00:16.000Z", "confidence": 0.9
+      },
+      "raw": { "provider": "fixture" }, "error": null
+    }
+  ]
+}

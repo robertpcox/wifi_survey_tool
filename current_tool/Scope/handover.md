@@ -1,134 +1,141 @@
-# Handover — Step 4 Runner boundary
+# Handover — Step 5 Dashboard and Report Player boundary
 
 ## Current status
 
-Step 4 Runner implementation is closed and `node tools/build.mjs` is green. Rob completed
-the first physical iPhone field run against the `NDH Straight` survey: private map rendering
-worked, all six checkpoints completed, and all 41 live proxy polls returned HTTP 200.
-The downloaded result validates and is now a build-discovered input for Step 5.
+Step 5 implementation is complete at its requested boundary. The Dashboard now selects
+generated, customer-filtered completed results, and the merged Report Player analyzes,
+compares, maps, exports, and plays one shared V3 result without reloading it.
 
-The follow-up map-first capture refinements are built and smoke-tested locally. They have
-not been committed or deployed. The existing 120-file artifact remains live at
-`https://demo.mazemap.com.au/wifi-survey-v3/`; the current local build stages 122 files.
+Focused unit and headless Chrome acceptance are green. The final complete build passed
+366 tests with zero skipped and emitted 150 staged files.
 
-## Step 4 outcome
+No commit, deployment, or publishing was performed. The physical `292` field result remains
+sensitive, and the build copies it into `dist/results/`. A successful build is validation,
+not authorization to replace the existing demo artifact.
 
-- Runner shell and composition: `src/apps/runner/index.html` and `main.mjs`.
-- Public feature boundary:
-  `mountSurveyRunner(options)` in
-  `src/features/survey-runner/survey-runner.mjs`.
-- The mobile-first workflow loads generated survey discovery, shows distance/duration,
-  collects one-time credentials plus device/OS/name/Client IP/band, and requires consent.
-- Preflight loads campus 566 with memory-only private access, samples through the configured
-  proxy, and reports position, floor, fix age, round trip, and plain failure reasons.
-- Go remains green-only. Amber/red uses a separate acknowledged `Start anyway` action;
-  the verdict, acknowledgement, and referenced sample are exported.
-- Capture consumes embedded legs/checkpoints unchanged, polls at the definition cadence,
-  counts down the definition dwell, renders a bounded V3 trail, and supports completion
-  or early stop with no resume state.
-- Once the private map is available, survey selection and initial preflight fit its route.
-  Starting capture makes the map full-viewport, keeps the current checkpoint north-up, and
-  overlays source health, poll count, target distance, authored floor name, and controls.
-- Capture polling compensates for request duration to keep the start cadence when RTT
-  permits; overrun requests never overlap.
-- Finish presents a non-modal optional comment and download action on both paths.
-- Asset capture polls only the asset Client IP and never requests Runner-device geolocation.
-- A minimal upload viewer validates downloaded `SurveyResultV3` files.
+## Step 5 outcome
 
-## Contracts and adapters
+- Dashboard shell and composition:
+  `src/apps/dashboard/index.html`, `main.mjs`, and
+  `src/features/dashboard/dashboard.mjs`.
+- `customerIdFromUrl(url)`, `createDashboardModel(manifest, expectedCustomerId)`, and
+  `reportPlayerUrl(result)` in `src/domain/dashboard-selection.mjs` own customer URL
+  identity, completed-result projection, device labels, and launch URLs.
+- `createManifestSource(options)` in `src/adapters/manifest-source.mjs` resolves generated
+  customer/result discovery and accepts only repository V3 result paths.
+- `generateManifests(options)` now preserves device type, OS, name, and band for selection
+  while omitting the device Client IP from generated discovery.
+- Report Player shell and composition:
+  `src/apps/report-player/index.html`, `main.mjs`, and
+  `mountReportPlayer(options)` in
+  `src/features/report-player/report-player.mjs`.
+- Generated URL selection uses `customer_id` plus `result_id`; a local V3 file upload
+  remains available when selection or manifest loading is unavailable.
+- Independent identity, KPI, timeline, floor/route, heatmap, comparison, methodology/export,
+  and playback views live under `src/features/report-player/`.
+- `createReportMapSurface(options)` keeps a public canvas with embedded route overlays.
+  Private MazeMap access is optional, prompted only when required, held in memory, and
+  declining it keeps the public map usable.
+- Threshold changes recalculate analysis, heatmaps, and active comparisons immediately.
+  Analysis/playback view changes reuse the same result, meta, and analysis context.
 
-- `src/adapters/positioning/mazemap-cloud-v3.mjs` exports
-  `createMazeMapCloudSource(options)` and `positionUrl(request)`.
-- `src/domain/runner-preflight-v3.mjs` exports
-  `evaluateRunnerPreflight(input)` and the fixed preflight limits.
-- `src/domain/runner-progress-v3.mjs` owns ordered checkpoint/dwell transitions.
-- `src/domain/runner-result-v3.mjs` exports
-  `buildSurveyResultV3(options)` and `resultFilename(result)`.
-- `src/domain/survey-result-v3.mjs` now permits aborted zero-check-in results, validates
-  completed checkpoint order/completeness, accepts timeout `httpStatus: 0`, and requires
-  preflight sample evidence.
-- `createMazeMapAdapter` now exposes `drawPositionTrail(polls)` for bounded V3 fixes.
+## Analysis, comparison, and playback contracts
 
-## Data and discovery
+- `REPORT_THRESHOLDS` and `analyzeReportResult(result, thresholds)` are in
+  `src/domain/report-analysis.mjs`.
+- `buildGroundTruthModel(result)` in `src/domain/report-ground-truth.mjs` models planned
+  dwell followed by interpolation between exact check-ins.
+- `buildReportTimeline(result, truth, thresholds)` and supporting sample helpers are in
+  `src/domain/report-samples.mjs`.
+- Exact threshold equality is not a failure. Sticky heat measures elapsed excess freshness
+  only while ground truth moves and excludes planned dwell. Accuracy heat measures elapsed
+  excess distance at ground-truth positions. Both are partitioned by meta z-level.
+- `compareReportResults(results, thresholds)` in `src/domain/report-comparison.mjs` accepts
+  completed same-survey/same-route results, chooses the oldest start as baseline, uses
+  shared thresholds, and labels each absolute/delta with device and band. Comments stay
+  attached to their runs.
+- `playbackBounds(result)` and `playbackFrame(result, atMs)` in
+  `src/domain/report-playback.mjs` expose raw timing, fixes/trails, check-ins, events,
+  capture events, and the ground-truth walker while excluding preflight from the walk trail.
+- `createReportPlayerStore(options)` in `src/features/report-player/report-store.mjs`
+  holds one result reference, its meta block, one analysis, comparisons, thresholds, and
+  active view. A view switch invokes neither parsing nor analysis.
 
-- Deterministic Runner input:
-  `data/surveys/survey-dunedin-level-00-dev-v3.definition.v3.json`.
-- User live input:
-  `data/surveys/5ef73912-3851-406a-81cc-93ca19cec12b.definition.v3.json`.
-- Recorded live provider body:
-  `data/positioning/ndh-outpatient-level-00.mazemap-cloud.response.json`.
-  Its Level 00 fix is 8.96 m from the live definition's first stop and normalizes to
-  `2026-07-28T06:12:45.000Z`; it contains no credentials.
-- Completed fixture:
-  `results/health-new-zealand__566__56600000-0000-4000-8000-000000000001__2026-07-28T01-01-00Z.result.v3.json`.
-- Aborted fixture: the same prefix ending
-  `2026-07-28T02-00-05Z.result.v3.json`.
-- Rob's validated physical iPhone result:
+## Data, discovery, and preserved references
+
+- Shared synthetic fixture:
+  `data/fixtures/report-player/result.fixture.v3.json`.
+  It has three ordered check-ins, planned dwell, two named floors, repeated fix times,
+  raw timing evidence, one operator comment, and eight successful polls.
+- Generated discovery remains under `data/manifests/`, including
+  `result-manifest.v3.json` and per-customer manifests under `customers/`.
+- Primary field result:
   `results/292__566__5ef73912-3851-406a-81cc-93ca19cec12b__2026-07-28T09-00-54Z.result.v3.json`.
-  It completed 6/6 checkpoints with 41/41 successful HTTP 200 polls and the operator
-  comment `First test run`.
-- Generated discovery:
-  `data/manifests/survey-manifest.v3.json`,
-  `result-manifest.v3.json`, `validation-summary.v3.json`, and
-  per-customer manifests for `health-new-zealand` and `292`.
-  Discovery now contains two surveys, three results, and two customers.
-- `tools/generate_runner_fixtures.mjs` reproduces both deterministic result fixtures.
+  It remains analysis evidence, not approved public content.
+- The reference report's extracted literal is
+  `data/reference/report_player/report_data.inline.json`; `index.html` fetches it.
+  The reference player now prompts for runtime private access and persists none.
+- `referenceReportFindings(root)` in `tools/check_reference_report.mjs` verifies that no
+  inline `DATA` literal or embedded `MAP_TOKEN` returns.
 
 ## Validation performed
 
-- Focused adapter, preflight, progress, export, view, controller, and validator tests pass.
-- The Cloud adapter and live-definition preflight use the recorded NDH provider body;
-  the raw `x`, `y`, `locationName`, and provider-specific confidence remain intact.
-- The final local build passes 318 tests with zero skipped.
-- Source size, dependency, headers, Nginx, schemas, deterministic manifests, golden outputs,
-  module-map freshness, and source/staged secret scans pass.
-- The staged distribution contains 122 files, including the validated live result.
-- Four staged application shells boot in Chrome.
-- Creator's staged browser path passes.
-- Runner completes and downloads validated results at iPhone (390×844) and Android
-  (412×915) mobile viewports. The smoke now also proves survey bounds fitting, full-viewport
-  active capture, north-up checkpoint focus, visible HUD/actions, and target progression.
-- Rob's physical iPhone result passes the V3 validator and definition/route-hash match.
-  Its 41 polls contain raw and normalized evidence, no poll errors, and no credentials.
-- Source commit `1138080` built without generated drift. Demo commit `d47ec1d` contains
-  the prior byte-identical artifact; live JavaScript/JSON headers and all four Chrome
-  shells passed before these local refinements.
-- Re-run the complete boundary with:
+- Adjacent Dashboard, manifest, report-domain, store, renderer, map, export, and playback
+  tests pass against the shared fixture.
+- Header tests prove complete headers pass and missing/blank fields fail by file and field.
+  A deterministic planted violation exercises the CLI failure path.
+- Dashboard-to-Report Player Chrome acceptance passes through customer `292`, launches a
+  generated completed result, fetches it exactly once, declines private access, changes a
+  live threshold, switches to playback, reads floor names from meta, and writes no storage.
+- Reference migration and source/staged secret gates cover the preserved report family.
+- The complete build passed 366 tests with zero skipped, emitted 150 files, booted all
+  four shells, passed Creator Chrome, both Runner mobile profiles, and the
+  Dashboard-to-Report Player Chrome path.
+- The complete boundary command, including source size, headers, imports, schemas,
+  manifests, reference migration, secrets, goldens, module-map freshness, all tests,
+  staging, four shell boots, and all feature browser paths, is:
 
 ```sh
 node tools/build.mjs
 ```
 
-## Known defects, exceptions, and field gates
+## Known defects, exceptions, and release gates
 
-- Rob's physical iPhone run proves live proxy reachability and private map rendering on site.
-  A physical Android run and explicit current OS/browser-version coverage remain.
-- The accepted run started from an acknowledged amber preflight because its first provider
-  fix was 262 seconds old. Capture then completed cleanly, but a green-start field run
-  remains useful acceptance evidence.
-- Full-length battery and memory behavior remains a physical field check.
-- The live `NDH Straight` export uses `Australia/Melbourne` for Dunedin campus 566.
-  Runner and result preserve it correctly, but it should be confirmed or re-exported as
-  `Pacific/Auckland`.
-- The live result contains exact indoor positions/timestamps, an internal Client IP, and
-  Rob/device metadata. Treat it as sensitive evidence; build staging does not authorize
-  publishing it.
-- The map-first refinements and live result are present only in the local 122-file build.
-  The deployed `/wifi-survey-v3/` artifact has not been updated in this close-out.
+- At the user's direction, untouched legacy metadata-header debt is deferred behind the
+  exact sorted baseline in
+  `data/characterization/step5/legacy-header-exceptions.json`.
+  New or changed files must have all six fields; the gate also fails stale exceptions.
+  The later pass must recover missed knowledge/context, not merely insert banners.
+- Snap-to-current-path-segment playback correction remains low priority and is not present.
+- Customer filtering is convenience, not authorization. Generated manifest projection
+  omits Client IP, but host access and release content still require a real security boundary.
+- `stageDistribution(root, destination)` still copies every validated result. The live
+  field result contains exact indoor positions/times, an internal Client IP, and
+  operator/device metadata. No deployment or publishing is authorized without an explicit
+  sensitive-result allowlist or equivalent release review.
+- The live Dunedin definition still says `Australia/Melbourne`; confirm or re-export it
+  as `Pacific/Auckland` if intended before interpreting local report times.
+- Physical Android, current OS/browser versions, green-start, and full-length battery
+  acceptance remain field gates inherited from Step 4.
+- The public report surface is a zero-token canvas with route overlays, not a tiled basemap.
+  A basemap enhancement is optional and must retain the working no-token fallback.
 
 ## Ownership and next read order
 
-Step 4 owns `src/features/survey-runner/`, the V3 Cloud adapter, Runner domain modules,
-Runner app files, result fixtures, and Runner browser tooling. Keep these stable during
-Step 5 unless a fixture exposes a demonstrated contract defect.
+Step 5 owns the Dashboard feature, generated-manifest adapter/projection, report analysis,
+comparison, playback, Report Player views/store/map surface, reference migration gate,
+shared report fixture, and Dashboard-to-player browser smoke. Keep their contracts stable
+during provider work unless a recorded response or fixture proves a defect.
 
-Begin Step 5 with:
+The downstream backlog is recorded, not automatically assigned. When a work package is
+explicitly authorized, read:
 
 1. This handover.
-2. `Scope/steps/05_dashboard_report_player.md`.
-3. Rob's live result, the deterministic fixtures, and `data/manifests/result-manifest.v3.json`.
-4. `data/manifests/customers/292.manifest.v3.json`.
-5. `src/domain/survey-result-v3.mjs`.
-6. `data/reference/report_player/analyze-survey.js`, `index.html`, and `ndh_player.html`.
+2. `Scope/steps/06_backlog_future_adapters.md`.
+3. `src/adapters/positioning/source-contract.mjs`.
+4. `src/domain/survey-meta-v3.mjs`.
+5. `src/features/survey-runner/survey-runner.mjs`.
+6. `data/fixtures/report-player/result.fixture.v3.json`.
+7. The exact work-package owner and its adjacent test named by Step 6.
 
-Stop before Step 5 implementation until the next step is explicitly assigned.
+Stop at this Step 5 boundary until the downstream work package is explicitly assigned.

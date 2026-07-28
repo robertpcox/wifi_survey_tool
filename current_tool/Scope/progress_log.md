@@ -1,5 +1,25 @@
 # Progress log — newest entry first
 
+## 2026-07-28 — Step 5 Dashboard and merged Report Player complete
+
+- Replaced the shell Dashboard with generated customer discovery, completed-result device
+  selection, and manifest-resolved Report Player launch URLs.
+- Built one shared V3 report context with independent identity, KPI, timeline, route/floor,
+  heatmap, comparison, methodology/export, and playback modules.
+- Added strict elapsed-time sticky/accuracy analysis, live thresholds, floor-separated
+  ground-truth heat, oldest-run comparison, and raw-evidence playback.
+- Kept public route overlays functional without private access; runtime map credentials
+  remain memory-only, and local V3 upload is the fallback.
+- Extracted the preserved report's inline data, removed its player's embedded token, and
+  added a deterministic reference-migration gate.
+- Corrected the metadata-header gate for new work. Untouched legacy debt is explicitly
+  deferred behind a sorted exact-path exception baseline for a later context-recovery pass.
+- Made discovery manifests omit Client IP while retaining device labels and band.
+- Passed the final build: 366 tests, zero skipped, 150 staged files, four shell boots,
+  Creator Chrome, two Runner mobile profiles, and Dashboard-to-Report Player Chrome.
+- The physical field result remains sensitive. No commit, deployment, or publishing was
+  performed, and work stopped at the Step 5 boundary.
+
 ## 2026-07-28 — Step 4 closed with Rob field smoke and map-first refinement
 
 - Validated and archived Rob's first physical iPhone `NDH Straight` export: completed,

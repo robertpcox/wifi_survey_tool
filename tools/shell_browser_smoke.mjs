@@ -1,3 +1,10 @@
+// FEATURE:      Browser boot validation
+// SURFACE:      runShellBrowserSmoke(options), CLI
+// WHY TOGETHER: Static serving, app boot checks, deep links, and browser failure capture form one gate.
+// STATE:        Temporary static server and headless browser
+// RULES:        Treat Chrome absence as skipped and every other app/network error as failure.
+// PROVENANCE:   Scope/test_plan.md browser and serving gates
+
 import { constants } from "node:fs";
 import { access } from "node:fs/promises";
 import { createRequire } from "node:module";
@@ -82,8 +89,12 @@ async function inspectShell(browser, url) {
     }
   });
   await page.goto(url, { waitUntil: "networkidle0" });
-  const ready = await page.$eval("[data-shell-status]", element => element.textContent);
-  if (!ready.endsWith("shell ready.")) failures.push(`${url}: shell did not report ready`);
+  await page.waitForFunction(() => {
+    const app = document.body.dataset.app;
+    if (app === "dashboard") return /Choose a customer/.test(document.body.textContent);
+    if (app === "report-player") return Boolean(document.querySelector("[data-result-upload]"));
+    return document.querySelector("[data-shell-status]")?.textContent.endsWith("shell ready.");
+  });
   if (await page.$("[data-map-access]")) {
     await page.type("[data-map-access]", ["browser", "runtime", "value"].join("-"));
     await page.click("[data-save-access]");

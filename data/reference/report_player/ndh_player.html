@@ -268,7 +268,7 @@
   // Constants (palette identical to route_survey.html)
   // ──────────────────────────────────────────────────────────────────────
   const CAMPUS_ID = 566;
-  const MAP_TOKEN = "82059d9500524389ad1e635f3c5a376e";
+  let mapToken = null;
   // Bundled captures shown by the model selector (relative to this file).
   const DATASETS = {
     remote: "ndh-capture-2026-07-15.json",
@@ -306,7 +306,8 @@
   window.addEventListener("load", async () => {
     wireUi();
     if (window.Mazemap) {
-      Mazemap.Config.setMazemapViewToken(MAP_TOKEN);
+      mapToken = window.prompt("Private MazeMap access (held in memory only):")?.trim() || null;
+      if (mapToken) Mazemap.Config.setMazemapViewToken(mapToken);
       map = new Mazemap.Map({ container: "map", campuses: CAMPUS_ID, zoom: 18, center: [170.508292, -45.872428] });
       await new Promise(r => map.on("load", r));
       mapReady = true;

@@ -24,8 +24,7 @@
       "device": {
         "type": "mobile",
         "os": "iPhone",
-        "name": "E",
-        "clientIp": "10.132.184.59"
+        "name": "E"
       },
       "band": "5",
       "completionStatus": "completed",

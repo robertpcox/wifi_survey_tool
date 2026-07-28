@@ -1,3 +1,10 @@
+// FEATURE:      Deterministic survey and result discovery manifests
+// SURFACE:      node --test tools/generate_manifests.test.mjs
+// WHY TOGETHER: Determinism, privacy projection, append behavior, and failure atomicity guard generation.
+// STATE:        Temporary manifest fixture directories
+// RULES:        Generated discovery data retains device labels and band but never Client IP.
+// PROVENANCE:   Scope/steps/05_dashboard_report_player.md
+
 import assert from "node:assert/strict";
 import {
   cp,
@@ -42,6 +49,14 @@ test("manifests are deterministic and one new result appends one result entry", 
 
   const firstGenerated = await generateManifests({ root });
   const first = await snapshot(join(root, "data/manifests"));
+  const firstResult = firstGenerated.resultManifest.results[0];
+  assert.deepEqual(firstResult.device, {
+    type: "mobile",
+    os: "ExampleOS 1",
+    name: "Demo handset",
+  });
+  assert.equal(firstResult.band, "5");
+  assert.equal(JSON.stringify(firstGenerated).includes("clientIp"), false);
   await generateManifests({ root });
   assert.deepEqual(await snapshot(join(root, "data/manifests")), first);
 

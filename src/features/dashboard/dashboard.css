@@ -1,0 +1,102 @@
+/* FEATURE:      Customer-filtered survey dashboard
+ * SURFACE:      Dashboard page layout
+ * WHY TOGETHER: Customer heading, survey cards, and launch actions share one responsive visual system.
+ * STATE:        Responsive layout only
+ * RULES:        Keep result identity legible at mobile and desktop widths.
+ * PROVENANCE:   Scope/steps/05_dashboard_report_player.md
+ */
+
+.dashboard-main {
+  width: min(1120px, calc(100% - 2rem));
+  margin: 3rem auto;
+}
+
+.dashboard-heading {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 0.25rem 2rem;
+  margin-bottom: 2rem;
+}
+
+.dashboard-heading .eyebrow {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.dashboard-heading h1 {
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 4rem);
+  letter-spacing: -0.04em;
+}
+
+.dashboard-heading > p:last-child { color: #52677f; }
+
+.dashboard-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.dashboard-survey {
+  display: grid;
+  grid-template-columns: minmax(14rem, 0.8fr) minmax(18rem, 1.2fr);
+  gap: 2rem;
+  padding: 1.5rem;
+  border: 1px solid #cad8e8;
+  border-radius: 1rem;
+  background: white;
+  box-shadow: 0 1rem 2.5rem rgb(20 33 61 / 7%);
+}
+
+.dashboard-survey h2 { margin: 0.2rem 0; }
+.dashboard-survey p { color: #52677f; }
+.dashboard-kicker {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.dashboard-survey ul {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dashboard-survey li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem;
+  border: 1px solid #dce5ef;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+}
+
+.dashboard-survey li div { display: grid; gap: 0.2rem; }
+.dashboard-survey li span { color: #64778d; font-size: 0.85rem; }
+.dashboard-launch {
+  flex: 0 0 auto;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.55rem;
+  color: white;
+  background: #2457a6;
+  text-decoration: none;
+}
+
+.dashboard-empty { color: #64778d; }
+.dashboard-error { border-color: #dc9c9c; }
+
+@media (max-width: 700px) {
+  .dashboard-heading,
+  .dashboard-survey {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-survey { gap: 1rem; }
+  .dashboard-survey li { align-items: stretch; flex-direction: column; }
+  .dashboard-launch { text-align: center; }
+}

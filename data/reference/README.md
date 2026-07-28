@@ -11,6 +11,11 @@ Representative sources:
 - `report_player/ndh_player.html` — original session player.
 - `report_player/analyze-survey.js` — original analyzer.
 
+Step 5 migrated the report's exact inline `DATA` object to
+`report_player/report_data.inline.json`; the preserved report now fetches that file.
+It also removed the player's embedded `MAP_TOKEN` and prompts for an in-memory value.
+These references remain v1/v2 characterization sources and are not production inputs.
+
 Safe JSON inspection:
 
 ```sh
@@ -23,7 +28,8 @@ Move-preservation SHA-256 values:
 
 ```text
 946f619f2eb03525772f8795b8b3e60bf57710e9fd91f5ffcd4ecb1a8aab4d04  report_player/analyze-survey.js
-1f43e19832e8a16d2eae13708c25fb2691ecbd26923f54eb576e23f2fdb16e9c  report_player/index.html
-859eb7928b5983acc2eaa937cbe7d90bf4bfe3fa7cbd749db7086aa4ace04451  report_player/ndh_player.html
+0a1a6a5fc6ce0695797264fc806cb7f09a9bfd0949cc171682043fd105a989b8  report_player/index.html
+0b2912061718fbf2a2431c5d51e185fc9e5661cd4689278bb3b59588c6029f52  report_player/ndh_player.html
+7b625e95b3e908d1a49b7b735eb57ba3662788854430d0ed59425ffb48fe2add  report_player/report_data.inline.json
 0fbcfa06e98ebf43c8b9f7ae259f2b6f5d7c6bd828cfc17db2864777d9405d63  route-survey-index.html
 ```

@@ -1,3 +1,10 @@
+// FEATURE:      Zero-dependency production build
+// SURFACE:      runBuild(options), BUILD_COMMANDS, CLI
+// WHY TOGETHER: Ordered gates, staging, browser checks, and atomic distribution replacement form one build.
+// STATE:        Temporary staging directory for one build invocation
+// RULES:        Emit no dist when any gate, test, staging check, or browser path fails.
+// PROVENANCE:   Scope/coding_pattern.md build gates
+
 import { rename, rm } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
@@ -12,6 +19,7 @@ export const BUILD_COMMANDS = Object.freeze([
   ["tools/check_import_boundaries.mjs", "."],
   ["tools/check_nginx_config.mjs"],
   ["tools/check_schemas.mjs"],
+  ["tools/check_reference_report.mjs"],
   ["tools/generate_manifests.mjs"],
   ["tools/check_secrets.mjs"],
   ["tools/check_step1_completeness.mjs"],
@@ -38,6 +46,7 @@ export async function runBuild({
     run(["tools/shell_browser_smoke.mjs", staging], root);
     run(["tools/creator_browser_smoke.mjs", staging], root);
     run(["tools/runner_browser_smoke.mjs", staging], root);
+    run(["tools/report_player_browser_smoke.mjs", staging], root);
     await rename(staging, dist);
     return dist;
   } catch (error) {

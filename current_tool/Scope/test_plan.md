@@ -1,13 +1,13 @@
 # Test plan — what each step must prove
 Method is in `Scope/test_standard.md`. Each step adds its tests before claiming completion.
 
-This file lists behavior, not files. Each line becomes a test in the file beside the module
-that owns the behavior. It never becomes a section of one large test file.
+This file lists behavior, not files. Each line becomes a test beside its owning module,
+never a section of one large test file.
 
 ## Step 1 — survey tool split
 Goldens, recorded before any code moved and still the standing regression guard:
-checkpoint generation at each spacing, route export, and session export replayed from a
-capture. Every later step keeps them byte-identical.
+checkpoint generation at each spacing, route export, and replayed session export.
+Every later step keeps them byte-identical.
 
 Domain tests:
 
@@ -40,8 +40,8 @@ Serving test, run against the real Nginx configuration and not only `http.server
 This catches the classic late failure: modules work locally and fail on the real host.
 
 ## Step 3 — Creator
-- customer, campus, and memory-only token must Engage before authoring; lazy loading uses
-  that campus and reports SDK errors/timeouts
+- customer, campus, and memory-only token must Engage before authoring; lazy loading uses that
+  campus and reports SDK errors/timeouts
 - the successful campus launch is single-use: setup collapses and no Re-engage action remains
 - desktop layout keeps ordered routes left of a centre map that is larger than the route rail
 - first map choice shows click/POI-centre coordinates, auto-locks the plan, and commits before other metadata
@@ -90,8 +90,8 @@ Preflight, one test per verdict from recorded responses:
 - the sample that enabled Go appears in the export
 - starting on amber or red records the acknowledgement and the sample
 - an asset run issues no request for the Runner device's own position
-- operating system is never auto-filled from the user agent unless the operator declared the
-  device under test is the device running the Runner
+- operating system is never auto-filled from the user agent unless the operator says the
+  device under test is running the Runner
 - polling reaches the configured proxy base, and a wrong base fails visibly
 - secret scan over the export and over localStorage, sessionStorage, and IndexedDB passes
 
@@ -103,8 +103,8 @@ Field acceptance, which no automated test replaces:
 
 ## Step 5 — dashboard and Report Player
 
-- header gate inverted: complete passes, missing or blank fails naming file and field, and
-  the planted violation proves the failure path
+- header gate inverted: complete passes, missing or blank names file/field, and the planted
+  violation proves the failure path
 - every module renders from one fixture result
 - threshold changes recalculate without reload, including a value exactly on the threshold
 - sticky excludes planned dwell and includes stale fixes while ground truth moves
@@ -126,23 +126,24 @@ Standing risks, rechecked every step rather than assumed closed.
 - **Meta propagation.** Verified at Steps 3, 4, and 5. Step 5 is unbuildable if it breaks.
 - **Manifest determinism.** A non-deterministic build makes every later diff untrustworthy.
 - **Module serving.** The deployed Nginx explicitly maps `.mjs`; the serving test proves it.
-- **Configuration activation.** A duplicate `types` block can leave the old Nginx process serving
-  the wrong MIME. Keep the mapping in its dedicated location and check the live response header.
+- **Configuration activation.** Keep Nginx's dedicated `.mjs` mapping and verify live MIME after reload.
 - **Map runtime availability.** The self-contained build has no bundled remote SDK asset.
-  Creator fetches v3.0.6 only after Engage, surfaces load failure/timeout, binds metadata
-  to the entered campus, and only claims routed geometry after the SDK-backed map loads.
+  Creator fetches v3.0.6 after Engage, reports failure/timeout, binds the entered campus,
+  and claims routed geometry only after the SDK-backed map loads.
 - **Proxy reachability.** Cloud polling needs the proxy CORS allowlist to match the served origin.
 - **Host access control.** Confirm field-device host access before release, not during a run.
 - **Mobile behavior.** Only field acceptance covers it.
 - **Geolocation permission.** Verify GPS permissions policy on the served host, not only locally.
-- **Preflight honesty.** A green light that is easy to earn is worse than none. Each verdict
-  keeps a test, so thresholds cannot drift into always-green.
-- **Floor naming.** A widget label and raw z-level can differ by one. Confirm the explicit
-  mapping against a real campus; never derive it arithmetically.
+- **Preflight honesty.** Each verdict keeps a test so thresholds cannot drift into always-green.
+- **Floor naming.** Confirm the explicit mapping against a real campus; never derive it arithmetically.
 - **Heatmap floor separation.** Heat layers blend floors unless filtered per z-level.
-- **Field-device acceptance.** Mobile-sized Chrome proves the responsive workflow, not radio,
-  private-map, battery, or proxy behavior. Keep release closed until both devices pass.
-- **Definition timezone.** The live NDH export names `Australia/Melbourne` for Dunedin campus
-  566; confirm or correct it before reports interpret local timestamps.
+- **Field-device acceptance.** Chrome proves responsive UI, not radio, map, battery, or proxy; both devices remain required.
+- **Definition timezone.** Dunedin says `Australia/Melbourne`; correct it before local-time reporting if unintended.
+- **Header context debt.** The sorted Step 5 baseline defers legacy files; recover missing metadata and context before removal.
+- **Customer filtering.** Customer manifests and URLs are convenience, not authorization; use host control or separate artifacts.
+- **Sensitive artifact publishing.** `dist/` copies full results, including the physical field
+  run. Manifest Client-IP omission does not sanitize it; publishing requires explicit inventory.
+- **Analysis interval semantics.** Fixture tests must cover repeated fixes, preflight, tails, dwell, and exact equality.
+- **Provider expansion.** LiPi and DNA Spaces need real redacted responses and the V3 contract, not legacy-shape reuse.
 
 Append newly discovered risks here as they are found.

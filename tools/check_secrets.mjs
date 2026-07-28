@@ -1,3 +1,10 @@
+// FEATURE:      Credential leak prevention
+// SURFACE:      scanSecrets(targets), secretFindings(text, path), CLI
+// WHY TOGETHER: File discovery, literal detection, known hashes, and CLI reporting form one gate.
+// STATE:        Fixed hashes of known credential needles
+// RULES:        Scan source, build data, results, and sanitized Report Player references.
+// PROVENANCE:   Scope/test_standard.md secret scanning
+
 import { createHash } from "node:crypto";
 import { readFile, readdir, stat } from "node:fs/promises";
 import { extname, resolve } from "node:path";
@@ -10,6 +17,7 @@ const defaultTargets = [
   "data/characterization",
   "data/manifests",
   "data/positioning",
+  "data/reference/report_player",
   "data/routes",
   "data/surveys",
   "docs",

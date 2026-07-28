@@ -24,8 +24,7 @@
       "device": {
         "type": "mobile",
         "os": "FixtureOS 1",
-        "name": "Fixture handset",
-        "clientIp": "192.0.2.8"
+        "name": "Fixture handset"
       },
       "band": "5",
       "completionStatus": "completed",
@@ -41,8 +40,7 @@
       "device": {
         "type": "asset",
         "os": "AssetOS 2",
-        "name": "Fixture asset",
-        "clientIp": "192.0.2.8"
+        "name": "Fixture asset"
       },
       "band": "mixed",
       "completionStatus": "aborted",

@@ -1,3 +1,10 @@
+<!-- FEATURE:      Merged Report Player
+     SURFACE:      /report-player/
+     WHY TOGETHER: This document is the semantic entry shell for one loaded report and playback session.
+     STATE:        Report Player mount target
+     RULES:        Embed no result data or token; generated IDs and local upload enter through the feature.
+     PROVENANCE:   Scope/steps/05_dashboard_report_player.md
+-->
 <!doctype html>
 <html lang="en">
 <head>
@@ -5,6 +12,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Survey Report Player</title>
   <link rel="stylesheet" href="../../shared/app-shell.css">
+  <link rel="stylesheet" href="../../features/report-player/report-player.css">
+  <link rel="stylesheet" href="../../features/report-player/report-visuals.css">
   <script type="module" src="./main.mjs"></script>
 </head>
 <body data-app="report-player">
@@ -16,22 +25,8 @@
       <a href="../runner/">Runner</a>
     </nav>
   </header>
-  <main>
-    <p class="eyebrow">Report Player</p>
-    <section class="shell-card">
-      <h1>Analyze and replay one run</h1>
-      <p>The merged report and playback shell is ready. Analysis arrives in Step 5.</p>
-      <p data-shell-status>Starting Report Player shell…</p>
-      <div class="map-access">
-        <strong>Private map access</strong>
-        <span>Decline access to continue with the public map and embedded overlays.</span>
-        <div class="map-access-row">
-          <input data-map-access type="password" autocomplete="off">
-          <button class="primary" data-save-access>Use for this tab</button>
-          <button data-clear-access>Continue public</button>
-        </div>
-      </div>
-    </section>
+  <main class="report-player-main" data-report-root aria-live="polite">
+    <section class="shell-card"><p>Loading Report Player…</p></section>
   </main>
 </body>
 </html>

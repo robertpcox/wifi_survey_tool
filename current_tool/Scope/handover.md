@@ -2,17 +2,18 @@
 
 ## Current state
 
-Step 5a is complete in the working tree. Playback is now the full-screen V3 Player, and the
+Step 5a is complete at source commit `b8702fe`. Playback is now the full-screen V3 Player, and the
 existing Report and Player share one parsed result, analysis context, map adapter, and live
 MazeMap instance. No Step 5b issue grouping, ranking, or Report redesign has begun.
 
-- The canonical build passed 451 tests with zero failures and zero skips.
+- The clean canonical build at automation commit `638abee` passed 459 tests with zero failures
+  and zero skips.
 - Staged Chrome passed four shells, Creator, two mobile Runner profiles, and four Report
   Player map scenarios. The regenerated `dist/` contains 186 files.
 - The separate real public MazeMap smoke passed for campus 566 with no access value, using
   the synthetic local-upload fixture.
 - Module-map generation records 179 source modules with no adjacent-test gaps.
-- Step 5a has not been committed, pushed, or deployed.
+- Demo commit `a8781fc` is on `origin/main`; live HTTPS, module MIME, and all four shells pass.
 
 ## Assigned work and stop boundary
 
@@ -110,9 +111,10 @@ browser-storage audit.
   It deliberately uploads only the synthetic fixture, not the authorized physical result.
 - The provider SDK may create its own telemetry storage. Acceptance separately rejects app
   credential fields; source, staged output, URLs, results, and app storage remain clean.
-- `dist/` contains the authorized physical result. Rebuilding is not publication permission.
-- Concurrent Runner share-URL/map-bearing changes are also uncommitted in this worktree and
-  passed the same build. Preserve them and keep them outside the 5b Report redesign.
+- `dist/` contains the authorized physical result. Default builds sync it to the local demo
+  checkout; use `--no-deploy` unless that publication is authorized.
+- Concurrent Creator/per-checkpoint-dwell changes remain uncommitted and were deliberately
+  excluded from this build and deployment. Preserve them outside the 5b Report redesign.
 - Physical Android Runner acceptance and the Dunedin timezone follow-up remain project risks,
   not Step 5b scope.
 
@@ -134,8 +136,8 @@ node --test src/adapters/map/*.test.mjs
 node --test src/features/report-player/*.test.mjs src/apps/report-player/*.test.mjs tools/report_player*.test.mjs
 node tools/report_player_browser_smoke.mjs .
 node tools/report_player_actual_sdk_smoke.mjs dist
-node tools/build.mjs
+node tools/build.mjs --no-deploy
 ```
 
 The two browser commands and full build need permission to open local test servers. The
-actual-SDK command is a separate networked acceptance; the canonical build remains deterministic.
+actual-SDK command is separate networked acceptance. An authorized plain build also syncs demo.

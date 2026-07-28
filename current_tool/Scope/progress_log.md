@@ -1,5 +1,15 @@
 # Progress log — newest entry first
 
+## 2026-07-29 — Successful builds now synchronize the demo
+
+- Added checkout preflight, typo-safe CLI arguments, staged replacement, and rollback-safe
+  cleanup to the default build; `--no-deploy` remains the validation-only path.
+- Passed a clean isolated build at source commit `638abee`: 459 tests, zero skipped, 186 files,
+  four shells, Creator, two mobile Runner profiles, and four Player map scenarios.
+- Verified the demo tree is byte-identical, committed it as `a8781fc`, and confirmed
+  `origin/main`, live HTTPS, JavaScript module MIME, the manifest, and all four live shells.
+- Preserved unrelated uncommitted Creator/per-checkpoint-dwell work and stopped before 5b.
+
 ## 2026-07-29 — Step 5a full-screen Player complete
 
 - Recast Playback as a viewport-filling Player with one clock, transport, evidence rail,
@@ -14,7 +24,7 @@
 - Passed the canonical build: 451 tests, zero skipped, 186 staged files, four shells,
   Creator Chrome, two mobile Runner profiles, and four Player map scenarios.
 - Passed a separate real public MazeMap smoke for campus 566 with the synthetic fixture.
-- Regenerated the 179-module map with no adjacent-test gaps. No commit, push, or deployment.
+- Regenerated the 179-module map with no adjacent-test gaps; source commit is `b8702fe`.
 - Updated Step 5b and the handover, then stopped before Report redesign.
 
 ## 2026-07-28 — Steps 5a/5b assigned

@@ -38,3 +38,33 @@ test("every required definition field is rejected by its path", async () => {
     assert.ok(result.errors.some(error => error.startsWith(`${path}:`)), path);
   }
 });
+
+test("serialized credential values are forbidden anywhere in the route", async () => {
+  const invalid = await readFixture("definition.valid.json");
+  const secretKey = ["to", "ken"].join("");
+  invalid.route.stops[0].provenance[secretKey] = "unsafe-runtime-value";
+  const result = validateSurveyDefinitionV3(invalid);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.includes(
+    `route.stops.0.provenance.${secretKey}: `
+      + "serialized credential values are forbidden",
+  ));
+});
+
+test("all route z-levels must be declared by definition metadata", async () => {
+  const invalid = await readFixture("definition.valid.json");
+  invalid.route.stops[0].z = 99;
+  invalid.route.legs[0].geometry[1].z = -1;
+  invalid.route.checkpoints[1].z = 2;
+  const result = validateSurveyDefinitionV3(invalid);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.includes(
+    "route.stops.0.z: must be listed in meta.zLevels",
+  ));
+  assert.ok(result.errors.includes(
+    "route.legs.0.geometry.1.z: must be listed in meta.zLevels",
+  ));
+  assert.ok(result.errors.includes(
+    "route.checkpoints.1.z: must be listed in meta.zLevels",
+  ));
+});

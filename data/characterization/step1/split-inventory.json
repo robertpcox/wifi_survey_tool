@@ -155,7 +155,7 @@
       "symbol": "generateWaypoints"
     },
     "getMapZLevel": {
-      "path": "src/adapters/map/mazemap.mjs",
+      "path": "src/adapters/map/mazemap-controls.mjs",
       "symbol": "getMapZLevel"
     },
     "haversine": {
@@ -215,7 +215,7 @@
       "symbol": "outdoorsStop"
     },
     "pathLength": {
-      "path": "src/domain/geometry.mjs",
+      "path": "src/domain/creator-route-v3.mjs",
       "symbol": "pathLength"
     },
     "pbPause": {
@@ -279,7 +279,7 @@
       "symbol": "renderStops"
     },
     "resizeMapSoon": {
-      "path": "src/adapters/map/mazemap.mjs",
+      "path": "src/adapters/map/mazemap-controls.mjs",
       "symbol": "resizeMapSoon"
     },
     "restorePrefs": {
@@ -291,7 +291,7 @@
       "symbol": "routeDefinition"
     },
     "routePoint": {
-      "path": "src/domain/route-path.mjs",
+      "path": "src/domain/creator-route-v3.mjs",
       "symbol": "routePoint"
     },
     "routePointDistance": {
@@ -327,7 +327,7 @@
       "symbol": "setCurrentWaypoint"
     },
     "setMapZLevel": {
-      "path": "src/adapters/map/mazemap.mjs",
+      "path": "src/adapters/map/mazemap-controls.mjs",
       "symbol": "setMapZLevel"
     },
     "setRouteLoadBusy": {
@@ -371,7 +371,7 @@
       "symbol": "startWalk"
     },
     "startZWatch": {
-      "path": "src/adapters/map/mazemap.mjs",
+      "path": "src/adapters/map/mazemap-controls.mjs",
       "symbol": "startZWatch"
     },
     "stopName": {

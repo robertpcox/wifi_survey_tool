@@ -48,6 +48,8 @@ test("module map is deterministic, accurate, and exposes a stale snapshot", asyn
     "import test from \"node:test\";\ntest(\"placeholder\", () => {});\n",
   );
   await writeFile(join(root, "src/side.mjs"), "export default 1;\n");
+  await mkdir(join(root, "src/feature"), { recursive: true });
+  await writeFile(join(root, "src/feature/nested.mjs"), "export const nested = 1;\n");
   await writeFile(
     join(root, "src/page.html"),
     "<link href=\"./theme.css\"><script src=\"./alpha.mjs\"></script>\n",
@@ -56,19 +58,20 @@ test("module map is deterministic, accurate, and exposes a stale snapshot", asyn
 
   const firstRun = run(root);
   assert.equal(firstRun.status, 0, firstRun.stderr);
-  assert.match(firstRun.stdout, /Wrote docs\/module-map\.md \(4 modules\)/);
+  assert.match(firstRun.stdout, /Wrote docs\/module-map\.md \(5 modules\)/);
   const outputPath = join(root, "docs/module-map.md");
   const first = await readFile(outputPath, "utf8");
   const metric = `4/${Buffer.byteLength(alpha)}/${longestLine(alpha)}`;
   assert.ok(first.includes(
-    `- \`src/alpha.mjs\` — ${metric}; T \`alpha.test.mjs\``,
+    `- alpha.mjs ${metric} T+`,
   ));
   assert.ok(first.includes("E alpha, renamed, zebra"));
-  assert.ok(first.includes("I ./side.mjs"));
+  assert.ok(first.includes("I ./side"));
   assert.ok(first.includes(
-    "I ./alpha.mjs, ./theme.css",
+    "I ./alpha, ./theme.css",
   ));
-  assert.ok(first.indexOf("src/alpha.mjs") < first.indexOf("src/page.html"));
+  assert.match(first, /## feature\/\n\n- nested\.mjs .* T-/);
+  assert.ok(first.indexOf("alpha.mjs") < first.indexOf("page.html"));
 
   const secondRun = run(root);
   assert.equal(secondRun.status, 0, secondRun.stderr);

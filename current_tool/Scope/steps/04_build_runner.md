@@ -2,13 +2,53 @@
 
 ## Priority
 
-This is the capture-critical release needed for field testing in New Zealand.
-Do not delay it for dashboard, Report Player, comparison, or heatmap work.
+This capture-critical New Zealand field release must not wait for reports or heatmaps.
 
 Cloud polling keeps using the positioning proxy, with a configurable base.
 Do not attempt a direct browser call; it is CORS-blocked.
 
 Follow `Scope/step_standard.md`.
+
+## Inputs from Step 3
+
+- Runner shell: `src/apps/runner/index.html` and `main.mjs`.
+  `bootRunner(documentRef)` currently mounts only the shared shell and a new memory store.
+- Development definition: `data/surveys/survey-dunedin-level-00-dev-v3.definition.v3.json`.
+  It is campus `566`: one recorded MazeMap leg, two stops, three checkpoints,
+  10 metre spacing, 5 second dwell, and no credential values.
+- Discovery files: `data/manifests/survey-manifest.v3.json` and
+  `data/manifests/customers/health-new-zealand.manifest.v3.json`.
+  The result manifest is empty until Step 4 creates validated results.
+- Definition boundary: `validateSurveyDefinitionV3` in `src/domain/survey-definition-v3.mjs`;
+  result boundary is `validateSurveyResultV3` in `src/domain/survey-result-v3.mjs`.
+- Route validation and immutable sequence live in `src/domain/route-snapshot-v3.mjs`
+  and `src/domain/route-integrity-v3.mjs`.
+  Consume `route.legs[].geometry` and `route.checkpoints` without rerouting.
+- Map reuse: `createMazeMapAdapter` in `src/adapters/map/mazemap.mjs` and `createMapLayers`
+  in `src/adapters/map/layers.mjs`; V3 shapes work, but the SDK is not bundled.
+- Position boundary exports `assertPositionSourceAdapter`, `normalizePositionOutcome`, and
+  `V3_POSITION_SOURCES` from `src/adapters/positioning/source-contract.mjs`.
+  V3 accepts `mazemap-cloud`; the older `sources.mjs` cloud/LiPi selector and `cloudBase`
+  request shape are not the finished V3 poller.
+- Creator requires private map access, App ID, App Key, and Client IP for MazeMap Cloud;
+  Runner collects them in memory and keeps positioning separate from route geometry.
+- Reuse `createMemoryCredentialStore` from `src/adapters/memory-credentials.mjs`,
+  `downloadFile`/`readJsonFile` from `src/adapters/files.mjs`; read proxy base,
+  config ID, and polling interval from `definition.meta.sourceConfig`.
+- Start with adjacent tests. `node tools/build.mjs` validates schemas/manifests, runs all
+  tests, stages `dist/`, and boots the shells and Creator path in available Chrome.
+
+## Inherited invariants and constraints
+
+- Route hash is canonical SHA-256; Runner copies the meta block and route unchanged.
+- Walking estimate is route distance at 1 metre/second; dwell and polling cadence
+  come from the definition, never Runner defaults.
+- The configured map campus must agree with `meta.campusId`.
+- V3 checkpoints are ordered `stop` and `intermediate` records; legacy turn/floor
+  checkpoint kinds are intentionally not regenerated.
+- No authored Step 3 result exists. Build completed and aborted Runner fixtures in Step 4.
+- Mobile field acceptance, private map injection, and live proxy reachability remain
+  Step 4 work and cannot be replaced by the desktop Chrome smoke.
 
 ## Workflow
 
@@ -73,7 +113,7 @@ the result. Starting on amber or red requires an explicit acknowledgement and is
 - Runner performs no route calculation or editing.
 - Survey route and checkpoints appear from the embedded definition.
 - Poll rate and checkpoint dwell come from the definition.
-- V1 uses MazeMap Cloud through the provider-neutral poller contract.
+- The initial v3 Runner uses MazeMap Cloud through the provider-neutral poller contract.
 - Show current target, progress, source health, polling state, and dwell countdown.
 - Preserve normalized and raw responses with request and response timing.
 - Credentials and map access remain only in memory.
@@ -107,6 +147,4 @@ the result. Starting on amber or red requires an explicit acknowledgement and is
 
 ## Downstream addition
 
-Update Step 5 with actual result, completed fixture, manifest, map, and analysis entry paths.
-Confirm the meta block survives definition to result unchanged, since Step 5 reads it directly.
-Mark the capture-critical release before starting Step 5.
+Update Step 5 with actual result, fixture, manifest, map, and analysis paths; confirm unchanged meta propagation and mark the field release.

@@ -1,9 +1,12 @@
-import { createServer } from "node:http";
-import { constants, createReadStream } from "node:fs";
-import { access, stat } from "node:fs/promises";
+import { constants } from "node:fs";
+import { access } from "node:fs/promises";
 import { createRequire } from "node:module";
-import { extname, resolve } from "node:path";
+import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+
+import { contentTypeFor, startStaticServer } from "./static_server.mjs";
+
+export { contentTypeFor, startStaticServer };
 
 const require = createRequire(import.meta.url);
 export const SHELL_PATHS = Object.freeze([
@@ -13,13 +16,8 @@ export const SHELL_PATHS = Object.freeze([
   "/report-player/",
 ]);
 
-export function contentTypeFor(path) {
-  return {
-    ".css": "text/css; charset=utf-8",
-    ".html": "text/html; charset=utf-8",
-    ".json": "application/json; charset=utf-8",
-    ".mjs": "application/javascript; charset=utf-8",
-  }[extname(path)] || "application/octet-stream";
+export function isIgnoredBrowserRequest(requestUrl) {
+  return new URL(requestUrl).pathname === "/favicon.ico";
 }
 
 export async function runShellBrowserSmoke({
@@ -67,12 +65,21 @@ async function inspectShell(browser, url) {
   const page = await browser.newPage();
   const failures = [];
   page.on("console", message => {
-    if (message.type() === "error") failures.push(`${url}: ${message.text()}`);
+    const browserNetworkError = message.text().startsWith("Failed to load resource:");
+    if (message.type() === "error" && !browserNetworkError) {
+      failures.push(`${url}: ${message.text()}`);
+    }
   });
   page.on("pageerror", error => failures.push(`${url}: ${error.message}`));
-  page.on("requestfailed", request => failures.push(`${url}: failed ${request.url()}`));
+  page.on("requestfailed", request => {
+    if (!isIgnoredBrowserRequest(request.url())) {
+      failures.push(`${url}: failed ${request.url()}`);
+    }
+  });
   page.on("response", response => {
-    if (response.status() >= 400) failures.push(`${url}: ${response.status()} ${response.url()}`);
+    if (response.status() >= 400 && !isIgnoredBrowserRequest(response.url())) {
+      failures.push(`${url}: ${response.status()} ${response.url()}`);
+    }
   });
   await page.goto(url, { waitUntil: "networkidle0" });
   const ready = await page.$eval("[data-shell-status]", element => element.textContent);
@@ -103,33 +110,6 @@ async function inspectDeepLinks(browser, origin) {
   }
   await page.close();
   return failures;
-}
-
-async function startStaticServer(root) {
-  const instance = createServer(async (request, response) => {
-    const requestPath = decodeURIComponent(new URL(request.url, "http://local").pathname);
-    if (requestPath === "/favicon.ico") {
-      response.writeHead(204).end();
-      return;
-    }
-    const relativePath = requestPath.endsWith("/") ? `${requestPath}index.html` : requestPath;
-    const path = resolve(root, `.${relativePath}`);
-    if (!path.startsWith(resolve(root))) {
-      response.writeHead(403).end();
-      return;
-    }
-    try {
-      const metadata = await stat(path);
-      if (!metadata.isFile()) throw new Error("not a file");
-      response.writeHead(200, { "Content-Type": contentTypeFor(path) });
-      createReadStream(path).pipe(response);
-    } catch {
-      response.writeHead(404).end("Not found");
-    }
-  });
-  await new Promise(resolveListen => instance.listen(0, "127.0.0.1", resolveListen));
-  const { port } = instance.address();
-  return { instance, origin: `http://127.0.0.1:${port}` };
 }
 
 const isCli = process.argv[1]

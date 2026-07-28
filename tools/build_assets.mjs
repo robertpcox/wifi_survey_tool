@@ -14,6 +14,13 @@ export const V3_APPS = Object.freeze([
   "runner",
   "report-player",
 ]);
+const APPROVED_RUNTIME_ASSETS = new Map([[
+  "src/adapters/map/mazemap-sdk.mjs",
+  new Set([
+    "https://api.mazemap.com/js/v3.0.6/mazemap.min.css",
+    "https://api.mazemap.com/js/v3.0.6/mazemap.min.js",
+  ]),
+]]);
 
 export async function stageDistribution(root, destination) {
   await mkdir(destination, { recursive: true });
@@ -43,7 +50,11 @@ export async function verifyDistribution(root) {
     if (path.endsWith(".test.mjs")) failures.push(`${path}: test file emitted`);
     if (![".html", ".mjs", ".css"].includes(extname(path))) continue;
     const text = await readFile(path, "utf8");
-    if (/\bhttps?:\/\//i.test(text)) failures.push(`${path}: external asset URL`);
+    for (const url of externalAssetUrls(text)) {
+      if (!isApprovedRuntimeAsset(path, url)) {
+        failures.push(`${path}: external asset URL ${url}`);
+      }
+    }
     for (const reference of dependencies(text, extname(path))) {
       if (!reference.startsWith(".")) continue;
       const target = resolve(dirname(path), reference.split(/[?#]/)[0]);
@@ -58,10 +69,24 @@ export async function verifyDistribution(root) {
   return { files: (await productionFiles(root)).length };
 }
 
+function externalAssetUrls(text) {
+  return [...text.matchAll(/\bhttps?:\/\/[^\s"'`]+/gi)]
+    .map(match => match[0]);
+}
+
+function isApprovedRuntimeAsset(path, url) {
+  const normalized = path.split(sep).join("/");
+  for (const [suffix, urls] of APPROVED_RUNTIME_ASSETS) {
+    if (normalized.endsWith(`/${suffix}`) && urls.has(url)) return true;
+  }
+  return false;
+}
+
 function builtAppHtml(source, app, rootIndex) {
   const assetPrefix = rootIndex ? "./src" : "../src";
   let output = source
     .replace("../../shared/app-shell.css", `${assetPrefix}/shared/app-shell.css`)
+    .replaceAll("../../features/", `${assetPrefix}/features/`)
     .replace("./main.mjs", `${assetPrefix}/apps/${app}/main.mjs`);
   if (rootIndex) output = output.replaceAll("href=\"../", "href=\"./");
   return output;

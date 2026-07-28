@@ -4,9 +4,12 @@ import test from "node:test";
 
 const html = await readFile(new URL("./index.html", import.meta.url), "utf8");
 
-test("Creator HTML exposes its module shell and memory-only map access", () => {
+test("Creator HTML exposes its feature mount without duplicate access controls", () => {
   assert.match(html, /data-app="creator"/);
   assert.match(html, /type="module" src="\.\/main\.mjs"/);
-  assert.match(html, /data-map-access type="password"/);
-  assert.doesNotMatch(html, /features\/creator/);
+  assert.match(html, /data-definition-creator/);
+  assert.match(html, /features\/definition-creator\/creator\.css/);
+  assert.match(html, /features\/definition-creator\/components\.css/);
+  assert.doesNotMatch(html, /data-(?:map-access|save-access|clear-access)/);
+  assert.doesNotMatch(html, /data-field="(?:device|band)/i);
 });

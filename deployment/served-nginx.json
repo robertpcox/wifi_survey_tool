@@ -1,4 +1,4 @@
 {
-  "configPath": "../demo/demo.mazemap_nginx/nginx.conf",
-  "deployPath": "../demo/demo.mazemap_nginx/html/wifi-survey-v3"
+  "configPath": "../demo.mazemap_nginx/nginx.conf",
+  "deployPath": "../demo.mazemap_nginx/html/wifi-survey-v3"
 }

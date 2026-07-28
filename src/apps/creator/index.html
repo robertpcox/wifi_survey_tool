@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Survey Creator</title>
   <link rel="stylesheet" href="../../shared/app-shell.css">
+  <link rel="stylesheet" href="../../features/definition-creator/creator.css">
+  <link rel="stylesheet" href="../../features/definition-creator/components.css">
   <script type="module" src="./main.mjs"></script>
 </head>
 <body data-app="creator">
@@ -16,22 +18,9 @@
       <a href="../report-player/">Report Player</a>
     </nav>
   </header>
-  <main>
-    <p class="eyebrow">Creator</p>
-    <section class="shell-card">
-      <h1>Author a survey route</h1>
-      <p>The v3 shell is ready. Route authoring arrives in Step 3.</p>
-      <p data-shell-status>Starting Creator shell…</p>
-      <div class="map-access">
-        <strong>Private map access</strong>
-        <span>Optional access stays in memory and disappears when this tab closes.</span>
-        <div class="map-access-row">
-          <input data-map-access type="password" autocomplete="off">
-          <button class="primary" data-save-access>Use for this tab</button>
-          <button data-clear-access>Clear</button>
-        </div>
-      </div>
-    </section>
+  <main class="creator-main">
+    <p data-shell-status class="shell-status">Starting Creator shell…</p>
+    <div data-definition-creator></div>
   </main>
 </body>
 </html>

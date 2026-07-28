@@ -28,3 +28,22 @@ test("survey meta rejects unknown position sources and missing floor labels", ()
   assert.match(errors, /positionSourceId: unsupported source/);
   assert.match(errors, /zLevelNames\.0: must be a non-empty string/);
 });
+
+test("survey meta rejects a non-RFC-4122 survey ID with its field path", () => {
+  const invalid = structuredClone(definition.meta);
+  invalid.surveyId = "survey-demo-v3";
+  assert.match(
+    validateSurveyMeta(invalid).join("\n"),
+    /^meta\.surveyId: must be an RFC 4122 UUID$/m,
+  );
+});
+
+test("wrong meta collection types report issues instead of throwing", () => {
+  const invalid = structuredClone(definition.meta);
+  invalid.buildings = {};
+  invalid.zLevels = {};
+  assert.doesNotThrow(() => validateSurveyMeta(invalid));
+  const errors = validateSurveyMeta(invalid).join("\n");
+  assert.match(errors, /buildings: must be an array/);
+  assert.match(errors, /zLevels: must be an array/);
+});

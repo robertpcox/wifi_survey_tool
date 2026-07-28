@@ -45,12 +45,13 @@ file under `data/surveys/`. Device and band remain absent from definitions.
 
 ## Workflow
 
-1. Enter the meta block: customer, campus, building, floors, source, and survey metadata,
-   ending with optional author notes for this test.
+1. Enter customer and campus access, then enter survey and positioning-provider metadata.
+   Building and floor coverage comes only from committed MazeMap points.
 2. Enter temporary map access when required.
-3. Configure checkpoint spacing and checkpoint dwell seconds before adding stops.
+3. Set or accept checkpoint spacing and dwell; the first map choice locks them automatically.
 4. Create or import an ordered route.
-5. Choose exact points, POI centres, or captured GPS positions.
+5. Click the map, choose its exact coordinates or the discovered POI centre, and add the
+   selected target immediately; captured device GPS remains a separate optional action.
 6. Watch each added stop route, draw, and generate checkpoints immediately, and adjust.
 7. Freeze immutable legs and checkpoints on export.
 8. Review distance, checkpoint count, dwell contribution, and estimated duration.

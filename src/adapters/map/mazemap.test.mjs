@@ -1,149 +1,130 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createMazeMapAdapter } from "./mazemap.mjs";
-function mazemapHarness() {
+function mazemapHarness(mode = "load") {
   const state = {
-    layers: new Map(),
-    markers: [],
-    paintCalls: [],
-    sources: new Map(),
-    tokens: [],
+    buildingsCalls: [], campusCalls: [], floorsCalls: [], layers: new Map(),
+    markers: [], poiAtCalls: [], sources: new Map(), tokens: [],
   };
   class FakeMap {
     constructor(options) {
       state.map = this;
       this.options = options;
-      this.zLevel = 2;
+      this.zLevel = "2";
       this.zoom = 18;
       this.events = {};
     }
     on(event, listener) {
       this.events[event] = listener;
-      if (event === "load") listener();
+      if (mode === "error" && event === "error") listener({ error: Error("tiles") });
+      if (mode === "load" && event === "load") listener();
     }
     getSource(id) { return state.sources.get(id); }
-    addSource(id, definition) {
-      state.sources.set(id, { ...definition, setData() {} });
-    }
+    addSource(id, value) { state.sources.set(id, { ...value, setData() {} }); }
     getLayer(id) { return state.layers.get(id); }
     addLayer(layer) { state.layers.set(layer.id, layer); }
     getZLevel() { return this.zLevel; }
-    setZLevel(z) {
-      this.setZ = z;
-      this.zLevel = z;
-    }
+    setZLevel(z) { this.setZ = z; this.zLevel = z; }
     getZoom() { return this.zoom; }
     stop() { this.stopped = true; }
     easeTo(camera) { this.easyCamera = camera; }
     flyTo(camera) { this.flyCamera = camera; }
-    setPaintProperty(...args) { state.paintCalls.push(args); }
+    setPaintProperty() {}
   }
   class MazeMarker {
-    constructor(options) {
-      this.options = options;
-      state.markers.push(this);
-    }
-    setLngLat(lngLat) {
-      this.lngLat = lngLat;
-      return this;
-    }
-    addTo(map) {
-      this.map = map;
-      return this;
-    }
-    remove() { this.removed = (this.removed || 0) + 1; }
+    constructor(options) { this.options = options; state.markers.push(this); }
+    setLngLat(value) { this.lngLat = value; return this; }
+    addTo(map) { this.map = map; return this; }
+    remove() { this.removed = (this.removed ?? 0) + 1; }
   }
+  const poi = { properties: { buildingId: 51, zLevel: 3, poiId: 91 } };
   state.Mazemap = {
-    Config: {
-      setMazemapViewToken(token) {
-        state.tokens.push(token);
+    Config: { setMazemapViewToken: token => state.tokens.push(token) },
+    Data: {
+      async getCampus(id) {
+        state.campusCalls.push(id);
+        return {
+          properties: { name: "Runtime Campus" },
+          geometry: { coordinates: [[[10, 20], [14, 20], [14, 24], [10, 24]]] },
+        };
       },
+      async getBuildingsByCampusId(id) {
+        state.buildingsCalls.push(id);
+        return [{ properties: { id: 51, name: "Library" } }];
+      },
+      async getFloorsByCampusId(id) {
+        state.floorsCalls.push(id);
+        return [{ properties: { id: 61, z: 3, name: "Level Three" } }];
+      },
+      async getPoiAt(point, z) { state.poiAtCalls.push([point, z]); return poi; },
+      async getPoi(id) { return { id }; },
     },
     Map: FakeMap,
     MazeMarker,
   };
   return state;
 }
-test("launch requires in-memory access and recreates original map setup", async () => {
+test("launch lazily loads the SDK and uses the selected campus catalog", async () => {
   const state = mazemapHarness();
-  const adapter = createMazeMapAdapter({ Mazemap: state.Mazemap });
-  await assert.rejects(adapter.launch("", () => {}), /Map access is required/);
-  assert.equal(adapter.ready, false);
+  let loads = 0;
+  const adapter = createMazeMapAdapter({
+    loadMazemap: async () => { loads += 1; return state.Mazemap; },
+  });
+  assert.equal(adapter.Mazemap, null);
+  await assert.rejects(adapter.launch(""), /Map access is required/);
+  assert.equal(loads, 0);
   const onClick = () => {};
-  assert.equal(await adapter.launch("entered-at-runtime", onClick), 2);
-  assert.deepEqual(state.tokens, ["entered-at-runtime"]);
+  assert.equal(await adapter.launch("runtime-secret", onClick, { campusId: "777" }), 2);
+  assert.equal(loads, 1);
+  assert.equal(adapter.Mazemap, state.Mazemap);
+  assert.equal(adapter.campusId, 777);
+  assert.equal(adapter.campusName, "Runtime Campus");
+  assert.deepEqual(state.tokens, ["runtime-secret"]);
   assert.deepEqual(state.map.options, {
-    container: "map",
-    campuses: 566,
-    zoom: 18,
-    center: [170.508292, -45.872428],
+    container: "map", campuses: 777, zoom: 18, center: [12, 22],
   });
   assert.equal(state.map.events.click, onClick);
-  assert.equal(state.sources.size, 7);
-  assert.equal(state.layers.size, 8);
-  assert.equal(adapter.currentZLevel, 2);
   assert.equal(adapter.ready, true);
+  assert.deepEqual(state.campusCalls, [777]);
+  assert.deepEqual(state.floorsCalls, [777]);
+  assert.deepEqual(state.buildingsCalls, [777]);
 });
-test("focusWaypoint owns marker, floor, and camera with legacy fallbacks", async () => {
+test("describePoint safely resolves POI metadata through cached catalogs", async () => {
   const state = mazemapHarness();
   const adapter = createMazeMapAdapter({ Mazemap: state.Mazemap });
-  await adapter.launch("runtime-token");
-  adapter.focusWaypoint({ seq: 2, lng: 170.5, lat: -45.8, z: 4 });
-  const first = state.markers[0];
-  assert.deepEqual(first.options, {
-    color: "#f59e0b",
-    size: 42,
-    glyph: "3",
-    glyphSize: 14,
-    glyphColor: "#fff",
-    innerCircle: true,
-    innerCircleColor: "#fff",
-    innerCircleScale: 0.55,
-    zLevel: 4,
+  await adapter.launch("memory-only", undefined, { campusId: 777 });
+  assert.deepEqual(await adapter.describePoint(170.5, -45.8, 3), {
+    building: { id: "51", name: "Library" },
+    floor: { id: "61", z: 3, name: "Level Three" },
+    poi: { center: null, id: "91", name: null },
   });
-  assert.deepEqual(first.lngLat, { lng: 170.5, lat: -45.8 });
-  assert.equal(first.map, state.map);
-  assert.equal(state.map.setZ, 4);
-  assert.equal(state.map.stopped, true);
-  assert.deepEqual(state.map.easyCamera, { center: [170.5, -45.8], zoom: 19, duration: 350 });
-  state.map.easeTo = undefined;
-  state.map.setZLevel = undefined;
-  state.map.setZlevel = z => { state.map.legacyZ = z; };
-  state.map.zoom = 20;
-  adapter.focusWaypoint({ seq: 3, lng: 1, lat: 2, z: 5 });
-  assert.equal(first.removed, 1);
-  assert.equal(state.map.legacyZ, 5);
-  assert.deepEqual(state.map.flyCamera, { center: [1, 2], zoom: 20, duration: 350 });
-  adapter.clearTargetMarker();
-  assert.equal(state.markers[1].removed, 1);
+  assert.deepEqual(state.poiAtCalls, [[{ lng: 170.5, lat: -45.8 }, 3]]);
+  assert.deepEqual(await adapter.lookupPoi(91), { id: 91 });
+  await adapter.launch("new-memory-only", undefined, { campusId: 777 });
+  assert.deepEqual(state.campusCalls, [777]);
 });
-test("getMapZLevel falls back from method failure to map property", async () => {
+test("describePoint gives actionable errors for unmapped clicks", async () => {
   const state = mazemapHarness();
+  state.Mazemap.Data.getPoiAt = async () => null;
   const adapter = createMazeMapAdapter({ Mazemap: state.Mazemap });
   await adapter.launch("runtime-token");
-  state.map.getZLevel = () => {
-    throw new Error("SDK transition");
-  };
-  state.map.zLevel = 7;
-  assert.equal(adapter.getMapZLevel(), 7);
-  const oldSetInterval = globalThis.setInterval;
-  const oldClearInterval = globalThis.clearInterval;
-  let tick;
-  let changed;
-  globalThis.clearInterval = () => {};
-  globalThis.setInterval = (callback, milliseconds) => {
-    assert.equal(milliseconds, 250);
-    tick = callback;
-    return 1;
-  };
-  try {
-    adapter.startZWatch(value => { changed = value; });
-    tick();
-  } finally {
-    globalThis.setInterval = oldSetInterval;
-    globalThis.clearInterval = oldClearInterval;
-  }
-  assert.equal(adapter.currentZLevel, 7);
-  assert.equal(changed, 7);
-  assert.equal(state.paintCalls.length, 18);
+  await assert.rejects(
+    adapter.describePoint(1, 2, 3),
+    /click inside a mapped building/,
+  );
+});
+test("map errors and timeouts reject instead of leaving Engage hanging", async () => {
+  const failed = mazemapHarness("error");
+  await assert.rejects(
+    createMazeMapAdapter({ Mazemap: failed.Mazemap }).launch("token"),
+    /MazeMap failed to load: tiles/,
+  );
+  const stalled = mazemapHarness("stall");
+  await assert.rejects(
+    createMazeMapAdapter({
+      Mazemap: stalled.Mazemap,
+      mapLoadTimeoutMs: 5,
+    }).launch("token"),
+    /did not load within 5 ms/,
+  );
 });

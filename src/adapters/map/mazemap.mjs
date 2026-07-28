@@ -1,112 +1,123 @@
-import { CAMPUS_ID, MAP_STYLE } from "../../domain/route-contract.mjs";
+import { CAMPUS_ID } from "../../domain/route-contract.mjs";
 import { createMapLayers } from "./layers.mjs";
+import {
+  describePoi,
+  fetchCampusCatalog,
+} from "./mazemap-catalog.mjs";
+import { createMapControls } from "./mazemap-controls.mjs";
+import {
+  errorMessage,
+  normalizeCampusId,
+  numericZ,
+  waitForMapLoad,
+} from "./mazemap-runtime.mjs";
+import { loadMazemapSdk } from "./mazemap-sdk.mjs";
 
 export function createMazeMapAdapter(options = {}) {
-  const Mazemap = options.Mazemap ?? globalThis.Mazemap;
-  const campusId = options.campusId ?? CAMPUS_ID;
+  let Mazemap = options.Mazemap ?? null;
+  let campusId = normalizeCampusId(options.campusId ?? CAMPUS_ID);
+  let campusName = null;
   let currentZLevel = 1;
   let layers = null;
   let map = null;
-  let targetMarker = null;
-  let zWatch = null;
+  let activeCatalog = { buildings: [], floors: [] };
+  const catalogCache = new Map();
+  const controls = createMapControls({
+    currentZ: () => currentZLevel,
+    layers: () => layers,
+    map: () => map,
+    sdk: () => Mazemap,
+    setCurrentZ: value => { currentZLevel = value; },
+  });
 
-  async function launch(viewToken, onMapClick) {
-    if (!viewToken) throw new Error("Map access is required");
-    Mazemap.Config.setMazemapViewToken(viewToken);
-    map = new Mazemap.Map({
-      container: options.container ?? "map",
-      campuses: campusId,
-      zoom: 18,
-      center: options.center ?? [170.508292, -45.872428],
-    });
-    await new Promise(resolve => map.on("load", resolve));
-    currentZLevel = getMapZLevel() ?? 1;
+  async function resolveSdk() {
+    if (!Mazemap) {
+      Mazemap = await (options.loadMazemap
+        ? options.loadMazemap()
+        : loadMazemapSdk({ timeoutMs: options.sdkTimeoutMs }));
+    }
+    if (!Mazemap?.Map || !Mazemap?.Config?.setMazemapViewToken) {
+      throw new Error("MazeMap SDK is missing its Map or token configuration API");
+    }
+    return Mazemap;
+  }
+
+  async function launch(viewToken, onMapClick, runtime = {}) {
+    if (!String(viewToken ?? "").trim()) throw new Error("Map access is required");
+    const sdk = await resolveSdk();
+    const nextCampusId = normalizeCampusId(runtime.campusId ?? campusId);
+    sdk.Config.setMazemapViewToken(viewToken);
+    activeCatalog = await loadCatalog(sdk, nextCampusId);
+    campusId = nextCampusId;
+    campusName = activeCatalog.name;
+    controls.clearTargetMarker();
+    map?.remove?.();
+    layers = null;
+    try {
+      map = new sdk.Map({
+        container: options.container ?? "map",
+        campuses: campusId,
+        zoom: 18,
+        center: activeCatalog.center,
+      });
+    } catch (error) {
+      throw new Error(`Unable to create MazeMap: ${errorMessage(error)}`);
+    }
+    await waitForMapLoad(map, options.mapLoadTimeoutMs ?? 10000);
+    currentZLevel = numericZ(controls.getMapZLevel()) ?? 1;
     layers = createMapLayers(map, () => currentZLevel);
     layers.ensureLayers();
     if (onMapClick) map.on("click", onMapClick);
     return currentZLevel;
   }
 
-  function getMapZLevel() {
-    if (map && typeof map.getZLevel === "function") {
-      try {
-        return map.getZLevel();
-      } catch {}
+  async function loadCatalog(sdk, selectedCampusId) {
+    const cacheKey = String(selectedCampusId);
+    if (!catalogCache.has(cacheKey)) {
+      const load = fetchCampusCatalog(sdk, selectedCampusId, options.center)
+        .catch(error => {
+          catalogCache.delete(cacheKey);
+          throw error;
+        });
+      catalogCache.set(cacheKey, load);
     }
-    if (map && typeof map.zLevel === "number") return map.zLevel;
-    return currentZLevel;
+    return catalogCache.get(cacheKey);
   }
 
-  function setMapZLevel(z) {
-    if (typeof map?.setZLevel === "function") map.setZLevel(z);
-    else if (typeof map?.setZlevel === "function") map.setZlevel(z);
+  async function describePoint(lng, lat, z) {
+    const sdk = await resolveSdk();
+    if (typeof sdk.Data?.getPoiAt !== "function") {
+      throw new Error("MazeMap point lookup is unavailable in this SDK");
+    }
+    return describePoi(
+      await sdk.Data.getPoiAt({ lng, lat }, z),
+      z,
+      activeCatalog,
+    );
   }
 
-  function startZWatch(onChange) {
-    clearInterval(zWatch);
-    zWatch = setInterval(() => {
-      const z = getMapZLevel();
-      if (z == null || z === currentZLevel) return;
-      currentZLevel = z;
-      layers.applyZStyling();
-      onChange?.(z);
-    }, 250);
-  }
-
-  function focusWaypoint(waypoint) {
-    clearTargetMarker();
-    targetMarker = new Mazemap.MazeMarker({
-      color: MAP_STYLE.waypointCurrent,
-      size: 42,
-      glyph: String(waypoint.seq + 1),
-      glyphSize: 14,
-      glyphColor: "#fff",
-      innerCircle: true,
-      innerCircleColor: "#fff",
-      innerCircleScale: 0.55,
-      zLevel: waypoint.z,
-    }).setLngLat({
-      lng: waypoint.lng,
-      lat: waypoint.lat,
-    }).addTo(map);
-    setMapZLevel(waypoint.z);
-    map.stop?.();
-    const camera = {
-      center: [waypoint.lng, waypoint.lat],
-      zoom: Math.max(map.getZoom(), 19),
-      duration: 350,
-    };
-    if (typeof map.easeTo === "function") map.easeTo(camera);
-    else map.flyTo(camera);
-  }
-
-  function clearTargetMarker() {
-    targetMarker?.remove();
-    targetMarker = null;
-  }
-
-  function resizeMapSoon() {
-    requestAnimationFrame(() => requestAnimationFrame(() => map?.resize?.()));
+  async function lookupPoi(id) {
+    const sdk = await resolveSdk();
+    if (typeof sdk.Data?.getPoi !== "function") {
+      throw new Error("MazeMap POI lookup is unavailable in this SDK");
+    }
+    return sdk.Data.getPoi(id);
   }
 
   return {
-    clearTargetMarker,
+    ...controls,
+    describePoint,
     drawRoute: legs => layers?.drawRoute(legs),
     drawStops: stops => layers?.drawStops(stops),
     drawTrails: samples => layers?.drawTrails(samples),
     drawWaypoints: waypoints => layers?.drawWaypoints(waypoints),
-    focusWaypoint,
-    get currentZLevel() {
-      return currentZLevel;
-    },
-    get ready() {
-      return Boolean(map && layers);
-    },
-    getMapZLevel,
+    get campusId() { return campusId; },
+    get campusName() { return campusName; },
+    get currentZLevel() { return currentZLevel; },
+    get Mazemap() { return Mazemap; },
+    get ready() { return Boolean(map && layers); },
     launch,
-    resizeMapSoon,
+    lookupPoi,
     setActiveLeg: legIndex => layers?.setActiveLeg(legIndex),
-    setMapZLevel,
-    startZWatch,
   };
 }

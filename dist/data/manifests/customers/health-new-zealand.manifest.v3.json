@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 3,
+  "customerId": "health-new-zealand",
+  "customerName": "Health New Zealand | Te Whatu Ora",
+  "surveys": [
+    {
+      "surveyId": "56600000-0000-4000-8000-000000000001",
+      "surveyName": "Level 00 Runner development route",
+      "customerId": "health-new-zealand",
+      "customerName": "Health New Zealand | Te Whatu Ora",
+      "campusId": "566",
+      "routeId": "route-dunedin-level-00-dev",
+      "routeHash": "925fe238f82176e3646bbb34658e0b0caa1b8a92362aeaa654f45e50cd3cf637",
+      "path": "data/surveys/survey-dunedin-level-00-dev-v3.definition.v3.json"
+    }
+  ],
+  "results": []
+}

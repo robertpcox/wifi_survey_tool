@@ -1,12 +1,10 @@
 # Test plan — what each step must prove
-
 Method is in `Scope/test_standard.md`. Each step adds its tests before claiming completion.
 
 This file lists behavior, not files. Each line becomes a test in the file beside the module
 that owns the behavior. It never becomes a section of one large test file.
 
 ## Step 1 — survey tool split
-
 Record golden output before moving any code:
 
 - checkpoint generation for the saved route at each supported spacing
@@ -28,7 +26,6 @@ Browser tests:
 Gate: post-split output is byte-identical to the golden files.
 
 ## Step 2 — structure, validators, and build
-
 - a valid definition and a valid result pass their validators
 - each required field, removed one at a time, is rejected by name
 - `schemaVersion` other than 3 is rejected
@@ -47,13 +44,19 @@ Serving test, run against the real Nginx configuration and not only `http.server
 This catches the classic late failure: modules work locally and fail on the real host.
 
 ## Step 3 — Creator
-
+- customer, campus, and memory-only token must Engage before authoring; lazy loading uses
+  that campus and reports SDK errors/timeouts
+- the successful campus launch is single-use: setup collapses and no Re-engage action remains
+- desktop layout keeps ordered routes left of a centre map that is larger than the route rail
+- first map choice shows click/POI-centre coordinates, auto-locks the plan, and commits before other metadata
+- MazeMap Cloud is the Runner positioning provider; all four credential requirements stay enabled
+- survey IDs are RFC 4122 UUIDs; changed plans rotate them and unchanged re-exports preserve them
+- committed map points derive and deduplicate building IDs/names, z-levels, and floor names
+- removing a committed point recomputes coverage; transient clicks never enter an export
 - estimated duration equals walking estimate plus checkpoint count times dwell
-- route hash is stable across an unchanged re-export and changes on any geometry or
-  checkpoint change
+- route hash is stable across an unchanged re-export and changes with geometry or checkpoints
 - export, reimport, re-export produces identical route, checkpoints, and meta
-- the short-leg warning raises once for the offending pair, stays dismissed for the rest of
-  the route, and never blocks export
+- the short-leg warning names the pair, stays dismissed for the route, and never blocks export
 - a missing required meta field blocks export and names the field
 - adding a stop updates route, checkpoints, distance, and duration with no separate action
 - a captured stop exports position, accuracy, timestamp, and capture provenance
@@ -61,9 +64,7 @@ This catches the classic late failure: modules work locally and fail on the real
 - denied and unavailable geolocation each report plainly and create no stop
 - poor accuracy warns and names the stop without blocking capture
 - secret scan over the exported definition passes
-
 ## Step 4 — Runner
-
 Adapter tests from recorded responses only:
 
 - a normal Cloud response normalizes to coordinates, floor, fix time, and confidence
@@ -105,7 +106,6 @@ Field acceptance, which no automated test replaces:
 - a full-length run without memory or battery collapse
 
 ## Step 5 — dashboard and Report Player
-
 - every module renders from one fixture result
 - threshold changes recalculate without reload, including a value exactly on the threshold
 - sticky excludes planned dwell and includes stale fixes while ground truth moves
@@ -126,12 +126,13 @@ Standing risks, rechecked every step rather than assumed closed.
 - **Secret leakage.** Scan source, fixtures, manifests, exports, and browser storage.
 - **Meta propagation.** Verified at Steps 3, 4, and 5. Step 5 is unbuildable if it breaks.
 - **Manifest determinism.** A non-deterministic build makes every later diff untrustworthy.
-- **Module serving.** `http.server` types `.mjs` as JavaScript; stock Nginx `mime.types`
-  may not, and a mistyped module is blocked rather than reported. The deployed configuration
-  declares the mapping, and the serving test proves it.
-- **Configuration activation.** A duplicate `types` block can prevent an Nginx reload while
-  the old process keeps serving `application/octet-stream`. Keep the `.mjs` mapping in its
-  dedicated location, validate the configured file, and check the live response header.
+- **Module serving.** Stock Nginx may mistype `.mjs` and block it. The deployed configuration
+  declares JavaScript explicitly, and the serving test proves it.
+- **Configuration activation.** A duplicate `types` block can leave the old Nginx process serving
+  the wrong MIME. Keep the mapping in its dedicated location and check the live response header.
+- **Map runtime availability.** The self-contained build has no bundled remote SDK asset.
+  Creator fetches v3.0.6 only after Engage, surfaces load failure/timeout, binds metadata
+  to the entered campus, and only claims routed geometry after the SDK-backed map loads.
 - **Proxy reachability.** Cloud polling depends on the positioning proxy and its CORS
   allowlist matching the origin the page is served from.
 - **Host access control.** A field device must actually be allowed to reach the host.
@@ -141,9 +142,8 @@ Standing risks, rechecked every step rather than assumed closed.
   permissions policy does not allow it. Verify on the served host, not only locally.
 - **Preflight honesty.** A green light that is easy to earn is worse than none.
   Each verdict keeps a test, so the thresholds cannot drift into always-green.
-- **Floor naming.** Confirm the z-level display mapping against a real campus. A widget
-  label and a raw z-level have been observed to differ by one, so the mapping is data,
-  never arithmetic.
+- **Floor naming.** A widget label and raw z-level can differ by one. Confirm the explicit
+  mapping against a real campus; never derive it arithmetically.
 - **Heatmap floor separation.** Heat layers are not floor-aware by default and will blend
   floors unless filtered per z-level.
 

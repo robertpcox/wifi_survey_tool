@@ -1,5 +1,4 @@
 # SurveyDefinitionV3 — authoring and immutable route contract
-
 ## Meta block
 
 The definition opens with one meta block describing the planned test.
@@ -9,12 +8,12 @@ read their identity, floors, and labels from it. Nothing downstream re-derives t
 A Creator export contains:
 
 - `schemaVersion: 3`
-- stable `surveyId` and human-readable `surveyName`
+- Creator-generated RFC 4122 UUID `surveyId` and human-readable `surveyName`
 - `customerId` and `customerName`
 - `campusId` and `campusName`
 - `timezone`
-- buildings tested
-- ordered z-levels and explicit z-level display-name mapping
+- buildings derived from committed MazeMap points
+- ordered z-levels and display names derived from those points and campus floor data
 - positioning source identifier
 - author notes for this test, free text and optional
 - safe source config, including config ID and polling interval
@@ -25,7 +24,15 @@ A Creator export contains:
 
 The definition then carries the complete immutable route snapshot.
 
-A changed route or checkpoint plan creates a new `surveyId`.
+The first successful definition build/export creates the UUID. A changed route or
+checkpoint plan creates a new UUID and increments the route version. An unchanged
+re-export preserves the survey ID, route ID, route version, route hash, and creation time.
+The author never types or edits a survey ID.
+
+The route hash is a lowercase SHA-256 digest of one canonical route plan containing
+ordered stops, ordered legs and geometry, ordered checkpoints, checkpoint spacing,
+and checkpoint dwell. Object keys are sorted recursively before hashing. The stored
+hash and other route-summary fields do not contribute to that digest.
 
 The definition states what must be captured. It says nothing about what is doing the
 capturing. Device, wireless band, and tester belong to the run, so one survey ID covers
@@ -43,16 +50,37 @@ Runner never requests or recalculates routing. The definition embeds:
 
 Every target stores real `lng`, `lat`, and `z`.
 
+MazeMap is a runtime authoring dependency; no remote SDK asset is bundled into the
+self-contained build. The author enters customer, campus ID, and an access token, then
+selects Engage. Engage fetches the exact v3.0.6 SDK, applies the token from memory, resolves
+the campus name and centre, and loads that campus before authoring is enabled. When routing
+is available, Creator records the returned geometry. Without routing, Creator labels and
+records exact endpoint-to-endpoint geometry. The engaged campus ID must match
+`meta.campusId` before the checkpoint plan can be locked.
+
 ## Stop capture
 
 A stop is placed one of three ways, and the definition records which:
-
-- clicked on the map
-- selected as a POI centre
+- selected from a map click using the exact clicked coordinates
+- selected from that same click using the discovered POI centre
 - captured from the device's GPS position
 
-A captured stop additionally stores reported accuracy in metres and the capture timestamp,
-so a route built in poor conditions is auditable later rather than indistinguishable.
+Each map click shows both coordinate sets when a POI exists, and the chosen target commits
+immediately. An exact target keeps POI context but routes by the click; a POI target routes
+by POI ID and its centre coordinates.
+
+For an indoor click, Creator resolves MazeMap POI and campus catalogs for its building,
+z-level, and floor name. Coverage is recomputed from committed stops; transient or removed
+clicks do not become coverage. Manual building/floor entry is unsupported.
+
+A captured stop additionally stores:
+
+- `provenance.method: "gps"`
+- reported `accuracyM` and ISO `capturedAt`
+- original `capturedPosition` with `lng` and `lat`
+- boolean `adjusted`
+
+These fields keep a route built in poor conditions auditable rather than indistinguishable.
 
 GPS returns no floor. The author sets the z-level explicitly, and an outdoor capture uses
 the campus outdoor level. A capture never guesses a floor.
@@ -60,11 +88,9 @@ the campus outdoor level. A capture never guesses a floor.
 Accuracy worse than the configured threshold warns, names the stop, and is recorded.
 Indoor capture is called out as unreliable at the moment of capture, not afterwards.
 
-A captured stop stays adjustable on the map. Adjusting it keeps the original capture
-provenance and marks it adjusted, because provenance is evidence, not decoration.
+A captured stop stays adjustable while retaining original provenance and marking adjustment.
 
-Capture requires the served page to permit geolocation. Confirm the deployed location's
-permissions policy allows it, or capture fails silently in the field.
+The served page must permit geolocation; confirm its deployed permissions policy in the field.
 
 ## Checkpoint generation
 
@@ -95,7 +121,7 @@ The chosen dwell is embedded so reruns follow the same procedure.
 Estimated duration uses:
 
 ```text
-route walking time + total configured checkpoint dwell time
+route distance ÷ 1 metre/second + checkpoint count × checkpoint dwell seconds
 ```
 
 Creator displays checkpoint count, distance, walking time, dwell time, and total estimate.
@@ -104,7 +130,8 @@ Creator displays checkpoint count, distance, walking time, dwell time, and total
 
 Definition records what Runner must collect before a run, never the values themselves.
 
-Credentials, requested only when the campus and source require them:
+MazeMap Cloud is the Runner positioning provider, separate from map launch and routing,
+and requires all four in-memory run credentials:
 
 - private MazeMap access
 - Cloud App ID
@@ -119,5 +146,5 @@ Run identity, collected on every run:
 Config ID, polling interval, campus metadata, and other safe values remain in the definition.
 No access token or positioning secret is serialized.
 
-Creator itself requests private map access the same way when the campus requires it.
-The token is held in memory for the authoring session and is never written to the definition.
+Creator clears private map access after Engage, keeps it in memory for authoring, and never
+writes it to the definition or browser storage.

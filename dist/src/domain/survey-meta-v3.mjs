@@ -27,6 +27,14 @@ const STRING_PATHS = [
   "surveyId", "surveyName", "customerId", "customerName",
   "campusId", "campusName", "timezone", "positionSourceId",
 ];
+const RFC_4122_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+export function createSurveyIdV3(cryptoRef = globalThis.crypto) {
+  if (typeof cryptoRef?.randomUUID !== "function") {
+    throw new TypeError("cryptoRef.randomUUID: is required for survey ID generation");
+  }
+  return cryptoRef.randomUUID();
+}
 
 export function validateSurveyMeta(meta, path = "meta") {
   const issues = [];
@@ -34,14 +42,18 @@ export function validateSurveyMeta(meta, path = "meta") {
   if (meta === null || typeof meta !== "object") return issues;
   requirePaths(meta, META_REQUIRED_PATHS, issues, path);
   for (const key of STRING_PATHS) expectString(meta[key], `${path}.${key}`, issues);
+  if (typeof meta.surveyId === "string" && meta.surveyId.trim()
+      && !RFC_4122_UUID.test(meta.surveyId)) {
+    issues.push(`${path}.surveyId: must be an RFC 4122 UUID`);
+  }
   expectArray(meta.buildings, `${path}.buildings`, issues, 1);
-  for (const [index, building] of (meta.buildings || []).entries()) {
+  for (const [index, building] of arrayValue(meta.buildings).entries()) {
     expectString(building?.id, `${path}.buildings.${index}.id`, issues);
     expectString(building?.name, `${path}.buildings.${index}.name`, issues);
   }
   expectArray(meta.zLevels, `${path}.zLevels`, issues, 1);
   expectRecord(meta.zLevelNames, `${path}.zLevelNames`, issues);
-  for (const level of meta.zLevels || []) {
+  for (const level of arrayValue(meta.zLevels)) {
     expectNumber(level, `${path}.zLevels`, issues);
     expectString(meta.zLevelNames?.[String(level)], `${path}.zLevelNames.${level}`, issues);
   }
@@ -66,6 +78,10 @@ export function validateSurveyMeta(meta, path = "meta") {
     issues.push(`${secretPath}: serialized credential values are forbidden`);
   }
   return issues;
+}
+
+function arrayValue(value) {
+  return Array.isArray(value) ? value : [];
 }
 
 function validateSourceConfig(config, path, issues) {

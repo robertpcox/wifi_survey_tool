@@ -1,15 +1,17 @@
 import {
   expectArray,
+  expectIso,
   expectNumber,
   expectRecord,
   expectString,
   requirePaths,
 } from "./validation.mjs";
+import { validateRouteIntegrityV3 } from "./route-integrity-v3.mjs";
 
 export const ROUTE_REQUIRED_PATHS = Object.freeze([
   "routeId", "version", "hash", "stops", "stops.0.id", "stops.0.name",
   "stops.0.lng", "stops.0.lat", "stops.0.z", "stops.0.poiId",
-  "stops.0.locationType", "stops.0.provenance",
+  "stops.0.poiName", "stops.0.locationType", "stops.0.provenance",
   "legs", "legs.0.id", "legs.0.fromStopId", "legs.0.toStopId",
   "legs.0.distanceM", "legs.0.geometry",
   "checkpoints", "checkpoints.0.id", "checkpoints.0.sequence",
@@ -26,19 +28,23 @@ export function validateRouteSnapshot(route, path = "route") {
   expectString(route.routeId, `${path}.routeId`, issues);
   expectNumber(route.version, `${path}.version`, issues, 1);
   expectString(route.hash, `${path}.hash`, issues);
+  if (typeof route.hash === "string" && !/^[a-f0-9]{64}$/.test(route.hash)) {
+    issues.push(`${path}.hash: must be a lowercase SHA-256 digest`);
+  }
   expectNumber(route.totalDistanceM, `${path}.totalDistanceM`, issues, 0);
   expectArray(route.stops, `${path}.stops`, issues, 2);
   expectArray(route.legs, `${path}.legs`, issues, 1);
   expectArray(route.checkpoints, `${path}.checkpoints`, issues, 2);
-  for (const [index, stop] of (route.stops || []).entries()) {
+  for (const [index, stop] of arrayValue(route.stops).entries()) {
     validateStop(stop, `${path}.stops.${index}`, issues);
   }
-  for (const [index, leg] of (route.legs || []).entries()) {
+  for (const [index, leg] of arrayValue(route.legs).entries()) {
     validateLeg(leg, `${path}.legs.${index}`, issues);
   }
-  for (const [index, checkpoint] of (route.checkpoints || []).entries()) {
+  for (const [index, checkpoint] of arrayValue(route.checkpoints).entries()) {
     validateCheckpoint(checkpoint, `${path}.checkpoints.${index}`, issues);
   }
+  issues.push(...validateRouteIntegrityV3(route, path));
   return issues;
 }
 
@@ -51,9 +57,14 @@ function validateStop(stop, path, issues) {
     expectNumber(stop?.[key], `${path}.${key}`, issues);
   }
   if (stop?.poiId !== null) expectString(stop?.poiId, `${path}.poiId`, issues);
+  if (stop && !Object.hasOwn(stop, "poiName")) issues.push(`${path}.poiName: is required`);
+  else expectString(stop?.poiName, `${path}.poiName`, issues, true);
   expectRecord(stop?.provenance, `${path}.provenance`, issues);
   if (!["map", "poi", "gps"].includes(stop?.provenance?.method)) {
     issues.push(`${path}.provenance.method: unsupported placement method`);
+  }
+  if (stop?.provenance?.method === "gps") {
+    validateGpsProvenance(stop.provenance, `${path}.provenance`, issues);
   }
 }
 
@@ -64,7 +75,7 @@ function validateLeg(leg, path, issues) {
   }
   expectNumber(leg?.distanceM, `${path}.distanceM`, issues, 0);
   expectArray(leg?.geometry, `${path}.geometry`, issues, 2);
-  for (const [index, point] of (leg?.geometry || []).entries()) {
+  for (const [index, point] of arrayValue(leg?.geometry).entries()) {
     for (const key of ["lng", "lat", "z"]) {
       expectNumber(point?.[key], `${path}.geometry.${index}.${key}`, issues);
     }
@@ -88,4 +99,29 @@ function validateCheckpoint(checkpoint, path, issues) {
   if (checkpoint?.legId !== null) {
     expectString(checkpoint?.legId, `${path}.legId`, issues);
   }
+  const stopTarget = checkpoint?.type === "stop" && checkpoint?.stopId !== null;
+  const legTarget = checkpoint?.type === "intermediate" && checkpoint?.legId !== null;
+  if (!stopTarget && !legTarget) {
+    issues.push(`${path}: must reference its stop or leg`);
+  }
+}
+
+function validateGpsProvenance(provenance, path, issues) {
+  expectNumber(provenance.accuracyM, `${path}.accuracyM`, issues, 0);
+  expectIso(provenance.capturedAt, `${path}.capturedAt`, issues);
+  expectRecord(provenance.capturedPosition, `${path}.capturedPosition`, issues);
+  for (const key of ["lng", "lat"]) {
+    expectNumber(
+      provenance.capturedPosition?.[key],
+      `${path}.capturedPosition.${key}`,
+      issues,
+    );
+  }
+  if (typeof provenance.adjusted !== "boolean") {
+    issues.push(`${path}.adjusted: must be a boolean`);
+  }
+}
+
+function arrayValue(value) {
+  return Array.isArray(value) ? value : [];
 }

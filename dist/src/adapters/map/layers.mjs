@@ -46,7 +46,7 @@ export function createMapLayers(map, getCurrentZLevel) {
     ensureLayers();
     const features = [];
     legs.forEach((leg, legIndex) => {
-      appendPathFeatures(features, leg.coords || [], { legIdx: legIndex });
+      appendPathFeatures(features, leg.geometry || leg.coords || [], { legIdx: legIndex });
     });
     setSource("route-lines", features);
   }
@@ -55,8 +55,8 @@ export function createMapLayers(map, getCurrentZLevel) {
     ensureLayers();
     setSource("wp-pts", waypoints.map(waypoint => pointFeature(waypoint, {
       z: waypoint.z,
-      state: waypoint.state,
-      kind: waypoint.kind,
+      state: waypoint.state || "pending",
+      kind: waypoint.kind || waypoint.type,
     })));
   }
 

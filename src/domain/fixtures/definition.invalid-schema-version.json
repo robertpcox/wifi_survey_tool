@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "meta": {
-    "surveyId": "survey-demo-v3", "surveyName": "Demo route",
+    "surveyId": "11111111-1111-4111-8111-111111111111", "surveyName": "Demo route",
     "customerId": "customer-demo", "customerName": "Demo Customer",
     "campusId": "campus-demo", "campusName": "Demo Campus",
     "timezone": "Pacific/Auckland",
@@ -29,11 +29,13 @@
     "stops": [
       {
         "id": "stop-a", "name": "Start", "lng": 170.5, "lat": -45.87, "z": 0,
-        "poiId": null, "locationType": "room", "provenance": { "method": "map" }
+        "poiId": null, "poiName": null, "locationType": "room",
+        "provenance": { "method": "map" }
       },
       {
         "id": "stop-b", "name": "Finish", "lng": 170.5002, "lat": -45.87, "z": 0,
-        "poiId": null, "locationType": "room", "provenance": { "method": "map" }
+        "poiId": null, "poiName": null, "locationType": "room",
+        "provenance": { "method": "map" }
       }
     ],
     "legs": [{

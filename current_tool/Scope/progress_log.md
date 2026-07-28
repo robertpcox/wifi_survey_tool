@@ -1,5 +1,53 @@
 # Progress log — newest entry first
 
+## 2026-07-28 — Step 3 map-first Creator correction and choice fix
+
+- Rebuilt desktop authoring with routes left, a dominant centre map, and controls right.
+- Restored the reference click workflow: exact clicked and POI-centre coordinate choices
+  appear on the map and commit immediately with distinct provenance and targets.
+- First map choice now auto-locks visible spacing/dwell and commits before later metadata.
+- Made the successful campus Engage single-use and collapsed setup instead of presenting
+  Re-engage.
+- Relabelled MazeMap Cloud as Runner's positioning provider and fixed all four runtime
+  credential requirements on. Optional device geolocation is separately labelled.
+- Final build passed 262 tests, all gates, 96 files, and both staged Chrome smokes.
+- Demo commit `4d2743f` contains the byte-identical two-module map-choice fix.
+
+## 2026-07-28 — Step 3 Creator Engage correction built and deployed
+
+- Replaced user-entered survey IDs with Creator-generated RFC 4122 UUIDs; unchanged
+  re-exports preserve the UUID and changed routes/plans generate a new one.
+- Removed manual Buildings/Floors entry. Committed MazeMap points now resolve and
+  deduplicate building IDs/names, z-levels, and floor display names.
+- Replaced the separate access-save/map-launch controls with customer, campus, and
+  memory-only access token followed by one Engage action.
+- Added lazy loading for the exact MazeMap v3.0.6 SDK, runtime campus catalogs/centering,
+  map load error/timeout handling, and click metadata resolution.
+- Confirmed the reported `runtime.lastError` text is not emitted by repository code;
+  clean headless Chrome completes the path without a console error.
+- Passed the complete build: 255 tests, all gates, 94 staged files, four-shell Chrome
+  smoke, and the SDK-backed Creator Engage/map-click/UUID export smoke.
+- Replaced `/Users/robert/Git/demo.mazemap_nginx/html/wifi-survey-v3` with the 94-file
+  build, confirmed byte identity with `dist`, and repeated both deployed-directory
+  Chrome smokes successfully.
+
+## 2026-07-28 — Step 3 Creator complete
+
+- Closed Step 2 serving acceptance: live `.mjs` MIME is JavaScript and all four shells
+  booted in live Chrome.
+- Built the Creator feature with metadata, unlockable checkpoint plan, exact/POI/GPS
+  stops, live routing, SVG review, metrics, warnings, import, and validated export.
+- Added deterministic route integrity, canonical SHA-256 plan hashing, 1 metre/second
+  duration, short-leg checkpoint rules, and GPS capture provenance.
+- Added the Creator Chrome path and shared static-server support to the staged build.
+- Added one validated Dunedin development definition and deterministic survey/customer
+  manifests for Step 4.
+- Bundled no remote MazeMap SDK; exact-line fallback is labelled and configured campus
+  metadata is bound to an injected map adapter.
+- Passed the complete build: 237 tests, staged secret scan, four-shell Chrome smoke,
+  Creator Chrome export smoke, and an emitted `dist/`.
+- Performed no deployment and stopped before Step 4 Runner implementation.
+
 ## 2026-07-28 — Step 2 implemented, live MIME activation pending
 
 - Added independent v3 definition and result validators, shared meta and route-snapshot

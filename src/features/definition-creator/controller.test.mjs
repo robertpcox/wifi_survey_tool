@@ -49,6 +49,7 @@ function harness() {
   };
   const workflow = {
     rebuild: async stops => {
+      calls.rebuilds = (calls.rebuilds ?? 0) + 1;
       if (calls.failRoute && stops.length > 1) throw new Error("provider offline");
       return stops.length < 2
         ? { ...route, checkpoints: [], distanceM: 0, legs: [], shortLegs: [] }
@@ -82,8 +83,7 @@ function harness() {
   controller.engage({ campusId: "campus-a" });
   return { calls, fields, controller };
 }
-
-test("controller locks planning and live-routes every added or adjusted stop", async () => {
+test("controller locks planning and live-routes every added or reordered stop", async () => {
   const { calls, controller, fields } = harness();
   fields.surveyName = "";
   fields.configId = "";
@@ -91,15 +91,19 @@ test("controller locks planning and live-routes every added or adjusted stop", a
   assert.equal(controller.state.planLocked, true);
   assert.equal(controller.state.stops.length, 1);
   await controller.dispatch("add-exact");
-  assert.equal(calls.planLocked, true);
   assert.equal(controller.state.stops.length, 2);
   assert.equal(controller.state.route.distanceM, 8);
   assert.match(calls.shortWarnings.at(-1), /Start → Finish/);
-  assert.ok(calls.map.some(call => call[0] === "route"));
-  await controller.dispatch("select-stop", { dataset: { index: "0" } });
-  await controller.dispatch("adjust-stop");
-  assert.equal(controller.state.stops[0].name, "Adjusted");
-  assert.equal(controller.state.route.distanceM, 8);
+  await controller.dispatch("add-exact");
+  await controller.dispatch("select-stop", { dataset: { index: "1" } });
+  const rebuilds = calls.rebuilds;
+  await controller.dispatch("move-stop-down", { dataset: { index: "1" } });
+  assert.equal(calls.rebuilds, rebuilds + 1);
+  assert.deepEqual(controller.state.stops.map(stop => stop.id),
+    ["stop-1", "stop-3", "stop-2"]);
+  assert.equal(controller.state.selectedIndex, 2);
+  const drawn = calls.map.filter(call => call[0] === "stops").at(-1)[1];
+  assert.deepEqual(drawn.map(stop => stop.id), ["stop-1", "stop-3", "stop-2"]);
   await controller.dispatch("lock-plan");
   assert.equal(controller.state.planLocked, false);
   fields.spacingM = 12;
@@ -112,8 +116,7 @@ test("short-leg dismissal lasts for subsequent route renders", async () => {
   await controller.dispatch("add-exact");
   await controller.dispatch("add-exact");
   await controller.dispatch("dismiss-short-warning");
-  await controller.dispatch("select-stop", { dataset: { index: "0" } });
-  await controller.dispatch("adjust-stop");
+  await controller.dispatch("move-stop-down", { dataset: { index: "0" } });
   assert.equal(controller.state.shortWarningDismissed, true);
   assert.equal(calls.shortWarnings.at(-1), null);
 });
@@ -127,7 +130,6 @@ test("a routing failure leaves the visible route and stops unchanged", async () 
   assert.equal(controller.state.route.distanceM, 0);
   assert.match(calls.statuses.at(-1)[0], /provider offline/);
 });
-
 function validFields() {
   return {
     surveyName: "Survey A",

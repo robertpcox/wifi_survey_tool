@@ -20,14 +20,24 @@ function harness() {
 
 test("view renderers safely show stops, route metrics, and map coverage", () => {
   const { elements, find } = harness();
-  const stops = [{
-    id: "stop-1",
-    name: "Start <room>",
-    lng: 170.5,
-    lat: -45.87,
-    z: 1,
-    provenance: { method: "map" },
-  }];
+  const stops = [
+    {
+      id: "stop-1",
+      name: "Start <room>",
+      lng: 170.5,
+      lat: -45.87,
+      z: 1,
+      provenance: { method: "map" },
+    },
+    {
+      id: "stop-2",
+      name: "Finish",
+      lng: 170.51,
+      lat: -45.88,
+      z: 2,
+      provenance: { method: "poi" },
+    },
+  ];
   renderCreatorStops(find, stops);
   renderCreatorRoute(find, stops, {
     checkpoints: [],
@@ -40,7 +50,14 @@ test("view renderers safely show stops, route metrics, and map coverage", () => 
     zLevels: [1],
     zLevelNames: { 1: "Level 00" },
   });
-  assert.match(elements.get("[data-stop-list]").innerHTML, /Start &lt;room&gt;/);
+  const stopHtml = elements.get("[data-stop-list]").innerHTML;
+  assert.match(stopHtml, /Start &lt;room&gt;/);
+  assert.doesNotMatch(stopHtml, /data-action="select-stop"|>Edit</);
+  assert.equal((stopHtml.match(/data-action="remove-stop"/g) ?? []).length, 2);
+  assert.match(stopHtml, /aria-label="Move stop 1 up" disabled/);
+  assert.match(stopHtml, /aria-label="Move stop 1 down">/);
+  assert.match(stopHtml, /aria-label="Move stop 2 up">/);
+  assert.match(stopHtml, /aria-label="Move stop 2 down" disabled/);
   assert.equal(elements.get('[data-metric="distance"]').textContent, "0.0 m");
   assert.match(
     elements.get("[data-coverage-buildings]").textContent,

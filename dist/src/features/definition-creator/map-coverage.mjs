@@ -43,7 +43,13 @@ export function deriveMapCoverage({
       );
     }
   }
+  contexts.sort((left, right) =>
+    Number(Boolean(left?.coordinateOnly)) - Number(Boolean(right?.coordinateOnly)));
   for (const context of contexts) {
+    if (context?.coordinateOnly) {
+      addFloorName(floorNames, context.floor, false);
+      continue;
+    }
     addBuilding(buildings, context?.building, strict);
     addFloorName(floorNames, context?.floor, strict);
   }

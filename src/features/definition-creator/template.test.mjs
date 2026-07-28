@@ -7,7 +7,7 @@ test("Creator template exposes launch, three-column authoring, and map choices",
   const html = definitionCreatorTemplate();
   for (const field of [
     "customerId", "campusId", "campusName",
-    "positionSourceId", "spacingM", "dwellSeconds", "stopZ", "gpsZ",
+    "positionSourceId", "timezone", "spacingM", "dwellSeconds", "stopZ", "gpsZ",
   ]) {
     assert.match(html, new RegExp(`data-field="${field}"`));
   }
@@ -27,6 +27,7 @@ test("Creator template exposes launch, three-column authoring, and map choices",
   assert.match(html, /data-poi-summary/);
   assert.match(html, /data-route-mode/);
   assert.match(html, /data-route-preview/);
+  assert.match(html, /role="img"[\s\S]*creator-route-preview-title creator-route-preview-desc/);
   assert.match(html, /data-metric="walking"/);
   assert.match(html, /data-engage-access type="password"/);
   assert.match(html, /data-coverage-buildings/);
@@ -34,6 +35,13 @@ test("Creator template exposes launch, three-column authoring, and map choices",
   assert.match(html, /Runner positioning provider/);
   assert.match(html, /do not configure the authoring map or its routing/);
   assert.match(html, /Optional current-device capture/);
+  assert.match(html, /Timezone <select data-field="timezone"/);
+  assert.match(html, /value="Australia\/Melbourne" selected/);
+  assert.match(html, /value="Pacific\/Auckland"/);
+  assert.match(html, /value="UTC"/);
+  assert.match(html, /fieldset data-stop-fields hidden disabled/);
+  assert.ok(html.indexOf("data-plan-fields") < html.indexOf("<h2>Ordered route</h2>"));
+  assert.equal((html.match(/data-plan-fields/g) ?? []).length, 1);
   assert.equal((html.match(/data-action="engage-map"/g) ?? []).length, 1);
   for (const field of ["needsMapAccess", "needsAppId", "needsAppKey", "needsClientIp"]) {
     assert.match(html, new RegExp(`data-field="${field}"[^>]*checked disabled`));

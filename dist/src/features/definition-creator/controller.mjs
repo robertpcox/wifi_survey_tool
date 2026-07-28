@@ -1,19 +1,13 @@
-import {
-  createCreatorControllerState,
-  nextCreatorStopId,
-} from "./controller-state.mjs";
+import { createCreatorControllerState, nextCreatorStopId } from "./controller-state.mjs";
 import { createDefinitionFiles } from "./definition-files.mjs";
 import { assertCreatorCampus, parseCreatorPlanFields } from "./form.mjs";
 import { renderCreatorController } from "./controller-render.mjs";
+import { reorderCreatorStops } from "./stop-order.mjs";
 export function createDefinitionCreatorController(options) {
   const { view, workflow, stopActions, mapAdapter } = options;
   const state = createCreatorControllerState();
   const configuredCampusId = () => state.engagedCampusId;
-  const render = () => renderCreatorController({
-    mapAdapter,
-    state,
-    view,
-  });
+  const render = () => renderCreatorController({ mapAdapter, state, view });
   async function lockPlan() {
     if (state.planLocked) {
       state.planLocked = false;
@@ -60,12 +54,8 @@ export function createDefinitionCreatorController(options) {
     view.setStatus(message, "ok");
   }
   async function addStop(stop, warning = null) {
-    await commitStops(
-      [...state.stops, stop],
-      `${stop.name} added; route and review updated.`,
-      -1,
-      warning,
-    );
+    return commitStops([...state.stops, stop],
+      `${stop.name} added; route and review updated.`, -1, warning);
   }
   async function adjustSelected() {
     requirePlan();
@@ -82,6 +72,12 @@ export function createDefinitionCreatorController(options) {
     if (!removed) throw new Error(`stop ${index + 1}: does not exist`);
     const stops = state.stops.filter((_stop, stopIndex) => stopIndex !== index);
     await commitStops(stops, `${removed.name} removed; route and review updated.`);
+  }
+  async function moveStop(index, offset) {
+    requirePlan();
+    const moved = reorderCreatorStops(state.stops, index, offset, state.selectedIndex);
+    await commitStops(moved.stops,
+      `${moved.movedStop.name} moved; route and review updated.`, moved.selectedIndex);
   }
   function selectStop(index) {
     const stop = state.stops[index];
@@ -123,6 +119,8 @@ export function createDefinitionCreatorController(options) {
     try {
       if (action === "select-stop") return selectStop(Number(button.dataset.index));
       if (action === "remove-stop") return await removeStop(Number(button.dataset.index));
+      if (action === "move-stop-up") return await moveStop(Number(button.dataset.index), -1);
+      if (action === "move-stop-down") return await moveStop(Number(button.dataset.index), 1);
       if (!actions[action]) return undefined;
       return await actions[action]();
     } catch (error) {

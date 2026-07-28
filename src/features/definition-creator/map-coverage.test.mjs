@@ -85,6 +85,33 @@ test("imported metadata is a safe fallback and preview mode is non-blocking", ()
   );
 });
 
+test("coordinate-only stops add zN coverage without inventing a building", () => {
+  const coordinateOnly = {
+    coordinateOnly: true,
+    building: { id: null, name: null },
+    floor: { id: null, name: "z2", z: 2 },
+    poi: { center: null, id: null, name: null },
+  };
+  assert.deepEqual(deriveMapCoverage({
+    stops: [stop("mapped"), stop("coordinate", 2, coordinateOnly)],
+  }), {
+    buildings: [{ id: "101", name: "Clinical Services" }],
+    zLevels: [1, 2],
+    zLevelNames: { 1: "Level 00", 2: "z2" },
+  });
+  const sameLevel = {
+    ...coordinateOnly,
+    floor: { id: null, name: "z1", z: 1 },
+  };
+  assert.equal(deriveMapCoverage({
+    stops: [stop("coordinate", 1, sameLevel), stop("mapped")],
+  }).zLevelNames[1], "Level 00");
+  assert.throws(
+    () => deriveMapCoverage({ stops: [stop("coordinate", 2, coordinateOnly)] }),
+    /meta.buildings/,
+  );
+});
+
 test("POI properties become safe authoring context", () => {
   assert.deepEqual(mapContextFromPoi({
     properties: {

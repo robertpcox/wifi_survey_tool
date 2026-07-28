@@ -7,7 +7,11 @@ export function renderCreatorStops(find, stops, selectedIndex = -1) {
         <small>${stop.lng.toFixed(6)}, ${stop.lat.toFixed(6)}, z${stop.z}
           · ${escapeText(stop.provenance.method)}</small></span>
       <span>
-        <button type="button" data-action="select-stop" data-index="${index}">Edit</button>
+        <button type="button" data-action="move-stop-up" data-index="${index}"
+          aria-label="Move stop ${index + 1} up"${index === 0 ? " disabled" : ""}>Move up</button>
+        <button type="button" data-action="move-stop-down" data-index="${index}"
+          aria-label="Move stop ${index + 1} down"${index === stops.length - 1
+            ? " disabled" : ""}>Move down</button>
         <button type="button" data-action="remove-stop" data-index="${index}">Remove</button>
       </span>
     </li>

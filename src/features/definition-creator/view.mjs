@@ -2,6 +2,7 @@ import { definitionCreatorTemplate } from "./template.mjs";
 import { closeCreatorMapChoice, showCreatorMapChoice } from "./map-choice.mjs";
 import { renderCreatorCoverage, renderCreatorRoute, renderCreatorStops }
   from "./view-render.mjs";
+import { ensureTimezoneOption } from "./timezones.mjs";
 export function createDefinitionCreatorView(root) {
   root.innerHTML = definitionCreatorTemplate();
   const find = selector => root.querySelector(selector);
@@ -21,6 +22,9 @@ export function createDefinitionCreatorView(root) {
     for (const [name, value] of Object.entries(values)) {
       const element = field(name);
       if (!element) continue;
+      if (name === "timezone") {
+        ensureTimezoneOption(element, value, root.ownerDocument);
+      }
       if (element.type === "checkbox") element.checked = Boolean(value);
       else element.value = value ?? "";
     }

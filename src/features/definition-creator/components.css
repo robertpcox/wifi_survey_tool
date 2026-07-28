@@ -124,10 +124,27 @@
   fill: #14213d;
   font: 700 14px system-ui, sans-serif;
 }
-
 @media (max-width: 760px) {
   [data-floor-map] {
     height: min(65vh, 38rem);
     min-height: 26rem;
   }
 }
+.creator-route [data-plan-fields] {
+  grid-template-columns: 1fr;
+  padding: 0.75rem;
+}
+[data-stop-fields][hidden] { display: none; }
+.creator-stop > span:last-child {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  justify-content: flex-end;
+}
+.route-level-plane {
+  fill: rgb(157 177 200 / 10%);
+  stroke: #9db1c8;
+  stroke-dasharray: 4 4;
+}
+.route-level-label { fill: #526b85; font: 700 12px system-ui, sans-serif; }
+.route-rise { stroke: #7c3aed; stroke-dasharray: 7 5; }

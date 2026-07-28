@@ -2,13 +2,19 @@ export function showCreatorMapChoice(find, { clicked, context } = {}) {
   const panel = find("[data-map-choice]");
   const poi = context?.poi ?? {};
   const poiCenter = poi.center ?? null;
+  const hasPoi = Boolean(String(poi.id ?? "").trim())
+    && [poiCenter?.lng, poiCenter?.lat, poiCenter?.z]
+      .every(value => Number.isFinite(Number(value)));
   find("[data-clicked-summary]").textContent =
     `Clicked point: ${coordinateSummary(clicked)}`;
-  find("[data-poi-summary]").textContent = poiCenter
+  const summary = find("[data-poi-summary]");
+  summary.hidden = !hasPoi;
+  summary.textContent = hasPoi
     ? `POI centre${poi.name ? ` — ${poi.name}` : ""}: ${coordinateSummary(poiCenter)}`
-    : "No POI centre is available at this point.";
+    : "";
   const poiAction = find("[data-map-choice-poi-action]");
-  poiAction.disabled = !poiCenter || !poi.id;
+  poiAction.disabled = !hasPoi;
+  poiAction.hidden = !hasPoi;
   panel.hidden = false;
 }
 

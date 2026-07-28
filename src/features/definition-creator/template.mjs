@@ -1,3 +1,5 @@
+import { timezoneOptionsMarkup } from "./timezones.mjs";
+
 export function definitionCreatorTemplate() {
   return `
     <section class="definition-creator" aria-labelledby="creator-title">
@@ -27,6 +29,12 @@ export function definitionCreatorTemplate() {
               <span data-short-warning-text></span>
               <button type="button" data-action="dismiss-short-warning">Dismiss</button>
             </div>
+            <fieldset data-plan-fields data-requires-engagement disabled>
+              <legend>Checkpoint plan</legend>
+              <label>Spacing metres <input data-field="spacingM" type="number" min="1" value="10"></label>
+              <label>Dwell seconds <input data-field="dwellSeconds" type="number" min="0" value="5"></label>
+              <button type="button" class="primary" data-action="lock-plan">Lock checkpoint plan</button>
+            </fieldset>
             <h2>Ordered route</h2>
             <div class="creator-coverage" aria-live="polite">
               <strong>Coverage from committed map points</strong>
@@ -34,8 +42,8 @@ export function definitionCreatorTemplate() {
               <span data-coverage-floors>No mapped floors yet.</span>
             </div>
             <ol data-stop-list class="creator-stops"></ol>
-            <svg data-route-preview viewBox="0 0 600 360"
-              aria-label="Route and checkpoint preview"></svg>
+            <svg data-route-preview viewBox="0 0 600 360" role="img"
+              aria-labelledby="creator-route-preview-title creator-route-preview-desc"></svg>
             <dl class="creator-metrics">
               <div><dt>Distance</dt><dd data-metric="distance">0 m</dd></div>
               <div><dt>Checkpoints</dt><dd data-metric="checkpoints">0</dd></div>
@@ -76,7 +84,8 @@ export function definitionCreatorTemplate() {
               <legend>Survey identity</legend>
               <p class="wide creator-help">A UUID is generated automatically when the definition is built.</p>
               <label>Survey name <input data-field="surveyName" required></label>
-              <label>Timezone <input data-field="timezone" value="Australia/Melbourne" required></label>
+              <label>Timezone <select data-field="timezone" required>
+                ${timezoneOptionsMarkup()}</select></label>
               <label>Route ID <input data-field="routeId" required></label>
             </fieldset>
             <fieldset data-requires-engagement disabled>
@@ -100,13 +109,7 @@ export function definitionCreatorTemplate() {
               <label>Author name <input data-field="authorName"></label>
               <label class="wide">Author notes <textarea data-field="authorNotes" rows="3"></textarea></label>
             </fieldset>
-            <fieldset data-plan-fields data-requires-engagement disabled>
-              <legend>Checkpoint plan</legend>
-              <label>Spacing metres <input data-field="spacingM" type="number" min="1" value="10"></label>
-              <label>Dwell seconds <input data-field="dwellSeconds" type="number" min="0" value="5"></label>
-              <button type="button" class="primary" data-action="lock-plan">Lock checkpoint plan</button>
-            </fieldset>
-            <fieldset data-stop-fields disabled>
+            <fieldset data-stop-fields hidden disabled>
               <legend>Stop details</legend>
               <label>Name <input data-field="stopName"></label>
               <label>Longitude <input data-field="stopLng" type="number" step="any" readonly></label>

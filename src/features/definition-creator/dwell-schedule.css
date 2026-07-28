@@ -1,0 +1,61 @@
+/* FEATURE:      Creator dwell schedule
+ * SURFACE:      Per-leg check-in cards and dwell controls
+ * WHY TOGETHER: Leg grouping, inputs, and responsive layout form one visual component.
+ * STATE:        Responsive layout only
+ * RULES:        Keep check-in labels and move-on controls readable on narrow screens.
+ * PROVENANCE:   Scope/steps/03_build_creator.md
+ */
+
+.creator-legs {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0.75rem 0;
+}
+
+.creator-leg-card {
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+}
+
+.creator-leg-card h3 {
+  margin: 0 0 0.55rem;
+}
+
+.creator-leg-card h3 small {
+  display: block;
+  font-weight: 400;
+  margin-top: 0.2rem;
+}
+
+.creator-leg-card ul {
+  display: grid;
+  gap: 0.45rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.creator-leg-card li {
+  align-items: center;
+  display: grid;
+  gap: 0.4rem;
+  grid-template-columns: minmax(7rem, 1fr) auto auto auto;
+}
+
+.creator-leg-card label {
+  align-items: center;
+  display: flex;
+  gap: 0.3rem;
+}
+
+.creator-leg-card input {
+  width: 4.5rem;
+}
+
+@media (max-width: 760px) {
+  .creator-leg-card li {
+    align-items: stretch;
+    grid-template-columns: 1fr 1fr;
+  }
+}

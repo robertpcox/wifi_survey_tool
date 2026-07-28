@@ -51,9 +51,10 @@ Runner never requests or recalculates routing. The definition embeds:
 Every target stores real `lng`, `lat`, and `z`.
 
 MazeMap is a runtime authoring dependency; no remote SDK asset is bundled into the
-self-contained build. The author enters customer, campus ID, and an access token, then
-selects Engage. Engage fetches the exact v3.0.6 SDK, applies the token from memory, resolves
-the campus name and centre, and loads that campus before authoring is enabled. When routing
+self-contained build. The author enters customer and campus ID, with access only for a
+private campus, then selects Engage. Engage fetches the exact v3.0.6 SDK, applies any
+token from memory, resolves the campus name and centre, and loads that campus before
+authoring is enabled. When routing
 is available, Creator records the returned geometry. Without routing, Creator labels and
 records exact endpoint-to-endpoint geometry. The engaged campus ID must match
 `meta.campusId` before the checkpoint plan can be locked.
@@ -115,13 +116,13 @@ Outdoors stores `poiId: null`, a useful name, and `locationType: "outdoors"`.
 
 ## Dwell and duration
 
-Checkpoint dwell is configured in Creator because tests require different waiting periods.
-The chosen dwell is embedded so reruns follow the same procedure.
+Creator writes non-negative `dwellSeconds` per checkpoint; start and terminal are zero.
+Other check-ins are editable; terminal polling ends only on explicit Runner finish.
 
 Estimated duration uses:
 
 ```text
-route distance ÷ 1 metre/second + checkpoint count × checkpoint dwell seconds
+route distance ÷ 1 metre/second + sum of authored checkpoint dwell seconds
 ```
 
 Creator displays checkpoint count, distance, walking time, dwell time, and total estimate.
@@ -130,10 +131,10 @@ Creator displays checkpoint count, distance, walking time, dwell time, and total
 
 Definition records what Runner must collect before a run, never the values themselves.
 
-MazeMap Cloud is the Runner positioning provider, separate from map launch and routing,
-and requires all four in-memory run credentials:
+MazeMap Cloud is the Runner positioning provider, separate from map launch and routing.
+It requires three positioning values; private map access is requested only when needed:
 
-- private MazeMap access
+- optional private MazeMap access
 - Cloud App ID
 - Cloud App Key
 - Client IP
@@ -146,5 +147,4 @@ Run identity, collected on every run:
 Config ID, polling interval, campus metadata, and other safe values remain in the definition.
 No access token or positioning secret is serialized.
 
-Creator clears private map access after Engage, keeps it in memory for authoring, and never
-writes it to the definition or browser storage.
+Creator keeps private map access in memory only and never writes it to definitions or storage.

@@ -41,7 +41,10 @@ function harness(access = "memory-only-access") {
   const session = createCreatorMapSession({
     credentials: {
       read: () => storedAccess,
-      set: (_name, value) => { storedAccess = value; },
+      set: (_name, value) => {
+        storedAccess = value;
+        calls.storedAccess = value;
+      },
     },
     mapAdapter,
     view,
@@ -56,11 +59,23 @@ test("Engage keeps access in memory and launches the entered campus", async () =
     campusName: "Dunedin Hospital",
     customerId: "health-nz",
     customerName: "Health New Zealand",
+    mapAccessRequired: true,
   });
   assert.equal(state.calls.access, "memory-only-access");
   assert.deepEqual(state.calls.runtime, { campusId: "566" });
+  assert.equal(state.calls.fields[0].needsMapAccess, true);
   assert.equal(state.calls.engaged, undefined);
   assert.equal(JSON.stringify(state.session).includes("memory-only-access"), false);
+});
+
+test("Engage attempts a public campus when no access token is supplied", async () => {
+  const state = harness("");
+  const result = await state.session.engage();
+  assert.equal(state.calls.access, null);
+  assert.equal(state.calls.storedAccess, undefined);
+  assert.deepEqual(state.calls.runtime, { campusId: "566" });
+  assert.equal(state.calls.fields[0].needsMapAccess, false);
+  assert.equal(result.mapAccessRequired, false);
 });
 
 test("map clicks resolve building and floor context before populating a stop", async () => {
@@ -113,7 +128,7 @@ test("map clicks without a POI stage their exact coordinates", async () => {
   assert.match(state.calls.statuses.at(-1)[0], /Clicked coordinates are ready/);
 });
 
-test("session plainly reports missing SDK, access, or click metadata", async () => {
+test("session plainly reports missing SDK or click metadata", async () => {
   const view = {
     readFields: () => ({
       customerId: "a",
@@ -126,14 +141,6 @@ test("session plainly reports missing SDK, access, or click metadata", async () 
   await assert.rejects(
     createCreatorMapSession({ view }).engage(),
     /SDK loader is unavailable/,
-  );
-  await assert.rejects(
-    createCreatorMapSession({
-      credentials: { read: () => null },
-      mapAdapter: { launch() {} },
-      view,
-    }).engage(),
-    /access token/,
   );
   const state = harness();
   state.session.onMapClick({ lngLat: { lng: "bad", lat: 1 } });

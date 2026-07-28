@@ -18,6 +18,7 @@ test("Runner browser findings cover capture, storage, and credential leaks", () 
         band: "5",
       },
       checkIns: [{}, {}],
+      events: [{ type: "endpoint-hold-started" }],
       polls: [{ raw: {}, normalized: {} }],
     },
   };

@@ -81,6 +81,23 @@ test("planned dwell holds the authored floor before an exact floor transition", 
   assert.equal(departed.activeLegId, "leg-floor");
 });
 
+test("explicit endpoint hold keeps Player truth at the final checkpoint", () => {
+  const endpoint = structuredClone(result);
+  const checkpoint = endpoint.route.checkpoints.at(-1);
+  checkpoint.dwellSeconds = 0;
+  endpoint.events.push({
+    type: "endpoint-hold-started",
+    checkpointId: checkpoint.id,
+    at: endpoint.checkIns.at(-1).at,
+  });
+  const truth = buildReportGroundTruth(endpoint);
+  const held = truth.at("2026-07-28T01:00:19.000Z");
+  assert.equal(truth.endMs, Date.parse(endpoint.run.stoppedAt));
+  assert.equal(held.endpointHold, true);
+  assert.equal(held.moving, false);
+  assert.equal(held.plannedDwell, false);
+});
+
 function statusAt(truth, at) {
   const point = truth.at(at);
   return {

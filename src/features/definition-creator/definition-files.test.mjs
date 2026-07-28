@@ -94,6 +94,7 @@ test("definition import preserves immutable geometry without routing", async () 
   const imported = {
     checkpointDwellSeconds: 5,
     checkpointSpacingM: 10,
+    midLegDwellSeconds: 5, legEndDwellSeconds: 30,
     legs: [{ id: "leg-1" }],
     previousDefinition: definition,
     stops: [{ id: "a" }, { id: "b" }],
@@ -143,6 +144,7 @@ function creatorFields() {
     pollIntervalMs: 2000,
     proxyBase: "/proxy",
     spacingM: 10,
-    dwellSeconds: 5,
+    midLegDwellSeconds: 5,
+    legEndDwellSeconds: 30,
   };
 }

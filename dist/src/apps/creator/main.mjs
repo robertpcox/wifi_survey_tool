@@ -21,6 +21,8 @@ export function bootCreator(documentRef = document, options = {}) {
   const mapAdapter = options.mapAdapter ?? createMazeMapAdapter({
     Mazemap,
     center: options.mapCenter,
+    container: "map",
+    documentRef,
     loadMazemap: options.loadMazemap ?? (() => loadMazemapSdk({
       documentRef,
       globalRef,

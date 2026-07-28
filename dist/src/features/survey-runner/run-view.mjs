@@ -28,10 +28,20 @@ export function createRunnerRunView(documentRef) {
       "[data-dwell-countdown]",
       progress.phase === "dwelling"
         ? `${progress.dwellRemainingSeconds} s dwell`
-        : "Ready to check in",
+        : progress.phase === "awaiting-end"
+          ? "At endpoint · polling continues until you end the session"
+          : "Ready to check in",
     );
     const checkIn = find('[data-action="check-in"]');
-    if (checkIn) checkIn.disabled = progress.phase !== "walking";
+    const stop = find('[data-action="stop"]');
+    const endSession = find('[data-action="end-session"]');
+    const awaitingEnd = progress.phase === "awaiting-end";
+    if (checkIn) {
+      checkIn.disabled = progress.phase !== "walking";
+      checkIn.hidden = awaitingEnd;
+    }
+    if (stop) stop.hidden = awaitingEnd;
+    if (endSession) endSession.hidden = !awaitingEnd;
   }
 
   function renderSource(sample, count) {
@@ -72,6 +82,7 @@ export function createRunnerRunView(documentRef) {
   return Object.freeze({
     bind(handlers) {
       find('[data-action="check-in"]')?.addEventListener("click", handlers.checkIn);
+      find('[data-action="end-session"]')?.addEventListener("click", handlers.endSession);
       find('[data-action="stop"]')?.addEventListener("click", handlers.stop);
       find('[data-action="download-result"]')?.addEventListener("click", handlers.download);
       find("[data-result-file]")?.addEventListener("change", handlers.validateFile);

@@ -1,4 +1,11 @@
 import { createRouteLegV3, generateRouteCheckpointsV3 } from "./creator-route-v3.mjs";
+import { authoredCheckpointsV3, checkpointDwellDefaults }
+  from "./checkpoint-dwell-v3.mjs";
+import {
+  immutableDefinitionCopy,
+  mutableDefinitionCopy as mutableCopy,
+  sanitizedDefinitionCopy as sanitizedCopy,
+} from "./definition-copy-v3.mjs";
 import { estimateRouteDuration } from "./route-duration-v3.mjs";
 import { canonicalRoutePlanV3, hashRoutePlanV3 } from "./route-hash-v3.mjs";
 import { validateSurveyDefinitionV3 } from "./survey-definition-v3.mjs";
@@ -13,11 +20,20 @@ export async function authorSurveyDefinitionV3(input, deps = {}) {
   const metaInput = input?.meta || {};
   const stops = sanitizedCopy(input?.stops || []).map(stop => ({ ...stop, poiName: stop.poiName ?? null }));
   const suppliedLegs = sanitizedCopy(input?.legs || []);
+  const suppliedCheckpoints = input?.checkpoints === undefined ? undefined
+    : sanitizedCopy(input.checkpoints);
   assertOrderedLegs(stops, suppliedLegs);
   const spacing = numberAtLeast(input?.checkpointSpacingM, 0, "meta.route.checkpointSpacingM");
-  const dwell = numberAtLeast(input?.checkpointDwellSeconds, 0, "meta.route.checkpointDwellSeconds");
+  const dwell = numberAtLeast(input?.checkpointDwellSeconds ?? 0, 0, "meta.route.checkpointDwellSeconds");
   const unchanged = previous && input?.routeId === previous.route.routeId
-    && editablePlan(previous, stops, suppliedLegs, spacing, dwell);
+    && editablePlan(
+      previous,
+      stops,
+      suppliedLegs,
+      suppliedCheckpoints ?? previous.route.checkpoints,
+      spacing,
+      dwell,
+    );
   let route, routeSummary, surveyId, createdAt;
   if (unchanged) {
     route = mutableCopy(previous.route);
@@ -29,13 +45,13 @@ export async function authorSurveyDefinitionV3(input, deps = {}) {
       stops[index], stops[index + 1], leg.geometry ?? leg.coords, index,
     ));
     const generated = generateRouteCheckpointsV3(stops, legs, spacing);
+    const checkpoints = authoredCheckpointsV3(generated.checkpoints, suppliedCheckpoints);
     const distanceM = legs.reduce((total, leg) => total + leg.distanceM, 0);
     const duration = estimateRouteDuration({
-      distanceM, checkpointCount: generated.checkpoints.length,
-      dwellSeconds: dwell,
+      distanceM, checkpoints, dwellSeconds: dwell,
     });
     const hash = await hashRoutePlanV3({
-      stops, legs, checkpoints: generated.checkpoints,
+      stops, legs, checkpoints,
       checkpointSpacingM: spacing,
       checkpointDwellSeconds: dwell,
     }, deps.cryptoRef);
@@ -43,8 +59,7 @@ export async function authorSurveyDefinitionV3(input, deps = {}) {
     const routeId = input?.routeId ?? previous?.route.routeId;
     surveyId = createSurveyIdV3(deps.cryptoRef);
     route = {
-      routeId, version, hash, stops, legs, checkpoints: generated.checkpoints,
-      totalDistanceM: distanceM,
+      routeId, version, hash, stops, legs, checkpoints, totalDistanceM: distanceM,
     };
     routeSummary = {
       routeId, version, hash, distanceM,
@@ -62,6 +77,10 @@ export function importSurveyDefinitionV3(definition) {
   assertValidDefinition(definition);
   const previousDefinition = immutableDefinitionCopy(definition);
   const meta = mutableCopy(previousDefinition.meta);
+  const dwellDefaults = checkpointDwellDefaults(
+    previousDefinition.route.checkpoints,
+    previousDefinition.meta.route.checkpointDwellSeconds,
+  );
   delete meta.route;
   return {
     meta,
@@ -70,18 +89,20 @@ export function importSurveyDefinitionV3(definition) {
     legs: mutableCopy(previousDefinition.route.legs),
     checkpointSpacingM: previousDefinition.meta.route.checkpointSpacingM,
     checkpointDwellSeconds: previousDefinition.meta.route.checkpointDwellSeconds,
+    ...dwellDefaults,
     previousDefinition,
   };
 }
-export function immutableDefinitionCopy(definition) { return freezeCopy(definition); }
-function editablePlan(previous, stops, legs, spacing, dwell) {
+export { immutableDefinitionCopy } from "./definition-copy-v3.mjs";
+function editablePlan(previous, stops, legs, checkpoints, spacing, dwell) {
   const prior = {
     stops: previous.route.stops,
     legs: previous.route.legs,
+    checkpoints: previous.route.checkpoints,
     checkpointSpacingM: previous.meta.route.checkpointSpacingM,
     checkpointDwellSeconds: previous.meta.route.checkpointDwellSeconds,
   };
-  const current = { stops, legs, checkpointSpacingM: spacing,
+  const current = { stops, legs, checkpoints, checkpointSpacingM: spacing,
     checkpointDwellSeconds: dwell };
   return canonicalRoutePlanV3(prior) === canonicalRoutePlanV3(current);
 }
@@ -125,25 +146,4 @@ function numberAtLeast(value, minimum, path) {
     throw new TypeError(`${path}: must be a finite number at least ${minimum}`);
   }
   return number;
-}
-function sanitizedCopy(value) {
-  if (Array.isArray(value)) return value.map(sanitizedCopy);
-  if (!value || typeof value !== "object") return value;
-  return Object.fromEntries(Object.entries(value)
-    .filter(([key]) => !/^(?:_mapContext|device|deviceId|band|bandId)$/i.test(key))
-    .map(([key, child]) => [key, sanitizedCopy(child)]));
-}
-function mutableCopy(value) {
-  if (Array.isArray(value)) return value.map(mutableCopy);
-  if (!value || typeof value !== "object") return value;
-  return Object.fromEntries(Object.entries(value)
-    .map(([key, child]) => [key, mutableCopy(child)]));
-}
-function freezeCopy(value) {
-  if (!value || typeof value !== "object") return value;
-  const copy = Array.isArray(value)
-    ? value.map(freezeCopy)
-    : Object.fromEntries(Object.entries(value)
-      .map(([key, child]) => [key, freezeCopy(child)]));
-  return Object.freeze(copy);
 }

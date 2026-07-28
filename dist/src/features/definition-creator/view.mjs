@@ -3,6 +3,10 @@ import { closeCreatorMapChoice, showCreatorMapChoice } from "./map-choice.mjs";
 import { renderCreatorCoverage, renderCreatorRoute, renderCreatorStops }
   from "./view-render.mjs";
 import { ensureTimezoneOption } from "./timezones.mjs";
+import {
+  readCreatorCheckpointDwell,
+  renderCreatorDwellSchedule,
+} from "./view-dwell.mjs";
 export function createDefinitionCreatorView(root) {
   root.innerHTML = definitionCreatorTemplate();
   const find = selector => root.querySelector(selector);
@@ -109,8 +113,10 @@ export function createDefinitionCreatorView(root) {
       input.addEventListener("change", handler);
       return () => input.removeEventListener("change", handler);
     },
+    readCheckpointDwell: sequence => readCreatorCheckpointDwell(root, sequence),
     readFields,
     renderCoverage: coverage => renderCreatorCoverage(find, coverage),
+    renderLegs: (stops, route) => renderCreatorDwellSchedule(find, stops, route),
     renderRoute: (stops, route) => renderCreatorRoute(find, stops, route),
     renderStops: (stops, index) => renderCreatorStops(find, stops, index),
     selectStop,

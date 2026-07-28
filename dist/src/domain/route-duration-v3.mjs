@@ -1,13 +1,15 @@
+import { totalCheckpointDwellSeconds } from "./checkpoint-dwell-v3.mjs";
+
 export const WALKING_SPEED_MPS = 1;
 
 export function estimateRouteDuration({
   distanceM,
   checkpointCount,
+  checkpoints,
   dwellSeconds,
   walkingSpeedMps = WALKING_SPEED_MPS,
 }) {
   const distance = finiteAtLeast(distanceM, 0, "distanceM");
-  const count = finiteAtLeast(checkpointCount, 0, "checkpointCount");
   const dwellPerCheckpoint = finiteAtLeast(
     dwellSeconds,
     0,
@@ -15,7 +17,9 @@ export function estimateRouteDuration({
   );
   const speed = finiteAtLeast(walkingSpeedMps, Number.EPSILON, "walkingSpeedMps");
   const walkingSeconds = distance / speed;
-  const totalDwellSeconds = count * dwellPerCheckpoint;
+  const totalDwellSeconds = Array.isArray(checkpoints)
+    ? totalCheckpointDwellSeconds(checkpoints, dwellPerCheckpoint)
+    : finiteAtLeast(checkpointCount, 0, "checkpointCount") * dwellPerCheckpoint;
   return {
     walkingSeconds,
     dwellSeconds: totalDwellSeconds,

@@ -6,7 +6,7 @@ export function definitionCreatorTemplate() {
       <div class="creator-heading">
         <div><p class="eyebrow">Creator</p>
           <h1 id="creator-title">Author a repeatable survey</h1></div>
-        <p data-creator-status role="status">Enter the customer, campus, and access token, then Engage.</p>
+        <p data-creator-status role="status">Enter the customer and campus, then Engage.</p>
       </div>
       <form class="creator-form" data-creator-form>
         <fieldset class="creator-launch-panel" data-launch-panel>
@@ -16,8 +16,8 @@ export function definitionCreatorTemplate() {
           <label>Campus ID <input data-field="campusId" inputmode="numeric" required></label>
           <label>Campus name <input data-field="campusName" readonly
             placeholder="Loaded from MazeMap on Engage"></label>
-          <label>MazeMap access token <input data-engage-access type="password"
-            autocomplete="off" required></label>
+          <label>MazeMap access token (private campuses only)
+            <input data-engage-access type="password" autocomplete="off"></label>
           <button type="button" class="primary" data-action="engage-map">Engage</button>
         </fieldset>
         <p class="creator-campus-summary" data-campus-summary hidden></p>
@@ -32,7 +32,10 @@ export function definitionCreatorTemplate() {
             <fieldset data-plan-fields data-requires-engagement disabled>
               <legend>Checkpoint plan</legend>
               <label>Spacing metres <input data-field="spacingM" type="number" min="1" value="10"></label>
-              <label>Dwell seconds <input data-field="dwellSeconds" type="number" min="0" value="5"></label>
+              <label>Default mid-leg dwell seconds
+                <input data-field="midLegDwellSeconds" type="number" min="0" value="5"></label>
+              <label>Default leg-end dwell seconds
+                <input data-field="legEndDwellSeconds" type="number" min="0" value="30"></label>
               <button type="button" class="primary" data-action="lock-plan">Lock checkpoint plan</button>
             </fieldset>
             <h2>Ordered route</h2>
@@ -42,6 +45,7 @@ export function definitionCreatorTemplate() {
               <span data-coverage-floors>No mapped floors yet.</span>
             </div>
             <ol data-stop-list class="creator-stops"></ol>
+            <div data-leg-list class="creator-legs"></div>
             <svg data-route-preview viewBox="0 0 600 360" role="img"
               aria-labelledby="creator-route-preview-title creator-route-preview-desc"></svg>
             <dl class="creator-metrics">
@@ -99,7 +103,8 @@ export function definitionCreatorTemplate() {
                 type="number" min="1" value="2000"></label>
               <label>Proxy base <input data-field="proxyBase"
                 value="/mm-positioning-proxy" required></label>
-              <label><input data-field="needsMapAccess" type="checkbox" checked disabled> Map access</label>
+              <label><input data-field="needsMapAccess" type="checkbox" disabled>
+                Private map access</label>
               <label><input data-field="needsAppId" type="checkbox" checked disabled> Cloud App ID</label>
               <label><input data-field="needsAppKey" type="checkbox" checked disabled> Cloud App Key</label>
               <label><input data-field="needsClientIp" type="checkbox" checked disabled> Client IP</label>

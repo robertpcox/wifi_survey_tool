@@ -5,6 +5,8 @@
 // RULES:        A check-in stays inside its authored checkpoint interval and declared floor.
 // PROVENANCE:   Scope/steps/05a_recast_player.md geographic truth contract
 
+import { checkpointDwellSeconds } from "./checkpoint-dwell-v3.mjs";
+
 export function projectReportCheckIns(result, route) {
   const checkpoints = [...(result?.route?.checkpoints ?? [])]
     .sort((left, right) => left.sequence - right.sequence);
@@ -33,6 +35,10 @@ export function projectReportCheckIns(result, route) {
     return {
       checkpointId: checkIn.checkpointId,
       checkpointIndex: authored.checkpointIndex,
+      dwellSeconds: checkpointDwellSeconds(
+        authored.checkpoint,
+        result?.run?.checkpointDwellSeconds,
+      ),
       atMs: timestampMs(checkIn.at),
       lng: projected.lng,
       lat: projected.lat,

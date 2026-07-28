@@ -1,3 +1,5 @@
+import { checkpointDwellSeconds } from "./checkpoint-dwell-v3.mjs";
+
 export function createRunnerProgress(definition) {
   const stopNames = new Map((definition.route.stops ?? []).map(stop => [
     stop.id,
@@ -41,12 +43,28 @@ export function checkInCurrent(progress, at) {
       z: checkpoint.z,
     },
   });
-  progress.dwellRemainingSeconds = progress.dwellSeconds;
-  if (progress.dwellSeconds > 0) {
+  if (progress.currentIndex >= progress.checkpoints.length - 1) {
+    progress.dwellRemainingSeconds = 0;
+    progress.phase = "awaiting-end";
+    return { completed: false, changed: true };
+  }
+  progress.dwellRemainingSeconds = checkpointDwellSeconds(
+    checkpoint,
+    progress.dwellSeconds,
+  );
+  if (progress.dwellRemainingSeconds > 0) {
     progress.phase = "dwelling";
     return { completed: false, changed: true };
   }
   return advance(progress);
+}
+
+export function finishRunnerProgress(progress) {
+  if (progress.phase !== "awaiting-end") {
+    return { completed: false, changed: false };
+  }
+  progress.phase = "completed";
+  return { completed: true, changed: true };
 }
 
 export function tickRunnerDwell(progress) {
@@ -63,8 +81,8 @@ export function tickRunnerDwell(progress) {
 
 function advance(progress) {
   if (progress.currentIndex >= progress.checkpoints.length - 1) {
-    progress.phase = "completed";
-    return { completed: true, changed: true };
+    progress.phase = "awaiting-end";
+    return { completed: false, changed: true };
   }
   progress.currentIndex++;
   progress.phase = "walking";

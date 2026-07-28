@@ -26,6 +26,13 @@ export function buildGroundTruthModel(result) {
   if (!points.length) {
     throw new TypeError("Report ground truth requires at least one check-in.");
   }
+  const terminal = points.at(-1);
+  if ((result.events ?? []).some(event => (
+    event.type === "endpoint-hold-started"
+    && event.checkpointId === terminal.checkpointId
+  ))) {
+    points[points.length - 1] = { ...terminal, endpointHold: true };
+  }
   const stoppedAtMs = timestampMs(result.run.stoppedAt, "run.stoppedAt");
   const segments = buildTruthSegments(points, dwellSeconds * 1000, stoppedAtMs);
   const startMs = points[0].atMs;

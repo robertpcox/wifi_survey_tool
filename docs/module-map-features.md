@@ -17,28 +17,34 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - dashboard.css 102/2293 T+
 - dashboard 87/2903 T+ E mountDashboard, renderDashboard I @d/dashboard-selection, @s/format
 ## definition-creator/
+- checkpoint-dwell 86/2693 T+ E applyCreatorCheckpointDwells, replaceCreatorCheckpointDwell
 - components.css 150/2547 T+
-- controller-render 24/760 T+ E renderCreatorController I map-coverage, workflow
+- controller-dwell 38/1098 T+ E createCreatorDwellActions
+- controller-render 25/807 T+ E renderCreatorController I map-coverage, workflow
 - controller-state 27/587 T+ E createCreatorControllerState, nextCreatorStopId
-- controller 148/5718 T+ E createDefinitionCreatorController I controller-render, controller-state, definition-files, form, stop-order
+- controller 149/5954 T+ E createDefinitionCreatorController I controller-dwell, controller-render, controller-state, definition-files, form, stop-order
 - creator.css 150/3036 T+
 - definition-creator 85/2930 T+ E mountDefinitionCreator I controller, map-session, providers, stop-actions, view, workflow
-- definition-files 81/2676 T+ E createDefinitionFiles I form, map-coverage
-- form 115/3486 T+ E assertCreatorCampus, fieldsFromDefinition, parseCreatorFields, parseCreatorPlanFields
+- definition-files 83/2777 T+ E createDefinitionFiles I form, map-coverage
+- dwell-schedule.css 61/1181 T+
+- form 127/3819 T+ E assertCreatorCampus, fieldsFromDefinition, parseCreatorFields, parseCreatorPlanFields I @d/checkpoint-dwell-v3
 - map-choice 31/1172 T+ E closeCreatorMapChoice, coordinateSummary, showCreatorMapChoice
 - map-coverage 150/4330 T+ E deriveMapCoverage, mapContextFromPoi
-- map-session 150/4897 T+ E createCreatorMapSession
+- map-session 145/4874 T+ E createCreatorMapSession
 - preview-projection 76/2442 T+ E createPreviewProjection, distinctPreviewLevels, previewZ
 - preview 122/5030 T+ E routePreviewMarkup I preview-projection
 - providers 58/1596 T+ E resolveCreatorProviders I @a/map/routing, @d/route-path
 - stop-actions 100/3068 T+ E createStopActions I map-coverage, stops
 - stop-order 24/862 T+ E reorderCreatorStops
 - stops 150/4633 T+ E adjustStop, createExactStop, createGpsStop, createPoiStop, gpsAccuracyWarning
-- template 134/8312 T+ E definitionCreatorTemplate I timezones
+- template 139/8573 T+ E definitionCreatorTemplate I timezones
 - timezones 36/1109 T+ E creatorTimezones, ensureTimezoneOption, timezoneOptionsMarkup
+- view-dwell 88/3337 T+ E readCreatorCheckpointDwell, renderCreatorDwellSchedule I @d/checkpoint-dwell-v3
 - view-render 63/2462 T+ E renderCreatorCoverage, renderCreatorRoute, renderCreatorStops I preview
-- view 141/5007 T+ E createDefinitionCreatorView I map-choice, template, timezones, view-render
-- workflow 134/3696 T+ E createCreatorWorkflow, shortLegWarning I @d/creator-route-v3, @d/definition-authoring-v3, @d/route-duration-v3
+- view 147/5266 T+ E createDefinitionCreatorView I map-choice, template, timezones, view-dwell, view-render
+- workflow-route 51/1239 T+ E creatorRouteResult, updateCreatorRouteDwell I checkpoint-dwell
+- workflow 137/3827 T+ E createCreatorWorkflow, shortLegWarning
+  - I @d/creator-route-v3, @d/definition-authoring-v3, @d/route-duration-v3, checkpoint-dwell, workflow-route
 ## report-player/
 - comparison-view 65/2650 T+ E renderComparisonView I @s/format
 - floor-route-view 40/1822 T+ E renderFloorRouteView I @s/format
@@ -51,7 +57,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - map-surface-layout 47/1445 T+ E createMapSurfaceLayout, routeCenter, safelyCreateMap
 - map-surface.css 61/1518 T+
 - map-surface 149/5010 T+ E createReportMapSurface I @a/map/mazemap-errors, map-fallback, map-model, map-surface-layout
-- methodology-view 148/5317 T+ E buildAnalysisCsv, createAnalysisExports, createAnalysisSummary, downloadAnalysisExports, renderMethodologyView I @s/format
+- methodology-view 148/5327 T+ E buildAnalysisCsv, createAnalysisExports, createAnalysisSummary, downloadAnalysisExports, renderMethodologyView I @s/format
 - playback-controller 122/3105 T+ E createPlaybackController I @d/report-playback
 - playback-view 138/4892 T+ E mountPlaybackView, renderPlaybackView
   - I @d/report-playback, @d/report-snap, playback-controller, player-charts, player-evidence-view, player-transport
@@ -87,17 +93,17 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - walk-view 124/4511 T+ E createWalkView I @d/geometry, @d/stop-targets
 - walk 74/2077 T+ E createWalkController I walk-events, walk-progress
 ## survey-runner/
-- active-run 115/3266 T+ E createActiveRunner I @d/runner-progress-v3
-- entry 55/1579 T+ E RUNNER_ENTRY_FIELDS, normalizeRunnerEntry, runnerEntryIssues, runnerPositionRequest, syncRunnerCredentials
+- active-run 132/3715 T+ E createActiveRunner I @d/runner-progress-v3
+- entry 56/1655 T+ E RUNNER_ENTRY_FIELDS, normalizeRunnerEntry, runnerEntryIssues, runnerPositionRequest, syncRunnerCredentials
 - form-view 133/5155 T+ E createRunnerFormView, preflightMetrics I @s/format
 - loader 41/1668 T+ E loadRunnerDefinition, loadRunnerManifest, surveyIdFromUrl I @d/survey-definition-v3
 - poll-loop 52/1578 T+ E createRunnerPollLoop I @a/positioning/source-contract
 - preflight 53/1573 T+ E createPreflightPollLoopOptions, runRunnerPreflight I @d/runner-preflight-v3, entry
 - result-download 29/1038 T+ E downloadRunnerResult I @a/files, @d/runner-result-v3
 - result-upload 16/553 T+ E validateRunnerResultFile I @a/files, @d/survey-result-v3
-- run-view 104/3707 T+ E checkpointDistanceText, createRunnerRunView, targetName I @d/geometry
+- run-view 115/4228 T+ E checkpointDistanceText, createRunnerRunView, targetName I @d/geometry
 - runner-active.css 140/2720 T+
 - runner.css 125/3932 T+
 - setup 122/3540 T+ E createRunnerSetup I entry, loader, poll-loop, preflight
-- survey-runner 140/4678 T+ E mountSurveyRunner
+- survey-runner 141/4731 T+ E mountSurveyRunner
   - I @a/map/mazemap, @a/memory-credentials, @a/positioning/mazemap-cloud-v3, active-run, form-view, preflight, result-download, result-upload, run-view, setup

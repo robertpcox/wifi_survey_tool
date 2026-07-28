@@ -28,7 +28,8 @@ function fields() {
     authorName: "",
     authorNotes: "Check lifts",
     spacingM: "10",
-    dwellSeconds: "5",
+    midLegDwellSeconds: "5",
+    legEndDwellSeconds: "30",
   };
 }
 
@@ -48,7 +49,11 @@ test("parseCreatorFields builds contract metadata and checkpoint plan", () => {
   ]);
   assert.deepEqual(result.meta.zLevels, [0, 1]);
   assert.deepEqual(result.meta.zLevelNames, { 0: "Ground", 1: "First" });
-  assert.deepEqual(result.plan, { spacingM: 10, dwellSeconds: 5 });
+  assert.deepEqual(result.plan, {
+    spacingM: 10,
+    midLegDwellSeconds: 5,
+    legEndDwellSeconds: 30,
+  });
   assert.equal(result.meta.authorName, null);
   assert.deepEqual(result.meta.credentialRequirements, {
     mapAccess: true,
@@ -58,6 +63,10 @@ test("parseCreatorFields builds contract metadata and checkpoint plan", () => {
   });
   assert.equal("device" in result.meta, false);
   assert.equal("band" in result.meta, false);
+  const publicFields = fields();
+  publicFields.needsMapAccess = false;
+  assert.equal(parseCreatorFields(publicFields, coverage)
+    .meta.credentialRequirements.mapAccess, false);
 });
 
 test("parseCreatorFields names malformed or missing fields precisely", () => {
@@ -74,10 +83,12 @@ test("parseCreatorFields names malformed or missing fields precisely", () => {
 test("checkpoint plan parses before definition metadata is complete", () => {
   assert.deepEqual(parseCreatorPlanFields({
     spacingM: "10",
-    dwellSeconds: "5",
+    midLegDwellSeconds: "5",
+    legEndDwellSeconds: "30",
   }), {
     spacingM: 10,
-    dwellSeconds: 5,
+    midLegDwellSeconds: 5,
+    legEndDwellSeconds: 30,
   });
 });
 
@@ -96,7 +107,14 @@ test("fieldsFromDefinition preserves metadata and immutable plan on import", () 
         checkpointDwellSeconds: 5,
       },
     },
-    route: { routeId: "route-a", version: 2 },
+    route: {
+      routeId: "route-a",
+      version: 2,
+      checkpoints: [
+        { type: "intermediate", sequence: 1, dwellSeconds: 5 },
+        { type: "stop", sequence: 2, dwellSeconds: 30 },
+      ],
+    },
   };
   assert.deepEqual(
     parseCreatorFields(fieldsFromDefinition(definition), coverage),

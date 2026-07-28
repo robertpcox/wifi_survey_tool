@@ -14,7 +14,8 @@ function harness() {
     '[data-action="check-in"]', "[data-poll-count]", "[data-poll-state]",
     "[data-poll-indicator]", "[data-source-health]", "[data-target-distance]",
     "[data-finish-panel]", "[data-finish-status]",
-    '[data-action="stop"]', '[data-action="download-result"]',
+    '[data-action="stop"]', '[data-action="end-session"]',
+    '[data-action="download-result"]',
     "[data-result-file]", "[data-operator-comment]", "[data-validation-result]",
   ];
   const nodes = new Map(selectors.map(selector => [selector, {
@@ -72,6 +73,12 @@ test("run view shows target, progress, dwell, source health, and finish paths", 
   view.renderRun(state);
   assert.equal(nodes.get("[data-dwell-countdown]").textContent, "4 s dwell");
   assert.equal(nodes.get('[data-action="check-in"]').disabled, true);
+  state.progress.phase = "awaiting-end";
+  view.renderRun(state);
+  assert.match(nodes.get("[data-dwell-countdown]").textContent, /polling continues/);
+  assert.equal(nodes.get('[data-action="check-in"]').hidden, true);
+  assert.equal(nodes.get('[data-action="stop"]').hidden, true);
+  assert.equal(nodes.get('[data-action="end-session"]').hidden, false);
   view.renderSource({ success: false, error: "wrong base" }, 3);
   assert.equal(nodes.get("[data-source-health]").textContent, "wrong base");
   assert.equal(nodes.get("[data-poll-indicator]").dataset.state, "error");

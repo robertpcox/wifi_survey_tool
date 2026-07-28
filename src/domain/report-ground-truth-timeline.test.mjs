@@ -62,6 +62,22 @@ test("timeline holds dwell then advances cumulative route distance", () => {
   assert.equal(truthAtTime(points, segments, route, 4_000, 7_000).routeDistanceM, 5);
 });
 
+test("timeline prefers the dwell authored on each checkpoint", () => {
+  const explicit = [
+    { ...points[0], dwellSeconds: 1 },
+    { ...points[1], dwellSeconds: 0 },
+  ];
+  const segments = buildTruthSegments(explicit, 9_000, 7_000);
+  assert.deepEqual(segments.map(segment => [
+    segment.startMs,
+    segment.endMs,
+    segment.moving,
+  ]), [
+    [1_000, 2_000, false],
+    [2_000, 5_000, true],
+  ]);
+});
+
 function point(checkpointId, atMs, routeDistanceM) {
   return {
     checkpointId,

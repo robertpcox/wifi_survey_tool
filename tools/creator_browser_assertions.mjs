@@ -40,9 +40,11 @@ export async function capturedCreatorDownload(page) {
       buildings: definition.meta.buildings,
       campusName: definition.meta.campusName,
       checkpoints: definition.route.checkpoints.length,
+      checkpointDwells: definition.route.checkpoints.map(value => value.dwellSeconds),
       choiceSummariesSeen: window.__choiceSummariesSeen ?? 0,
       coverageText: document.querySelector("[data-coverage-buildings]").textContent,
       distanceText: document.querySelector('[data-metric="distance"]').textContent,
+      dwellControls: document.querySelectorAll("[data-checkpoint-dwell]").length,
       engageActionCount: window.__initialEngageActionCount,
       engageLocked: window.__engageLocked,
       filename: window.__creatorDownloadName,
@@ -75,6 +77,14 @@ export function creatorDownloadFindings(download) {
   if (download.stops !== 3) findings.push("expected three stops");
   if (download.legs !== 2) findings.push("expected two legs");
   if (download.checkpoints < 3) findings.push("expected generated checkpoints");
+  if (download.checkpointDwells?.[0] !== 0
+      || download.checkpointDwells?.at(-1) !== 0
+      || download.checkpointDwells?.slice(1).some(value => !Number.isFinite(value))) {
+    findings.push("expected explicit per-checkpoint dwell");
+  }
+  if (download.dwellControls !== Math.max(0, download.checkpoints - 2)) {
+    findings.push("expected dwell controls only between route boundaries");
+  }
   if (download.engageActionCount !== 1) findings.push("expected one initial Engage action");
   if (!download.engageLocked) findings.push("Engage action remained available");
   if (download.reengagePresent) findings.push("Re-engage was rendered");

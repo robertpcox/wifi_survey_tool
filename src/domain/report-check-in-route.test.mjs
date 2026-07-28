@@ -19,6 +19,8 @@ const fixture = JSON.parse(await readFile(
 test("captured check-ins project monotonically inside authored intervals", () => {
   const displaced = structuredClone(fixture);
   displaced.checkIns[1].groundTruth = { lng: 0, lat: 0, z: 0 };
+  displaced.run.checkpointDwellSeconds = 9;
+  displaced.route.checkpoints[1].dwellSeconds = 5;
   const points = projectReportCheckIns(
     displaced,
     buildReportRoute(displaced.route),
@@ -32,6 +34,7 @@ test("captured check-ins project monotonically inside authored intervals", () =>
     points.map(point => point.checkpointId),
     ["checkpoint-a", "checkpoint-b", "checkpoint-c"],
   );
+  assert.deepEqual(points.map(point => point.dwellSeconds), [9, 5, 9]);
 });
 
 test("an unknown check-in checkpoint is rejected", () => {

@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createRouteLegV3 } from "./creator-route-v3.mjs";
+import { createRouteLegV3, generateRouteCheckpointsV3 }
+  from "./creator-route-v3.mjs";
 import {
   authorSurveyDefinitionV3,
   immutableDefinitionCopy,
@@ -34,6 +35,9 @@ function authoringInput() {
       locationType: "room", provenance: { method: "map" },
     },
   ];
+  const legs = [createRouteLegV3(stops[0], stops[1], stops, 0)];
+  const checkpoints = generateRouteCheckpointsV3(stops, legs, 10).checkpoints
+    .map((checkpoint, index) => ({ ...checkpoint, dwellSeconds: [0, 5, 30][index] }));
   return {
     meta: {
       surveyId: "caller-supplied-id-is-ignored",
@@ -62,9 +66,10 @@ function authoringInput() {
     },
     routeId: "route-one",
     stops,
-    legs: [createRouteLegV3(stops[0], stops[1], stops, 0)],
+    legs,
+    checkpoints,
     checkpointSpacingM: 10,
-    checkpointDwellSeconds: 5,
+    checkpointDwellSeconds: 0,
   };
 }
 
@@ -73,7 +78,7 @@ test("authoring returns a validated deeply immutable definition", async () => {
     now, cryptoRef: uuidCrypto(UUID_ONE),
   });
   assert.equal(definition.meta.surveyId, UUID_ONE);
-  assert.equal(definition.meta.route.estimatedDurationSeconds, 35);
+  assert.equal(definition.meta.route.estimatedDurationSeconds, 55);
   assert.equal(definition.route.checkpoints.length, 3);
   assert.equal(definition.meta.createdAt, now().toISOString());
   assert.equal(definition.route.stops[0].poiName, null);

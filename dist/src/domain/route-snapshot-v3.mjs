@@ -93,6 +93,9 @@ function validateCheckpoint(checkpoint, path, issues) {
     expectNumber(checkpoint?.[key], `${path}.${key}`, issues);
   }
   expectNumber(checkpoint?.spacingBasisM, `${path}.spacingBasisM`, issues, 0);
+  if (checkpoint?.dwellSeconds !== undefined) {
+    expectNumber(checkpoint.dwellSeconds, `${path}.dwellSeconds`, issues, 0);
+  }
   if (checkpoint?.stopId !== null) {
     expectString(checkpoint?.stopId, `${path}.stopId`, issues);
   }

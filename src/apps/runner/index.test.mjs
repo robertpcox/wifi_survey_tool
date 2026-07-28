@@ -15,6 +15,7 @@ test("Runner HTML exposes mobile entry, preflight, capture, and validation", () 
   assert.match(html, /data-action="preflight"/);
   assert.match(html, /data-action="go" disabled/);
   assert.match(html, /data-action="check-in"/);
+  assert.match(html, /data-action="end-session"/);
   assert.match(html, /data-poll-indicator/);
   assert.match(html, /data-target-distance/);
   assert.match(html, /data-action="stop"/);

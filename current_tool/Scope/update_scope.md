@@ -95,7 +95,7 @@ Both modes reuse one real public-first MazeMap; a schematic route is only its fa
 
 No page carries an embedded map access token.
 Report Player first launches the actual MazeMap without one. Only a runtime access denial
-reveals its unlock prompt. Creator and Runner retain their required-access workflows.
+reveals its unlock prompt. Creator attempts public launch and accepts access only when needed.
 Any submitted access is held in memory only and applied through the MazeMap view token API.
 
 The preserved V2 tools once hard-coded a token. V3 removes it rather than carrying it forward.

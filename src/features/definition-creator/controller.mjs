@@ -1,12 +1,12 @@
 import { createCreatorControllerState, nextCreatorStopId } from "./controller-state.mjs";
+import { createCreatorDwellActions } from "./controller-dwell.mjs";
 import { createDefinitionFiles } from "./definition-files.mjs";
 import { assertCreatorCampus, parseCreatorPlanFields } from "./form.mjs";
 import { renderCreatorController } from "./controller-render.mjs";
 import { reorderCreatorStops } from "./stop-order.mjs";
 export function createDefinitionCreatorController(options) {
   const { view, workflow, stopActions, mapAdapter } = options;
-  const state = createCreatorControllerState();
-  const configuredCampusId = () => state.engagedCampusId;
+  const state = createCreatorControllerState(); const configuredCampusId = () => state.engagedCampusId;
   const render = () => renderCreatorController({ mapAdapter, state, view });
   async function lockPlan() {
     if (state.planLocked) {
@@ -34,16 +34,16 @@ export function createDefinitionCreatorController(options) {
     if (!state.engagedCampusId) {
       throw new Error("Engage MazeMap before adding stops.");
     }
-    if (!state.planLocked) {
-      throw new Error("Lock checkpoint spacing and dwell before adding stops.");
-    }
+    if (!state.planLocked) throw new Error(
+      "Lock checkpoint spacing and dwell before adding stops.",
+    );
   }
   async function ensurePlan() {
     if (!state.planLocked) await lockPlan();
     requirePlan();
   }
   async function commitStops(stops, message, selection = -1, warning = null) {
-    const result = await workflow.rebuild(stops, state.plan);
+    const result = await workflow.rebuild(stops, state.plan, state.route);
     if (result.stale) return;
     state.stops = stops;
     state.route = result;
@@ -86,6 +86,9 @@ export function createDefinitionCreatorController(options) {
     view.selectStop(stop, index);
     view.renderStops(state.stops, index);
   }
+  const dwellActions = createCreatorDwellActions(
+    { render, requirePlan, state, view, workflow },
+  );
   const files = createDefinitionFiles({
     ...options,
     configuredCampusId,
@@ -121,6 +124,7 @@ export function createDefinitionCreatorController(options) {
       if (action === "remove-stop") return await removeStop(Number(button.dataset.index));
       if (action === "move-stop-up") return await moveStop(Number(button.dataset.index), -1);
       if (action === "move-stop-down") return await moveStop(Number(button.dataset.index), 1);
+      if (dwellActions.dispatch(action, button)) return undefined;
       if (!actions[action]) return undefined;
       return await actions[action]();
     } catch (error) {
@@ -136,11 +140,8 @@ export function createDefinitionCreatorController(options) {
       }
     },
     dispatch,
-    engage(details) {
-      state.engagedCampusId = String(details.campusId);
-      view.setEngaged?.(true);
-      render();
-    },
+    engage(details) { state.engagedCampusId = String(details.campusId);
+      view.setEngaged?.(true); render(); },
     exportDefinition: files.exportDefinition,
     importDefinition: files.importDefinition,
     state,

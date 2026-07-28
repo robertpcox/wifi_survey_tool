@@ -31,7 +31,9 @@ function seams() {
     },
     showGpsWarning() {},
     showShortWarning() {},
-    writeFields() {},
+    writeFields(values) {
+      calls.writtenFields = { ...calls.writtenFields, ...values };
+    },
   };
   const workflow = {
     cancel() {
@@ -98,4 +100,5 @@ test("one successful campus launch is reused instead of engaging again", async (
   await mounted.engage();
   await mounted.engage();
   assert.equal(launches, 1);
+  assert.equal(state.calls.writtenFields.needsMapAccess, true);
 });

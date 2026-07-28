@@ -28,3 +28,19 @@ test("duration separates walking, dwell contribution, and total", () => {
     totalSeconds: 20,
   });
 });
+
+test("duration sums the dwell authored on each checkpoint", () => {
+  assert.deepEqual(estimateRouteDuration({
+    distanceM: 20,
+    checkpoints: [
+      { dwellSeconds: 0 },
+      { dwellSeconds: 5 },
+      { dwellSeconds: 30 },
+    ],
+    dwellSeconds: 99,
+  }), {
+    walkingSeconds: 20,
+    dwellSeconds: 35,
+    totalSeconds: 55,
+  });
+});

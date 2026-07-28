@@ -48,12 +48,12 @@ file under `data/surveys/`. Device and band remain absent from definitions.
 1. Enter customer and campus access, then enter survey and positioning-provider metadata.
    Building and floor coverage comes only from committed MazeMap points.
 2. Enter temporary map access when required.
-3. Set or accept checkpoint spacing and dwell; the first map choice locks them automatically.
+3. Set spacing and default mid-leg and leg-end dwell; the first map choice locks the plan.
 4. Create or import an ordered route.
 5. Click the map, choose its exact coordinates or the discovered POI centre, and add the
    selected target immediately; captured device GPS remains a separate optional action.
 6. Watch each added stop route, draw, and generate checkpoints immediately, and adjust.
-7. Freeze immutable legs and checkpoints on export.
+7. Edit or omit dwell per generated check-in, then freeze immutable legs and checkpoints.
 8. Review distance, checkpoint count, dwell contribution, and estimated duration.
 9. Validate and export `SurveyDefinitionV3`.
 
@@ -100,7 +100,7 @@ Room-to-room routes are a normal case, not an error.
 Creator calculates:
 
 ```text
-walking estimate + checkpoint count × configured dwell seconds
+walking estimate + sum of authored checkpoint dwell seconds
 ```
 
 Display walking time, dwell time, and total estimate separately.

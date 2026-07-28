@@ -33,7 +33,7 @@ export function parseCreatorFields(fields, coverage = {}) {
         proxyBase: fields.proxyBase.trim(),
       },
       credentialRequirements: {
-        mapAccess: true,
+        mapAccess: Boolean(fields.needsMapAccess),
         appId: true,
         appKey: true,
         clientIp: true,
@@ -48,12 +48,23 @@ export function parseCreatorFields(fields, coverage = {}) {
 export function parseCreatorPlanFields(fields) {
   return {
     spacingM: positive(fields.spacingM, "spacingM"),
-    dwellSeconds: nonNegative(fields.dwellSeconds, "dwellSeconds"),
+    midLegDwellSeconds: nonNegative(
+      fields.midLegDwellSeconds,
+      "midLegDwellSeconds",
+    ),
+    legEndDwellSeconds: nonNegative(
+      fields.legEndDwellSeconds,
+      "legEndDwellSeconds",
+    ),
   };
 }
 
 export function fieldsFromDefinition(definition) {
   const { meta, route } = definition;
+  const dwellDefaults = checkpointDwellDefaults(
+    route.checkpoints,
+    meta.route.checkpointDwellSeconds,
+  );
   return {
     surveyName: meta.surveyName,
     customerId: meta.customerId,
@@ -73,7 +84,7 @@ export function fieldsFromDefinition(definition) {
     authorName: meta.authorName ?? "",
     authorNotes: meta.authorNotes ?? "",
     spacingM: meta.route.checkpointSpacingM,
-    dwellSeconds: meta.route.checkpointDwellSeconds,
+    ...dwellDefaults,
   };
 }
 
@@ -113,3 +124,4 @@ function optional(value) {
   const text = String(value ?? "").trim();
   return text || null;
 }
+import { checkpointDwellDefaults } from "../../domain/checkpoint-dwell-v3.mjs";

@@ -36,6 +36,7 @@ export function createDefinitionFiles(options) {
     const definition = await workflow.author(parsed, {
       stops: state.stops,
       legs: state.route.legs,
+      checkpoints: state.route.checkpoints,
     }, state.imported);
     const filename = `${safeName(definition.meta.surveyId)}.definition.v3.json`;
     await downloadDefinition(filename, `${JSON.stringify(definition, null, 2)}\n`);
@@ -58,7 +59,8 @@ export function createDefinitionFiles(options) {
     state.stops = structuredClone(imported.stops);
     state.plan = {
       spacingM: imported.checkpointSpacingM,
-      dwellSeconds: imported.checkpointDwellSeconds,
+      midLegDwellSeconds: imported.midLegDwellSeconds,
+      legEndDwellSeconds: imported.legEndDwellSeconds,
     };
     state.planLocked = true;
     state.selectedIndex = -1;

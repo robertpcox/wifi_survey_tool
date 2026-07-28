@@ -13,22 +13,16 @@ export function createCreatorMapSession({
     const customerName = required(fields.customerName, "customerName");
     const campusId = required(fields.campusId, "campusId");
     const enteredAccess = view.takeMapAccess?.();
-    const access = enteredAccess || credentials?.read?.("mapAccess");
-    if (!access) {
-      throw new Error("MazeMap access token: is required before Engage");
-    }
-    credentials?.set?.("mapAccess", access);
+    const access = enteredAccess || credentials?.read?.("mapAccess") || null;
+    if (access) credentials?.set?.("mapAccess", access);
     view.setStatus("Loading the MazeMap campus…");
     const initialZ = await mapAdapter.launch(
       access,
       event => void onMapClick(event),
       { campusId },
     );
-    const campusName = required(
-      mapAdapter.campusName,
-      "MazeMap campus name",
-    );
-    view.writeFields({ campusId, campusName });
+    const campusName = required(mapAdapter.campusName, "MazeMap campus name");
+    view.writeFields({ campusId, campusName, needsMapAccess: Boolean(access) });
     if (Number.isFinite(Number(initialZ))) {
       view.writeFields({ gpsZ: Number(initialZ), stopZ: Number(initialZ) });
     }
@@ -46,7 +40,8 @@ export function createCreatorMapSession({
       `${customerName} · ${campusName} launched. Click the map to add a route stop.`,
       "ok",
     );
-    return { campusId, campusName, customerId, customerName };
+    return { campusId, campusName, customerId, customerName,
+      mapAccessRequired: Boolean(access) };
   }
 
   async function onMapClick(event) {

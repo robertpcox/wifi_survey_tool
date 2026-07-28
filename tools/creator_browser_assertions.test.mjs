@@ -11,6 +11,8 @@ test("Creator browser assertions cover live metrics, warning, and secret boundar
     stops: 3,
     legs: 2,
     checkpoints: 4,
+    checkpointDwells: [0, 5, 30, 0],
+    dwellControls: 2,
     distanceText: "24.7 m",
     engageActionCount: 1,
     engageLocked: true,

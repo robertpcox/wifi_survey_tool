@@ -7,6 +7,7 @@ export function renderCreatorController({
   view,
 }) {
   view.renderStops(state.stops, state.selectedIndex);
+  view.renderLegs?.(state.stops, state.route);
   view.renderRoute(state.stops, state.route);
   view.renderCoverage?.(deriveMapCoverage({
     fallbackMeta: state.imported?.previousDefinition?.meta,

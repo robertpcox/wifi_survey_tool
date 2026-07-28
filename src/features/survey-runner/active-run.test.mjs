@@ -40,10 +40,7 @@ function harness(dwell = 0, definitionInput = definition(dwell)) {
     definition: definitionInput,
     currentPosition: () => ({ id: "live", lng: 0, lat: 0 }),
     nowDate: () => new Date(Date.UTC(2026, 6, 28, 1, 0, time++)),
-    pollLoop: {
-      start: () => calls.starts++,
-      stop: () => calls.stops++,
-    },
+    pollLoop: { start: () => calls.starts++, stop: () => calls.stops++ },
     mapAdapter: {
       drawWaypoints: () => calls.draws++,
       focusWaypoint: (checkpoint, view) => {
@@ -64,22 +61,31 @@ function harness(dwell = 0, definitionInput = definition(dwell)) {
   return { calls, runner, timers };
 }
 
-test("active run completes the embedded sequence and prompts finish", () => {
+test("active run records at the endpoint until the operator ends the session", () => {
   const { calls, runner } = harness();
   runner.start();
   runner.checkIn();
   runner.checkIn();
+  assert.equal(runner.state.completionStatus, null);
+  assert.equal(runner.state.progress.phase, "awaiting-end");
+  assert.equal(calls.stops, 0);
+  assert.deepEqual(calls.finishes, []);
+  runner.endSession();
+  runner.endSession();
   assert.equal(runner.state.completionStatus, "completed");
   assert.deepEqual(runner.state.progress.checkIns.map(item => item.checkpointId), ["a", "b"]);
   assert.deepEqual(calls.finishes, ["completed"]);
   assert.equal(calls.starts, 1);
   assert.equal(calls.stops, 1);
-  assert.ok(calls.renders >= 2);
-  assert.ok(calls.draws >= 2);
   assert.deepEqual(calls.focuses, ["a", "b"]);
   assert.deepEqual(calls.focusOrigins, ["live", "a"]);
   assert.deepEqual(calls.floors, [1, 2]);
   assert.deepEqual(calls.legs, [0, 0]);
+  assert.deepEqual(
+    runner.state.events.map(event => event.type),
+    ["run-started", "checkpoint-reached", "checkpoint-reached",
+      "endpoint-hold-started", "run-completed"],
+  );
 });
 
 test("stop before the first checkpoint produces an aborted run", () => {

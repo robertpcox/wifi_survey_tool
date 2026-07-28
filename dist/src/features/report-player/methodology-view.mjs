@@ -23,8 +23,8 @@ export function renderMethodologyView({ result, analysis }) {
         <p>
           Sticky time is elapsed time after a fix remains unchanged for more than
           <strong>${esc(sticky)} seconds</strong> while ground truth is moving.
-          Planned checkpoint dwell is excluded. Heat is weighted by elapsed seconds
-          and placed at the interpolated ground-truth location.
+          Planned checkpoint dwell is excluded. Endpoint recording is stationary
+          evidence, not route movement. Heat uses interpolated ground truth.
         </p>
       </article>
       <article>

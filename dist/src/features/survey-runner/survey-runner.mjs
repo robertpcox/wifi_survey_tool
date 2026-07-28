@@ -119,6 +119,7 @@ export function mountSurveyRunner(options = {}) {
   const actions = {
     checkIn: () => state.activeRun?.checkIn(),
     download,
+    endSession: () => state.activeRun?.endSession(),
     entryChanged: setup.entryChanged,
     go: () => start(false),
     overrideGo: () => start(true),

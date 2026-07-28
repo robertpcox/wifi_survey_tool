@@ -24,10 +24,9 @@ This covers the private map access token as well as positioning credentials.
 They are never written to localStorage, sessionStorage, IndexedDB, URLs, logs, screenshots,
 definitions, results, or source, including as a build-time default.
 
-Runner requests only credentials required by the selected definition.
-
-Public map may load without private access, but Runner blocks a required private survey.
-Report Player continues with public map and embedded route overlays.
+Runner requests positioning credentials required by the selected definition.
+Map launch is public-first; only a typed access denial reveals the memory-only token retry.
+Report Player likewise continues with public map and embedded route overlays.
 
 ## Positioning proxy
 
@@ -95,8 +94,8 @@ recorded in the result so a questionable run is explainable rather than mysterio
 Before starting, Runner requires acknowledgement that the test records device position.
 
 The capture is one-and-done and has no resume workflow.
-Stopping early exports `completionStatus: "aborted"`.
-Finishing every required checkpoint exports `completionStatus: "completed"`.
+Stopping before explicit endpoint finish exports `completionStatus: "aborted"`.
+At the terminal checkpoint, polling continues until explicit finish exports `"completed"`.
 Both paths visibly prompt download.
 
 Only completed runs are eligible for comparison.
@@ -114,8 +113,9 @@ A result contains:
 - survey, route, customer, campus, and source IDs
 - started, stopped, and exported timestamps
 - completion status
-- definition polling interval and checkpoint dwell
+- definition polling interval and per-checkpoint dwell (legacy global fallback)
 - ordered check-ins and Runner events
+- `endpoint-hold-started` when final-checkpoint polling begins
 - every normalized poll and complete raw response
 - HTTP status, request timing, round-trip timing, and errors
 - no access or positioning secrets

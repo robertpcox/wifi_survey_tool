@@ -1,6 +1,7 @@
 import {
   checkInCurrent,
   createRunnerProgress,
+  finishRunnerProgress,
   startRunnerProgress,
   tickRunnerDwell,
 } from "../../domain/runner-progress-v3.mjs";
@@ -41,9 +42,12 @@ export function createActiveRunner(options) {
       at,
       checkpointId: checkpoint.id,
     });
-    if (transition.completed) {
-      finish("completed");
-      return;
+    if (progress.phase === "awaiting-end") {
+      state.events.push({
+        type: "endpoint-hold-started",
+        at,
+        checkpointId: checkpoint.id,
+      });
     }
     if (progress.phase === "dwelling") scheduleDwell();
     refresh();
@@ -68,10 +72,22 @@ export function createActiveRunner(options) {
   }
 
   function stop() {
-    if (!state.completionStatus) finish("aborted");
+    if (state.completionStatus) return;
+    if (progress.phase === "awaiting-end") {
+      endSession();
+      return;
+    }
+    finish("aborted");
+  }
+
+  function endSession() {
+    if (state.completionStatus) return;
+    const transition = finishRunnerProgress(progress);
+    if (transition.completed) finish("completed");
   }
 
   function finish(status) {
+    if (state.completionStatus) return;
     state.completionStatus = status;
     state.stoppedAt = nowIso();
     state.events.push({ type: `run-${status}`, at: state.stoppedAt });
@@ -98,6 +114,7 @@ export function createActiveRunner(options) {
 
   return Object.freeze({
     checkIn,
+    endSession,
     start,
     state,
     stop,

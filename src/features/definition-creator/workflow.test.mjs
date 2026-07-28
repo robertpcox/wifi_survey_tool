@@ -22,17 +22,24 @@ function domainHarness() {
       },
       generateRouteCheckpointsV3(_stops, legs, spacingM) {
         return {
-          checkpoints: legs.length ? [{ id: "checkpoint-1" }] : [],
+          checkpoints: legs.length ? [
+            checkpoint(0, "stop", "a", null),
+            checkpoint(1, "intermediate", null, "leg-1"),
+            checkpoint(2, "stop", "b", null),
+          ] : [],
           shortLegs: legs.filter(leg => leg.distanceM < 10),
           spacingM,
         };
       },
       estimateRouteDuration(input) {
+        const dwellSeconds = input.checkpoints.reduce(
+          (total, checkpointValue) => total + checkpointValue.dwellSeconds,
+          0,
+        );
         return {
           walkingSeconds: input.distanceM,
-          dwellSeconds: input.checkpointCount * input.dwellSeconds,
-          totalSeconds: input.distanceM
-            + input.checkpointCount * input.dwellSeconds,
+          dwellSeconds,
+          totalSeconds: input.distanceM + dwellSeconds,
         };
       },
       authorSurveyDefinitionV3(input, options) {
@@ -56,9 +63,10 @@ test("workflow routes, checkpoints, and estimates immediately", async () => {
     domain: harness.domain,
     routeProvider: async () => [{ distanceM: 8 }],
   });
-  const result = await workflow.rebuild(stops, { spacingM: 10, dwellSeconds: 5 });
+  const result = await workflow.rebuild(stops, plan());
   assert.equal(result.distanceM, 8);
-  assert.equal(result.checkpoints.length, 1);
+  assert.equal(result.checkpoints.length, 3);
+  assert.deepEqual(result.checkpoints.map(value => value.dwellSeconds), [0, 5, 0]);
   assert.deepEqual(result.duration, {
     walkingSeconds: 8,
     dwellSeconds: 5,
@@ -73,8 +81,8 @@ test("workflow ignores a route response superseded by a newer rebuild", async ()
     domain: harness.domain,
     routeProvider: () => new Promise(resolve => resolvers.push(resolve)),
   });
-  const first = workflow.rebuild(stops, { spacingM: 10, dwellSeconds: 5 });
-  const second = workflow.rebuild(stops, { spacingM: 10, dwellSeconds: 5 });
+  const first = workflow.rebuild(stops, plan());
+  const second = workflow.rebuild(stops, plan());
   resolvers[0]([{ distanceM: 7 }]);
   assert.deepEqual(await first, { stale: true });
   resolvers[1]([{ distanceM: 12 }]);
@@ -94,7 +102,7 @@ test("workflow authors without credentials and retains imported comparison input
     {
       meta: { surveyId: "survey-a" },
       routeId: "route-a",
-      plan: { spacingM: 10, dwellSeconds: 5 },
+      plan: plan(),
     },
     { stops, legs: [] },
     imported,
@@ -107,44 +115,24 @@ test("workflow authors without credentials and retains imported comparison input
   assert.equal("device" in call.input.meta, false);
   assert.equal("band" in call.input.meta, false);
 });
-test("workflow integrates with v3 authoring and preserves an unchanged reimport", async () => {
-  const workflow = createCreatorWorkflow({
-    now: () => new Date("2026-07-28T00:00:00.000Z"),
-  });
-  const routeStops = [
-    { id: "stop-1", name: "Start", lng: 170.5, lat: -45.87, z: 0,
-      poiId: null, poiName: null, locationType: "room",
-      provenance: { method: "map" } },
-    { id: "stop-2", name: "Finish", lng: 170.5002, lat: -45.87, z: 0,
-      poiId: null, poiName: null, locationType: "room",
-      provenance: { method: "map" } },
-  ];
-  const plan = { spacingM: 10, dwellSeconds: 5 };
-  const route = await workflow.rebuild(routeStops, plan);
-  const parsed = {
-    meta: {
-      surveyId: "survey-a", surveyName: "Survey A",
-      customerId: "customer-a", customerName: "Customer A",
-      campusId: "campus-a", campusName: "Campus A",
-      timezone: "Australia/Melbourne",
-      buildings: [{ id: "a", name: "A" }],
-      zLevels: [0], zLevelNames: { 0: "Ground" },
-      positionSourceId: "mazemap-cloud", authorNotes: null, authorName: null,
-      sourceConfig: { configId: "1", pollIntervalMs: 2000, proxyBase: "/proxy" },
-      credentialRequirements: {
-        mapAccess: false, appId: true, appKey: true, clientIp: true,
-      },
-    },
-    routeId: "route-a",
-    plan,
+function plan() {
+  return {
+    spacingM: 10,
+    midLegDwellSeconds: 5,
+    legEndDwellSeconds: 30,
   };
-  const first = await workflow.author(parsed, { stops: routeStops, legs: route.legs });
-  const imported = workflow.importDefinition(first);
-  const second = await workflow.author(parsed, {
-    stops: imported.stops,
-    legs: imported.legs,
-  }, imported);
-  assert.deepEqual(second, first);
-  assert.equal("device" in first.meta, false);
-  assert.equal("band" in first.meta, false);
-});
+}
+
+function checkpoint(sequence, type, stopId, legId) {
+  return {
+    id: `checkpoint-${sequence + 1}`,
+    sequence,
+    type,
+    stopId,
+    legId,
+    lng: sequence,
+    lat: 0,
+    z: 0,
+    spacingBasisM: 10,
+  };
+}

@@ -130,9 +130,8 @@ export function runnerDownloadFindings(download, checkpointCount) {
   if (download.result.run.completionStatus !== "completed") {
     findings.push("not completed");
   }
-  if (download.result.checkIns.length !== checkpointCount) {
-    findings.push("check-ins missing");
-  }
+  if (download.result.checkIns.length !== checkpointCount) findings.push("check-ins missing");
+  if (!download.result.events?.some(event => event.type === "endpoint-hold-started")) findings.push("endpoint hold event missing");
   if (!download.result.polls[0]?.raw) findings.push("raw poll missing");
   if (!download.result.polls[0]?.normalized) findings.push("normalized poll missing");
   if (!download.result.run.device?.name || download.result.run.band !== "5") {

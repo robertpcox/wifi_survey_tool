@@ -28,7 +28,8 @@ export function runnerEntryIssues(values, credentials, requirements = {}) {
     issues.push("band is unsupported");
   }
   if (!values.consent) issues.push("position recording acknowledgement is required");
-  for (const name of credentials.missing(requirements)) {
+  const requiredCredentials = { ...requirements, mapAccess: false };
+  for (const name of credentials.missing(requiredCredentials)) {
     issues.push(`${name} is required`);
   }
   return issues;

@@ -7,6 +7,13 @@ import {
   importSurveyDefinitionV3,
 } from "../../domain/definition-authoring-v3.mjs";
 import { estimateRouteDuration } from "../../domain/route-duration-v3.mjs";
+import {
+  applyCreatorCheckpointDwells,
+} from "./checkpoint-dwell.mjs";
+import {
+  creatorRouteResult,
+  updateCreatorRouteDwell,
+} from "./workflow-route.mjs";
 
 const DEFAULT_DOMAIN = Object.freeze({
   authorSurveyDefinitionV3,
@@ -24,10 +31,10 @@ export function createCreatorWorkflow({
 } = {}) {
   let revision = 0;
 
-  async function rebuild(stops, plan) {
+  async function rebuild(stops, plan, previousRoute = null) {
     const buildRevision = ++revision;
     if (stops.length < 2) {
-      return routeResult([], [], [], plan.dwellSeconds);
+      return creatorRouteResult(domain, [], [], [], 0);
     }
     const legs = [];
     for (let index = 0; index < stops.length - 1; index++) {
@@ -52,17 +59,25 @@ export function createCreatorWorkflow({
       legs,
       plan.spacingM,
     );
-    return routeResult(
-      legs,
+    const checkpoints = applyCreatorCheckpointDwells(
       generated.checkpoints,
+      legs,
+      plan,
+      previousRoute,
+    );
+    return creatorRouteResult(
+      domain,
+      legs,
+      checkpoints,
       generated.shortLegs,
-      plan.dwellSeconds,
+      0,
     );
   }
 
   function reviewImported(imported) {
     const definition = imported.previousDefinition;
-    return routeResult(
+    return creatorRouteResult(
+      domain,
       imported.legs,
       definition.route.checkpoints,
       domain.generateRouteCheckpointsV3(
@@ -81,27 +96,12 @@ export function createCreatorWorkflow({
       routeId: parsed.routeId,
       stops: route.stops,
       legs: route.legs,
+      checkpoints: route.checkpoints,
       checkpointSpacingM: parsed.plan.spacingM,
-      checkpointDwellSeconds: parsed.plan.dwellSeconds,
+      checkpointDwellSeconds: imported?.checkpointDwellSeconds ?? 0,
     };
     if (!imported) delete input.previousDefinition;
     return domain.authorSurveyDefinitionV3(input, { now, cryptoRef });
-  }
-
-  function routeResult(legs, checkpoints, shortLegs, dwellSeconds) {
-    const distanceM = legs.reduce((sum, leg) => sum + leg.distanceM, 0);
-    return {
-      stale: false,
-      legs,
-      checkpoints,
-      shortLegs,
-      distanceM,
-      duration: domain.estimateRouteDuration({
-        distanceM,
-        checkpointCount: checkpoints.length,
-        dwellSeconds,
-      }),
-    };
   }
 
   return {
@@ -112,6 +112,9 @@ export function createCreatorWorkflow({
     importDefinition: value => domain.importSurveyDefinitionV3(value),
     rebuild,
     reviewImported,
+    updateCheckpointDwell: (route, sequence, dwellSeconds) => (
+      updateCreatorRouteDwell(domain, route, sequence, dwellSeconds)
+    ),
   };
 }
 

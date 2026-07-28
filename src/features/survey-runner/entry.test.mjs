@@ -32,6 +32,12 @@ test("entry requires device, band, consent, and flagged credentials", () => {
   assert.ok(runnerEntryIssues({}, credentials, requirements).length >= 9);
   syncRunnerCredentials(values, credentials);
   assert.deepEqual(runnerEntryIssues(values, credentials, requirements), []);
+  credentials.set("mapAccess", "");
+  assert.deepEqual(runnerEntryIssues(
+    { ...values, mapAccess: "" },
+    credentials,
+    requirements,
+  ), []);
   assert.deepEqual(normalizeRunnerEntry(values), {
     deviceType: "mobile",
     deviceOs: "ExampleOS 1",

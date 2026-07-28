@@ -4,17 +4,19 @@
 E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 
 ## ./
+- checkpoint-dwell-v3 89/2670 T+ E authoredCheckpointsV3, checkpointDwellDefaults, checkpointDwellSeconds, totalCheckpointDwellSeconds
 - checkpoints 144/4201 T+ E generateCheckpoints, generateWaypoints I geometry, route-contract, stop-targets
 - creator-route-v3 139/4453 T+ E SHORT_LEG_THRESHOLD_M, createRouteLegV3, generateRouteCheckpointsV3 I geometry
 - dashboard-selection 92/3523 T+ E createDashboardModel, customerIdFromUrl, reportPlayerBaseFromUrl, reportPlayerUrl
-- definition-authoring-v3 149/6595 T+ E authorSurveyDefinitionV3, immutableDefinitionCopy, importSurveyDefinitionV3
-  - I creator-route-v3, route-duration-v3, route-hash-v3, survey-definition-v3, survey-meta-v3
+- definition-authoring-v3 149/6401 T+ E authorSurveyDefinitionV3, immutableDefinitionCopy, importSurveyDefinitionV3
+  - I checkpoint-dwell-v3, creator-route-v3, definition-copy-v3, route-duration-v3, route-hash-v3, survey-definition-v3, survey-meta-v3
+- definition-copy-v3 30/1397 T+ E immutableDefinitionCopy, mutableDefinitionCopy, sanitizedDefinitionCopy
 - geometry 38/1241 T+ E bearing, haversine, lerp, pathLength
 - report-analysis 139/4866 T+ E REPORT_THRESHOLDS, analyzeReportResult I report-ground-truth, report-samples
-- report-check-in-route 118/4371 T+ E projectReportCheckIns
+- report-check-in-route 124/4567 T+ E projectReportCheckIns I checkpoint-dwell-v3
 - report-comparison 94/3017 T+ E compareReportResults, reportDeviceLabel I report-analysis
-- report-ground-truth-timeline 138/4076 T+ E buildTruthSegments, publicTruthSegment, truthAtTime
-- report-ground-truth 75/2714 T+ E buildGroundTruthModel, buildReportGroundTruth I report-check-in-route, report-ground-truth-timeline, report-route
+- report-ground-truth-timeline 147/4445 T+ E buildTruthSegments, publicTruthSegment, truthAtTime
+- report-ground-truth 82/2968 T+ E buildGroundTruthModel, buildReportGroundTruth I report-check-in-route, report-ground-truth-timeline, report-route
 - report-playback-timeline 89/3067 T+ E playbackBounds, preparePlaybackTimeline I report-ground-truth, report-poll-timeline
 - report-playback 90/3011 T+ E playbackBounds, playbackEventTimes, playbackFrame I report-playback-timeline, report-poll-evidence
 - report-poll-evidence 150/4907 T+ E playbackPollEvidenceAt
@@ -26,14 +28,14 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - report-snap 78/2610 T+ E snapFixToActiveRoute I geometry, report-route-geometry
 - route-contract 23/582 T+
   - E CAMPUS_ID, CHECKPOINT_RULES, MAP_STYLE, MAP_TRAIL_FIX_LIMIT, ROUTE_BUILD_CONCURRENCY, ROUTE_FORMAT_VERSION, ROUTE_TOOL, SUPPORTED_SPACINGS_M
-- route-duration-v3 32/943 T+ E WALKING_SPEED_MPS, estimateRouteDuration
+- route-duration-v3 36/1109 T+ E WALKING_SPEED_MPS, estimateRouteDuration I checkpoint-dwell-v3
 - route-hash-v3 37/1343 T+ E canonicalRoutePlanV3, hashRoutePlanV3
 - route-integrity-v3 69/2768 T+ E validateRouteIntegrityV3
 - route-model 113/3580 T+ E alphaTag, normalizeStop, normalizeStops, parseRouteDefinition, routeDefinition I route-contract
 - route-path 117/3936 T+ E extractPath, routePoint, routePointDistance, sameRoutePoint I geometry
-- route-snapshot-v3 127/5161 T+ E ROUTE_REQUIRED_PATHS, validateRouteSnapshot I route-integrity-v3, validation
+- route-snapshot-v3 130/5291 T+ E ROUTE_REQUIRED_PATHS, validateRouteSnapshot I route-integrity-v3, validation
 - runner-preflight-v3 86/2402 T+ E PREFLIGHT_LIMITS, evaluateRunnerPreflight I geometry
-- runner-progress-v3 81/2482 T+ E checkInCurrent, createRunnerProgress, startRunnerProgress, tickRunnerDwell
+- runner-progress-v3 99/3033 T+ E checkInCurrent, createRunnerProgress, finishRunnerProgress, startRunnerProgress, tickRunnerDwell I checkpoint-dwell-v3
 - runner-result-v3 72/1946 T+ E buildSurveyResultV3, resultFilename I survey-result-v3
 - stop-targets 90/2469 T+ E outdoorsStop, poiToStop, pointToStop, stopName, stopTargetTitle, tagOf I route-model
 - survey-definition-v3 83/2561 T+ E DEFINITION_REQUIRED_PATHS, validateSurveyDefinitionV3 I route-snapshot-v3, survey-meta-v3, validation

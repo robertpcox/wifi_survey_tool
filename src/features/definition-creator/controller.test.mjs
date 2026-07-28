@@ -2,12 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { createDefinitionCreatorController } from "./controller.mjs";
 function harness() {
-  const calls = {
-    failRoute: false,
-    map: [],
-    shortWarnings: [],
-    statuses: [],
-  };
+  const calls = { failRoute: false, map: [], shortWarnings: [], statuses: [] };
   const fields = validFields();
   const view = {
     chooseImport() {},
@@ -31,7 +26,9 @@ function harness() {
     },
   };
   const route = {
-    checkpoints: [{ id: "checkpoint-1" }],
+    checkpoints: [
+      { id: "checkpoint-1", sequence: 1, type: "intermediate", dwellSeconds: 5 },
+    ],
     distanceM: 8,
     duration: { walkingSeconds: 8, dwellSeconds: 5, totalSeconds: 13 },
     legs: [{
@@ -144,6 +141,6 @@ function validFields() {
     pollIntervalMs: 2000,
     proxyBase: "/proxy",
     spacingM: 10,
-    dwellSeconds: 5,
+    midLegDwellSeconds: 5, legEndDwellSeconds: 30,
   };
 }

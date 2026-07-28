@@ -10,6 +10,7 @@ test("Creator HTML exposes its feature mount without duplicate access controls",
   assert.match(html, /data-definition-creator/);
   assert.match(html, /features\/definition-creator\/creator\.css/);
   assert.match(html, /features\/definition-creator\/components\.css/);
+  assert.match(html, /features\/definition-creator\/dwell-schedule\.css/);
   assert.doesNotMatch(html, /data-(?:map-access|save-access|clear-access)/);
   assert.doesNotMatch(html, /data-field="(?:device|band)/i);
 });

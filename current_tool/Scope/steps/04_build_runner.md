@@ -60,7 +60,7 @@ Follow `Scope/step_standard.md`.
 6. Acknowledge that the test records the position of the device under test.
 7. Tap Go, enabled by a green light.
 8. Follow the embedded checkpoint sequence and configured dwell.
-9. Finish or stop early.
+9. Reach the endpoint, keep recording, then explicitly End session or stop early.
 10. Add an optional comment about the run.
 11. Download the prompted result.
 
@@ -68,7 +68,7 @@ Follow `Scope/step_standard.md`.
 
 One screen shows exactly what this run requires, and Go stays disabled until it is complete:
 
-- credentials the definition flags as required
+- positioning credentials required by the definition; map access appears only after denial
 - Client IP identifying the device under test
 - device type: mobile, laptop, or asset
 - device operating system and version
@@ -95,7 +95,7 @@ Green requires all of:
 - the provider fix is fresh, not a stale cached position
 - the reported floor is one of the definition's z-levels
 - the reported position is near the campus, not a default or a distant fallback
-- the map loaded, including private access when the definition requires it
+- the map loaded publicly or succeeded after a typed access-denial retry
 
 Show the sampled position, floor, fix age, and round-trip time alongside the light.
 An operator who can see the numbers catches what a rule did not think to check.
@@ -120,7 +120,7 @@ the result. Starting on amber or red requires an explicit acknowledgement and is
 - Refresh or tab close loses credentials and the active run.
 - No resume workflow is provided.
 - Stop produces `completionStatus: "aborted"` and prompts download.
-- Completion produces `completionStatus: "completed"` and prompts download.
+- Only explicit End session after the endpoint produces completed status and download.
 
 ## Performance
 
@@ -136,7 +136,7 @@ the result. Starting on amber or red requires an explicit acknowledgement and is
 - Aborted and completed exports pass the v3 result validator.
 - Every export carries device type, operating system, name, Client IP, and band.
 - The comment prompt never blocks or delays the export, on either completion path.
-- Go stays disabled until every required field is complete and preflight is green.
+- Go waits for required positioning fields and preflight, never an unproved map-token need.
 - Each preflight failure reason is reachable by a test and stated in plain words.
 - A run started on amber or red carries the acknowledgement and the sample in its export.
 - An asset run never requests the Runner device's own position.

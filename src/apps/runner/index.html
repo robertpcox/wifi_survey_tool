@@ -1,5 +1,4 @@
-<!doctype html>
-<html lang="en">
+<!doctype html><html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -40,7 +39,7 @@
           <p>Nothing in this form is saved between runs.</p>
           <div class="entry-grid">
             <label data-credential-row="mapAccess">
-              Private map access
+              Private map access (only if needed)
               <input name="mapAccess" type="password" autocomplete="off">
             </label>
             <label data-credential-row="appId">
@@ -129,6 +128,7 @@
       </div>
       <div class="capture-actions">
         <button class="check-in-button" data-action="check-in">I’m at the checkpoint</button>
+        <button class="check-in-button" data-action="end-session" hidden>End session</button>
         <button class="stop-button" data-action="stop">Stop run</button>
       </div>
     </section>

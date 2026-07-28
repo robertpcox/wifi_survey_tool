@@ -84,13 +84,9 @@ async function exerciseProfile({ browser, definition, origin, path, profile }) {
     hasTouch: true,
   });
   await installRunnerBrowserEnvironment(page, origin, definition);
-  page.on("console", message => {
-    if (message.type() === "error") failures.push(message.text());
-  });
+  page.on("console", message => { if (message.type() === "error") failures.push(message.text()); });
   page.on("pageerror", error => failures.push(error.message));
-  page.on("response", response => {
-    if (response.status() >= 400) failures.push(`${response.status()} ${response.url()}`);
-  });
+  page.on("response", response => { if (response.status() >= 400) failures.push(`${response.status()} ${response.url()}`); });
   const surveyId = encodeURIComponent(definition.meta.surveyId);
   await openRunnerShareLink(page, `${origin}${path}?survey_id=${surveyId}`);
   await startRunnerCapture(page, profile.name);
@@ -118,6 +114,11 @@ async function exerciseProfile({ browser, definition, origin, path, profile }) {
       ));
     }
   }
+  await page.waitForSelector('[data-action="end-session"]:not([hidden])');
+  const endpointPolls = await page.$eval("[data-poll-count]", node => Number(node.textContent));
+  await page.waitForFunction(count => Number(document
+    .querySelector("[data-poll-count]").textContent) > count, {}, endpointPolls);
+  await page.click('[data-action="end-session"]');
   await page.waitForSelector("[data-finish-panel]:not([hidden])");
   await page.type("[data-operator-comment]", `${profile.name} browser run`);
   await page.click('[data-action="download-result"]');
@@ -140,7 +141,6 @@ async function exerciseProfile({ browser, definition, origin, path, profile }) {
   if (failures.length) throw new Error(`${profile.name}: ${failures.join("\n")}`);
   return { filename: download.filename, profile: profile.name };
 }
-
 const isCli = process.argv[1]
   && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isCli) {

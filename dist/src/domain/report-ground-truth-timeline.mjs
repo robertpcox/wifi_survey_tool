@@ -10,7 +10,12 @@ export function buildTruthSegments(points, dwellMs, stoppedAtMs) {
   points.forEach((point, index) => {
     const next = points[index + 1];
     const horizon = next?.atMs ?? Math.max(point.atMs, stoppedAtMs);
-    const dwellEndMs = Math.min(point.atMs + dwellMs, horizon);
+    const pointDwellMs = point.endpointHold && !next
+      ? horizon - point.atMs
+      : Number.isFinite(point.dwellSeconds)
+        ? point.dwellSeconds * 1000
+        : dwellMs;
+    const dwellEndMs = Math.min(point.atMs + pointDwellMs, horizon);
     if (dwellEndMs > point.atMs) {
       segments.push(segment(point, point, next ?? point, point.atMs, dwellEndMs, false));
     }
@@ -64,7 +69,8 @@ function truthAtCheckIn(point, segments, route, atMs) {
     route,
     atMs,
     false,
-    Boolean(active && !active.moving),
+    Boolean(active && !active.moving && !active.from.endpointHold),
+    Boolean(active?.from.endpointHold),
     point.checkpointId,
     active?.intervalTo.checkpointId ?? point.checkpointId,
   );
@@ -87,7 +93,8 @@ function truthOnSegment(segmentValue, route, atMs) {
     route,
     atMs,
     segmentValue.moving,
-    !segmentValue.moving,
+    !segmentValue.moving && !segmentValue.from.endpointHold,
+    Boolean(segmentValue.from.endpointHold),
     segmentValue.from.checkpointId,
     segmentValue.to.checkpointId,
   );
@@ -108,6 +115,7 @@ function publicTruth(
   atMs,
   moving,
   plannedDwell,
+  endpointHold,
   fromCheckpointId,
   toCheckpointId,
 ) {
@@ -123,6 +131,7 @@ function publicTruth(
     z: position.z,
     moving,
     plannedDwell,
+    endpointHold,
     fromCheckpointId,
     toCheckpointId,
     routeDistanceM: position.routeDistanceM,

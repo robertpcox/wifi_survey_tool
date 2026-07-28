@@ -1,9 +1,9 @@
-// FEATURE:      Report Player shared context
+// FEATURE:      Report Player shared result context
 // SURFACE:      node --test src/features/report-player/report-store.test.mjs
-// WHY TOGETHER: Fixture identity, threshold, comparison, and view assertions prove one store lifecycle.
+// WHY TOGETHER: Result identity, analysis, thresholds, comparison, and mode share one store lifecycle.
 // STATE:        Analyzer invocation count and immutable fixture reference
 // RULES:        Switching analysis/playback never invokes analysis or parsing.
-// PROVENANCE:   Scope/test_plan.md Step 5
+// PROVENANCE:   Scope/steps/05a_recast_player.md
 
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -32,6 +32,8 @@ test("store keeps one result/meta/analysis context across analysis and playback"
   store.setView("playback");
   store.setView("analysis");
   assert.equal(analysisCalls, 1);
+  assert.equal(store.snapshot().result, result);
+  assert.equal(store.snapshot().meta, result.meta);
   assert.equal(store.snapshot().analysis, firstAnalysis);
   store.setThresholds({ stickySeconds: 2, accuracyM: 5 });
   assert.equal(analysisCalls, 2);

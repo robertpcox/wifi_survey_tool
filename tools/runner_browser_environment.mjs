@@ -1,3 +1,8 @@
+export const RUNNER_BROWSER_POSITION = Object.freeze({
+  lat: -45.87248,
+  lng: 170.50853,
+  z: 1,
+});
 export async function installRunnerBrowserEnvironment(
   page,
   origin,
@@ -18,9 +23,9 @@ async function respond(request, origin, definition) {
   }
   if (url.includes("/mm-positioning-proxy/position?")) {
     const body = JSON.stringify({
-      latitude: -45.87248,
-      longitude: 170.50853,
-      zLevel: 1,
+      latitude: RUNNER_BROWSER_POSITION.lat,
+      longitude: RUNNER_BROWSER_POSITION.lng,
+      zLevel: RUNNER_BROWSER_POSITION.z,
       lastSeen: new Date().toISOString(),
       confidenceFactor: 0.93,
       recordedBrowserFixture: true,
@@ -67,7 +72,10 @@ function installBrowserDoubles() {
     addLayer(layer) { this.layers.set(layer.id, layer); }
     getLayer(id) { return this.layers.get(id); }
     getZLevel() { return this.zLevel; }
-    setZLevel(value) { this.zLevel = value; }
+    setZLevel(value) {
+      this.zLevel = value;
+      window.__runnerZHistory = [...(window.__runnerZHistory || []), value];
+    }
     getZoom() { return 18; }
     easeTo(camera) { window.__runnerCamera = structuredClone(camera); }
     flyTo(camera) { window.__runnerCamera = structuredClone(camera); }
@@ -79,8 +87,18 @@ function installBrowserDoubles() {
     }
     remove() {}
     resize() { window.__runnerResizeCount = (window.__runnerResizeCount || 0) + 1; }
-    setFilter() {}
-    setPaintProperty() {}
+    setFilter(id, filter) {
+      window.__runnerFilters = {
+        ...(window.__runnerFilters || {}),
+        [id]: structuredClone(filter),
+      };
+    }
+    setPaintProperty(id, property, value) {
+      window.__runnerPaint = {
+        ...(window.__runnerPaint || {}),
+        [`${id}.${property}`]: structuredClone(value),
+      };
+    }
     stop() {}
   }
   class Marker {

@@ -78,6 +78,12 @@ export function mountSurveyRunner(options = {}) {
       definition: state.definition,
       pollLoop: setup.pollLoop,
       mapAdapter,
+      currentPosition: () => {
+        for (let index = state.polls.length - 1; index >= 0; index--) {
+          if (state.polls[index]?.success) return state.polls[index].normalized;
+        }
+        return null;
+      },
       nowDate,
       setTimer: options.setTimer,
       clearTimer: options.clearTimer,

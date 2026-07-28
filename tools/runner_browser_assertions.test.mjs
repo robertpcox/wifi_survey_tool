@@ -61,4 +61,7 @@ test("Runner active-view findings enforce map-first capture geometry", () => {
   assert.deepEqual(runnerActiveViewFindings(valid, "Floor 1"), [
     "authored floor name is not visible",
   ]);
+  assert.deepEqual(runnerActiveViewFindings(valid, "Level 0", 90), [
+    "checkpoint camera bearing does not face the target",
+  ]);
 });

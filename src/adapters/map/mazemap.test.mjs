@@ -1,3 +1,10 @@
+// FEATURE:      MazeMap provider adapter
+// SURFACE:      Credentialed launch, POI query, and classified failure regression tests
+// WHY TOGETHER: Existing Creator/Runner adapter behavior remains one compatibility suite.
+// STATE:        Fake SDK map, catalog, marker, source, and token calls
+// RULES:        Credentialed behavior is preserved while failures use typed classifications.
+// PROVENANCE:   Scope/steps/05a_recast_player.md Creator/Runner preservation
+
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createMazeMapAdapter } from "./mazemap.mjs";
@@ -16,7 +23,9 @@ function mazemapHarness(mode = "load") {
     }
     on(event, listener) {
       this.events[event] = listener;
-      if (mode === "error" && event === "error") listener({ error: Error("tiles") });
+      if (mode === "error" && event === "error") {
+        listener({ error: Error("tiles"), sourceId: "campus-tiles" });
+      }
       if (mode === "load" && event === "load") listener();
     }
     getSource(id) { return state.sources.get(id); }
@@ -29,6 +38,7 @@ function mazemapHarness(mode = "load") {
     stop() { this.stopped = true; }
     easeTo(camera) { this.easyCamera = camera; }
     flyTo(camera) { this.flyCamera = camera; }
+    remove() { this.removed = true; }
     setPaintProperty() {}
   }
   class MazeMarker {
@@ -71,8 +81,6 @@ test("launch lazily loads the SDK and uses the selected campus catalog", async (
     loadMazemap: async () => { loads += 1; return state.Mazemap; },
   });
   assert.equal(adapter.Mazemap, null);
-  await assert.rejects(adapter.launch(""), /Map access is required/);
-  assert.equal(loads, 0);
   const onClick = () => {};
   assert.equal(await adapter.launch("runtime-secret", onClick, { campusId: "777" }), 2);
   assert.equal(loads, 1);
@@ -117,7 +125,7 @@ test("map errors and timeouts reject instead of leaving Engage hanging", async (
   const failed = mazemapHarness("error");
   await assert.rejects(
     createMazeMapAdapter({ Mazemap: failed.Mazemap }).launch("token"),
-    /MazeMap failed to load: tiles/,
+    error => error.classification === "tiles",
   );
   const stalled = mazemapHarness("stall");
   await assert.rejects(
@@ -125,6 +133,6 @@ test("map errors and timeouts reject instead of leaving Engage hanging", async (
       Mazemap: stalled.Mazemap,
       mapLoadTimeoutMs: 5,
     }).launch("token"),
-    /did not load within 5 ms/,
+    error => error.classification === "timeout",
   );
 });

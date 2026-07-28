@@ -1,9 +1,9 @@
 // FEATURE:      Merged Report Player
 // SURFACE:      bootReportPlayer(options), browser module entry
-// WHY TOGETHER: Static data, memory credentials, private map, and feature mount compose at this boundary.
+// WHY TOGETHER: Static data, memory access, public-first MazeMap, and feature mount compose here.
 // STATE:        One Report Player session promise
 // RULES:        Keep map access in memory and resolve URL result IDs through generated manifests.
-// PROVENANCE:   Scope/steps/05_dashboard_report_player.md
+// PROVENANCE:   Scope/steps/05a_recast_player.md
 
 import { createManifestSource } from "../../adapters/manifest-source.mjs";
 import { createMazeMapAdapter } from "../../adapters/map/mazemap.mjs";
@@ -16,20 +16,24 @@ export function bootReportPlayer({
   locationRef = globalThis.location,
   manifestSource = createManifestSource(),
   credentials = createMemoryCredentialStore(),
-  createPrivateMap = result => createMazeMapAdapter({
-    container: "report-private-map",
-    campusId: result.meta.campusId,
-  }),
+  createMap,
+  createPrivateMap,
   downloadFile,
 } = {}) {
+  const mapFactory = createMap ?? createPrivateMap ?? (result => createMazeMapAdapter({
+    container: "report-maze-map",
+    campusId: result.meta.campusId,
+  }));
   return mountReportPlayer({
     root: documentRef.querySelector("[data-report-root]"),
     selection: resultSelectionFromUrl(locationRef.href),
     manifestSource,
     credentials,
-    createPrivateMap,
+    createMap: mapFactory,
     downloadFile,
   });
 }
 
-if (typeof document !== "undefined") bootReportPlayer();
+export const reportPlayerReady = typeof document !== "undefined"
+  ? bootReportPlayer()
+  : null;

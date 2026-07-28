@@ -1,3 +1,5 @@
+import { bearingTo } from "../src/adapters/map/camera-bearing.mjs";
+
 export async function setRunnerEntry(page, name) {
   const values = {
     mapAccess: "browser-map-value",
@@ -13,6 +15,21 @@ export async function setRunnerEntry(page, name) {
   await page.select('[name="deviceType"]', "mobile");
   await page.select('[name="band"]', "5");
   await page.click('[name="consent"]');
+}
+
+export async function openRunnerShareLink(page, url) {
+  await page.goto(url, { waitUntil: "networkidle0" });
+  await page.waitForFunction(() => document
+    .querySelector("[data-runner-status]").textContent.includes("Survey loaded"));
+}
+
+export async function startRunnerCapture(page, profileName) {
+  await setRunnerEntry(page, profileName);
+  await page.click('[data-action="preflight"]');
+  await page.waitForFunction(() => document
+    .querySelector("[data-preflight-light]").textContent === "GREEN");
+  await page.click('[data-action="go"]');
+  await page.waitForFunction(() => document.body.classList.contains("runner-running"));
 }
 
 export async function readRunnerActiveView(page) {
@@ -49,7 +66,27 @@ export async function readRunnerActiveView(page) {
   });
 }
 
-export function runnerActiveViewFindings(view, expectedFloor) {
+export async function readRunnerMapTransition(page) {
+  return page.evaluate(() => ({
+    activeLeg: window.__runnerFilters?.["route-active-lyr"]?.at(-1),
+    bearing: window.__runnerCamera?.bearing,
+    waypointOpacity: window.__runnerPaint?.["wp-pts-lyr.circle-opacity"],
+  }));
+}
+
+export function runnerMapTransitionFindings(state, origin, target, expectedZ) {
+  const findings = [];
+  if (state.activeLeg !== 0) findings.push("current route leg is not active");
+  if (bearingDifference(state.bearing, bearingTo(origin, target)) > 0.1) {
+    findings.push("next checkpoint is not direction-up");
+  }
+  if (!JSON.stringify(state.waypointOpacity).includes(String(expectedZ))) {
+    findings.push("checkpoint styling did not follow the active floor");
+  }
+  return findings;
+}
+
+export function runnerActiveViewFindings(view, expectedFloor, expectedBearing) {
   const findings = [];
   const inside = rect => rect
     && rect.top >= -1
@@ -67,8 +104,11 @@ export function runnerActiveViewFindings(view, expectedFloor) {
     findings.push("run controls leave the viewport");
   }
   if (!view.fitBounds) findings.push("survey bounds were not fitted");
-  if (view.camera?.bearing !== 0 || view.camera?.pitch !== 0) {
-    findings.push("checkpoint camera is not north-up");
+  if (!Number.isFinite(view.camera?.bearing) || view.camera?.pitch !== 0) {
+    findings.push("checkpoint camera is not direction-up");
+  } else if (Number.isFinite(expectedBearing)
+    && bearingDifference(view.camera.bearing, expectedBearing) > 0.1) {
+    findings.push("checkpoint camera bearing does not face the target");
   }
   if (view.marker?.glyph !== "1") findings.push("first checkpoint is not highlighted");
   if (view.pollState !== "ok" || view.pollCount < 1) findings.push("poll health is not visible");
@@ -78,6 +118,10 @@ export function runnerActiveViewFindings(view, expectedFloor) {
   if (!view.target?.trim()) findings.push("checkpoint target is not visible");
   if (expectedFloor && view.floor !== expectedFloor) findings.push("authored floor name is not visible");
   return findings;
+}
+
+function bearingDifference(left, right) {
+  return Math.abs((left - right + 540) % 360 - 180);
 }
 
 export function runnerDownloadFindings(download, checkpointCount) {

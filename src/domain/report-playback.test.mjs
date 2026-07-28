@@ -9,7 +9,11 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import { playbackBounds, playbackFrame } from "./report-playback.mjs";
+import {
+  playbackBounds,
+  playbackEventTimes,
+  playbackFrame,
+} from "./report-playback.mjs";
 
 const fixture = JSON.parse(await readFile(
   new URL("../../data/fixtures/report-player/result.fixture.v3.json", import.meta.url),
@@ -41,10 +45,20 @@ test("frame retains raw poll timing while excluding preflight from the trail", (
   const frame = playbackFrame(fixture, startMs + 6_000);
   assert.equal(frame.preflight, fixture.run.preflight);
   assert.deepEqual(frame.polls.map(poll => poll.id), ["poll-2", "poll-3"]);
-  assert.deepEqual(frame.pollTrail.map(poll => poll.id), ["poll-2", "poll-3"]);
+  assert.deepEqual(frame.pollTrail.map(poll => poll.id), ["poll-2"]);
+  assert.deepEqual(frame.changedFixHistory, frame.pollTrail);
   assert.equal(frame.latestPoll.id, "poll-3");
   assert.equal(frame.latestPoll.raw.provider, "fixture");
   assert.equal(frame.latestFix, frame.latestPoll.normalized);
+  assert.equal(frame.latestFixAgeSeconds, 4);
+  assert.deepEqual(
+    frame.pollEvidence.outcomes.map(item => item.pollId),
+    ["poll-2"],
+  );
+  assert.deepEqual(
+    frame.chartSeries.map(point => point.pollId),
+    ["poll-2", "poll-3"],
+  );
   assert.deepEqual(frame.latestTiming, {
     sentAt: frame.latestPoll.sentAt,
     receivedAt: frame.latestPoll.receivedAt,
@@ -84,6 +98,20 @@ test("frame projects check-ins, events, capture order, and walker through time",
   assert.equal(frame.progress, 0.6);
 });
 
+test("event controls and transition/chart times are deterministic", () => {
+  const frame = playbackFrame(fixture, startMs + 12_000);
+  assert.deepEqual(playbackEventTimes(fixture), frame.eventTimes);
+  assert.equal(frame.previousEventMs, startMs + 11_000);
+  assert.equal(frame.nextEventMs, startMs + 18_000);
+  assert.ok(frame.transitionTimes.includes(startMs + 3_900));
+  const chartPoint = frame.chartSeries.at(-1);
+  assert.equal(chartPoint.atMs, startMs + 12_000);
+  assert.equal(chartPoint.elapsedMs, 12_000);
+  assert.equal(chartPoint.fixAgeSeconds, 4);
+  assert.equal(chartPoint.pollId, "poll-6");
+  assert.ok(Number.isFinite(chartPoint.distanceM));
+});
+
 test("failed polls remain evidence but do not replace the latest fix or trail", () => {
   const result = structuredClone(fixture);
   result.polls.push({
@@ -103,4 +131,6 @@ test("failed polls remain evidence but do not replace the latest fix or trail", 
   assert.equal(frame.latestFix, result.polls.at(-2).normalized);
   assert.equal(frame.pollTrail.at(-1).id, "poll-8");
   assert.equal(frame.latestTiming.httpStatus, 500);
+  assert.equal(frame.pollEvidence.failures.at(-1).pollId, "poll-failed");
+  assert.ok(frame.pollEvidence.failures.at(-1).markerTruth);
 });

@@ -1,3 +1,10 @@
+// FEATURE:      MazeMap GeoJSON feature construction
+// SURFACE:      emptyFC(), appendPathFeatures(), recentSourceFixes()
+// WHY TOGETHER: Exact floor-aware paths and bounded provider-fix selection feed map sources.
+// STATE:        Caller-owned feature arrays only
+// RULES:        Preserve every [lng, lat] segment and identify its authored z-level transition.
+// PROVENANCE:   Scope/steps/05a_recast_player.md geographic-truth contract
+
 export function emptyFC() {
   return {
     type: "FeatureCollection",
@@ -13,6 +20,10 @@ export function appendPathFeatures(features, points, properties) {
     const point = points[index];
     if (point.z !== z) {
       appendLine(features, coordinates, properties, z);
+      appendLine(features, [
+        coordinates.at(-1),
+        [point.lng, point.lat],
+      ], { ...properties, toZ: point.z }, z);
       z = point.z;
       coordinates = [[point.lng, point.lat]];
     } else {

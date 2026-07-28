@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 3,
+  "route": {
+    "routeId": "route-turns",
+    "version": 1,
+    "hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "stops": [
+      { "id": "stop-a", "lng": 0, "lat": 0, "z": 0 },
+      { "id": "stop-b", "lng": 0.001, "lat": 0.001, "z": 0 },
+      { "id": "stop-c", "lng": 0.002, "lat": 0.001, "z": 1 }
+    ],
+    "legs": [
+      {
+        "id": "leg-turn",
+        "fromStopId": "stop-a",
+        "toStopId": "stop-b",
+        "geometry": [
+          { "lng": 0, "lat": 0, "z": 0 },
+          { "lng": 0.001, "lat": 0, "z": 0 },
+          { "lng": 0.001, "lat": 0.001, "z": 0 }
+        ]
+      },
+      {
+        "id": "leg-floor",
+        "fromStopId": "stop-b",
+        "toStopId": "stop-c",
+        "geometry": [
+          { "lng": 0.001, "lat": 0.001, "z": 0 },
+          { "lng": 0.001, "lat": 0.001, "z": 1 },
+          { "lng": 0.002, "lat": 0.001, "z": 1 }
+        ]
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "checkpoint-a",
+        "sequence": 0,
+        "type": "stop",
+        "lng": 0,
+        "lat": 0,
+        "z": 0,
+        "stopId": "stop-a",
+        "legId": null
+      },
+      {
+        "id": "checkpoint-b",
+        "sequence": 1,
+        "type": "stop",
+        "lng": 0.001,
+        "lat": 0.001,
+        "z": 0,
+        "stopId": "stop-b",
+        "legId": null
+      },
+      {
+        "id": "checkpoint-c",
+        "sequence": 2,
+        "type": "stop",
+        "lng": 0.002,
+        "lat": 0.001,
+        "z": 1,
+        "stopId": "stop-c",
+        "legId": null
+      }
+    ]
+  },
+  "run": {
+    "startedAt": "2026-07-28T01:00:00.000Z",
+    "stoppedAt": "2026-07-28T01:00:20.000Z",
+    "checkpointDwellSeconds": 2
+  },
+  "checkIns": [
+    {
+      "checkpointId": "checkpoint-a",
+      "at": "2026-07-28T01:00:02.000Z",
+      "groundTruth": { "lng": 0, "lat": 0, "z": 0 }
+    },
+    {
+      "checkpointId": "checkpoint-b",
+      "at": "2026-07-28T01:00:10.000Z",
+      "groundTruth": { "lng": 0.001, "lat": 0.001, "z": 0 }
+    },
+    {
+      "checkpointId": "checkpoint-c",
+      "at": "2026-07-28T01:00:18.000Z",
+      "groundTruth": { "lng": 0.002, "lat": 0.001, "z": 1 }
+    }
+  ]
+}

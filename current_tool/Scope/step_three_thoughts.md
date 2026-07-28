@@ -93,8 +93,9 @@ should name its primary task, dominant surface, visible controls, safe area, and
 “Poll every two seconds” was ambiguous. Define cadence, overlap, overrun behaviour, and what
 stop does with pending callbacks and late responses.
 
-Terms such as “north,” “fit route,” and “distance remaining” need observable meaning:
-north-up, fit when map and survey are ready, and straight-line distance to the next checkpoint.
+Terms such as “map orientation,” “fit route,” and “distance remaining” need observable
+meaning: geographic north-up or next-target-up from a named origin, fit when map and survey
+are ready, and straight-line distance to the next checkpoint.
 
 ### 6. Separate private evidence from publishable fixtures
 
@@ -123,8 +124,7 @@ Step 5 is also too broad as one closeable unit. Split it into:
 4. map playback
 5. comparison and release acceptance
 
-Each package needs owned paths, shared-file owner, entry evidence, exit gates, generated
-targets, exclusions, and commit/deployment authority.
+Each package needs owned paths, a shared-file owner, entry/exit gates, targets, exclusions, commit/deploy authority; see `runner_public_url_contract.md`.
 
 ## Suggested package header
 

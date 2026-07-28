@@ -1,9 +1,9 @@
 // FEATURE:      Merged Report Player composition
 // SURFACE:      node --test src/features/report-player/report-shell.test.mjs
-// WHY TOGETHER: One fixture composition proves every independent module receives shared context.
+// WHY TOGETHER: One fixture shell proves Report and full Player share one map and analysis context.
 // STATE:        One analyzed fixture
-// RULES:        Shell markup contains neither serialized result data nor a token default.
-// PROVENANCE:   Scope/test_plan.md Step 5
+// RULES:        Shell markup contains neither serialized result evidence nor an access default.
+// PROVENANCE:   Scope/steps/05a_recast_player.md
 
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -16,7 +16,7 @@ const result = JSON.parse(await readFile(
   new URL("../../../data/fixtures/report-player/result.fixture.v3.json", import.meta.url),
 ));
 
-test("merged shell composes every report and playback module from one fixture", () => {
+test("one map and one loaded context compose the Report and full Player", () => {
   const analysis = analyzeReportResult(result, {
     stickySeconds: 2,
     accuracyM: 5,
@@ -32,6 +32,22 @@ test("merged shell composes every report and playback module from one fixture", 
   ]) {
     assert.match(html, new RegExp(`data-module="${module}"`));
   }
-  assert.doesNotMatch(html, /"polls"\s*:|MAP_TOKEN/);
-  assert.equal((html.match(/data-report-map/g) ?? []).length, 1);
+  for (const playerPart of [
+    "data-player-workspace",
+    'data-report-pane="playback"',
+    "player-evidence-rail",
+    "data-player-transport",
+    "data-player-snap",
+    "data-player-charts",
+  ]) {
+    assert.match(html, new RegExp(playerPart));
+  }
+  assert.equal(count(html, "data-maze-map"), 1);
+  assert.equal(count(html, "data-report-map"), 1);
+  assert.equal(count(html, 'data-report-context="analysis"'), 1);
+  assert.doesNotMatch(html, /"polls"\s*:|MAP_TOKEN|value="[^"]*access/i);
 });
+
+function count(value, fragment) {
+  return value.split(fragment).length - 1;
+}

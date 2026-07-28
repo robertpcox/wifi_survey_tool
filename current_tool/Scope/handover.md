@@ -1,145 +1,141 @@
-# Handover — Step 5a full-screen Player recast
+# Handover — Step 5b mapped Report
 
 ## Current state
 
-Step 5 is implemented, pushed, and deployed. Dashboard selects generated customer results,
-and one Report Player shell loads, analyzes, compares, exports, and replays one V3 result.
+Step 5a is complete in the working tree. Playback is now the full-screen V3 Player, and the
+existing Report and Player share one parsed result, analysis context, map adapter, and live
+MazeMap instance. No Step 5b issue grouping, ranking, or Report redesign has begun.
 
-- Implementation commit: `06c589f`.
-- Deployment-path hotfix: `dbbd13a`.
-- Source handover/deployment record: `638ebec`.
-- Demo repository deployment: `f97b6af`.
-- Last complete build: 366 tests, zero skipped, 150 staged files.
-
-The deployed nested-path Report Player and the authorized customer `292` result return 200.
-This handoff and the 5a/5b step files are planning work only; no 5a feature code has begun.
+- The canonical build passed 451 tests with zero failures and zero skips.
+- Staged Chrome passed four shells, Creator, two mobile Runner profiles, and four Report
+  Player map scenarios. The regenerated `dist/` contains 186 files.
+- The separate real public MazeMap smoke passed for campus 566 with no access value, using
+  the synthetic local-upload fixture.
+- Module-map generation records 179 source modules with no adjacent-test gaps.
+- Step 5a has not been committed, pushed, or deployed.
 
 ## Assigned work and stop boundary
 
-Execute `Scope/steps/05a_recast_player.md`.
+Execute `Scope/steps/05b_improve_report.md`.
 
-Recast the existing Playback tab as the full-screen V3 Player, using the preserved V2 Player
-as the behavior reference and a real public-first MazeMap as the shared surface. Keep the
-current Report working on that map, but do not perform its information redesign, aggregation,
-or issue ranking. Those belong to `Scope/steps/05b_improve_report.md`.
+Turn the current single-run Report into deterministic, explainable issue intelligence and
+repeat-run stacking. Freeze its adjacency, grouping, severity, and tie-break rules in
+`Scope/contracts/report_analysis.md` before implementation fan-out.
 
-The Player is not a second application or URL. Report and Player reuse one parsed result,
-one analysis context, and one map instance. Stop after completing and handing off 5a.
+Reuse the delivered Player and shared map. Do not change playback transport/truth semantics,
+mutate captured evidence, add a second map, or begin Step 6. Stop at the 5b respawn boundary.
 
-## Settled evidence meaning
+## Delivered entry contracts
 
-The Player explains what was polled and when, where route/check-in evidence infers the tester
-was, where positioning reported the device, and their timing, distance, floor, and freshness
-difference. It does not diagnose RSSI, BSSID, roaming, AP, RF, or Wi-Fi root cause.
+`src/adapters/map/mazemap.mjs` exports `createMazeMapAdapter(options)`. The returned adapter
+provides:
 
-The Report will later answer where problems recur and how serious they are. The Player answers
-what happened at one selected moment. Raw provider evidence always remains visible and immutable.
+- `launch`, `resizeMapSoon`, `fitRoute`, and `setMapZLevel`
+- `drawReportHeat(kind, analysis, floor)` and `drawPlayerFrame(frame, snap)`
+- `setViewMode(mode)`, `disablePlayerLayers()`, and `followWalker(walker)`
+- `onEvidenceSelect(callback)` and `focusEvidence(pollId, trigger)`
 
-## Defects in the current baseline
+`src/features/report-player/map-surface.mjs` exports `createReportMapSurface(options)`. Its
+single surface provides `start`, `retryAccess`, `render`, `setViewMode`, `settleLayout`,
+`onEvidenceSelect`, and `focusEvidence`.
 
-- `map-surface.mjs` makes its no-token mode a schematic canvas, not a MazeMap.
-- `floor-route-view.mjs` starts the MazeMap container hidden.
-- `map-surface.mjs` launches while that container is hidden, then reveals it without calling
-  the existing `resizeMapSoon()` lifecycle.
-- `createMazeMapAdapter.launch()` rejects a missing token before attempting public access.
-- No typed, recorded-error classifier currently separates access denial from generic map failure.
-- `map-model.mjs` independently normalizes longitude and latitude into x/y and can distort
-  geometry or change bounds as overlays change.
-- The real adapter's `features.mjs` and `layers.mjs` already preserve exact `[lng, lat]`.
-- `report-ground-truth.mjs` interpolates straight check-in chords instead of route geometry.
-- `report-playback.mjs` exposes a poll only at receipt, so it cannot show the in-flight walk
-  from request to response. Failed polls must remain evidence but never move the raw IPS dot.
-- The current private map receives route, stops, waypoints, and trail only. It lacks walker,
-  raw IPS, connector, poll, snap, and heat layers.
-- `report_player_browser_smoke.mjs` deliberately chooses the schematic public path and does
-  not exercise public MazeMap, unlock retry, resizing, or the complete Player.
+`mountReportPlayer()` returns one `{result, meta, store, surface, player, mapReady}` session.
+The `player` facade provides:
 
-Treat those as starting facts, not permission for unrelated rewrites.
+```js
+player.setMode("playback", { atMs, pollId });
+player.seek(atMs);
+player.focusEvidence(pollId);
+player.setMode("analysis");
+player.mode;
+player.atMs;
+```
 
-## Public-first map contract
+`seek()` and `focusEvidence()` enter Player when necessary. Leaving Player pauses it,
+preserves `atMs`, restores Report scroll, disables Player layers, and prevents hidden writes.
+`atMs` is absolute Unix epoch milliseconds and clamps to the recorded run bounds. There is
+no URL-level timestamp or poll deep link; 5b should use this in-memory facade unless it
+explicitly defines a non-secret query contract.
 
-Use `result.meta.campusId` to launch the actual MazeMap without a token in a visible, sized
-container. Public success must neither request nor reveal access UI. Only a provider access
-denial may reveal the runtime unlock prompt. Retry with submitted access held in memory only.
+## Settled invariants
 
-Add a typed classifier backed by recorded provider-error fixtures. An SDK, network, unknown,
-or generic launch failure must not masquerade as an authorization failure.
-It leaves the labelled schematic fallback. Declining an actual unlock request does the same.
-After reveal, tab switch, or layout change, resize and then fit exact route geometry. Never
-construct a second map when switching modes.
+- Public launch uses `result.meta.campusId` in a visible, sized container without a token.
+- Only structured map-load 401/403 evidence reveals access UI. SDK, network, timeout, tile,
+  generic, and unknown failures stay prompt-free and use the labelled route fallback.
+- Submitted map access is memory-only and retry reuses the same adapter lifecycle.
+- Route, truth, fixes, heat, pair connectors, and snap overlays keep exact `[lng, lat]` and z.
+- Follow tracks walker floor and pans only outside the inner 15% viewport; disabling it stops
+  camera writes without stopping the Player clock or frame writes.
+- A wrong-floor raw fix stays visible at exact coordinates beside the walker while preserving
+  its reported z, display z, and mismatch state.
+- One cumulative-route truth model follows turns, authored intervals, dwell, and exact floor
+  transitions. `buildGroundTruthModel` is also exported as `buildReportGroundTruth`.
+- `playbackFrame(result, atMs)` owns the shared clock frame, poll evidence, chart series,
+  walker, event times, changed-fix history, and latest raw fix.
+- Failed polls persist at sent truth and never move the blue raw fix. Changed successes
+  persist as paired route/fix evidence.
+- `snapFixToActiveRoute(rawFix, walker, radiusM)` is same-floor, active-interval, immutable,
+  and visualization-only.
 
-## Player fidelity and geometry
+## Evidence and fixtures
 
-Read `data/reference/report_player/ndh_player.html` completely. Restore its applicable
-full-map workspace, transport, scrub, event stepping, follow behavior, live evidence rail,
-poll timing, route walker, raw IPS point/history, connector, stale/wrong-floor state,
-checkpoints, and capture events. Keep production V3-only and modular.
+- Primary: `data/fixtures/report-player/result.fixture.v3.json`
+- Turns/floor transition: `data/fixtures/report-player/route-turns.fixture.v3.json`
+- Reviewed field delta: `data/fixtures/report-player/route-truth-analysis.golden.json`
+- Sanitized launch errors: `data/fixtures/map/mazemap-launch-errors.fixture.json`
+- Authorized field input: `results/292__566__5ef73912-3851-406a-81cc-93ca19cec12b__2026-07-28T09-00-54Z.result.v3.json`
 
-Implement the exact poll-map evidence rules in `Scope/contracts/report_analysis.md`. They add
-persistent failed and changed-fix outcomes that neither the V2 source nor current V3 map has.
-Red failures never move the live blue IPS dot; pointer, keyboard, and touch expose each pair.
+For that field input, corrected route truth leaves sticky at 25 points / 60.028 seconds and
+outside-accuracy at 2 points / 2.963 seconds. Median error changes from 3.638 m to 3.730 m;
+the maximum receipt-truth shift is 0.163 m. The fixture records the reviewed explanation.
 
-Leaving Player pauses it, preserves its timestamp, and prevents hidden Player-layer writes.
-Expose programmatic mode-and-seek control so Step 5b can focus a reported issue without reload.
+## Current ownership
 
-Ground truth follows cumulative distance on the embedded route polyline, anchored
-monotonically by check-ins and planned dwell. All real map sources use exact GeoJSON
-`[lng, lat]` and z-levels.
+- Truth/playback/snap: `src/domain/report-{ground-truth,playback,snap}.mjs` and focused helpers.
+- Provider map boundary: `src/adapters/map/mazemap.mjs`, `shared-map-layers.mjs`,
+  `report-map-layers.mjs`, `player-map-layers.mjs`, and `evidence-interactions.mjs`.
+- Player composition: `src/features/report-player/report-player.mjs`,
+  `report-interactions.mjs`, `report-mode-controller.mjs`, and `map-surface.mjs`.
+- Player UI: `player-{transport,evidence-view,evidence-detail,charts}.mjs` and the three
+  focused Player/map stylesheets.
+- Browser acceptance: `tools/report_player_browser_*.mjs` and
+  `tools/report_player_actual_sdk_smoke.mjs`.
 
-For 5a, restore the snap-to-path tester despite its old Step 6 deferral. It is a separate,
-visualization-only candidate constrained by radius, active route interval, and floor. It
-never replaces, mutates, persists, or exports the raw position.
+## Known constraints, remaining defects, and adjacent changes
 
-## Data and preserved references
+Remaining Step 5a product defects: none known after the final Follow, wrong-floor, and
+browser-storage audit.
 
-- Primary fixture: `data/fixtures/report-player/result.fixture.v3.json`.
-- Authorized field result:
-  `results/292__566__5ef73912-3851-406a-81cc-93ca19cec12b__2026-07-28T09-00-54Z.result.v3.json`.
-- That field result has 32 route points, six check-ins, and 41 successful polls.
-- Current default analysis yields 25 sticky points / 60.028 seconds and two outside-accuracy
-  points / 2.963 seconds. Record them before correcting route truth, then review and explain
-  the new shared-model goldens rather than preserving a known chord-interpolation defect.
-- Player reference: `data/reference/report_player/ndh_player.html`.
-- Heat rendering reference: `Scope/data/scoping_inputs/heatmap example.md`.
+- The actual-SDK smoke needs Chrome, Puppeteer, network access, and a software WebGL backend.
+  It deliberately uploads only the synthetic fixture, not the authorized physical result.
+- The provider SDK may create its own telemetry storage. Acceptance separately rejects app
+  credential fields; source, staged output, URLs, results, and app storage remain clean.
+- `dist/` contains the authorized physical result. Rebuilding is not publication permission.
+- Concurrent Runner share-URL/map-bearing changes are also uncommitted in this worktree and
+  passed the same build. Preserve them and keep them outside the 5b Report redesign.
+- Physical Android Runner acceptance and the Dunedin timezone follow-up remain project risks,
+  not Step 5b scope.
 
-The data owner explicitly authorized the existing field result for the demo. Results captured
-later are not automatically authorized; publishing each requires an explicit review/allowlist.
-
-## Required read order
+## Exact next read order
 
 1. This handover.
-2. `Scope/steps/05a_recast_player.md`.
-3. `Scope/step_standard.md`, `Scope/coding_pattern.md`, and `Scope/test_standard.md`.
+2. `Scope/steps/05b_improve_report.md`.
+3. `Scope/step_standard.md`, `coding_pattern.md`, `test_standard.md`, and `test_plan.md`.
 4. `Scope/contracts/report_analysis.md`.
-5. The full V2 Player reference named above.
-6. `src/features/report-player/report-player.mjs`, `report-shell.mjs`,
-   `report-interactions.mjs`, `playback-view.mjs`, and `playback-controller.mjs`.
-7. `src/features/report-player/map-surface.mjs`, `map-access.mjs`, `map-model.mjs`,
-   `floor-route-view.mjs`, and `report-player.css`.
-8. `src/domain/report-playback.mjs` and `report-ground-truth.mjs`.
-9. The map adapter/runtime/source/layer modules listed in the 5a step.
-10. The fixture, field result, heat reference, and `tools/report_player_browser_smoke.mjs`.
+5. The delivered map, mode, store, truth, playback, and snap owners listed above.
+6. The four fixtures above and current analysis/comparison/export modules.
+7. `tools/report_player_browser_smoke.mjs`.
 
-## Locked project rules
-
-- No embedded or persisted secrets; map access stays out of URLs, data, exports, and storage.
-- Static Nginx runtime, browser-native modules, V3-only data, and no new runtime dependency.
-- Preserve captured raw/normalized provider evidence and the result schema.
-- Keep Creator, Runner, proxy, manifests, and unrelated Step 6 work out of scope.
-- New or changed authored files need all six metadata fields and must satisfy file limits.
-- Untouched legacy header debt remains behind its exact exception baseline for a later
-  knowledge/context recovery pass.
-- Customer filtering is not authorization, and build staging is not publication approval.
-
-## Validation and completion
-
-Add focused domain, map lifecycle, layer, view, and fake-MazeMap browser coverage described
-by 5a. The complete boundary remains:
+## Validation commands
 
 ```sh
+node --test src/domain/report-*.test.mjs
+node --test src/adapters/map/*.test.mjs
+node --test src/features/report-player/*.test.mjs src/apps/report-player/*.test.mjs tools/report_player*.test.mjs
+node tools/report_player_browser_smoke.mjs .
+node tools/report_player_actual_sdk_smoke.mjs dist
 node tools/build.mjs
 ```
 
-It must finish with zero skipped tests and include the full Player browser path. On completion,
-update Step 5b with actual shared-map exports and Player seek/deep-link contracts, rewrite this
-handover, record progress, and stop before implementing 5b.
+The two browser commands and full build need permission to open local test servers. The
+actual-SDK command is a separate networked acceptance; the canonical build remains deterministic.

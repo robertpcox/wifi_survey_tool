@@ -6,6 +6,7 @@ import {
 import {
   loadRunnerDefinition,
   loadRunnerManifest,
+  surveyIdFromUrl,
 } from "./loader.mjs";
 import { createRunnerPollLoop } from "./poll-loop.mjs";
 import { createPreflightPollLoopOptions } from "./preflight.mjs";
@@ -95,8 +96,17 @@ export function createRunnerSetup(options) {
     const manifest = await (runtime.loadManifest ?? loadRunnerManifest)(runtime);
     state.surveys = manifest.surveys;
     if (!state.surveys.length) throw new Error("No surveys are available");
-    formView.populateSurveys(state.surveys);
-    await selectSurvey({ target: { value: state.surveys[0].surveyId } });
+    const requestedId = surveyIdFromUrl(
+      runtime.locationRef?.href ?? globalThis.location?.href,
+    );
+    const selected = requestedId
+      ? state.surveys.find(survey => survey.surveyId === requestedId)
+      : state.surveys[0];
+    if (!selected) {
+      throw new Error(`Survey "${requestedId}" is not available`);
+    }
+    formView.populateSurveys(state.surveys, selected.surveyId);
+    await selectSurvey({ target: { value: selected.surveyId } });
     formView.setStatus("Survey loaded. Complete the entry form.", "ok");
     return state;
   }

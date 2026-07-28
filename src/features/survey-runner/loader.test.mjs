@@ -5,6 +5,7 @@ import test from "node:test";
 import {
   loadRunnerDefinition,
   loadRunnerManifest,
+  surveyIdFromUrl,
 } from "./loader.mjs";
 
 const definition = JSON.parse(await readFile(
@@ -61,4 +62,15 @@ test("Runner loader states bad status and invalid content plainly", async () => 
     }),
     /definition is invalid/,
   );
+});
+
+test("Runner reads a shareable survey ID from the URL", () => {
+  assert.equal(
+    surveyIdFromUrl(
+      "https://demo.mazemap.com.au/wifi-survey-v3/runner/?survey_id=survey%20id",
+    ),
+    "survey id",
+  );
+  assert.equal(surveyIdFromUrl("https://example.com/runner/"), null);
+  assert.equal(surveyIdFromUrl("not a valid URL?survey_id=survey-1"), "survey-1");
 });

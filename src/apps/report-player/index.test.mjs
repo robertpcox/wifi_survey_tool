@@ -1,9 +1,9 @@
-// FEATURE:      Merged Report Player
+// FEATURE:      Merged Report Player app
 // SURFACE:      node --test src/apps/report-player/index.test.mjs
-// WHY TOGETHER: Static shell assertions guard the Report Player entry document.
+// WHY TOGETHER: Static shell assertions guard the single-route Report and Player entry document.
 // STATE:        Loaded Report Player HTML
 // RULES:        The page links modules and contains no inline result or access token.
-// PROVENANCE:   Scope/test_plan.md Step 5
+// PROVENANCE:   Scope/steps/05a_recast_player.md
 
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -16,5 +16,7 @@ test("Report Player HTML exposes one data-free merged feature mount", () => {
   assert.match(html, /type="module" src="\.\/main\.mjs"/);
   assert.match(html, /data-report-root/);
   assert.match(html, /features\/report-player\/report-player\.css/);
+  assert.equal((html.match(/data-report-root/g) ?? []).length, 1);
+  assert.doesNotMatch(html, /iframe|playback\.html|player\.html/);
   assert.doesNotMatch(html, /resultId|MAP_TOKEN|data-map-access/);
 });

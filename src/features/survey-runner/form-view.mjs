@@ -22,12 +22,13 @@ export function createRunnerFormView(documentRef) {
     return values;
   }
 
-  function populateSurveys(surveys) {
+  function populateSurveys(surveys, selectedSurveyId = null) {
     const select = find("[data-survey-select]");
     if (!select) return;
     select.innerHTML = surveys.map(entry =>
       `<option value="${esc(entry.surveyId)}">`
       + `${esc(entry.customerName)} — ${esc(entry.surveyName)}</option>`).join("");
+    if (selectedSurveyId) select.value = selectedSurveyId;
   }
 
   function showDefinition(definition) {

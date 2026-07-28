@@ -1,0 +1,61 @@
+/* FEATURE:      Report Player shared MazeMap surface
+ * SURFACE:      MazeMap container, labelled fallback, map status, and layer controls
+ * WHY TOGETHER: Normal map and failure fallback must occupy identical bounds with explicit status.
+ * STATE:        Active/fallback visibility and selected Report heat control
+ * RULES:        MazeMap is normal; the schematic canvas is shown only as a labelled error fallback.
+ * PROVENANCE:   Scope/steps/05a_recast_player.md
+ */
+
+.map-stage {
+  position: relative;
+  min-height: 420px;
+  overflow: hidden;
+  border-radius: 0.85rem;
+}
+
+.maze-map,
+.map-fallback {
+  position: absolute;
+  inset: 0;
+  min-height: 420px;
+  background: #edf2f7;
+}
+
+.map-fallback canvas { display: block; width: 100%; height: 420px; }
+.map-fallback span,
+.map-runtime-status {
+  position: absolute;
+  z-index: 4;
+  left: 1rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.4rem;
+  background: rgb(255 255 255 / 90%);
+}
+
+.map-fallback span { bottom: 1rem; }
+.map-runtime-status { top: 0.75rem; margin: 0; font-size: 0.78rem; }
+.map-layer-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+
+.report-player-main > .map-access {
+  margin: 0 0 1rem;
+  padding: 1rem;
+  border: 1px solid #b42318;
+  border-radius: 0.8rem;
+  background: #fff;
+}
+
+.report-player-main.is-player > .map-access:not([hidden]) {
+  position: fixed;
+  z-index: 50;
+  top: 5rem;
+  right: 1rem;
+  left: 1rem;
+  max-width: 760px;
+  margin-inline: auto;
+  box-shadow: 0 1rem 3rem rgb(0 0 0 / 25%);
+}

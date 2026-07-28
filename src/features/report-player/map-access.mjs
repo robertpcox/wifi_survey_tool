@@ -1,56 +1,76 @@
-// FEATURE:      Report Player private map access
+// FEATURE:      Report Player public-first map access
 // SURFACE:      renderMapAccess(result), bindMapAccess(options)
-// WHY TOGETHER: Conditional prompt and memory-only public/private actions share one credential boundary.
+// WHY TOGETHER: A proved access denial and its memory-only retry share one credential boundary.
 // STATE:        In-memory credential store supplied by the app
-// RULES:        Prompt only when meta requires access; decline always preserves the public map.
-// PROVENANCE:   Scope/steps/05_dashboard_report_player.md
+// RULES:        Metadata is only a hint; generic, SDK, network, and unknown failures never prompt.
+// PROVENANCE:   Scope/steps/05a_recast_player.md
 
 import { esc } from "../../shared/format.mjs";
 
 export function renderMapAccess(result) {
-  if (!result.meta.credentialRequirements.mapAccess) return "";
+  const hint = Boolean(result.meta.credentialRequirements.mapAccess);
   return `
-    <aside class="map-access" data-map-access-panel>
+    <aside class="map-access" data-map-access-panel data-access-hint="${hint}" hidden>
       <div>
-        <strong>Optional private campus map</strong>
-        <span>Held in memory for this tab only. Public route overlays work without it.</span>
+        <strong>Campus map access required</strong>
+        <span>MazeMap denied the public request. Access is held in memory for this tab only.</span>
       </div>
       <div class="map-access-row">
         <input data-map-access type="password" autocomplete="off"
-          aria-label="Private map access">
-        <button type="button" class="primary" data-save-access>Use private map</button>
-        <button type="button" data-clear-access>Continue with public map</button>
+          aria-label="MazeMap access">
+        <button type="button" class="primary" data-save-access>Retry MazeMap</button>
+        <button type="button" data-clear-access>Use route fallback</button>
       </div>
       <p data-map-access-status></p>
     </aside>`;
 }
 
-export function bindMapAccess({ root, result, credentials, surface }) {
-  if (!result.meta.credentialRequirements.mapAccess) return null;
+export function bindMapAccess({ root, credentials, surface }) {
+  const panel = root.querySelector("[data-map-access-panel]");
   const input = root.querySelector("[data-map-access]");
   const status = root.querySelector("[data-map-access-status]");
-  root.querySelector("[data-save-access]").addEventListener("click", async () => {
+  root.querySelector("[data-save-access]").addEventListener("click", retry);
+  root.querySelector("[data-clear-access]").addEventListener("click", decline);
+
+  async function retry() {
     credentials.set("mapAccess", input.value);
     input.value = "";
     if (!credentials.has("mapAccess")) {
-      status.textContent = "Enter private map access or continue with the public map.";
+      status.textContent = "Enter access or use the labelled route fallback.";
       return;
     }
-    status.textContent = "Loading private campus map…";
+    status.textContent = "Retrying MazeMap…";
     try {
-      await surface.usePrivate(credentials.read("mapAccess"));
-      status.textContent = "Private campus map active for this tab.";
+      const outcome = await surface.retryAccess(credentials.read("mapAccess"));
+      handleLaunch(outcome);
     } catch (error) {
       credentials.clear("mapAccess");
-      surface.usePublic();
-      status.innerHTML = `Private map unavailable: ${esc(error.message)}. Public map remains active.`;
+      handleLaunch({ status: "fallback", error });
     }
-  });
-  root.querySelector("[data-clear-access]").addEventListener("click", () => {
+  }
+
+  function decline() {
     credentials.clear("mapAccess");
     input.value = "";
-    surface.usePublic();
-    status.textContent = "Public map active with embedded route overlays.";
-  });
-  return Object.freeze({ credentials });
+    panel.hidden = true;
+    surface.declineAccess?.();
+  }
+
+  function handleLaunch(outcome) {
+    if (outcome?.status === "access-denied") {
+      panel.hidden = false;
+      status.textContent = "Enter MazeMap access or continue with the route fallback.";
+    } else if (outcome?.status === "ready") {
+      panel.hidden = true;
+      status.textContent = "";
+    } else {
+      panel.hidden = true;
+      status.innerHTML = outcome?.error
+        ? `MazeMap unavailable: ${esc(outcome.error.message)}.`
+        : "";
+    }
+    return outcome;
+  }
+
+  return Object.freeze({ credentials, decline, handleLaunch, retry });
 }

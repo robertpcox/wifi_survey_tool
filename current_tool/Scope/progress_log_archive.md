@@ -2,6 +2,40 @@
 
 Continues `Scope/progress_log.md`.
 
+## 2026-07-28 — Step 2 implemented, live MIME activation pending
+
+- Added independent v3 definition and result validators, shared meta and route-snapshot
+  contracts, and minimal valid and invalid fixtures.
+- Added deterministic survey, result, validation-summary, and per-customer manifests.
+- Added Dashboard, Creator, Runner, and Report Player shells with tab-memory map access.
+- Added build, deploy, header, import-boundary, schema, Nginx, freshness, and browser gates.
+- Replaced the known secret literal with a SHA-256 digest and retained the generic
+  credential-assignment scanner with planted CLI failure proof.
+- Generated a compact module map covering 64 modules and their tests.
+- Built 64 self-contained deployable files and copied them byte-identically to the served tree.
+- Validated 166 tests, all Step 1 goldens and browser paths, and four v3 shell boots.
+- Live serving exposed `application/octet-stream` despite the first config push.
+  Replaced the duplicate `http`-scope `types` block with a dedicated `.mjs` location.
+- Step 2 remains open only until that corrected Nginx config is pushed, reloaded,
+  and the live header and Chrome smoke pass.
+
+## 2026-07-28 — Step 1 complete, survey tool monofile split
+
+- Cut the 1,702-line combined route survey into 47 modules under `src/`, test file beside each.
+- Separated shared domain and adapters first, then Creator, then Runner, then the app shell.
+- Removed the embedded map token and added a `#mapAccess` field the user fills at run time.
+- Left the Cloud positioning proxy call unchanged.
+- Moved reference sources to `data/reference/` and route and capture JSON to `data/`.
+- Recorded goldens for checkpoints, route export, and session export, and verified the split
+  reproduces all three byte-identically.
+- Added `tools/module_map.mjs`, `check_secrets.mjs`, `check_step1_completeness.mjs`,
+  golden recorder and verifier, and a headless browser smoke.
+- Validated: 128 files 0 failed, 124 tests passing, secret scan clean, completeness mapped
+  107 functions, browser smoke drove real Chrome through map launch and route rebuild.
+- Step 1 first stopped without its finish outputs. Handover, log, and Step 2 update were
+  completed afterwards from the settled tree.
+- Recorded a defect: the secret scanner embeds a 16-character fragment of the real token.
+
 ## 2026-07-28 — scope review applied
 
 - Reviewed the scope against the live sources and the demo Nginx configuration.

@@ -1,3 +1,10 @@
+// FEATURE:      MazeMap GeoJSON feature construction
+// SURFACE:      Empty collection, exact floor-aware path, and recent-fix tests
+// WHY TOGETHER: These assertions protect the provider-neutral source feature contract.
+// STATE:        None
+// RULES:        Floor changes retain their exact connecting segment without canvas projection.
+// PROVENANCE:   Scope/steps/05a_recast_player.md geographic-truth acceptance
+
 import test from "node:test";
 import assert from "node:assert/strict";
 
@@ -35,6 +42,14 @@ test("appendPathFeatures splits lines by z-level without bridging floors", () =>
     },
     {
       type: "Feature",
+      properties: { legIdx: 7, toZ: 2, z: 1 },
+      geometry: {
+        type: "LineString",
+        coordinates: [[170.1, -45.1], [170.2, -45.2]],
+      },
+    },
+    {
+      type: "Feature",
       properties: { legIdx: 7, z: 2 },
       geometry: {
         type: "LineString",
@@ -44,7 +59,7 @@ test("appendPathFeatures splits lines by z-level without bridging floors", () =>
   ]);
 
   appendPathFeatures(features, [{ lng: 1, lat: 2, z: 1 }], {});
-  assert.equal(features.length, 2);
+  assert.equal(features.length, 3);
 });
 
 test("recentSourceFixes filters unusable samples and keeps latest order", () => {

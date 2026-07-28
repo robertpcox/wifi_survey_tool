@@ -1,9 +1,9 @@
 // FEATURE:      Merged Report Player
 // SURFACE:      mountReportPlayer(options)
-// WHY TOGETHER: Result selection, local fallback, store creation, and feature composition define this capability.
-// STATE:        One loaded result session and its memory-only UI dependencies
-// RULES:        Parse once, resolve generated IDs through manifests, and keep public mode functional.
-// PROVENANCE:   Scope/steps/05_dashboard_report_player.md
+// WHY TOGETHER: Result loading, shared map launch, store, and public Player API define one session.
+// STATE:        One loaded result, analysis, MazeMap lifecycle, Player clock, and memory-only access
+// RULES:        Parse once, attempt public MazeMap first, and expose mode/seek without reloading.
+// PROVENANCE:   Scope/steps/05a_recast_player.md
 
 import { comparisonEntries, loadSelectedResult, readUploadedResult } from "./result-loader.mjs";
 import { bindMapAccess } from "./map-access.mjs";
@@ -17,6 +17,7 @@ export async function mountReportPlayer({
   selection,
   manifestSource,
   credentials,
+  createMap,
   createPrivateMap,
   downloadFile,
 }) {
@@ -53,20 +54,21 @@ export async function mountReportPlayer({
     const surface = createReportMapSurface({
       result: payload.result,
       canvas: root.querySelector("[data-report-map]"),
-      publicElement: root.querySelector("[data-public-map]"),
-      privateElement: root.querySelector("[data-private-map]"),
-      createPrivateMap: createPrivateMap
-        ? () => createPrivateMap(payload.result)
+      mapElement: root.querySelector("[data-maze-map]"),
+      fallbackElement: root.querySelector("[data-map-fallback]"),
+      statusElement: root.querySelector("[data-map-runtime-status]"),
+      createMap: (createMap ?? createPrivateMap)
+        ? () => (createMap ?? createPrivateMap)(payload.result)
         : null,
     });
     surface.render({ analysis: state.analysis });
-    bindMapAccess({
+    const access = bindMapAccess({
       root,
       result: payload.result,
       credentials,
       surface,
     });
-    bindReportInteractions({
+    const player = bindReportInteractions({
       root,
       store,
       surface,
@@ -74,7 +76,10 @@ export async function mountReportPlayer({
       manifestSource,
       downloadFile,
     });
+    const mapReady = surface.start().then(access.handleLaunch);
     return Object.freeze({
+      mapReady,
+      player,
       store,
       surface,
       result: payload.result,

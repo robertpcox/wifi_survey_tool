@@ -11,10 +11,19 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
   - I creator-route-v3, route-duration-v3, route-hash-v3, survey-definition-v3, survey-meta-v3
 - geometry 38/1241 T+ E bearing, haversine, lerp, pathLength
 - report-analysis 139/4866 T+ E REPORT_THRESHOLDS, analyzeReportResult I report-ground-truth, report-samples
+- report-check-in-route 118/4371 T+ E projectReportCheckIns
 - report-comparison 94/3017 T+ E compareReportResults, reportDeviceLabel I report-analysis
-- report-ground-truth 140/4823 T+ E buildGroundTruthModel, buildReportGroundTruth
-- report-playback 137/4519 T+ E playbackBounds, playbackFrame I report-ground-truth
+- report-ground-truth-timeline 138/4076 T+ E buildTruthSegments, publicTruthSegment, truthAtTime
+- report-ground-truth 75/2714 T+ E buildGroundTruthModel, buildReportGroundTruth I report-check-in-route, report-ground-truth-timeline, report-route
+- report-playback-timeline 89/3067 T+ E playbackBounds, preparePlaybackTimeline I report-ground-truth, report-poll-timeline
+- report-playback 90/3011 T+ E playbackBounds, playbackEventTimes, playbackFrame I report-playback-timeline, report-poll-evidence
+- report-poll-evidence 150/4907 T+ E playbackPollEvidenceAt
+- report-poll-timeline 107/3847 T+ E buildPlaybackPollTimeline I geometry
+- report-route-geometry 150/6536 T+ E projectToReportRoute, reportRouteInterval, reportRoutePointAt I geometry
+- report-route-truth-golden 36/1325 T+ E summarizeRouteTruthAnalysis I report-analysis
+- report-route 90/2763 T+ E buildReportRoute I geometry, report-route-geometry
 - report-samples 115/3627 T+ E buildReportTimeline, publicReportSample, reportAccuracyAt, reportQuantile, reportTruthOverlaps I geometry
+- report-snap 78/2610 T+ E snapFixToActiveRoute I geometry, report-route-geometry
 - route-contract 23/582 T+
   - E CAMPUS_ID, CHECKPOINT_RULES, MAP_STYLE, MAP_TRAIL_FIX_LIMIT, ROUTE_BUILD_CONCURRENCY, ROUTE_FORMAT_VERSION, ROUTE_TOOL, SUPPORTED_SPACINGS_M
 - route-duration-v3 32/943 T+ E WALKING_SPEED_MPS, estimateRouteDuration

@@ -1,9 +1,9 @@
 // FEATURE:      Report Player floor and route views
 // SURFACE:      renderFloorRouteView(result)
-// WHY TOGETHER: Floor choice and the one shared public/private map surface form one report section.
+// WHY TOGETHER: Floor choice, shared MazeMap, labelled fallback, and Player transport occupy one surface.
 // STATE:        None
 // RULES:        Floor values and display names come only from the result meta block.
-// PROVENANCE:   Scope/steps/05_dashboard_report_player.md
+// PROVENANCE:   Scope/steps/05a_recast_player.md
 
 import { esc } from "../../shared/format.mjs";
 
@@ -13,7 +13,7 @@ export function renderFloorRouteView(result) {
     name: result.meta.zLevelNames[String(z)],
   }));
   return `
-    <div class="section-heading">
+    <div class="section-heading map-heading">
       <div><p class="section-kicker">Route surface</p><h2>Floor and route</h2></div>
       <label>Visible floor
         <select data-map-floor>
@@ -23,11 +23,14 @@ export function renderFloorRouteView(result) {
       </label>
     </div>
     <div class="map-stage">
-      <div class="public-map" data-public-map>
-        <canvas width="900" height="460" data-report-map aria-label="Public route map"></canvas>
-        <span>Public route map · embedded overlays</span>
+      <div id="report-maze-map" class="maze-map" data-maze-map
+        aria-label="MazeMap campus map"></div>
+      <div class="map-fallback" data-map-fallback hidden>
+        <canvas width="900" height="460" data-report-map aria-label="Route fallback map"></canvas>
+        <span><strong>Route fallback</strong> · MazeMap is unavailable</span>
       </div>
-      <div id="report-private-map" class="private-map" data-private-map hidden></div>
+      <p class="map-runtime-status" data-map-runtime-status>Loading public campus map…</p>
+      <div class="player-transport-slot" data-player-transport hidden></div>
     </div>
     <div class="map-layer-controls" role="group" aria-label="Map overlay">
       <button type="button" data-map-heat="sticky" class="active">Sticky heat</button>

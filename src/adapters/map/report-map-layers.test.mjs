@@ -1,0 +1,79 @@
+// FEATURE:      Report heat overlays on the shared geographic map
+// SURFACE:      Sticky/accuracy GeoJSON and mode visibility tests
+// WHY TOGETHER: One fake map proves weighting, exact coordinates, floor filters, and stable sources.
+// STATE:        In-memory source, layer, filter, and visibility calls
+// RULES:        Heat uses elapsed seconds and never normalizes geographic coordinates.
+// PROVENANCE:   Scope/contracts/report_analysis.md heatmap acceptance
+
+import assert from "node:assert/strict";
+import test from "node:test";
+
+import { createReportMapLayers } from "./report-map-layers.mjs";
+
+test("report heat retains exact weighted coordinates and filters the meta floor", () => {
+  const harness = mapHarness();
+  let floor = 0;
+  const layers = createReportMapLayers(harness.map, () => floor);
+  const analysis = {
+    heatmaps: {
+      sticky: [
+        { z: 0, points: [{ lng: 170.5001, lat: -45.8701, z: 0, weightSeconds: 2.75 }] },
+        { z: 1, points: [{ lng: 170.5004, lat: -45.8704, z: 1, weightSeconds: 1 }] },
+      ],
+    },
+  };
+  assert.equal(layers.draw("sticky", analysis), 2);
+  const features = harness.sources.get("report-sticky-heat").data.features;
+  assert.deepEqual(features.map(item => item.geometry.coordinates), [
+    [170.5001, -45.8701],
+    [170.5004, -45.8704],
+  ]);
+  assert.deepEqual(features.map(item => item.properties.weightSeconds), [2.75, 1]);
+  assert.deepEqual(harness.filters.get("report-sticky-heat-lyr"), [
+    "==", ["get", "z"], 0,
+  ]);
+  floor = 1;
+  layers.applyFloor();
+  assert.deepEqual(harness.filters.get("report-sticky-heat-lyr"), [
+    "==", ["get", "z"], 1,
+  ]);
+  assert.deepEqual(
+    harness.layers.get("report-sticky-heat-lyr").paint["heatmap-weight"],
+    ["get", "weightSeconds"],
+  );
+});
+
+test("heat selection toggles stable layers without adding sources again", () => {
+  const harness = mapHarness();
+  const layers = createReportMapLayers(harness.map, () => 0);
+  layers.draw("sticky", []);
+  layers.draw("accuracy", [{ lng: 1, lat: 2, z: 0, weightSeconds: 3 }]);
+  layers.select("none");
+  layers.setVisible(true);
+  assert.equal(harness.addSourceCalls, 2);
+  assert.equal(harness.addLayerCalls, 2);
+  assert.equal(harness.visibility.get("report-sticky-heat-lyr"), "none");
+  assert.equal(harness.visibility.get("report-accuracy-heat-lyr"), "none");
+});
+
+function mapHarness() {
+  const harness = {
+    addLayerCalls: 0, addSourceCalls: 0,
+    filters: new Map(), layers: new Map(), sources: new Map(), visibility: new Map(),
+  };
+  harness.map = {
+    addLayer(value) { harness.addLayerCalls += 1; harness.layers.set(value.id, value); },
+    addSource(id, value) {
+      harness.addSourceCalls += 1;
+      harness.sources.set(id, {
+        data: value.data,
+        setData(data) { this.data = data; },
+      });
+    },
+    getLayer: id => harness.layers.get(id),
+    getSource: id => harness.sources.get(id),
+    setFilter: (id, value) => harness.filters.set(id, value),
+    setLayoutProperty: (id, _property, value) => harness.visibility.set(id, value),
+  };
+  return harness;
+}

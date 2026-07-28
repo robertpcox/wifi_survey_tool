@@ -128,8 +128,9 @@ Standing risks, rechecked every step rather than assumed closed.
 - **Manifest determinism.** A non-deterministic build makes every later diff untrustworthy.
 - **Module serving.** The deployed Nginx explicitly maps `.mjs`; the serving test proves it.
 - **Configuration activation.** Keep Nginx's `.mjs` mapping; verify live MIME after reload.
-- **Map runtime availability.** Report Player tries public MazeMap first and prompts only on
-  access denial; Creator reports remote-SDK failure and binds campus only after SDK load.
+- **Map runtime and storage.** Player prompts only on access denial. Real-SDK acceptance needs
+  network/WebGL and may create telemetry; reject app credential fields. Creator binds after load.
+- **Player map evidence.** Follow moves floor/camera; a wrong-floor raw fix remains visible.
 - **Proxy reachability.** Cloud polling needs the proxy CORS allowlist to match the served origin.
 - **Host access control.** Confirm field-device host access before release, not during a run.
 - **Mobile behavior.** Only field acceptance covers it.

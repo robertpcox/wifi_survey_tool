@@ -84,7 +84,13 @@ export function createActiveRunner(options) {
     options.mapAdapter.drawWaypoints?.(progress.checkpoints);
     const checkpoint = progress.checkpoints[progress.currentIndex];
     if (checkpoint && checkpoint.id !== focusedCheckpointId) {
-      options.mapAdapter.focusWaypoint?.(checkpoint);
+      options.mapAdapter.setMapZLevel?.(checkpoint.z);
+      options.mapAdapter.setActiveLeg?.(
+        activeLegIndex(options.definition, checkpoint),
+      );
+      const previous = progress.checkpoints[progress.currentIndex - 1];
+      const origin = previous ?? options.currentPosition?.();
+      options.mapAdapter.focusWaypoint?.(checkpoint, { origin });
       focusedCheckpointId = checkpoint.id;
     }
     options.onRender(state);
@@ -96,4 +102,14 @@ export function createActiveRunner(options) {
     state,
     stop,
   });
+}
+
+function activeLegIndex(definition, checkpoint) {
+  const legs = definition.route.legs ?? [];
+  if (checkpoint.legId) {
+    return legs.findIndex(leg => leg.id === checkpoint.legId);
+  }
+  const incoming = legs.findIndex(leg => leg.toStopId === checkpoint.stopId);
+  if (incoming >= 0) return incoming;
+  return legs.findIndex(leg => leg.fromStopId === checkpoint.stopId);
 }

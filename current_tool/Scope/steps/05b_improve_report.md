@@ -8,7 +8,7 @@ Turn the Report from a raw-evidence summary into deterministic, explainable inte
 about where positioning problems occur, how severe they are, and whether they reproduce.
 Keep raw evidence as drill-down material and link every reported issue to the full Player.
 
-Step 5a must update this file with its actual shared-map and seek exports before 5b starts.
+Step 5a's delivered entry boundary is frozen below; do not reconstruct its Player semantics.
 
 ## Evidence meaning
 
@@ -21,14 +21,33 @@ The Report compares three recorded or derived facts:
 Report observed positioning behavior: freshness, spatial error, wrong floor, request latency,
 and recurrence. Do not claim an RSSI, RF, AP, roaming, or Wi-Fi root cause without such data.
 
-## Shared MazeMap
+## Delivered Step 5a boundary
 
-Reuse the one public-first MazeMap instance and layer lifecycle delivered by Step 5a.
-Switching between Report and Player changes mode, layers, and controls without reconstructing
-the map, reloading a result, or duplicating analysis.
+- `src/adapters/map/mazemap.mjs` exports `createMazeMapAdapter()`. Its returned adapter owns
+  `drawReportHeat`, `drawPlayerFrame`, `setViewMode`, `disablePlayerLayers`,
+  `followWalker`, `onEvidenceSelect`, `focusEvidence`, `resizeMapSoon`, `fitRoute`, and floor selection.
+- `src/features/report-player/map-surface.mjs` exports `createReportMapSurface()`. Its one
+  surface owns `start`, `retryAccess`, `render`, `setViewMode`, `settleLayout`, `followWalker`,
+  and evidence selection.
+- `mountReportPlayer()` returns one `{result, meta, store, surface, player, mapReady}` session.
+  `session.player` exposes `setMode`, `seek`, `focusEvidence`, `mode`, and `atMs`.
+- Enter with `player.setMode("playback", {atMs, pollId})`; `atMs` is absolute Unix epoch
+  milliseconds and clamps to the run. No URL time/poll link exists; returning preserves time.
+- Truth/playback owners are `report-ground-truth.mjs`, `report-playback.mjs`, and
+  `report-snap.mjs`; captured fixes remain immutable.
+- Fixtures are `data/fixtures/report-player/result.fixture.v3.json`,
+  `data/fixtures/report-player/route-turns.fixture.v3.json`,
+  `data/fixtures/report-player/route-truth-analysis.golden.json`, and
+  `data/fixtures/map/mazemap-launch-errors.fixture.json`.
+- Focused checks: `node --test src/domain/report-*.test.mjs`,
+  `node --test src/adapters/map/*.test.mjs`, and
+  `node --test src/features/report-player/*.test.mjs src/apps/report-player/*.test.mjs tools/report_player*.test.mjs`.
+- Final checks are `node tools/build.mjs` and the networked, synthetic-fixture-only
+  `node tools/report_player_actual_sdk_smoke.mjs dist`.
 
-The Report uses exact geographic route/fix/truth data. Schematic rendering remains only the
-labelled failure fallback defined by Step 5a.
+Reuse this public-first lifecycle without reconstructing the map, result, or analysis.
+Report uses exact GeoJSON; the schematic is failure-only. The actual SDK may create provider
+telemetry storage, so scan specifically for app credential fields as well as repository data.
 
 ## Report questions
 

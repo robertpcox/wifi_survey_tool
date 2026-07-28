@@ -14,6 +14,9 @@ import { buildReportGroundTruth } from "./report-ground-truth.mjs";
 const result = JSON.parse(await readFile(
   new URL("../../data/fixtures/report-player/result.fixture.v3.json", import.meta.url),
 ));
+const turningResult = JSON.parse(await readFile(
+  new URL("../../data/fixtures/report-player/route-turns.fixture.v3.json", import.meta.url),
+));
 
 test("ground truth holds planned dwell then interpolates to each check-in", () => {
   const truth = buildReportGroundTruth(result);
@@ -47,6 +50,35 @@ test("floor changes at the exact destination and lookup stays in run bounds", ()
   assert.equal(truth.at("2026-07-28T01:00:20.000Z").moving, false);
   assert.equal(truth.at("2026-07-28T01:00:01.999Z"), null);
   assert.equal(truth.at("2026-07-28T01:00:20.001Z"), null);
+});
+
+test("walker follows turning geometry and exposes its active route interval", () => {
+  const truth = buildReportGroundTruth(turningResult);
+  const atCorner = truth.at("2026-07-28T01:00:07.000Z");
+  assert.ok(Math.abs(atCorner.lng - 0.001) < 1e-12);
+  assert.ok(Math.abs(atCorner.lat) < 1e-12);
+  assert.equal(atCorner.activeLegId, "leg-turn");
+  assert.equal(atCorner.activeLegIndex, 0);
+  assert.equal(atCorner.routeDistanceM, atCorner.cumulativeDistanceM);
+  assert.deepEqual(
+    atCorner.routeInterval.segments.map(segment => segment.coordinates),
+    [
+      [[0, 0], [0.001, 0]],
+      [[0.001, 0], [0.001, 0.001]],
+    ],
+  );
+});
+
+test("planned dwell holds the authored floor before an exact floor transition", () => {
+  const truth = buildReportGroundTruth(turningResult);
+  const dwelling = truth.at("2026-07-28T01:00:11.999Z");
+  const departed = truth.at("2026-07-28T01:00:12.000Z");
+  assert.equal(dwelling.z, 0);
+  assert.equal(dwelling.plannedDwell, true);
+  assert.equal(dwelling.activeLegId, "leg-floor");
+  assert.equal(departed.z, 1);
+  assert.equal(departed.moving, true);
+  assert.equal(departed.activeLegId, "leg-floor");
 });
 
 function statusAt(truth, at) {

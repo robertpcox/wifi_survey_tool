@@ -41,21 +41,33 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - workflow 134/3696 T+ E createCreatorWorkflow, shortLegWarning I @d/creator-route-v3, @d/definition-authoring-v3, @d/route-duration-v3
 ## report-player/
 - comparison-view 65/2650 T+ E renderComparisonView I @s/format
-- floor-route-view 37/1586 T+ E renderFloorRouteView I @s/format
+- floor-route-view 40/1822 T+ E renderFloorRouteView I @s/format
 - heatmap-view 56/2172 T+ E renderHeatmapView I @s/format
 - identity-view 75/2867 T+ E renderIdentityView I @s/format
 - kpi-view 36/1500 T+ E renderKpiView I @s/format
-- map-access 56/2464 T+ E bindMapAccess, renderMapAccess I @s/format
-- map-model 69/2613 T+ E createMapFrame
-- map-surface 114/4147 T+ E createReportMapSurface I map-model
+- map-access 76/2875 T+ E bindMapAccess, renderMapAccess I @s/format
+- map-fallback 67/2553 T+ E drawRouteFallback
+- map-model 82/3042 T+ E createMapFrame
+- map-surface-layout 47/1445 T+ E createMapSurfaceLayout, routeCenter, safelyCreateMap
+- map-surface.css 61/1518 T+
+- map-surface 149/5010 T+ E createReportMapSurface I @a/map/mazemap-errors, map-fallback, map-model, map-surface-layout
 - methodology-view 148/5317 T+ E buildAnalysisCsv, createAnalysisExports, createAnalysisSummary, downloadAnalysisExports, renderMethodologyView I @s/format
-- playback-controller 72/1782 T+ E createPlaybackController I @d/report-playback
-- playback-view 86/3578 T+ E mountPlaybackView, renderPlaybackView I @s/format, playback-controller
-- report-interactions 120/4665 T+ E bindReportInteractions, renderDynamicSections
-  - I @a/download, comparison-view, heatmap-view, kpi-view, methodology-view, playback-view, result-loader
-- report-player.css 147/3784 T+
-- report-player 90/3116 T+ E mountReportPlayer I map-access, map-surface, report-interactions, report-shell, report-store, result-loader
-- report-shell 67/2994 T+ E renderLoadPanel, renderReportShell
+- playback-controller 122/3105 T+ E createPlaybackController I @d/report-playback
+- playback-view 138/4892 T+ E mountPlaybackView, renderPlaybackView
+  - I @d/report-playback, @d/report-snap, playback-controller, player-charts, player-evidence-view, player-transport
+- player-charts 82/3022 T+ E mountPlayerCharts
+- player-components.css 126/4421 T+
+- player-evidence-detail 106/4417 T+ E captureMarkup, pairMarkup, pairPickerMarkup, playerEvidenceItems, rawEvidence, requestState, snapLabel, stateLabel
+  - I @s/format
+- player-evidence-view 132/5794 T+ E playerEvidenceItems, renderPlayerEvidenceRail, updatePlayerEvidence I player-evidence-detail
+- player-transport 83/3432 T+ E bindPlayerTransport, renderPlayerTransport
+- player-workspace.css 113/2668 T+
+- report-interactions 140/5198 T+ E bindReportInteractions, renderDynamicSections, renderPlayerFrame
+  - I @a/download, comparison-view, heatmap-view, kpi-view, methodology-view, playback-view, report-mode-controller, result-loader
+- report-mode-controller 89/2905 T+ E bindReportModes
+- report-player.css 134/3257 T+
+- report-player 95/3339 T+ E mountReportPlayer I map-access, map-surface, report-interactions, report-shell, report-store, result-loader
+- report-shell 69/3113 T+ E renderLoadPanel, renderReportShell
   - I comparison-view, floor-route-view, heatmap-view, identity-view, kpi-view, map-access, methodology-view, playback-view, timeline-view
 - report-store 116/3157 T+ E createReportPlayerStore I @d/report-analysis, @d/report-comparison
 - report-visuals.css 118/4433 T+
@@ -75,10 +87,10 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - walk-view 124/4511 T+ E createWalkView I @d/geometry, @d/stop-targets
 - walk 74/2077 T+ E createWalkController I walk-events, walk-progress
 ## survey-runner/
-- active-run 99/2583 T+ E createActiveRunner I @d/runner-progress-v3
+- active-run 115/3266 T+ E createActiveRunner I @d/runner-progress-v3
 - entry 55/1579 T+ E RUNNER_ENTRY_FIELDS, normalizeRunnerEntry, runnerEntryIssues, runnerPositionRequest, syncRunnerCredentials
-- form-view 132/5071 T+ E createRunnerFormView, preflightMetrics I @s/format
-- loader 29/1263 T+ E loadRunnerDefinition, loadRunnerManifest I @d/survey-definition-v3
+- form-view 133/5155 T+ E createRunnerFormView, preflightMetrics I @s/format
+- loader 41/1668 T+ E loadRunnerDefinition, loadRunnerManifest, surveyIdFromUrl I @d/survey-definition-v3
 - poll-loop 52/1578 T+ E createRunnerPollLoop I @a/positioning/source-contract
 - preflight 53/1573 T+ E createPreflightPollLoopOptions, runRunnerPreflight I @d/runner-preflight-v3, entry
 - result-download 29/1038 T+ E downloadRunnerResult I @a/files, @d/runner-result-v3
@@ -86,6 +98,6 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - run-view 104/3707 T+ E checkpointDistanceText, createRunnerRunView, targetName I @d/geometry
 - runner-active.css 140/2720 T+
 - runner.css 125/3932 T+
-- setup 112/3177 T+ E createRunnerSetup I entry, loader, poll-loop, preflight
-- survey-runner 134/4454 T+ E mountSurveyRunner
+- setup 122/3540 T+ E createRunnerSetup I entry, loader, poll-loop, preflight
+- survey-runner 140/4678 T+ E mountSurveyRunner
   - I @a/map/mazemap, @a/memory-credentials, @a/positioning/mazemap-cloud-v3, active-run, form-view, preflight, result-download, result-upload, run-view, setup

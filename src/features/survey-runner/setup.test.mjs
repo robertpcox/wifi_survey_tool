@@ -68,7 +68,10 @@ test("setup selects definitions, reads entry state, and records poll samples", a
       setActions: value => calls.buttons.push(value),
       setRunning() {},
       showDefinition() {},
-      populateSurveys() {},
+      populateSurveys: (surveys, selectedId) => {
+        calls.surveys = surveys;
+        calls.selectedId = selectedId;
+      },
       setStatus() {},
     },
     runView: {
@@ -76,9 +79,19 @@ test("setup selects definitions, reads entry state, and records poll samples", a
     },
     runtime: {
       loadManifest: async () => ({
-        surveys: [{ surveyId: "survey-1", path: "survey.json" }],
+        surveys: [
+          { surveyId: "survey-0", path: "survey-0.json" },
+          { surveyId: "survey-1", path: "survey-1.json" },
+        ],
       }),
-      loadDefinition: async () => definition,
+      loadDefinition: async entry => {
+        calls.loadedId = entry.surveyId;
+        return definition;
+      },
+      locationRef: {
+        href: "https://demo.mazemap.com.au/wifi-survey-v3/runner/"
+          + "?survey_id=survey-1",
+      },
       setTimer: () => 1,
       clearTimer() {},
     },
@@ -89,6 +102,8 @@ test("setup selects definitions, reads entry state, and records poll samples", a
   assert.equal(setup.pollLoop.intervalMs, 2000);
   assert.equal(calls.fit, definition.route);
   assert.equal(calls.resized, true);
+  assert.equal(calls.selectedId, "survey-1");
+  assert.equal(calls.loadedId, "survey-1");
   await setup.pollLoop.sampleOnce("preflight");
   assert.equal(state.polls[0].id, "poll-1");
   assert.equal(calls.source[0].id, "poll-1");

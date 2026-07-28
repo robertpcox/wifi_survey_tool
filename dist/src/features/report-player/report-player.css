@@ -1,9 +1,9 @@
 /* FEATURE:      Merged Report Player shell
  * SURFACE:      Report Player page layout and controls
- * WHY TOGETHER: Shared report framing, navigation, map, and responsive layout form one visual shell.
+ * WHY TOGETHER: Shared Report framing, navigation, MazeMap, and responsive layout form one shell.
  * STATE:        Responsive and selected-control presentation
  * RULES:        Keep shared map visible, evidence readable, and controls keyboard accessible.
- * PROVENANCE:   Scope/steps/05_dashboard_report_player.md
+ * PROVENANCE:   Scope/steps/05a_recast_player.md
  */
 
 .report-player-main {
@@ -118,19 +118,6 @@ dd { margin: 0.3rem 0 0; }
   text-transform: uppercase;
 }
 
-.map-stage { position: relative; min-height: 420px; border-radius: 0.85rem; overflow: hidden; }
-.public-map, .private-map { position: absolute; inset: 0; min-height: 420px; background: #edf2f7; }
-.public-map canvas { display: block; width: 100%; height: 420px; }
-.public-map span {
-  position: absolute;
-  left: 1rem;
-  bottom: 1rem;
-  padding: 0.4rem 0.6rem;
-  border-radius: 0.4rem;
-  background: rgb(255 255 255 / 90%);
-}
-
-.map-layer-controls { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem; }
 .file-picker { display: grid; gap: 0.5rem; margin-top: 1rem; }
 .map-access > div:first-child { display: grid; gap: 0.2rem; }
 .map-access [data-map-access-status] { margin: 0; color: #52677f; }

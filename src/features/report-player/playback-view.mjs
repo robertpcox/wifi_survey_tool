@@ -1,86 +1,138 @@
-// FEATURE:      Report Player playback
+// FEATURE:      Full-screen Report Player
 // SURFACE:      mountPlaybackView(root, options), renderPlaybackView(result)
-// WHY TOGETHER: Playback controls and evidence readout are one independent report section.
-// STATE:        Bound playback controller and latest frame markup
-// RULES:        Controls update the shared map frame without loading or parsing the result again.
-// PROVENANCE:   Scope/steps/05_dashboard_report_player.md
+// WHY TOGETHER: Player rail, transport, charts, snap tester, and selected evidence bind one clock.
+// STATE:        Active mode, selected poll pair, snap controls, and latest deterministic frame
+// RULES:        Inactive Player performs no frame/map writes and raw fixes remain immutable.
+// PROVENANCE:   Scope/steps/05a_recast_player.md
 
-import { esc } from "../../shared/format.mjs";
+import { playbackFrame } from "../../domain/report-playback.mjs";
+import { snapFixToActiveRoute } from "../../domain/report-snap.mjs";
+import { mountPlayerCharts } from "./player-charts.mjs";
+import {
+  playerEvidenceItems,
+  renderPlayerEvidenceRail,
+  updatePlayerEvidence,
+} from "./player-evidence-view.mjs";
+import { renderPlayerTransport, bindPlayerTransport } from "./player-transport.mjs";
 import { createPlaybackController } from "./playback-controller.mjs";
 
 export function renderPlaybackView(result) {
-  const duration = Date.parse(result.run.stoppedAt) - Date.parse(result.run.startedAt);
-  return `
-    <div class="section-heading">
-      <div><p class="section-kicker">Playback</p><h2>Walk evidence</h2></div>
-      <output data-playback-clock>00:00.0</output>
-    </div>
-    <div class="playback-controls">
-      <button type="button" data-playback-toggle>Play</button>
-      <button type="button" data-playback-reset>Reset</button>
-      <label>Speed
-        <select data-playback-speed>
-          <option value="0.5">0.5×</option>
-          <option value="1" selected>1×</option>
-          <option value="2">2×</option>
-          <option value="4">4×</option>
-        </select>
-      </label>
-      <input type="range" min="0" max="${duration}" value="0"
-        step="100" aria-label="Playback position" data-playback-seek>
-    </div>
-    <div class="playback-evidence" data-playback-evidence>
-      Select play to follow polls, check-ins, and capture events.
-    </div>`;
+  return `<div class="player-module-shell">
+    ${renderPlayerEvidenceRail(result)}
+  </div>`;
 }
 
-export function mountPlaybackView(root, { result, onFrame }) {
+export function mountPlaybackView(root, {
+  result,
+  transportRoot,
+  onFrame = () => {},
+  onFollow = () => {},
+  onEvidenceFocus = () => {},
+}) {
   root.innerHTML = renderPlaybackView(result);
-  const clock = root.querySelector("[data-playback-clock]");
-  const evidence = root.querySelector("[data-playback-evidence]");
-  const seek = root.querySelector("[data-playback-seek]");
-  const toggle = root.querySelector("[data-playback-toggle]");
-  let controller;
-  controller = createPlaybackController({
+  transportRoot.innerHTML = renderPlayerTransport(
+    Date.parse(result.run.stoppedAt) - Date.parse(result.run.startedAt),
+  );
+  transportRoot.hidden = true;
+  let currentFrame;
+  let selectedPollId = null;
+  let snapEnabled = false;
+  let radiusM = 5;
+  let snap = null;
+  const controller = createPlaybackController({
     result,
-    onFrame: frame => {
-      clock.textContent = elapsedClock(frame.elapsedMs);
-      seek.value = frame.elapsedMs;
-      evidence.innerHTML = evidenceMarkup(frame);
-      onFrame(frame);
-      if (controller) toggle.textContent = controller.playing ? "Pause" : "Play";
-    },
+    active: false,
+    onFrame: renderFrame,
   });
-  toggle.addEventListener("click", () => {
+  currentFrame = controller.frame;
+  const transport = bindPlayerTransport(transportRoot, controller, onFollow);
+  const finalFrame = playbackFrame(result, controller.bounds.endMs);
+  const charts = mountPlayerCharts(root.querySelector("[data-player-charts]"), {
+    series: finalFrame.chartSeries ?? [],
+    durationMs: controller.bounds.durationMs,
+    onSeek: elapsedMs => controller.seek(controller.bounds.startMs + elapsedMs),
+  });
+  const snapToggle = root.querySelector("[data-player-snap]");
+  const radius = root.querySelector("[data-player-snap-radius]");
+  snapToggle.addEventListener("change", event => {
+    snapEnabled = event.target.checked;
+    renderFrame(currentFrame);
+  });
+  radius.addEventListener("input", event => {
+    radiusM = Number(event.target.value);
+    root.querySelector("[data-player-snap-radius-output]").textContent = `${radiusM} m`;
+    if (snapEnabled) renderFrame(currentFrame);
+  });
+  root.addEventListener("click", event => {
+    const id = event.target.closest?.("[data-player-pair]")?.dataset.playerPair;
+    if (id) focusEvidence(id, "rail");
+  });
+  const keyHandler = event => handleKey(event, controller);
+  root.ownerDocument?.addEventListener("keydown", keyHandler);
+
+  function renderFrame(frame) {
+    currentFrame = frame;
+    const rawFix = normalizedFix(frame.pollEvidence?.latestRawFix ?? frame.latestFix);
+    snap = snapEnabled && rawFix && frame.walker
+      ? snapFixToActiveRoute(rawFix, frame.walker, radiusM)
+      : null;
+    transport.update(frame);
+    charts.update(frame.elapsedMs);
+    updatePlayerEvidence(root, frame, {
+      selectedPollId,
+      snap,
+      floorName: z => result.meta.zLevelNames[String(z)] ?? `z ${z}`,
+    });
+    onFrame(frame, { snap, selectedPollId, follow: controller.follow });
+  }
+
+  function focusEvidence(id, trigger = "programmatic") {
+    selectedPollId = id;
+    updatePlayerEvidence(root, currentFrame, {
+      selectedPollId,
+      snap,
+      floorName: z => result.meta.zLevelNames[String(z)] ?? `z ${z}`,
+    });
+    if (trigger !== "map") onEvidenceFocus(id, trigger);
+    return playerEvidenceItems(currentFrame).find(item => (
+      (item.pollId ?? item.poll?.id ?? item.id) === id
+    )) ?? null;
+  }
+
+  function setActive(value) {
+    transportRoot.hidden = !value;
+    controller.setActive(value);
+    return controller.active;
+  }
+
+  return Object.freeze({
+    controller,
+    destroy() {
+      controller.destroy();
+      root.ownerDocument?.removeEventListener("keydown", keyHandler);
+    },
+    focusEvidence,
+    seek: controller.seek,
+    setActive,
+    setFollow: controller.setFollow,
+    get active() { return controller.active; },
+    get atMs() { return controller.atMs; },
+  });
+}
+
+function normalizedFix(value) {
+  return value?.fix ?? value?.normalized ?? value?.rawFix ?? value;
+}
+
+function handleKey(event, controller) {
+  if (!controller.active || /INPUT|SELECT|TEXTAREA|BUTTON/.test(event.target?.tagName)) return;
+  if (event.code === "Space") {
+    event.preventDefault();
     if (controller.playing) controller.pause();
     else controller.play();
-    toggle.textContent = controller.playing ? "Pause" : "Play";
-  });
-  root.querySelector("[data-playback-reset]").addEventListener("click", controller.reset);
-  root.querySelector("[data-playback-speed]").addEventListener(
-    "change",
-    event => controller.setSpeed(event.target.value),
-  );
-  seek.addEventListener("input", event => (
-    controller.seek(controller.bounds.startMs + Number(event.target.value))
-  ));
-  return controller;
-}
-
-function elapsedClock(elapsedMs) {
-  const minutes = Math.floor(elapsedMs / 60000);
-  const seconds = ((elapsedMs % 60000) / 1000).toFixed(1).padStart(4, "0");
-  return `${String(minutes).padStart(2, "0")}:${seconds}`;
-}
-
-function evidenceMarkup(frame) {
-  const poll = frame.latestPoll;
-  return `
-    <dl>
-      <div><dt>Latest fix</dt><dd>${esc(poll?.id ?? "Waiting")}</dd></div>
-      <div><dt>HTTP</dt><dd>${esc(poll?.httpStatus ?? "—")}</dd></div>
-      <div><dt>Round trip</dt><dd>${esc(poll ? `${poll.roundTripMs} ms` : "—")}</dd></div>
-      <div><dt>Check-ins</dt><dd>${frame.checkIns.length}</dd></div>
-      <div><dt>Capture events</dt><dd>${frame.captureEvents.length}</dd></div>
-    </dl>`;
+  } else if (event.key === "ArrowLeft") {
+    controller.previousEvent();
+  } else if (event.key === "ArrowRight") {
+    controller.nextEvent();
+  }
 }

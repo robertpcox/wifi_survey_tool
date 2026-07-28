@@ -22,7 +22,7 @@ function harness(sampleOverrides = {}) {
     consent: true,
     override: false,
   };
-  const calls = { actions: null, finishes: [], resizes: 0,
+  const calls = { actions: null, finishes: [], focusOrigins: [], resizes: 0,
     runningStates: [], sources: [], statuses: [] };
   const formView = {
     bind: actions => { calls.actions = actions; },
@@ -73,7 +73,7 @@ function harness(sampleOverrides = {}) {
       drawRoute() {},
       drawStops() {},
       drawWaypoints() {},
-      focusWaypoint() {},
+      focusWaypoint: (checkpoint, view) => calls.focusOrigins.push(view.origin),
       resizeMapSoon: () => calls.resizes++,
     },
     source: { id: "mazemap-cloud", poll: async () => sample },
@@ -102,6 +102,7 @@ test("Runner loads one survey, gates Go, preflights, and aborts with export", as
   assert.equal(runner.state.polls.length, 1);
   assert.equal(calls.buttons.preflight.verdict, "green");
   runner.actions.go();
+  assert.deepEqual(calls.focusOrigins, [runner.state.polls[0].normalized]);
   assert.equal(calls.runningStates.at(-1), true);
   assert.equal(calls.resizes, 1);
   runner.actions.stop();

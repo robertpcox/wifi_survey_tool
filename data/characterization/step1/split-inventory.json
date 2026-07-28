@@ -31,7 +31,7 @@
       "symbol": "applyZStyling"
     },
     "bearing": {
-      "path": "src/adapters/map/mazemap-controls.mjs",
+      "path": "src/adapters/map/camera-bearing.mjs",
       "symbol": "bearing"
     },
     "buildRoute": {
@@ -291,7 +291,7 @@
       "symbol": "routeDefinition"
     },
     "routePoint": {
-      "path": "src/domain/creator-route-v3.mjs",
+      "path": "src/adapters/map/player-map-features.mjs",
       "symbol": "routePoint"
     },
     "routePointDistance": {

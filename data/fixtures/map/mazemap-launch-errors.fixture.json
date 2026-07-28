@@ -1,0 +1,71 @@
+{
+  "proves": "Only structured access denial may reveal the in-memory MazeMap access prompt.",
+  "provenance": "Sanitized records emitted by the Step 5a deterministic fake-SDK harness.",
+  "cases": [
+    {
+      "id": "provider-access-denied",
+      "phase": "map-load",
+      "error": {
+        "error": {
+          "name": "Error",
+          "message": "Style request rejected",
+          "response": { "status": 403 }
+        }
+      },
+      "expected": "access-denied"
+    },
+    {
+      "id": "sdk-script-load",
+      "phase": "sdk-load",
+      "error": {
+        "name": "Error",
+        "message": "Script element emitted error"
+      },
+      "expected": "sdk-load"
+    },
+    {
+      "id": "provider-network",
+      "phase": "map-load",
+      "error": {
+        "name": "NetworkError",
+        "message": "Connection unavailable"
+      },
+      "expected": "network"
+    },
+    {
+      "id": "provider-timeout",
+      "phase": "map-load",
+      "error": {
+        "name": "Error",
+        "code": "ETIMEDOUT",
+        "message": "Timed out"
+      },
+      "expected": "timeout"
+    },
+    {
+      "id": "provider-tiles",
+      "phase": "map-load",
+      "error": {
+        "name": "Error",
+        "sourceId": "mazemap-vector-tiles",
+        "message": "Tile source stopped"
+      },
+      "expected": "tiles"
+    },
+    {
+      "id": "provider-generic",
+      "phase": "map-create",
+      "error": {
+        "name": "Error",
+        "message": "Map constructor failed"
+      },
+      "expected": "generic"
+    },
+    {
+      "id": "provider-unknown",
+      "phase": "map-load",
+      "error": "untyped rejection",
+      "expected": "unknown"
+    }
+  ]
+}

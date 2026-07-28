@@ -2,6 +2,18 @@ import { validateSurveyDefinitionV3 } from "../../domain/survey-definition-v3.mj
 
 const ROOT_URL = new URL("../../../", import.meta.url);
 
+export function surveyIdFromUrl(value) {
+  if (!value) return null;
+  if (value instanceof URL) {
+    return value.searchParams.get("survey_id")?.trim() || null;
+  }
+  const text = String(value);
+  const queryStart = text.indexOf("?");
+  if (queryStart < 0) return null;
+  const query = text.slice(queryStart + 1).split("#", 1)[0];
+  return new URLSearchParams(query).get("survey_id")?.trim() || null;
+}
+
 export async function loadRunnerManifest(options = {}) {
   const fetchImpl = options.fetchImpl ?? globalThis.fetch;
   const rootUrl = options.rootUrl ?? ROOT_URL;

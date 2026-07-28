@@ -4,16 +4,35 @@
 E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 
 ## map/
-- features 53/1266 T+ E appendPathFeatures, emptyFC, recentSourceFixes
+- camera-bearing 21/973 T+ E bearingTo
+- evidence-interactions 103/3269 T+ E createEvidenceInteractions
+- features 64/1843 T+ E appendPathFeatures, emptyFC, recentSourceFixes
+- geojson-layer-group 76/2284 T+ E createGeoJsonLayerGroup I features
 - layer-styles 111/3387 T+ E createLayerStyles I @d/route-contract
 - layers 143/4123 T+ E createMapLayers I @d/route-contract, features, layer-styles
+- map-camera-follow 60/2140 T+ E followMapPoint
+- map-geojson 80/2743 T+ E geoCircle, geoPath, geoPoint, validMapPoint
+- map-resize 16/724 T+ E resizeMapAfterLayout
 - mazemap-catalog 141/4695 T+ E describePoi, fetchCampusCatalog I mazemap-poi-position, mazemap-runtime
-- mazemap-controls 150/4229 T+ E createMapControls I @d/route-contract, mazemap-runtime
+- mazemap-controls 150/4320 T+ E createMapControls I @d/route-contract, camera-bearing, mazemap-runtime
+- mazemap-errors 117/4628 T+ E MAP_LAUNCH_CLASSIFICATIONS, MazeMapLaunchError, classifyMazeMapLaunchError
+- mazemap-launch 144/4524 T+ E campusForLaunch, createLoadedMazeMap, launchCenter, resolveLaunchContainer, waitForMazeMapLoad I mazemap-catalog, mazemap-errors
 - mazemap-poi-position 38/1187 T+ E poiCenter
+- mazemap-queries 32/1203 T+ E createMazeMapQueries I mazemap-catalog
 - mazemap-runtime 38/1032 T+ E errorMessage, normalizeCampusId, numericZ, waitForMapLoad
 - mazemap-sdk 68/2437 T+ E MAZEMAP_CSS_URL, MAZEMAP_JS_URL, loadMazemapSdk
-- mazemap 124/4027 T+ E createMazeMapAdapter I @d/route-contract, layers, mazemap-catalog, mazemap-controls, mazemap-runtime, mazemap-sdk
+- mazemap-shared-boundary 73/2279 T+ E createMazeMapSharedBoundary
+- mazemap 150/5858 T+ E createMazeMapAdapter
+  - I @d/route-contract, layers, map-resize, mazemap-controls, mazemap-errors, mazemap-launch, mazemap-queries, mazemap-runtime, mazemap-sdk,
+    mazemap-shared-boundary, shared-map-layers
+- player-fix-history 41/1490 T+ E playerChangedFixHistory I map-geojson
+- player-layer-definitions 97/3490 T+ E PLAYER_EVIDENCE_LAYERS, playerLayerDefinitions
+- player-live-raw-fix 25/959 T+ E liveRawFixFeature I map-geojson
+- player-map-features 148/5670 T+ E buildPlayerFeatureCollections I map-geojson, player-fix-history, player-live-raw-fix
+- player-map-layers 53/1823 T+ E createPlayerMapLayers I evidence-interactions, geojson-layer-group, player-layer-definitions, player-map-features
+- report-map-layers 116/3592 T+ E createReportMapLayers I geojson-layer-group
 - routing 41/1295 T+ E fetchLegGeoJSON, getPoi, getPoiAt
+- shared-map-layers 71/2246 T+ E createSharedMapLayers I map-camera-follow, player-map-layers, report-map-layers
 ## positioning/
 - cloud 16/528 T+ E fetchCloudPosition
 - lipi 11/300 T+ E fetchLipiPosition

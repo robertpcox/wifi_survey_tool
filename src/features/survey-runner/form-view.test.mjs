@@ -97,15 +97,15 @@ test("form view reads operator values and keeps Go gated by green", () => {
   view.setStatus("Ready", "ok");
   assert.equal(nodes.get("[data-runner-status]").dataset.kind, "ok");
 });
-
 test("definition summary and preflight evidence render without secrets", () => {
   const { nodes, view } = harness();
   view.populateSurveys([{
     surveyId: "survey-1",
     customerName: "<Customer>",
     surveyName: "Level & route",
-  }]);
+  }], "survey-1");
   assert.match(nodes.get("[data-survey-select]").innerHTML, /&lt;Customer&gt;/);
+  assert.equal(nodes.get("[data-survey-select]").value, "survey-1");
   view.showDefinition({
     meta: {
       surveyName: "Route",

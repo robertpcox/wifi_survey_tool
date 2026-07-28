@@ -1,9 +1,9 @@
 // FEATURE:      Merged Report Player
 // SURFACE:      node --test src/features/report-player/report-player.test.mjs
-// WHY TOGETHER: Local-fallback mount assertions prove the feature entry without duplicating browser tests.
+// WHY TOGETHER: Local fallback and split workspace styles prove the feature entry and layout boundary.
 // STATE:        Minimal fake load panel root
 // RULES:        A missing URL selection exposes upload and performs no manifest request.
-// PROVENANCE:   Scope/test_plan.md Step 5
+// PROVENANCE:   Scope/steps/05a_recast_player.md
 
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -36,9 +36,14 @@ test("Report Player offers local upload when no generated result is selected", a
 });
 
 test("Report Player shell CSS keeps the shared map and mobile context visible", async () => {
-  const css = await readFile(new URL("./report-player.css", import.meta.url), "utf8");
-  assert.match(css, /\.report-toolbar/);
-  assert.match(css, /\.map-stage/);
-  assert.match(css, /\.public-map canvas/);
-  assert.match(css, /@media \(max-width: 520px\)/);
+  const [shell, map, workspace, components] = await Promise.all([
+    "report-player.css", "map-surface.css", "player-workspace.css", "player-components.css",
+  ].map(file => readFile(new URL(file, import.meta.url), "utf8")));
+  assert.match(shell, /\.report-toolbar/);
+  assert.match(map, /\.map-stage/);
+  assert.match(map, /\.map-fallback canvas/);
+  assert.match(workspace, /body\[data-app="report-player"\]\.player-active/);
+  assert.match(workspace, /overflow: hidden/);
+  assert.match(components, /\.player-evidence-rail[\s\S]*overflow-y: auto/);
+  assert.match(workspace, /@media \(max-width: 760px\)/);
 });

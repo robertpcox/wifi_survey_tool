@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { bearingTo } from "./camera-bearing.mjs";
 import { createMapControls } from "./mazemap-controls.mjs";
 
 test("map controls retain marker, floor, camera, and SDK fallbacks", () => {
@@ -26,16 +27,18 @@ test("map controls retain marker, floor, camera, and SDK fallbacks", () => {
     setCurrentZ: value => { z = value; },
   });
   assert.equal(controls.getMapZLevel(), 2);
-  assert.equal(controls.focusWaypoint({
+  const target = {
     sequence: 2, seq: 8, lng: 170.5, lat: -45.8, z: 4,
-  }), true);
+  };
+  const origin = { lng: 170.4, lat: -45.8 };
+  assert.equal(controls.focusWaypoint(target, { origin }), true);
   assert.equal(markers[0].options.glyph, "3");
   assert.deepEqual(markers[0].lngLat, { lng: 170.5, lat: -45.8 });
   assert.equal(map.setZ, 4);
   assert.deepEqual(map.easyCamera, {
     center: [170.5, -45.8],
     zoom: 19,
-    bearing: 0,
+    bearing: bearingTo(origin, target),
     pitch: 0,
     padding: { top: 112, right: 40, bottom: 176, left: 40 },
     duration: 350,

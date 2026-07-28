@@ -1,5 +1,22 @@
 # Progress log — newest entry first
 
+## 2026-07-29 — Step 5a full-screen Player complete
+
+- Recast Playback as a viewport-filling Player with one clock, transport, evidence rail,
+  charts, event stepping, follow, snap tester, and programmatic mode/seek control.
+- Reused one public-first MazeMap, parsed result, and analysis across Report and Player;
+  typed launch failures prompt only on structured access denial.
+- Added exact Report heat and Player GeoJSON layers; Follow tracks the walker, and wrong-floor
+  raw IPS remains visible without changing its reported coordinates or floor.
+- Replaced check-in chords with cumulative route truth over turns, dwell, and floor changes.
+  The reviewed field golden changes median error from 3.638 m to 3.730 m without changing
+  sticky or outside-accuracy classifications.
+- Passed the canonical build: 451 tests, zero skipped, 186 staged files, four shells,
+  Creator Chrome, two mobile Runner profiles, and four Player map scenarios.
+- Passed a separate real public MazeMap smoke for campus 566 with the synthetic fixture.
+- Regenerated the 179-module map with no adjacent-test gaps. No commit, push, or deployment.
+- Updated Step 5b and the handover, then stopped before Report redesign.
+
 ## 2026-07-28 — Steps 5a/5b assigned
 
 - Player recast is 5a; smarter Report is 5b. Handoff only; no code started.
@@ -109,40 +126,6 @@
 - Passed the complete build: 237 tests, staged secret scan, four-shell Chrome smoke,
   Creator Chrome export smoke, and an emitted `dist/`.
 - Performed no deployment and stopped before Step 4 Runner implementation.
-
-## 2026-07-28 — Step 2 implemented, live MIME activation pending
-
-- Added independent v3 definition and result validators, shared meta and route-snapshot
-  contracts, and minimal valid and invalid fixtures.
-- Added deterministic survey, result, validation-summary, and per-customer manifests.
-- Added Dashboard, Creator, Runner, and Report Player shells with tab-memory map access.
-- Added build, deploy, header, import-boundary, schema, Nginx, freshness, and browser gates.
-- Replaced the known secret literal with a SHA-256 digest and retained the generic
-  credential-assignment scanner with planted CLI failure proof.
-- Generated a compact module map covering 64 modules and their tests.
-- Built 64 self-contained deployable files and copied them byte-identically to the served tree.
-- Validated 166 tests, all Step 1 goldens and browser paths, and four v3 shell boots.
-- Live serving exposed `application/octet-stream` despite the first config push.
-  Replaced the duplicate `http`-scope `types` block with a dedicated `.mjs` location.
-- Step 2 remains open only until that corrected Nginx config is pushed, reloaded,
-  and the live header and Chrome smoke pass.
-
-## 2026-07-28 — Step 1 complete, survey tool monofile split
-
-- Cut the 1,702-line combined route survey into 47 modules under `src/`, test file beside each.
-- Separated shared domain and adapters first, then Creator, then Runner, then the app shell.
-- Removed the embedded map token and added a `#mapAccess` field the user fills at run time.
-- Left the Cloud positioning proxy call unchanged.
-- Moved reference sources to `data/reference/` and route and capture JSON to `data/`.
-- Recorded goldens for checkpoints, route export, and session export, and verified the split
-  reproduces all three byte-identically.
-- Added `tools/module_map.mjs`, `check_secrets.mjs`, `check_step1_completeness.mjs`,
-  golden recorder and verifier, and a headless browser smoke.
-- Validated: 128 files 0 failed, 124 tests passing, secret scan clean, completeness mapped
-  107 functions, browser smoke drove real Chrome through map launch and route rebuild.
-- Step 1 first stopped without its finish outputs. Handover, log, and Step 2 update were
-  completed afterwards from the settled tree.
-- Recorded a defect: the secret scanner embeds a 16-character fragment of the real token.
 
 Older entries: `Scope/progress_log_archive.md`
 Current handover: `Scope/handover.md`

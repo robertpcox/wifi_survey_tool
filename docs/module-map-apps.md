@@ -11,8 +11,10 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - index.html 33/1181 T+ I @f/dashboard/dashboard.css, @s/app-shell.css, main
 - main 28/1083 T+ E bootDashboard I @a/manifest-source, @d/dashboard-selection, @f/dashboard/dashboard
 ## report-player/
-- index.html 32/1260 T+ I @f/report-player/report-player.css, @f/report-player/report-visuals.css, @s/app-shell.css, main
-- main 35/1460 T+ E bootReportPlayer
+- index.html 35/1480 T+
+  - I @f/report-player/map-surface.css, @f/report-player/player-components.css, @f/report-player/player-workspace.css, @f/report-player/report-player.css,
+    @f/report-player/report-visuals.css, @s/app-shell.css, main
+- main 39/1554 T+ E bootReportPlayer, reportPlayerReady
   - I @a/manifest-source, @a/map/mazemap, @a/memory-credentials, @f/report-player/report-player, @f/report-player/result-loader
 ## route-survey/
 - app-ui 34/1004 T+ E createAppUi

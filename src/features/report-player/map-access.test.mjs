@@ -1,26 +1,94 @@
-// FEATURE:      Report Player private map access
+// FEATURE:      Report Player public-first map access
 // SURFACE:      node --test src/features/report-player/map-access.test.mjs
-// WHY TOGETHER: Fixture prompt and public-campus omission prove the conditional credential boundary.
-// STATE:        Parsed fixture variants
-// RULES:        No token literal or persistence mechanism may enter rendered markup.
-// PROVENANCE:   Scope/test_plan.md Step 5
+// WHY TOGETHER: Hidden prompt, typed retry, and prompt-free fallback prove one access boundary.
+// STATE:        Fake access controls and memory-only credential store
+// RULES:        Metadata hints never reveal the prompt; only a proved denial may reveal it.
+// PROVENANCE:   Scope/steps/05a_recast_player.md
 
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import { renderMapAccess } from "./map-access.mjs";
+import { bindMapAccess, renderMapAccess } from "./map-access.mjs";
 
 const result = JSON.parse(await readFile(
   new URL("../../../data/fixtures/report-player/result.fixture.v3.json", import.meta.url),
 ));
 
-test("map access prompt appears only for a private campus and offers public mode", () => {
+test("access markup stays hidden despite its metadata hint", () => {
   const html = renderMapAccess(result);
-  assert.match(html, /Optional private campus map/);
-  assert.match(html, /Continue with public map/);
-  assert.doesNotMatch(html, /MAP_TOKEN|localStorage|sessionStorage/);
-  const publicResult = structuredClone(result);
-  publicResult.meta.credentialRequirements.mapAccess = false;
-  assert.equal(renderMapAccess(publicResult), "");
+  assert.match(html, /data-map-access-panel[^>]*data-access-hint="true" hidden/);
+  assert.match(html, /type="password"/);
+  assert.doesNotMatch(html, /value=|localStorage|sessionStorage|MAP_TOKEN/);
 });
+
+test("only access denial reveals the prompt and generic failure remains prompt-free", () => {
+  const fixture = fakeAccessRoot();
+  const binding = bindMapAccess({
+    root: fixture.root,
+    credentials: memoryCredentials(),
+    surface: { retryAccess: async () => ({ status: "ready" }) },
+  });
+  assert.equal(fixture.panel.hidden, true);
+  binding.handleLaunch({ status: "access-denied" });
+  assert.equal(fixture.panel.hidden, false);
+  assert.match(fixture.status.textContent, /Enter MazeMap access/);
+  binding.handleLaunch({
+    status: "fallback",
+    error: new Error("<script>network unavailable</script>"),
+  });
+  assert.equal(fixture.panel.hidden, true);
+  assert.doesNotMatch(fixture.status.innerHTML, /<script>/);
+});
+
+test("typed access is held in memory, cleared from the input, and retried", async () => {
+  const fixture = fakeAccessRoot();
+  const credentials = memoryCredentials();
+  const retries = [];
+  const binding = bindMapAccess({
+    root: fixture.root,
+    credentials,
+    surface: {
+      retryAccess: async value => {
+        retries.push(value);
+        return { status: "ready" };
+      },
+    },
+  });
+  fixture.input.value = "typed-at-runtime";
+  await binding.retry();
+  assert.deepEqual(retries, ["typed-at-runtime"]);
+  assert.equal(credentials.read("mapAccess"), "typed-at-runtime");
+  assert.equal(fixture.input.value, "");
+  assert.equal(fixture.panel.hidden, true);
+});
+
+function memoryCredentials() {
+  const values = new Map();
+  return {
+    clear: key => values.delete(key),
+    has: key => Boolean(values.get(key)),
+    read: key => values.get(key),
+    set: (key, value) => value ? values.set(key, value) : values.delete(key),
+  };
+}
+
+function fakeAccessRoot() {
+  const panel = { hidden: true };
+  const input = { value: "" };
+  const status = { textContent: "", innerHTML: "" };
+  const save = listenerNode();
+  const clear = listenerNode();
+  const nodes = new Map([
+    ["[data-map-access-panel]", panel],
+    ["[data-map-access]", input],
+    ["[data-map-access-status]", status],
+    ["[data-save-access]", save],
+    ["[data-clear-access]", clear],
+  ]);
+  return { panel, input, status, root: { querySelector: key => nodes.get(key) } };
+}
+
+function listenerNode() {
+  return { addEventListener(name, listener) { this[name] = listener; } };
+}

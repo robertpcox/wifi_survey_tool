@@ -1,9 +1,9 @@
 import { MAP_STYLE } from "../../domain/route-contract.mjs";
+import { bearingTo } from "./camera-bearing.mjs";
 import { numericZ } from "./mazemap-runtime.mjs";
 
 const ROUTE_PADDING = { top: 72, right: 48, bottom: 72, left: 48 };
 const WAYPOINT_PADDING = { top: 112, right: 40, bottom: 176, left: 40 };
-
 export function createMapControls(state) {
   let targetMarker = null;
   let zWatch = null;
@@ -69,7 +69,7 @@ export function createMapControls(state) {
     return true;
   }
 
-  function focusWaypoint(waypoint) {
+  function focusWaypoint(waypoint, view = {}) {
     const map = state.map();
     const sdk = state.sdk();
     if (!map || !sdk?.MazeMarker || !finitePoint(waypoint)) return false;
@@ -91,7 +91,7 @@ export function createMapControls(state) {
     const camera = {
       center: [waypoint.lng, waypoint.lat],
       zoom: Math.max(safeZoom(map), 19),
-      bearing: 0,
+      bearing: bearingTo(view.origin, waypoint),
       pitch: 0,
       padding: { ...WAYPOINT_PADDING },
       duration: 350,

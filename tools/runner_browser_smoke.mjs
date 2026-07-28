@@ -3,22 +3,26 @@ import { access, readFile, stat } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-
+import { bearingTo } from "../src/adapters/map/camera-bearing.mjs";
 import {
+  openRunnerShareLink,
   readRunnerActiveView,
+  readRunnerMapTransition,
   runnerActiveViewFindings,
   runnerDownloadFindings,
-  setRunnerEntry,
+  runnerMapTransitionFindings,
+  startRunnerCapture,
 } from "./runner_browser_assertions.mjs";
-import { installRunnerBrowserEnvironment } from "./runner_browser_environment.mjs";
+import {
+  installRunnerBrowserEnvironment,
+  RUNNER_BROWSER_POSITION,
+} from "./runner_browser_environment.mjs";
+import { multiFloorRunnerDefinition } from "./runner_browser_fixture.mjs";
 import { startStaticServer } from "./static_server.mjs";
-
 const require = createRequire(import.meta.url);
 const defaultChrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const defaultPuppeteer = "/tmp/wifi-survey-puppeteer/node_modules/puppeteer-core";
-const definitionPath =
-  "data/surveys/survey-dunedin-level-00-dev-v3.definition.v3.json";
-
+const definitionPath = "data/surveys/survey-dunedin-level-00-dev-v3.definition.v3.json";
 export async function runRunnerBrowserSmoke({
   root = ".",
   chrome = process.env.CHROME_PATH || defaultChrome,
@@ -38,9 +42,9 @@ export async function runRunnerBrowserSmoke({
   const absoluteRoot = resolve(root);
   const staged = await stat(resolve(absoluteRoot, "runner/index.html"))
     .then(metadata => metadata.isFile(), () => false);
-  const definition = JSON.parse(
+  const definition = multiFloorRunnerDefinition(JSON.parse(
     await readFile(resolve(absoluteRoot, definitionPath), "utf8"),
-  );
+  ));
   const server = await startStaticServer(absoluteRoot);
   let browser;
   try {
@@ -69,7 +73,6 @@ export async function runRunnerBrowserSmoke({
     await new Promise(resolveClose => server.instance.close(resolveClose));
   }
 }
-
 async function exerciseProfile({ browser, definition, origin, path, profile }) {
   const page = await browser.newPage();
   const failures = [];
@@ -88,24 +91,31 @@ async function exerciseProfile({ browser, definition, origin, path, profile }) {
   page.on("response", response => {
     if (response.status() >= 400) failures.push(`${response.status()} ${response.url()}`);
   });
-  await page.goto(`${origin}${path}`, { waitUntil: "networkidle0" });
-  await page.waitForFunction(() => document
-    .querySelector("[data-runner-status]").textContent.includes("Survey loaded"));
-  await setRunnerEntry(page, profile.name);
-  await page.click('[data-action="preflight"]');
-  await page.waitForFunction(() => document
-    .querySelector("[data-preflight-light]").textContent === "GREEN");
-  await page.click('[data-action="go"]');
-  await page.waitForFunction(() => document.body.classList.contains("runner-running"));
+  const surveyId = encodeURIComponent(definition.meta.surveyId);
+  await openRunnerShareLink(page, `${origin}${path}?survey_id=${surveyId}`);
+  await startRunnerCapture(page, profile.name);
   const firstCheckpoint = definition.route.checkpoints[0];
   const expectedFloor = definition.meta.zLevelNames[String(firstCheckpoint.z)];
-  failures.push(...runnerActiveViewFindings(await readRunnerActiveView(page), expectedFloor));
+  const firstBearing = bearingTo(RUNNER_BROWSER_POSITION, firstCheckpoint);
+  failures.push(...runnerActiveViewFindings(
+    await readRunnerActiveView(page),
+    expectedFloor,
+    firstBearing,
+  ));
   for (let index = 0; index < definition.route.checkpoints.length; index++) {
     await page.waitForFunction(() => !document
       .querySelector('[data-action="check-in"]').disabled);
     await page.click('[data-action="check-in"]');
     if (index === 0 && definition.route.checkpoints.length > 1) {
       await page.waitForFunction(() => window.__runnerMarker?.glyph === "2");
+      const expectedZ = definition.route.checkpoints[1].z;
+      await page.waitForFunction(z => window.__runnerMap?.zLevel === z, {}, expectedZ);
+      failures.push(...runnerMapTransitionFindings(
+        await readRunnerMapTransition(page),
+        firstCheckpoint,
+        definition.route.checkpoints[1],
+        expectedZ,
+      ));
     }
   }
   await page.waitForSelector("[data-finish-panel]:not([hidden])");

@@ -1,9 +1,9 @@
 // FEATURE:      Report Player shared map surface
 // SURFACE:      createMapFrame(result, options)
-// WHY TOGETHER: Route, heat, trail, and walker projection share one floor-aware map model.
+// WHY TOGETHER: Stable route-bounded fallback projection composes floor-aware evidence.
 // STATE:        None
-// RULES:        Use meta floors and embedded evidence; never infer or alter the route.
-// PROVENANCE:   Scope/steps/05_dashboard_report_player.md
+// RULES:        Overlays never change bounds; real MazeMap layers retain exact coordinates.
+// PROVENANCE:   Scope/steps/05a_recast_player.md
 
 export function createMapFrame(result, {
   floor = result.meta.zLevels[0],
@@ -12,7 +12,7 @@ export function createMapFrame(result, {
   heatKind = "sticky",
 } = {}) {
   const routeLines = result.route.legs
-    .map(leg => (leg.geometry ?? []).filter(point => point.z === floor))
+    .flatMap(leg => floorSegments(leg.geometry ?? [], floor))
     .filter(points => points.length > 1);
   const heat = heatForFloor(
     analysis?.[heatKind]?.heatByZ ?? analysis?.heatmaps?.[heatKind],
@@ -21,13 +21,7 @@ export function createMapFrame(result, {
   const pollTrail = (frame?.pollTrail ?? [])
     .map(item => item.normalized ?? item)
     .filter(point => point?.z === floor);
-  const points = [
-    ...routeLines.flat(),
-    ...heat,
-    ...pollTrail,
-    ...(frame?.walker?.z === floor ? [frame.walker] : []),
-  ];
-  const project = createProjector(points);
+  const project = createProjector(routeLines.flat());
   return Object.freeze({
     floor,
     floorName: result.meta.zLevelNames[String(floor)],
@@ -38,6 +32,20 @@ export function createMapFrame(result, {
     pollTrail: pollTrail.map(project),
     walker: frame?.walker?.z === floor ? project(frame.walker) : null,
   });
+}
+
+function floorSegments(points, floor) {
+  const segments = [];
+  let active = [];
+  for (const point of points) {
+    if (point.z === floor) active.push(point);
+    else if (active.length) {
+      segments.push(active);
+      active = [];
+    }
+  }
+  if (active.length) segments.push(active);
+  return segments;
 }
 
 function heatForFloor(heatByZ, floor) {
@@ -53,17 +61,22 @@ function createProjector(points) {
   const finite = points.filter(point => (
     Number.isFinite(point?.lng) && Number.isFinite(point?.lat)
   ));
-  const lngs = finite.map(point => point.lng);
+  const meanLat = finite.length
+    ? finite.reduce((total, point) => total + point.lat, 0) / finite.length
+    : 0;
+  const lngScale = Math.cos(meanLat * Math.PI / 180);
+  const lngs = finite.map(point => point.lng * lngScale);
   const lats = finite.map(point => point.lat);
   const minLng = lngs.length ? Math.min(...lngs) : 0;
   const maxLng = lngs.length ? Math.max(...lngs) : 1;
   const minLat = lats.length ? Math.min(...lats) : 0;
   const maxLat = lats.length ? Math.max(...lats) : 1;
-  const lngSpan = maxLng - minLng || 1;
-  const latSpan = maxLat - minLat || 1;
+  const span = Math.max(maxLng - minLng, maxLat - minLat) || 1;
+  const centerLng = (minLng + maxLng) / 2;
+  const centerLat = (minLat + maxLat) / 2;
   return point => ({
     ...point,
-    x: 0.08 + ((point.lng - minLng) / lngSpan) * 0.84,
-    y: 0.92 - ((point.lat - minLat) / latSpan) * 0.84,
+    x: 0.5 + ((point.lng * lngScale - centerLng) / span) * 0.84,
+    y: 0.5 - ((point.lat - centerLat) / span) * 0.84,
   });
 }

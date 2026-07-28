@@ -42,8 +42,8 @@ and recurrence. Do not claim an RSSI, RF, AP, roaming, or Wi-Fi root cause witho
 - Focused checks: `node --test src/domain/report-*.test.mjs`,
   `node --test src/adapters/map/*.test.mjs`, and
   `node --test src/features/report-player/*.test.mjs src/apps/report-player/*.test.mjs tools/report_player*.test.mjs`.
-- Final checks are `node tools/build.mjs` and the networked, synthetic-fixture-only
-  `node tools/report_player_actual_sdk_smoke.mjs dist`.
+- Final checks use `node tools/build.mjs --no-deploy`; an authorized `node tools/build.mjs` syncs demo.
+- The networked synthetic-only smoke remains `node tools/report_player_actual_sdk_smoke.mjs dist`.
 
 Reuse this public-first lifecycle without reconstructing the map, result, or analysis.
 Report uses exact GeoJSON; the schematic is failure-only. The actual SDK may create provider
@@ -141,7 +141,7 @@ Exports describe analysis; they never alter or re-export captured fixes as corre
 - Public/no-token mode works; access is requested only after a real access failure.
 - JSON/CSV exports are deterministic and reproduce each issue area's inputs.
 - Existing Dashboard, upload, comparison, secret, schema, and build gates remain green.
-- `node tools/build.mjs` passes with zero skipped tests.
+- `node tools/build.mjs --no-deploy` passes with zero skips; authorized `node tools/build.mjs` syncs demo.
 
 ## Respawn boundary
 

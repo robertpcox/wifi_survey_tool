@@ -40,7 +40,7 @@ Serving test, run against the real Nginx configuration and not only `http.server
 This catches the classic late failure: modules work locally and fail on the real host.
 
 ## Step 3 — Creator
-- customer, campus, and memory-only token must Engage before authoring; lazy loading uses that
+- customer and campus must Engage before authoring; optional private access stays memory-only
   campus and reports SDK errors/timeouts
 - the successful campus launch is single-use: setup collapses and no Re-engage action remains
 - desktop layout keeps ordered routes left of a centre map that is larger than the route rail
@@ -142,8 +142,8 @@ Standing risks, rechecked every step rather than assumed closed.
 - **Definition timezone.** Dunedin says `Australia/Melbourne`; correct it before local-time reporting if unintended.
 - **Header context debt.** The sorted Step 5 baseline defers legacy files; recover missing metadata and context before removal.
 - **Customer filtering.** Customer manifests and URLs are convenience, not authorization; use host control or separate artifacts.
-- **Sensitive artifact publishing.** `dist/` copies full results, including the physical field
-  run. Manifest Client-IP omission does not sanitize it; publishing requires explicit inventory.
+- **Sensitive artifact publishing.** `dist/` includes the physical field run. A default build
+  syncs it to demo after success; use `--no-deploy` unless that publication is authorized.
 - **Analysis interval semantics.** Fixture tests must cover repeated fixes, preflight, tails, dwell, and exact equality.
 - **Provider expansion.** LiPi and DNA Spaces need real redacted responses and the V3 contract, not legacy-shape reuse.
 

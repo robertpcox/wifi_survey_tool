@@ -134,9 +134,9 @@ node --test src/adapters/positioning/source-contract.test.mjs
 node --test src/domain/report-playback.test.mjs src/features/report-player/map-model.test.mjs
 node --test tools/generate_manifests.test.mjs tools/check_reference_report.test.mjs
 node tools/report_player_browser_smoke.mjs .
-node tools/build.mjs
+node tools/build.mjs --no-deploy
 ```
 
 Add each adapter's adjacent test and recorded fixture; regenerate manifests and the module
-map, update the handover and newest-first log, and stop
-at the assigned work-package boundary. A green build still does not authorize deployment.
+map, update the handover and newest-first log, and stop at the assigned work-package boundary.
+A green validation build still does not authorize the default build's demo synchronization.

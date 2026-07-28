@@ -73,8 +73,12 @@ credential field names carrying values. A pass is recorded, not assumed.
 
 ## Tests are part of the build
 
-The build runs every layer that does not need a device. Any failure fails the build
-and no `dist/` is emitted, so a broken artifact cannot reach the host.
+The build runs every layer that does not need a device. Any check/build failure emits no
+`dist/` and leaves demo untouched; a sync failure keeps `dist/` and restores the old demo.
+
+After every successful default CLI build, the completed `dist/` is staged and synchronized
+to the local demo checkout with rollback safety. It never commits or pushes. Use
+`node tools/build.mjs --no-deploy` when publication has not been authorized.
 
 Order is cheapest first, so a size or import breach fails in seconds rather than after
 a browser run: gates, schema, domain, adapter, build outputs, then browser.
@@ -92,6 +96,7 @@ reconstruction. One command runs everything:
 
 ```sh
 node tools/build.mjs
+node tools/build.mjs --no-deploy
 ```
 
 Narrow commands stay available for iteration:

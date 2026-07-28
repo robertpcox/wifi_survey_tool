@@ -1,18 +1,23 @@
 // FEATURE:      Zero-dependency production build
-// SURFACE:      runBuild(options), BUILD_COMMANDS, CLI
+// SURFACE:      runBuild(), runBuildAndDeploy(), parseBuildArguments(), CLI
 // WHY TOGETHER: Ordered gates, staging, browser checks, and atomic distribution replacement form one build.
 // STATE:        Temporary staging directory for one build invocation
 // RULES:        Emit no dist when any gate, test, staging check, or browser path fails.
 // PROVENANCE:   Scope/coding_pattern.md build gates
 
-import { rename, rm } from "node:fs/promises";
+import { rename, rm, stat } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { stageDistribution } from "./build_assets.mjs";
+import { copyDeployment } from "./deploy.mjs";
 
 const repositoryRoot = resolve(new URL("../", import.meta.url).pathname);
+export const DEMO_DEPLOYMENT_TARGET = resolve(
+  repositoryRoot,
+  "../demo.mazemap_nginx/html/wifi-survey-v3",
+);
 export const BUILD_COMMANDS = Object.freeze([
   ["tools/check_file_sizes.mjs", "."],
   ["tools/check_headers.mjs", "."],
@@ -56,6 +61,39 @@ export async function runBuild({
   }
 }
 
+export async function runBuildAndDeploy({
+  root = repositoryRoot,
+  target = DEMO_DEPLOYMENT_TARGET,
+  build = runBuild,
+  deploy = copyDeployment,
+  verify = verifyDemoCheckout,
+  buildOptions = {},
+} = {}) {
+  await verify(target);
+  const dist = await build({ root, ...buildOptions });
+  const deployment = await deploy({ source: dist, target });
+  return Object.freeze({ deployment, dist });
+}
+
+export async function verifyDemoCheckout(target, inspect = stat) {
+  const resolvedTarget = resolve(target);
+  const checkout = resolve(resolvedTarget, "../..");
+  const html = resolve(checkout, "html");
+  if (resolve(resolvedTarget, "..") !== html) {
+    throw new TypeError("Demo target must be directly below the checkout html directory");
+  }
+  await inspect(resolve(checkout, ".git"));
+  const htmlStat = await inspect(html);
+  if (!htmlStat.isDirectory()) throw new TypeError("Demo checkout html path is not a directory");
+  return checkout;
+}
+
+export function parseBuildArguments(argumentsList) {
+  const unknown = argumentsList.find(argument => argument !== "--no-deploy");
+  if (unknown) throw new TypeError(`Unknown build option: ${unknown}`);
+  return Object.freeze({ deploy: !argumentsList.includes("--no-deploy") });
+}
+
 function runNode(argumentsList, root) {
   console.log(`\n> node ${argumentsList.join(" ")}`);
   const result = spawnSync(process.execPath, argumentsList, {
@@ -73,10 +111,17 @@ const isCli = process.argv[1]
   && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isCli) {
   try {
-    const dist = await runBuild();
-    console.log(`\nBuild complete: ${dist}`);
+    const options = parseBuildArguments(process.argv.slice(2));
+    if (!options.deploy) {
+      const dist = await runBuild();
+      console.log(`\nBuild complete: ${dist}\nDemo sync skipped.`);
+    } else {
+      const { deployment, dist } = await runBuildAndDeploy();
+      console.log(`\nBuild complete: ${dist}`);
+      console.log(`Demo synchronized: ${deployment.files} files to ${deployment.target}`);
+    }
   } catch (error) {
-    console.error(`\nBuild failed; no dist emitted.\n${error.message}`);
+    console.error(`\nBuild or demo sync failed.\n${error.message}`);
     process.exitCode = 1;
   }
 }

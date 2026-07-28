@@ -5,11 +5,9 @@ This file lists behavior, not files. Each line becomes a test in the file beside
 that owns the behavior. It never becomes a section of one large test file.
 
 ## Step 1 — survey tool split
-Record golden output before moving any code:
-
-- checkpoint generation for the saved route at each supported spacing
-- route export JSON for a known route
-- session export shape replayed from an existing capture
+Goldens, recorded before any code moved and still the standing regression guard:
+checkpoint generation at each spacing, route export, and session export replayed from a
+capture. Every later step keeps them byte-identical.
 
 Domain tests:
 
@@ -22,8 +20,6 @@ Browser tests:
 
 - Creator builds a three-stop route, generates checkpoints, and exports
 - Runner completes a walk against a stubbed poller and exports
-
-Gate: post-split output is byte-identical to the golden files.
 
 ## Step 2 — structure, validators, and build
 - a valid definition and a valid result pass their validators
@@ -94,8 +90,8 @@ Preflight, one test per verdict from recorded responses:
 - the sample that enabled Go appears in the export
 - starting on amber or red records the acknowledgement and the sample
 - an asset run issues no request for the Runner device's own position
-- operating system is never auto-filled from the user agent unless the operator declared
-  that the device under test is the device running the Runner
+- operating system is never auto-filled from the user agent unless the operator declared the
+  device under test is the device running the Runner
 - polling reaches the configured proxy base, and a wrong base fails visibly
 - secret scan over the export and over localStorage, sessionStorage, and IndexedDB passes
 
@@ -106,6 +102,9 @@ Field acceptance, which no automated test replaces:
 - a full-length run without memory or battery collapse
 
 ## Step 5 — dashboard and Report Player
+
+- header gate inverted: complete passes, missing or blank fails naming file and field, and
+  the planted violation proves the failure path
 - every module renders from one fixture result
 - threshold changes recalculate without reload, including a value exactly on the threshold
 - sticky excludes planned dwell and includes stale fixes while ground truth moves
@@ -136,12 +135,11 @@ Standing risks, rechecked every step rather than assumed closed.
 - **Host access control.** Confirm field-device host access before release, not during a run.
 - **Mobile behavior.** Only field acceptance covers it.
 - **Geolocation permission.** Verify GPS permissions policy on the served host, not only locally.
-- **Preflight honesty.** A green light that is easy to earn is worse than none.
-  Each verdict keeps a test, so the thresholds cannot drift into always-green.
+- **Preflight honesty.** A green light that is easy to earn is worse than none. Each verdict
+  keeps a test, so thresholds cannot drift into always-green.
 - **Floor naming.** A widget label and raw z-level can differ by one. Confirm the explicit
   mapping against a real campus; never derive it arithmetically.
-- **Heatmap floor separation.** Heat layers are not floor-aware by default and will blend
-  floors unless filtered per z-level.
+- **Heatmap floor separation.** Heat layers blend floors unless filtered per z-level.
 - **Field-device acceptance.** Mobile-sized Chrome proves the responsive workflow, not radio,
   private-map, battery, or proxy behavior. Keep release closed until both devices pass.
 - **Definition timezone.** The live NDH export names `Australia/Melbourne` for Dunedin campus

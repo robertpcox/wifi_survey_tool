@@ -2,6 +2,14 @@
 
 Follow `Scope/step_standard.md`.
 
+## Precondition — module headers
+
+Invert `tools/check_headers.mjs` first: it currently fails a file that *has* a metadata
+header and must fail one that lacks it or leaves a field blank, planted-violation test
+inverted with it. Then header every authored file under `src/` and `tools/`, format per
+`Scope/coding_pattern.md`. Where `WHY TOGETHER` does not hold for a module under 20 lines,
+fold it into its caller. Behavior does not change and the goldens stay green.
+
 ## Inputs from Step 4
 
 - Runner composition is `src/apps/runner/main.mjs`; the public feature mount is
@@ -10,13 +18,12 @@ Follow `Scope/step_standard.md`.
   `src/domain/runner-result-v3.mjs`. Result validation additionally enforces ordered,
   complete check-ins for completed runs, permits an aborted run with zero check-ins,
   and requires the preflight sample ID to reference an exported poll.
-- The MazeMap Cloud V3 adapter is
-  `createMazeMapCloudSource(options)` from
+- Cloud V3 adapter: `createMazeMapCloudSource(options)` from
   `src/adapters/positioning/mazemap-cloud-v3.mjs`. A transport timeout records
-  `httpStatus: 0`; provider JSON, normalized fix, request/response timestamps, and
-  round-trip time remain in every sample.
-- The shared map adapter now exposes `drawPositionTrail(polls)` and bounds the rendered
-  V3 fix trail without changing the embedded route.
+  `httpStatus: 0`; provider JSON, normalized fix, timestamps, and round-trip time remain
+  in every sample.
+- The shared map adapter exposes `drawPositionTrail(polls)` and bounds the rendered V3 fix
+  trail without changing the embedded route.
 - Primary field result:
   `results/292__566__5ef73912-3851-406a-81cc-93ca19cec12b__2026-07-28T09-00-54Z.result.v3.json`.
   Rob's physical iPhone run completed all six checkpoints with 41/41 HTTP 200 polls and
@@ -27,16 +34,13 @@ Follow `Scope/step_standard.md`.
 - Result discovery is `data/manifests/result-manifest.v3.json`; customer discovery is
   under `data/manifests/customers/`. The build currently emits two surveys, three results,
   and two customers.
-- The user-supplied live Creator export is
-  `data/surveys/5ef73912-3851-406a-81cc-93ca19cec12b.definition.v3.json`
-  (`NDH Straight`, 49.16 m, six checkpoints).
-- Its recorded live provider body is
-  `data/positioning/ndh-outpatient-level-00.mazemap-cloud.response.json`.
-  It is normalization/preflight evidence only, with no HTTP/timing envelope or run result.
-- The analysis source remains
-  `data/reference/report_player/analyze-survey.js`; Step 4 added no analysis module.
-- Runner includes a minimal result-file validation viewer, but Report Player remains the
-  first full result consumer.
+- Live Creator export: `data/surveys/5ef73912-3851-406a-81cc-93ca19cec12b.definition.v3.json`
+  (`NDH Straight`, 49.16 m, six checkpoints). Its recorded provider body is
+  `data/positioning/ndh-outpatient-level-00.mazemap-cloud.response.json`, which is
+  normalization and preflight evidence only, with no HTTP envelope or run result.
+- The analysis source remains `data/reference/report_player/analyze-survey.js`;
+  Step 4 added no analysis module.
+- Runner has a minimal result-file viewer, but Report Player is the first full consumer.
 - `node tools/build.mjs` is the complete validation boundary. It runs 318 tests, stages
   122 files, and includes iPhone- and Android-sized Runner Chrome paths.
 
@@ -53,11 +57,8 @@ an internal Client IP, and operator/device metadata, so do not publish it implic
 ## Report Player sources
 
 Step 1 deliberately left these unsplit so capture shipped first. They wait in
-`data/reference/`:
-
-- Report: `index.html`
-- Player: `ndh_player.html`
-- Analyzer: `analyze-survey.js`
+`data/reference/`: `index.html` (Report), `ndh_player.html` (Player), and
+`analyze-survey.js` (Analyzer).
 
 Three carried-over problems are fixed here, before any merge work:
 
@@ -65,15 +66,13 @@ Three carried-over problems are fixed here, before any merge work:
 - the player's embedded `MAP_TOKEN` becomes an in-memory value the user supplies
 - the report and player each carry their own analysis; the merged page keeps one
 
-Salvage the analysis and rendering that still apply to v3 results.
-This is not a behavior-preserving split: v1 and v2 results are out of scope, so anything
-that exists only to read them is dropped rather than ported.
+Salvage the analysis and rendering that still apply to v3 results. This is not a
+behavior-preserving split: v1 and v2 results are out of scope, so anything that exists only
+to read them is dropped rather than ported.
 
 ## Dashboard
 
-Build-generated customer manifests drive a customer-filtered landing page.
-
-First release:
+Build-generated customer manifests drive a customer-filtered landing page. First release:
 
 - customer identity from URL
 - available surveys
@@ -92,8 +91,7 @@ then composes independent modules:
 - KPI summary
 - timeline
 - floor and route views
-- sticky-position heatmap
-- outside-accuracy heatmap
+- sticky-position and outside-accuracy heatmaps
 - playback: clock, walker, trails, check-ins, and capture events
 - same-survey comparison
 - methodology and export
@@ -133,6 +131,8 @@ Keep snap-to-current-path-segment correction in the low-priority backlog.
 
 ## Gates
 
+- Every authored file carries a complete header, and the gate fails a missing or blank field.
+- The planted violation proves the failure path, not only the pass.
 - Customer URL shows only its manifest entries.
 - New results populate selectors after a build, with no runtime folder scanning.
 - Every module passes its own fixture test.

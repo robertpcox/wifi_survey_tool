@@ -4,9 +4,10 @@
 
 Step 4 Runner implementation is complete and `node tools/build.mjs` is green.
 The build emits `dist/` with both the deterministic development survey and the
-user-supplied `NDH Straight` definition. No deployment was performed.
+user-supplied `NDH Straight` definition. The byte-identical 120-file artifact is live at
+`https://demo.mazemap.com.au/wifi-survey-v3/`.
 
-The staged code is ready for capture, but the New Zealand field release remains open until
+The live code is ready for capture, but the New Zealand field release remains open until
 physical iPhone and Android runs prove private map access and live proxy reachability.
 
 ## Step 4 outcome
@@ -76,6 +77,8 @@ physical iPhone and Android runs prove private map access and live proxy reachab
 - Creator's staged browser path passes.
 - Runner completes and downloads validated results at iPhone (390×844) and Android
   (412×915) mobile viewports, with raw/normalized evidence and empty browser storage.
+- Source commit `1138080` built without generated drift. Demo commit `d47ec1d` contains
+  the byte-identical artifact; live JavaScript/JSON headers and all four Chrome shells pass.
 - Re-run the complete boundary with:
 
 ```sh
@@ -93,7 +96,8 @@ node tools/build.mjs
   `Pacific/Auckland` before field evidence is accepted.
 - The live export has no live result. Step 5 should use the completed deterministic fixture
   until a validated field result exists.
-- No deployment was requested or performed; `dist/` is the settled Step 4 artifact.
+- The Step 4 artifact is deployed under `/wifi-survey-v3/`; deployment does not close
+  the physical field gates above.
 
 ## Ownership and next read order
 

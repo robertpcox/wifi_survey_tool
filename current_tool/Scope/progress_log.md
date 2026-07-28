@@ -15,8 +15,10 @@
   its fix is 8.96 m from the live route start and passes preflight when evaluated fresh.
 - Passed the final build with 314 tests, all gates, 120 staged files, four shell boots,
   Creator smoke, and complete iPhone- and Android-sized Runner Chrome paths.
-- Performed no deployment. Real private access, live proxy, battery, and physical iPhone/
-  Android acceptance remain required before marking the New Zealand field release.
+- Deployed the byte-identical 120-file artifact to `demo.mazemap.com.au/wifi-survey-v3/`
+  as demo commit `d47ec1d`; live headers and all four Chrome shells pass.
+- Real private access, live proxy, battery, and physical iPhone/Android acceptance remain
+  required before marking the New Zealand field release.
 
 ## 2026-07-28 — Step 3 map-first Creator correction and choice fix
 

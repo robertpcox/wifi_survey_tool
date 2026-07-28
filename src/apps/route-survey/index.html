@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Route Survey — guided position capture</title><link rel="stylesheet" href="./shell.css">
+  <link rel="stylesheet" href="https://api.mazemap.com/js/v3.0.6/mazemap.min.css">
+  <link rel="stylesheet" href="./layout.css"><link rel="stylesheet" href="../../features/creator/creator.css">
+  <link rel="stylesheet" href="../../features/runner/runner.css">
+  <script src="https://api.mazemap.com/js/v3.0.6/mazemap.min.js"></script>
+  <script type="module" src="./main.mjs"></script>
+</head><body>
+  <details class="config" open><summary>Configuration — map access, credentials, sources, route</summary>
+    <div class="config-body">
+      <div class="cfg-row">
+        <div class="field">
+          <label>Map access</label>
+          <input id="mapAccess" type="password" autocomplete="off" placeholder="MazeMap view access">
+        </div>
+        <div class="field"><label>&nbsp;</label><button class="act" onclick="launchMap()">Launch map</button></div>
+        <div class="field"><label>App ID</label><input id="appId" autocomplete="off" placeholder="X-Mazemap-App-Id"></div>
+        <div class="field">
+          <label>App Key</label>
+          <input id="appKey" type="password" autocomplete="off" placeholder="X-Mazemap-App-Key">
+        </div>
+        <div class="field"><label>Config ID</label><input id="configId" value="1185" class="narrow"></div>
+        <div class="field"><label>Client IP</label><input id="clientIp" placeholder="10.x.x.x" class="client-ip"></div>
+        <div class="field"><label>Interval</label>
+          <select id="pollInterval" class="narrow">
+            <option value="0">Instant</option><option value="2000" selected>2 secs</option>
+            <option value="5000">5 secs</option><option value="10000">10 secs</option>
+          </select>
+        </div>
+        <div class="field"><label>Sources</label><div class="source-checks">
+          <span class="check"><input type="checkbox" id="srcCloud" checked><label for="srcCloud">Cloud</label></span>
+          <span class="check"><input type="checkbox" id="srcLipi" checked><label for="srcLipi">LiPi</label></span>
+        </div></div>
+      </div>
+      <div class="cfg-row">
+        <div class="field"><label>LiPi URL (direct — identifies device by IP, never proxied)</label>
+          <input id="lipiUrl" class="wide" value="https://ndh-ob-public.mazepos.com/position">
+        </div>
+        <div class="field"><label>Cloud base (blank = this site)</label>
+          <input id="cloudBase" class="wide" placeholder="https://demo.mazemap.com.au — set when hosted elsewhere">
+        </div>
+        <div class="field"><label>Campus collection</label><input id="collectionTag" class="narrow" placeholder="(default)"></div>
+        <div class="field"><label>Checkpoint spacing</label>
+          <select id="wpSpacing" class="narrow">
+            <option value="5">5 m</option><option value="10">10 m</option>
+            <option value="15" selected>15 m</option><option value="20">20 m</option>
+            <option value="30">30 m</option><option value="0">Turns only</option>
+          </select>
+        </div>
+      </div>
+      <div class="cfg-row">
+        <div class="field route-config-field"><label>Test route</label><div class="route-picker">
+          <select id="savedRoutes" aria-label="Test route"></select>
+          <button class="act small" id="loadRouteBtn" onclick="loadRoute()">Load</button>
+        </div></div>
+        <div class="field"><label>&nbsp;</label><div class="btn-row">
+          <button class="act" onclick="startPolling()">▶ Poll</button>
+          <button class="act" onclick="stopPolling()">■ Stop poll</button>
+          <button class="act" onclick="exportSessionJson()">Export JSON</button>
+          <button class="act" onclick="exportSessionCsv()">Export CSV</button>
+          <button class="act danger" onclick="clearSession()">Clear session</button>
+        </div></div>
+      </div>
+    </div>
+  </details>
+  <div class="status-bar">
+    <div><span id="dotCloud" class="dot"></span>Cloud <span id="cntCloud">0</span></div>
+    <div><span id="dotLipi" class="dot"></span>LiPi <span id="cntLipi">0</span></div>
+    <div>Floor: <span id="curFloor">—</span></div><div>Check-ins: <span id="cntCheckin">0</span></div>
+    <div id="statusText" class="status-text">Enter map access, then launch the map.</div>
+    <div class="legend"><span class="swatch cloud"></span>Cloud</div>
+    <div class="legend"><span class="swatch lipi"></span>LiPi</div>
+    <div class="legend"><span class="swatch next"></span>Next point</div>
+    <div class="legend"><span class="swatch done"></span>Done</div>
+  </div>
+  <div class="main">
+    <div class="map-wrap"><div id="map"></div>
+      <div class="target-choice" id="targetChoice" hidden>
+        <h3>Add this route stop</h3><div class="target-choice-copy" id="targetChoiceCopy"></div>
+        <div class="target-choice-grid">
+          <button class="target-option" onclick="chooseMapTarget('point')">
+            <strong id="targetPointTitle">Use clicked point</strong><span id="targetPointSummary"></span>
+          </button>
+          <button class="target-option" id="targetPoiOption" onclick="chooseMapTarget('poi')">
+            <strong>Use POI centre</strong><span id="targetPoiSummary"></span>
+          </button>
+          <button class="target-option" id="targetOutdoorsOption" onclick="chooseMapTarget('outdoors')" hidden>
+            <strong>Mark as outdoors</strong><span>Stores POI ID as null, POI name as “Outdoors”, and location status as outdoors.</span>
+          </button>
+        </div><button class="target-cancel" onclick="closeTargetChoice()">Cancel</button>
+      </div>
+      <div class="walk-card" id="walkCard">
+        <div class="walk-prompt" id="walkPrompt">Route not built yet</div>
+        <div class="walk-target" id="walkTarget">—</div><div class="walk-dist" id="walkDist"></div>
+        <div class="walk-actions"><button class="btn-big" id="walkBtn" onclick="walkMainAction()" disabled>▶ Start walk</button></div>
+        <div class="walk-secondary" id="walkSecondary" style="display:none">
+          <button onclick="skipWaypoint()">Skip point</button><button onclick="undoCheckin()">Undo</button>
+          <button onclick="endWalk()">End walk</button>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="tabs">
+        <button id="tabbtn-route" class="active" onclick="showTab('route')">Route</button>
+        <button id="tabbtn-log" onclick="showTab('log')">Log</button>
+        <button id="tabbtn-live" onclick="showTab('live')">Live</button>
+        <button id="tabbtn-play" onclick="showTab('play')">Playback</button>
+      </div>
+      <div class="tab-body active" id="tab-route"><div class="tab-inner">
+        <div class="hint">Tap the map and choose the exact point or POI centre. You can also add by POI ID or lat,lng,z.</div>
+        <div class="btn-row"><input id="addPoiId" placeholder="POI ID or lat,lng,z[,outdoors]">
+          <button class="act" onclick="addStopFromInput()">Add</button></div>
+        <div class="stop-list" id="stopList"><div class="hint">No stops yet.</div></div>
+        <div class="btn-row"><button class="act primary" onclick="buildRoute()">⚙ Build route</button>
+          <button class="act small" onclick="clearStops()">Clear stops</button></div>
+        <div class="hint" id="routeInfo"></div>
+        <div class="btn-row route-name-row"><input id="routeName" placeholder="Route name"><button class="act small" onclick="saveRoute()">Save</button></div>
+        <div class="btn-row">
+          <button class="act small" onclick="exportRoute()">Export route</button>
+          <button class="act small" onclick="document.getElementById('routeFile').click()">Import route</button>
+          <button class="act small" onclick="deleteRoute()">Delete saved route</button>
+          <input type="file" id="routeFile" accept=".json" hidden onchange="importRoute(this)">
+        </div>
+        <div class="hint">Server routes come from the data route manifest. Outdoor points use lat,lng,z,outdoors.</div>
+      </div></div>
+      <div class="tab-body" id="tab-log"><div class="tab-inner">
+        <div class="log-list" id="logList"><div class="hint">Check-ins and events appear here.</div></div></div></div>
+      <div class="tab-body" id="tab-live"><div class="tab-inner"><div class="live-grid">
+        <div class="live-box cloud"><h4>Cloud</h4><div id="liveCloud">no fix yet</div></div>
+        <div class="live-box lipi"><h4>LiPi</h4><div id="liveLipi">no fix yet</div></div>
+      </div></div><pre id="liveJson">Waiting for first response…</pre></div>
+      <div class="tab-body" id="tab-play"><div class="tab-inner">
+        <div class="hint">Import an exported session JSON to play positioning against the walked baseline.</div>
+        <div class="btn-row"><button class="act" onclick="document.getElementById('sessionFile').click()">Import session</button>
+          <button class="act" onclick="exitPlayback()">Exit playback</button></div>
+        <input type="file" id="sessionFile" accept=".json" hidden onchange="importSession(this)">
+        <div id="pbPanel" class="playback-panel"><div class="pb-controls">
+          <button class="act small" id="pbPlayBtn" onclick="pbTogglePlay()">▶ Play</button>
+          <select id="pbSpeed" class="narrow"><option value="0.5">0.5×</option>
+            <option value="1" selected>1×</option><option value="2">2×</option>
+            <option value="5">5×</option><option value="10">10×</option></select>
+          <span class="pb-time" id="pbTime">—</span>
+        </div><input type="range" class="pb-slider" id="pbSlider" min="0" max="1000"
+          value="0" oninput="pbSeek(this.value)"><div class="hint" id="pbInfo"></div></div>
+      </div></div>
+    </div>
+  </div></body></html>

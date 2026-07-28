@@ -1,0 +1,1872 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Route Player — session playback &amp; analysis</title>
+  <link rel="stylesheet" href="https://api.mazemap.com/js/v3.0.6/mazemap.min.css">
+  <script src="https://api.mazemap.com/js/v3.0.6/mazemap.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #f7f8fa; color: #111; display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
+
+    header { display: flex; align-items: center; gap: 12px; padding: 8px 14px; background: #fff; border-bottom: 1px solid #dfe4ea; flex-shrink: 0; }
+    header .brand { font-weight: 800; font-size: 14px; white-space: nowrap; }
+    header .meta { flex: 1; min-width: 0; font-size: 12px; color: #667085; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    header .meta.err { color: #d92d20; }
+    .model-picker { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #667085; white-space: nowrap; }
+
+    button.act { padding: 8px 12px; border: 1px solid #cfd6df; border-radius: 5px; cursor: pointer; font: inherit; font-size: 13px; background: #fff; white-space: nowrap; color: #344054; }
+    button.act.primary { background: #22a447; color: #fff; border-color: #22a447; font-weight: 700; }
+    button.act.small { padding: 6px 9px; font-size: 12px; }
+    select.sel { padding: 6px 6px; border: 1px solid #cfd6df; border-radius: 5px; font: inherit; font-size: 12px; background: #fff; color: #344054; }
+
+    .main { display: grid; grid-template-columns: minmax(0, 1fr) 420px; flex: 1; min-height: 0; }
+    .map-wrap { position: relative; min-height: 0; }
+    #map { width: 100%; height: 100%; }
+
+    .drop-overlay { position: fixed; inset: 0; background: rgba(34,164,71,0.12); border: 3px dashed #22a447; z-index: 100; display: none; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; color: #15803d; pointer-events: none; }
+    .drop-overlay.on { display: flex; }
+
+    /* Live window — distance from baseline + fix freshness */
+    .live { position: absolute; top: 10px; right: 10px; z-index: 20; background: rgba(255,255,255,0.96); border: 1px solid #dfe4ea; border-radius: 8px; box-shadow: 0 4px 14px rgba(16,24,40,0.12); padding: 8px 10px; min-width: 230px; font-size: 12.5px; }
+    .live-row { display: grid; grid-template-columns: 12px 58px 1fr auto auto; gap: 7px; align-items: center; padding: 3px 0; }
+    .live-row .sw { width: 10px; height: 10px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #cfd6df; }
+    .live-row b { font-size: 12px; font-weight: 700; }
+    .live-row.toggleable { cursor: pointer; }
+    .live-row.off { opacity: 0.35; }
+    .live-row .val { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+    .live-row .fl { font-variant-numeric: tabular-nums; color: #667085; white-space: nowrap; }
+    .live-row .fl .bad { color: #d92d20; font-weight: 800; }
+    .age { font-variant-numeric: tabular-nums; border-radius: 4px; padding: 1px 5px; font-size: 11.5px; font-weight: 700; color: #475467; background: #f2f4f7; white-space: nowrap; }
+    .age.warn { background: #fef0c7; color: #b54708; }
+    .age.bad { background: #fee4e2; color: #b42318; }
+    .live-cap { margin-top: 5px; padding-top: 5px; border-top: 1px solid #eef1f4; font-size: 10.5px; color: #98a2b3; }
+    .remote-live-row { display: grid; grid-template-columns: 12px 1fr auto auto; gap: 7px; align-items: center; padding: 4px 0; }
+    .remote-live-row .sw { width: 10px; height: 10px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #cfd6df; }
+    .remote-live-row .name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .remote-live-row .floor, .remote-live-row .age { color: #667085; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    /* Live "device blip" toggle (real-time poll → receive → age cycle) */
+    .live-blip { display: flex; align-items: center; gap: 7px; margin-top: 6px; padding-top: 6px; border-top: 1px solid #eef1f4; font-size: 12px; color: #344054; cursor: pointer; user-select: none; }
+    .live-blip input { margin: 0; }
+    .live-blip .blip-dot { width: 11px; height: 11px; border-radius: 50%; background: #2563eb; border: 2px solid #fff; box-shadow: 0 0 0 1px #2563eb; box-sizing: border-box; flex-shrink: 0; }
+    .live-blip .poll-key { width: 11px; height: 11px; border-radius: 50%; border: 2px solid #2563eb; box-sizing: border-box; flex-shrink: 0; }
+    .live-blip .snap-key { width: 11px; height: 11px; border-radius: 50%; background: #1a73e8; border: 2px solid #fff; box-shadow: 0 0 0 1.5px rgba(26,115,232,0.5); box-sizing: border-box; flex-shrink: 0; }
+    .snap-radius { display: none; margin-top: 4px; padding-left: 18px; font-size: 11px; color: #667085; align-items: center; gap: 5px; }
+    .snap-radius.on { display: flex; }
+    .snap-radius input[type=number] { width: 48px; padding: 1px 4px; border: 1px solid #cfd6df; border-radius: 4px; font: inherit; font-size: 11px; font-variant-numeric: tabular-nums; }
+
+    /* Alert banners (frozen position / wrong floor) */
+    .banners { position: absolute; left: 50%; bottom: 108px; transform: translateX(-50%); z-index: 25; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; max-width: calc(100% - 16px); }
+    .big-banner { background: #dc2626; color: #fff; font-weight: 900; font-size: clamp(18px, 3.4vw, 28px); letter-spacing: 1.5px; text-transform: uppercase; text-align: center; padding: 11px 24px; border-radius: 12px; box-shadow: 0 10px 30px rgba(220,38,38,0.45); white-space: nowrap; animation: stalePulse 1.2s ease-in-out infinite; display: none; }
+    .big-banner .ag { font-variant-numeric: tabular-nums; font-weight: 800; opacity: 0.95; }
+    .big-banner.floor { background: #ea580c; box-shadow: 0 10px 30px rgba(234,88,12,0.45); }
+    @keyframes stalePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.72; } }
+
+    /* Transport */
+    .transport { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); width: min(600px, calc(100% - 20px)); background: rgba(255,255,255,0.97); border: 1px solid #dfe4ea; border-radius: 10px; box-shadow: 0 8px 24px rgba(16,24,40,0.16); padding: 9px 12px; z-index: 20; }
+    .t-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .tbtn { width: 40px; height: 34px; border: 1px solid #cfd6df; border-radius: 6px; background: #fff; cursor: pointer; font-size: 14px; color: #344054; }
+    .tbtn.play { width: 52px; background: #111827; color: #fff; border-color: #111827; font-weight: 700; }
+    .t-time { font-variant-numeric: tabular-nums; font-weight: 800; font-size: 14px; margin-left: auto; }
+    .t-el { font-variant-numeric: tabular-nums; font-size: 12px; color: #667085; }
+    .t-follow { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #344054; user-select: none; white-space: nowrap; }
+    input[type=range].scrub { width: 100%; accent-color: #16a34a; }
+
+    /* Panel */
+    .panel { border-left: 1px solid #dfe4ea; background: #fff; min-height: 0; overflow-y: auto; }
+    .p-inner { padding: 12px 14px 20px; display: flex; flex-direction: column; gap: 12px; }
+    .sec-h { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 800; color: #667085; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+    .sec-h .spacer { flex: 1; }
+    .hint { font-size: 12.5px; color: #667085; line-height: 1.55; }
+
+    .meta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .m-tile { border: 1px solid #e4e8ee; border-radius: 7px; padding: 7px 9px; }
+    .m-tile .k { font-size: 10.5px; font-weight: 700; color: #98a2b3; text-transform: uppercase; letter-spacing: 0.4px; }
+    .m-tile .v { font-size: 15px; font-weight: 650; margin-top: 1px; }
+
+    .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .card { border: 1px solid #e4e8ee; border-radius: 8px; padding: 9px 11px; min-width: 0; }
+    .card h4 { font-size: 12px; display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+    .card h4 .sw { width: 9px; height: 9px; border-radius: 50%; }
+    .card .kv { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; padding: 1.5px 0; }
+    .card .kv .k { color: #667085; }
+    .card .kv .v { font-variant-numeric: tabular-nums; font-weight: 600; text-align: right; }
+    .card .kv .v.bad { color: #b42318; }
+    .card .none { font-size: 12px; color: #98a2b3; }
+
+    .chart-card { border: 1px solid #e4e8ee; border-radius: 8px; padding: 9px 11px 6px; }
+    .c-head { font-size: 12px; font-weight: 700; color: #344054; margin-bottom: 4px; }
+    .c-head .unit { font-weight: 500; color: #98a2b3; }
+    .c-body { position: relative; }
+    .c-body svg { display: block; cursor: crosshair; }
+    .tip { position: absolute; pointer-events: none; background: #111827; color: #fff; border-radius: 6px; padding: 6px 9px; font-size: 11.5px; line-height: 1.5; display: none; z-index: 5; max-width: 200px; }
+    .tip .t-h { color: #9ca3af; font-variant-numeric: tabular-nums; }
+    .tip .t-r { display: flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+    .tip .t-r .key { width: 12px; height: 0; border-top-width: 3px; border-top-style: solid; }
+    .tip .t-r b { font-weight: 700; }
+    .tip .t-r .nm { color: #9ca3af; }
+
+    .stall-list { display: flex; flex-direction: column; gap: 5px; }
+    .stall { display: flex; gap: 8px; align-items: baseline; border-left: 3px solid #ef4444; background: #fbfbfc; border-radius: 4px; padding: 5px 9px; font-size: 12px; cursor: pointer; }
+    .stall:hover { background: #f2f4f7; }
+    .stall .tt { font-variant-numeric: tabular-nums; color: #667085; }
+    .stall b { font-variant-numeric: tabular-nums; }
+    .stall .where { color: #667085; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    table.ck { width: 100%; border-collapse: collapse; font-size: 11.5px; font-variant-numeric: tabular-nums; }
+    table.ck th { position: sticky; top: 0; background: #fff; text-align: right; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; color: #98a2b3; padding: 4px 6px; border-bottom: 1px solid #e4e8ee; }
+    table.ck th.l, table.ck td.l { text-align: left; }
+    table.ck td { padding: 3.5px 6px; border-bottom: 1px solid #f2f4f7; text-align: right; white-space: nowrap; }
+    table.ck td.nm { max-width: 130px; overflow: hidden; text-overflow: ellipsis; text-align: left; }
+    table.ck tr.rowck { cursor: pointer; }
+    table.ck tr.rowck:hover td { background: #f8fafc; }
+    table.ck td .ok { color: #16a34a; font-weight: 700; }
+    table.ck td .bad { color: #d92d20; font-weight: 800; }
+    table.ck td.hi { color: #b42318; font-weight: 700; }
+
+    @media (max-width: 700px) {
+      .main { grid-template-columns: 1fr; grid-template-rows: 56vh minmax(0, 1fr); }
+      .panel { border-left: none; border-top: 1px solid #dfe4ea; }
+      .live { min-width: 200px; font-size: 11.5px; top: 8px; right: 8px; }
+      .meta-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="drop-overlay" id="dropOverlay">Drop session JSON to load</div>
+
+<header>
+  <div class="brand">Route Player</div>
+  <label class="model-picker">Model
+    <select class="sel" id="selDataset" title="Choose a bundled capture to play">
+      <option value="remote">Remote capture</option>
+      <option value="survey">Route survey</option>
+    </select>
+  </label>
+  <div class="meta" id="metaLine">No session loaded — drop a session JSON anywhere, or use Load.</div>
+  <button class="act primary" onclick="document.getElementById('fileIn').click()">Load session</button>
+  <input type="file" id="fileIn" accept=".json,application/json" style="display:none">
+</header>
+
+<div class="main">
+  <div class="map-wrap">
+    <div id="map"></div>
+
+    <div class="live" id="remoteLiveCard" style="display:none">
+      <div id="remoteDeviceRows"></div>
+      <div class="live-cap" id="remoteDistance">Waiting for both devices</div>
+      <div class="live-cap">solid dots = Spaces positions · lines = position history · off-floor history is grey · age = time since the position changed</div>
+    </div>
+
+    <div class="live" id="liveCard" style="display:none">
+      <div class="live-row">
+        <span class="sw" style="background:#16a34a"></span><b>Baseline</b>
+        <span class="fl" id="lvBaseName" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+        <span></span>
+        <span class="fl" id="lvBaseFl">—</span>
+      </div>
+      <div id="liveSrcRows"></div>
+      <label class="live-blip" id="blipRow" title="The actual cloud dot: sits at the latest received fix and jumps when a new one lands — 1:1, no colour cycling">
+        <input type="checkbox" id="chkBlip" checked>
+        <span class="blip-dot"></span>
+        Cloud dot (actual position)
+      </label>
+      <label class="live-blip" id="pollRow" title="Poll cycle pinned to the route: hollow ring = where you were when the request went out, filled dot = where you'd got to when the response came back">
+        <input type="checkbox" id="chkPolls" checked>
+        <span class="poll-key"></span>
+        Poll marks (sent ○ → received ●)
+      </label>
+      <label class="live-blip" id="snapRow" title="Product-style blue dot: latest cloud fix snapped to the nearest point of the path within the radius; stays at the raw fix if the path is out of reach">
+        <input type="checkbox" id="chkSnap">
+        <span class="snap-key"></span>
+        Snap to path (blue dot)
+      </label>
+      <div class="snap-radius" id="snapRadiusRow">
+        snap radius <input type="number" id="inSnapRadius" min="1" max="100" step="1" value="15"> m around the cloud fix
+      </div>
+      <div class="live-cap">Δ = distance from baseline dot · age = s since position changed · red path = frozen zone · ○→● = poll sent→received on path</div>
+    </div>
+
+    <div class="banners">
+      <div class="big-banner" id="staleBanner">No position change <span class="ag" id="staleBannerAge"></span></div>
+      <div class="big-banner floor" id="floorBanner"><span id="floorBannerLabel">Wrong floor</span> <span class="ag" id="floorBannerTxt"></span></div>
+    </div>
+
+    <div class="transport" id="transport" style="display:none">
+      <div class="t-row">
+        <button class="tbtn play" id="btnPlay" title="Play/pause (space)">▶</button>
+        <button class="tbtn" id="btnPrev" title="Previous event (←)">|◀</button>
+        <button class="tbtn" id="btnNext" title="Next event (→)">▶|</button>
+        <select class="sel" id="selSpeed" title="Playback speed">
+          <option value="1">1×</option><option value="5">5×</option>
+          <option value="10" selected>10×</option><option value="30">30×</option>
+          <option value="60">60×</option>
+        </select>
+        <label class="t-follow" title="Map floor & view follow the baseline walker"><input type="checkbox" id="chkFollow" checked>Follow</label>
+        <span class="t-time" id="timeClock">—</span>
+        <span class="t-el" id="timeElapsed"></span>
+      </div>
+      <input type="range" class="scrub" id="scrub" min="0" max="1000" value="0">
+    </div>
+  </div>
+
+  <aside class="panel">
+    <div class="p-inner" id="panelInner">
+      <div class="hint" id="emptyHint">
+        Load a session JSON exported by the <b>Route Survey</b> capture tool to play it back
+        and analyse positioning error against the walked baseline.
+        Drag &amp; drop works anywhere on the page. <br><br>
+        Tip: <code>?src=&lt;same-origin url&gt;</code> auto-loads a file.
+      </div>
+      <div id="analysisRoot" style="display:none; flex-direction:column; gap:12px;">
+        <div class="meta-grid" id="metaGrid"></div>
+
+        <div class="sec-h">Summary
+          <span class="spacer"></span>
+          <select class="sel" id="selMethod" title="How each check-in is matched to a fix">
+            <option value="nearest" selected>Nearest fix</option>
+            <option value="interp">Interpolated</option>
+          </select>
+          <select class="sel" id="selWindow" title="Max time offset between check-in and fix">
+            <option value="5">±5 s</option><option value="10" selected>±10 s</option>
+            <option value="15">±15 s</option><option value="30">±30 s</option>
+            <option value="60">±60 s</option>
+          </select>
+          <button class="act small" id="btnCsv">Export CSV</button>
+        </div>
+        <div class="cards" id="cards"></div>
+
+        <div class="chart-card">
+          <div class="c-head">Check-in error <span class="unit" id="errUnit">· m vs baseline</span></div>
+          <div class="c-body" id="chartErr"></div>
+        </div>
+        <div class="chart-card">
+          <div class="c-head">Fix age <span class="unit">· s since position last changed</span></div>
+          <div class="c-body" id="chartAge"></div>
+        </div>
+
+        <div class="sec-h">Position frozen <span class="unit" id="stallCap" style="font-weight:500;text-transform:none;letter-spacing:0;"></span></div>
+        <div class="stall-list" id="stallList"></div>
+
+        <div class="sec-h">Check-ins</div>
+        <div style="overflow-x:auto;"><table class="ck" id="ckTable"></table></div>
+      </div>
+      <div id="remoteRoot" style="display:none; flex-direction:column; gap:12px;">
+        <div class="meta-grid" id="remoteMetaGrid"></div>
+        <div class="sec-h">Remote devices</div>
+        <div class="cards" id="remoteCards"></div>
+        <div class="hint">Playback keeps every Spaces position on the map and joins consecutive positions into a trail for each device. Off-floor history fades to grey, while warnings use each device's <code>lastSeen</code> changes.</div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+  // ──────────────────────────────────────────────────────────────────────
+  // Constants (palette identical to route_survey.html)
+  // ──────────────────────────────────────────────────────────────────────
+  const CAMPUS_ID = 566;
+  const MAP_TOKEN = "82059d9500524389ad1e635f3c5a376e";
+  // Bundled captures shown by the model selector (relative to this file).
+  const DATASETS = {
+    remote: "ndh-capture-2026-07-15.json",
+    survey: "ndh-survey-2026-07-02T01-41-39-627Z.json",
+  };
+  const DEFAULT_MODE = "remote";
+  const CLOUD_COLOR = "#2563eb", LIPI_COLOR = "#9333ea";
+  const REMOTE_COLORS = ["#e11d48", "#0ea5e9", "#f59e0b", "#8b5cf6"];
+  const WP_PENDING = "#98a2b3", WP_CURRENT = "#f59e0b", WP_DONE = "#16a34a", WP_SKIPPED = "#ef4444", ROUTE_COLOR = "#111827";
+  const STALE_WARN_S = 15, STALE_BAD_S = 30;     // fix-age thresholds
+  const WRONG_FLOOR = "#ea580c";                 // fix on a different floor than the walker
+  const SOURCES = ["cloud", "lipi"];
+  // LiPi gets dashed lines + diamond markers in charts: the blue/purple pair
+  // fails deutan CVD separation, so shape carries identity too.
+  const SRC_META = {
+    cloud: { name: "Cloud", color: CLOUD_COLOR, dash: null,  shape: "circle"  },
+    lipi:  { name: "LiPi",  color: LIPI_COLOR,  dash: "6 4", shape: "diamond" },
+  };
+
+  // ──────────────────────────────────────────────────────────────────────
+  // State
+  // ──────────────────────────────────────────────────────────────────────
+  let map = null, mapReady = false, currentZLevel = 1, zWatch = null;
+  let session = null;      // normalized session (see normalizeSession)
+  let analysis = null;     // analyzeSession output
+  const ui = { show: { cloud: true, lipi: true }, follow: true, showBlip: true, showPolls: true, showSnap: false, snapRadiusM: 15 };
+  const pb = { t0: 0, t1: 0, t: 0, playing: false, speed: 10, raf: null, lastTs: 0 };
+  const drawCache = { n: { cloud: -1, lipi: -1 }, stale: { cloud: null, lipi: null }, wrongF: { cloud: null, lipi: null }, evtN: -1, remoteN: "" };
+  let walkerMarker = null, walkerZ = null;
+  const charts = {};       // key → {setCursor(t)}
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Boot
+  // ──────────────────────────────────────────────────────────────────────
+  window.addEventListener("load", async () => {
+    wireUi();
+    if (window.Mazemap) {
+      Mazemap.Config.setMazemapViewToken(MAP_TOKEN);
+      map = new Mazemap.Map({ container: "map", campuses: CAMPUS_ID, zoom: 18, center: [170.508292, -45.872428] });
+      await new Promise(r => map.on("load", r));
+      mapReady = true;
+      ensureLayers();
+      currentZLevel = getMapZLevel() ?? 1;
+      startZWatch();
+      if (session) paintAll();
+    }
+    // ?src=<url> overrides the selector; otherwise load the chosen bundled capture.
+    const qs = new URLSearchParams(location.search);
+    const src = qs.get("src");
+    if (src) await fetchAndLoad(src);
+    else {
+      const requestedMode = qs.get("mode");
+      await loadBundled(DATASETS[requestedMode] ? requestedMode : DEFAULT_MODE);
+    }
+  });
+
+  function wireUi() {
+    document.getElementById("fileIn").addEventListener("change", function () {
+      const f = this.files?.[0]; if (!f) return;
+      f.text().then(t => loadData(JSON.parse(t), f.name))
+        .catch(err => setMeta(`Load failed: ${err.message}`, true));
+      this.value = "";
+    });
+    // drag & drop anywhere
+    let dragDepth = 0;
+    window.addEventListener("dragenter", e => { e.preventDefault(); dragDepth++; document.getElementById("dropOverlay").classList.add("on"); });
+    window.addEventListener("dragover", e => e.preventDefault());
+    window.addEventListener("dragleave", () => { if (--dragDepth <= 0) { dragDepth = 0; document.getElementById("dropOverlay").classList.remove("on"); } });
+    window.addEventListener("drop", e => {
+      e.preventDefault(); dragDepth = 0; document.getElementById("dropOverlay").classList.remove("on");
+      const f = e.dataTransfer?.files?.[0]; if (!f) return;
+      f.text().then(t => loadData(JSON.parse(t), f.name))
+        .catch(err => setMeta(`Load failed: ${err.message}`, true));
+    });
+
+    document.getElementById("selDataset").addEventListener("change", function () { loadBundled(this.value); });
+
+    document.getElementById("btnPlay").addEventListener("click", togglePlay);
+    document.getElementById("btnPrev").addEventListener("click", () => stepEvent(-1));
+    document.getElementById("btnNext").addEventListener("click", () => stepEvent(1));
+    document.getElementById("selSpeed").addEventListener("change", function () { pb.speed = Number(this.value); });
+    document.getElementById("chkFollow").addEventListener("change", function () { ui.follow = this.checked; });
+    document.getElementById("chkBlip").addEventListener("change", function () { ui.showBlip = this.checked; if (mapReady) drawBlip(pb.t); });
+    document.getElementById("chkPolls").addEventListener("change", function () {
+      ui.showPolls = this.checked;
+      if (mapReady && session?.mode === "survey") drawPolls(pb.t, walkerAt(pb.t));
+    });
+    document.getElementById("chkSnap").addEventListener("change", function () {
+      ui.showSnap = this.checked;
+      document.getElementById("snapRadiusRow").classList.toggle("on", this.checked);
+      if (mapReady && session) drawSnap(pb.t);
+    });
+    document.getElementById("inSnapRadius").addEventListener("input", function () {
+      const v = Number(this.value);
+      ui.snapRadiusM = isFinite(v) && v > 0 ? Math.max(1, Math.min(100, v)) : 15;
+      if (mapReady && session) drawSnap(pb.t);
+    });
+    document.getElementById("scrub").addEventListener("input", function () {
+      if (!session) return;
+      seek(pb.t0 + (pb.t1 - pb.t0) * (this.value / 1000));
+    });
+    document.getElementById("selMethod").addEventListener("change", reanalyze);
+    document.getElementById("selWindow").addEventListener("change", reanalyze);
+    document.getElementById("btnCsv").addEventListener("click", exportAnalysisCsv);
+
+    window.addEventListener("keydown", e => {
+      if (!session) return;
+      const tag = (e.target.tagName || "").toLowerCase();
+      if (tag === "input" || tag === "select" || tag === "textarea") return;
+      if (e.code === "Space") { e.preventDefault(); togglePlay(); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); e.shiftKey ? seek(pb.t - 5000) : stepEvent(-1); }
+      else if (e.key === "ArrowRight") { e.preventDefault(); e.shiftKey ? seek(pb.t + 5000) : stepEvent(1); }
+    });
+
+    let rsT = null;
+    window.addEventListener("resize", () => { clearTimeout(rsT); rsT = setTimeout(() => { if (analysis) buildCharts(); }, 200); });
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Session loading & normalization (pure — no DOM/map)
+  // ──────────────────────────────────────────────────────────────────────
+  async function fetchAndLoad(src, mode) {
+    setMeta(`Loading ${src}…`);
+    try {
+      const r = await fetch(src);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      loadData(await r.json(), src.split("/").pop());
+      if (mode) document.getElementById("selDataset").value = mode;
+    } catch (err) { setMeta(`Could not fetch ${src}: ${err.message}`, true); }
+  }
+
+  function loadBundled(mode) {
+    mode = DATASETS[mode] ? mode : DEFAULT_MODE;
+    document.getElementById("selDataset").value = mode;
+    return fetchAndLoad(DATASETS[mode], mode);
+  }
+
+  function loadData(raw, label) {
+    if (Array.isArray(raw)) loadRemoteCapture(raw, label);
+    else loadSession(raw, label);
+  }
+
+  function normalizeSession(raw) {
+    if (!raw || raw.tool !== "route_survey") throw new Error('not a route_survey session (missing tool:"route_survey")');
+    if (!Array.isArray(raw.samples) || !Array.isArray(raw.events)) throw new Error("session has no samples/events arrays");
+
+    const events = [...raw.events].sort((a, b) => a.tMs - b.tMs);
+    // ground truth: last check-in per waypoint wins (undo/redo), ordered by time
+    const byWp = new Map();
+    events.filter(e => e.type === "checkin" && e.lat != null).forEach(e => byWp.set(e.wpId, e));
+    const checkins = [...byWp.values()].sort((a, b) => a.tMs - b.tMs)
+      .map(e => ({ tMs: e.tMs, lng: e.lng, lat: e.lat, z: Math.round(e.z ?? 1), name: e.wpName ?? "", seq: e.wpSeq ?? 0, kind: e.wpKind ?? "", legIdx: e.legIdx ?? -1, wpId: e.wpId }));
+
+    const samples = {}, failed = {};
+    for (const src of SOURCES) {
+      const all = raw.samples.filter(s => s.source === src);
+      failed[src] = all.filter(s => !(s.ok && s.data && s.data.latitude != null)).length;
+      samples[src] = all.filter(s => s.ok && s.data && s.data.latitude != null)
+        .map(s => ({
+          t: s.tRecvMs ?? s.tSentMs,                       // when we knew about it (receive)
+          tSent: s.tSentMs ?? s.tRecvMs,                   // when the poll request went out
+          fixT: s.data.lastSeen ?? s.tRecvMs ?? s.tSentMs, // when the fix was made
+          sig: s.data.lastSeen ?? `${s.data.latitude},${s.data.longitude},${s.data.zLevel}`,
+          lng: s.data.longitude, lat: s.data.latitude,
+          z: Math.round(s.data.zLevel ?? 1), rtt: s.rttMs,
+        }))
+        .sort((a, b) => a.t - b.t);
+      // freshT: when the position content last actually changed — responses can
+      // keep arriving (HTTP 200) while lastSeen/coords stay frozen
+      let prevSig = null, freshT = null;
+      for (const s of samples[src]) {
+        if (prevSig === null || s.sig !== prevSig) { freshT = s.fixT; prevSig = s.sig; }
+        s.freshT = freshT;
+      }
+    }
+
+    const times = [];
+    SOURCES.forEach(src => samples[src].forEach(s => times.push(s.t)));
+    events.forEach(e => times.push(e.tMs));
+    if (!times.length) throw new Error("no timestamped samples or events in file");
+    const t0 = Math.min(...times), t1 = Math.max(...times);
+
+    // global route polyline with cumulative distance — the walker moves along
+    // this (not point-to-point chords, which cut corners)
+    const path = [];
+    let cum = 0;
+    (raw.legs || []).forEach((leg, li) => {
+      (leg.coords || []).forEach(p => {
+        const last = path[path.length - 1];
+        const z = Math.round(p.z ?? 1);
+        if (last && Math.abs(last.lng - p.lng) < 1e-9 && Math.abs(last.lat - p.lat) < 1e-9 && last.z === z) return;
+        if (last) cum += haversine(last, p);
+        path.push({ lng: p.lng, lat: p.lat, z, s: cum, legIdx: li });
+      });
+    });
+    projectCheckinsOnPath(path, checkins);
+
+    // walker segments between consecutive check-ins, holding still during
+    // stop dwells (checkin→depart) and after early arrivals (arrive→checkin)
+    const segs = [];
+    for (let k = 0; k + 1 < checkins.length; k++) {
+      const a = checkins[k], b = checkins[k + 1];
+      let dep = null, arr = null;
+      for (const e of events) {
+        if (e.tMs <= a.tMs) continue;
+        if (e.tMs > b.tMs) break;
+        if (e.type === "depart" && dep === null) dep = e.tMs;
+        if (e.type === "arrive") arr = e.tMs;
+      }
+      let tS = dep ?? a.tMs;
+      if (arr != null && arr <= tS) arr = null;
+      let tE = arr ?? b.tMs;
+      if (!(tE > tS)) { tS = a.tMs; tE = b.tMs; }
+      segs.push({ t0: a.tMs, t1: b.tMs, tS, tE, a, b });
+    }
+
+    return {
+      mode: "survey",
+      meta: raw.meta || {}, stops: raw.stops || [], legs: raw.legs || [],
+      waypoints: raw.waypoints || [], events, checkins, segs, samples, failed, t0, t1,
+      path, pathLen: cum,
+      walkStart: events.find(e => e.type === "walk_start")?.tMs ?? null,
+      walkEnd: [...events].reverse().find(e => e.type === "walk_end")?.tMs ?? null,
+    };
+  }
+
+  function normalizeRemoteCapture(raw) {
+    if (!Array.isArray(raw)) throw new Error("remote capture must be a JSON array");
+    const valid = raw.map((r, index) => {
+      const d = r && r.data;
+      const t = Date.parse(r?.timeReceived || r?.timestamp || "");
+      if (!r?.deviceId || !d || d.latitude == null || d.longitude == null || !isFinite(t)) return null;
+      return {
+        index, deviceId: String(r.deviceId), deviceName: r.deviceName || r.deviceId,
+        t, tSent: Date.parse(r.timeSent || "") || t, fixT: Number(d.lastSeen) || t,
+        sig: d.lastSeen ?? `${d.latitude},${d.longitude},${d.zLevel}`,
+        lng: Number(d.longitude), lat: Number(d.latitude), z: Math.round(d.zLevel ?? 1),
+        confidence: Number(d.confidenceFactor), rtt: Number(r.serverRttMs), status: r.status,
+        locationName: d.locationName || "",
+      };
+    }).filter(Boolean).sort((a, b) => a.t - b.t);
+    if (!valid.length) throw new Error("remote capture has no valid device locations");
+
+    const groups = new Map();
+    for (const s of valid) {
+      if (!groups.has(s.deviceId)) groups.set(s.deviceId, []);
+      groups.get(s.deviceId).push(s);
+    }
+    const devices = [...groups.entries()].map(([id, samples], i) => {
+      let prevSig = null, freshT = null;
+      for (const s of samples) {
+        if (prevSig === null || s.sig !== prevSig) { freshT = s.fixT; prevSig = s.sig; }
+        s.freshT = freshT;
+      }
+      return { id, name: samples[0].deviceName, color: REMOTE_COLORS[i % REMOTE_COLORS.length], samples };
+    });
+    if (devices.length < 2) throw new Error("remote capture needs at least two devices");
+    const t0 = valid[0].t, t1 = valid[valid.length - 1].t;
+    return {
+      mode: "remote", devices, t0, t1,
+      events: valid.map(s => ({ tMs: s.t, type: "remote_position" })),
+      invalidCount: raw.length - valid.length, recordCount: raw.length,
+    };
+  }
+
+  // assign each check-in its distance along the route polyline (c.s), by
+  // projecting onto the check-in's own leg (falling back to the whole path),
+  // clamped monotonic so the walker never runs backwards
+  function projectCheckinsOnPath(path, checkins) {
+    if (path.length < 2) { checkins.forEach(c => c.s = null); return; }
+    const KX = 111320 * Math.cos(path[0].lat * Math.PI / 180), KY = 110540;
+    let prevS = 0;
+    for (const c of checkins) {
+      let best = null;
+      const scan = restrict => {
+        for (let i = 1; i < path.length; i++) {
+          const a = path[i - 1], b = path[i];
+          if (restrict && a.legIdx !== c.legIdx && b.legIdx !== c.legIdx) continue;
+          const ax = (a.lng - c.lng) * KX, ay = (a.lat - c.lat) * KY;
+          const dx = (b.lng - a.lng) * KX, dy = (b.lat - a.lat) * KY;
+          const len2 = dx * dx + dy * dy;
+          let t = len2 > 0 ? -(ax * dx + ay * dy) / len2 : 0;
+          t = Math.max(0, Math.min(1, t));
+          const px = ax + dx * t, py = ay + dy * t;
+          const d2 = px * px + py * py;
+          if (!best || d2 < best.d2) best = { d2, s: a.s + (b.s - a.s) * t };
+        }
+      };
+      scan(c.legIdx >= 0);
+      if (!best) scan(false);
+      if (best) { c.s = Math.max(prevS, best.s); c.projErrM = Math.sqrt(best.d2); prevS = c.s; }
+      else c.s = null;
+    }
+  }
+
+  function pathPointAt(s, sess = session) {
+    const path = sess.path;
+    if (!path || path.length < 2 || s == null) return null;
+    s = Math.max(0, Math.min(sess.pathLen, s));
+    let i = lowerBound(path, s, p => p.s);
+    if (i <= 0) i = 1;
+    if (i >= path.length) i = path.length - 1;
+    const a = path[i - 1], b = path[i];
+    const span = b.s - a.s;
+    const f = span > 1e-9 ? (s - a.s) / span : 0;
+    return { lng: a.lng + (b.lng - a.lng) * f, lat: a.lat + (b.lat - a.lat) * f, z: f < 0.5 ? a.z : b.z };
+  }
+
+  function loadSession(raw, label) {
+    let norm;
+    try { norm = normalizeSession(raw); }
+    catch (err) { setMeta(`${label || "file"}: ${err.message}`, true); return; }
+    session = norm; session.label = label || "";
+    document.getElementById("selDataset").value = "survey";
+    session.pollCycles = computePollCycles(norm);
+    if (raw.version !== 1) console.warn("route_player: unexpected session version", raw.version);
+    pb.t0 = norm.t0; pb.t1 = norm.t1; pb.t = norm.t0; pause();
+    drawCache.n = { cloud: -1, lipi: -1 }; drawCache.stale = { cloud: null, lipi: null };
+    drawCache.wrongF = { cloud: null, lipi: null }; drawCache.evtN = -1;
+
+    const m = norm.meta;
+    const durS = Math.round(((norm.walkEnd ?? norm.t1) - (norm.walkStart ?? norm.t0)) / 1000);
+    setMeta(`${m.routeName || "unnamed route"} · ${m.startedAt ? new Date(m.startedAt).toLocaleString() : "?"} · ${fmtDur(durS)} · ` +
+      SOURCES.filter(s => norm.samples[s].length || norm.failed[s]).map(s => `${SRC_META[s].name} ${norm.samples[s].length}`).join(" · ") +
+      ` · ${norm.checkins.length} check-ins`);
+
+    document.getElementById("transport").style.display = "block";
+    document.getElementById("remoteLiveCard").style.display = "none";
+    document.getElementById("liveCard").style.display = "block";
+    document.getElementById("emptyHint").style.display = "none";
+    document.getElementById("remoteRoot").style.display = "none";
+    document.getElementById("analysisRoot").style.display = "flex";
+    document.getElementById("floorBannerLabel").textContent = "Wrong floor";
+    document.getElementById("chkPolls").checked = ui.showPolls;
+    buildLiveRows();
+    reanalyze();
+    if (mapReady) paintAll();
+  }
+
+  function loadRemoteCapture(raw, label) {
+    let norm;
+    try { norm = normalizeRemoteCapture(raw); }
+    catch (err) { setMeta(`${label || "file"}: ${err.message}`, true); return; }
+    session = norm; session.label = label || ""; analysis = null;
+    drawCache.remoteN = "";
+    document.getElementById("selDataset").value = "remote";
+    pb.t0 = norm.t0; pb.t1 = norm.t1; pb.t = norm.t0; pause();
+
+    const durationS = (norm.t1 - norm.t0) / 1000;
+    setMeta(`${label || "remote capture"} · ${new Date(norm.t0).toLocaleString()} · ${fmtDur(durationS)} · ` +
+      norm.devices.map(d => `${d.name} ${d.samples.length}`).join(" · ") +
+      (norm.invalidCount ? ` · ${norm.invalidCount} skipped` : ""));
+
+    document.getElementById("transport").style.display = "block";
+    document.getElementById("liveCard").style.display = "none";
+    document.getElementById("remoteLiveCard").style.display = "block";
+    document.getElementById("emptyHint").style.display = "none";
+    document.getElementById("analysisRoot").style.display = "none";
+    document.getElementById("remoteRoot").style.display = "flex";
+    document.getElementById("floorBannerLabel").textContent = "Floor disagreement";
+    renderRemotePanel();
+    if (mapReady) paintAll();
+  }
+
+  function reanalyze() {
+    if (!session) return;
+    const windowS = Number(document.getElementById("selWindow").value);
+    analysis = analyzeSession(session, windowS);
+    renderMetaGrid(); renderCards(); buildCharts(); renderStalls(); renderTable();
+    if (mapReady) { drawStaleZones(); render(pb.t); }
+  }
+
+  function paintAll() {
+    ensureLayers();
+    clearPlaybackLayers();
+    if (session.mode === "remote") {
+      fitToRemoteCapture();
+      render(pb.t);
+      return;
+    }
+    redrawRoute(); drawStops(); drawStaleZones();
+    fitToRoute();
+    render(pb.t);
+  }
+
+  function clearPlaybackLayers() {
+    if (!map || !mapReady) return;
+    ["route-lines", "stale-zone", "stale-zone-pts", "cloud-trail", "lipi-trail", "cloud-pts", "lipi-pts",
+      "cloud-err", "lipi-err", "blip", "poll-span", "poll-req", "poll-recv", "wp-pts", "stop-pts",
+      "snap-link", "snap-halo", "snap-dot", "remote-trails", "remote-history", "remote-link", "remote-dots"].forEach(id => setSrc(id, []));
+    if (walkerMarker) { walkerMarker.remove(); walkerMarker = null; walkerZ = null; }
+    document.getElementById("staleBanner").style.display = "none";
+    document.getElementById("floorBanner").style.display = "none";
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Analysis (pure — no DOM/map)
+  // ──────────────────────────────────────────────────────────────────────
+  function analyzeSession(norm, windowS) {
+    const W = windowS * 1000, out = { windowS, perSource: {} };
+    for (const src of SOURCES) {
+      const fixes = [...norm.samples[src]].sort((a, b) => a.fixT - b.fixT);
+      const present = fixes.length > 0;
+      const rows = norm.checkins.map(c => {
+        const i = lowerBound(fixes, c.tMs, f => f.fixT);
+        const prev = fixes[i - 1] || null, next = fixes[i] || null;
+        let nearest = null;
+        for (const f of [prev, next]) {
+          if (!f) continue;
+          const dt = f.fixT - c.tMs;
+          if (Math.abs(dt) > W) continue;
+          if (!nearest || Math.abs(dt) < Math.abs(nearest.dtMs)) nearest = mkMatch(c, f.lng, f.lat, f.z, dt);
+        }
+        let interp = null;
+        if (prev && next && (c.tMs - prev.fixT) <= W && (next.fixT - c.tMs) <= W) {
+          const span = next.fixT - prev.fixT;
+          const f = span <= 0 ? 0 : (c.tMs - prev.fixT) / span;
+          interp = mkMatch(c, prev.lng + (next.lng - prev.lng) * f, prev.lat + (next.lat - prev.lat) * f,
+            (f < 0.5 ? prev.z : next.z), 0);
+        }
+        return { c, nearest, interp };
+      });
+
+      // stalls: runs where the position content never changed (same freshT)
+      // even though responses kept arriving
+      const stalls = [];
+      const byRecvOrder = norm.samples[src];
+      for (let i = 0; i < byRecvOrder.length;) {
+        let j = i;
+        while (j + 1 < byRecvOrder.length && byRecvOrder[j + 1].freshT === byRecvOrder[i].freshT) j++;
+        const maxAge = (byRecvOrder[j].t - byRecvOrder[i].freshT) / 1000;
+        if (maxAge >= STALE_BAD_S) {
+          const near = [...norm.checkins].reverse().find(c => c.tMs <= byRecvOrder[j].t);
+          stalls.push({ tSeek: byRecvOrder[i].t, startIso: new Date(byRecvOrder[i].freshT).toLocaleTimeString(),
+            tStopMs: byRecvOrder[i].freshT, tResumeMs: byRecvOrder[j + 1] ? byRecvOrder[j + 1].freshT : null,
+            maxAge, n: j - i + 1, z: byRecvOrder[i].z, near: near ? near.name : "" });
+        }
+        i = j + 1;
+      }
+
+      // coverage gaps between received fixes
+      const gapThresh = Math.max(3 * (norm.meta.intervalMs || 2000), 10000);
+      const gaps = [];
+      const byRecv = norm.samples[src];
+      for (let i = 1; i < byRecv.length; i++) {
+        const d = byRecv[i].t - byRecv[i - 1].t;
+        if (d > gapThresh) gaps.push({ tSeek: byRecv[i - 1].t, durS: d / 1000 });
+      }
+
+      // time spent showing the wrong floor while walking (sampled every 2 s):
+      // the fix may be perfectly fresh yet still lag on the previous floor
+      let wrongFloorS = 0, walkedS = 0;
+      if (norm.checkins.length && byRecvOrder.length) {
+        const step = 2000;
+        const tB = norm.checkins[norm.checkins.length - 1].tMs;
+        for (let t = norm.checkins[0].tMs; t <= tB; t += step) {
+          const w = walkerAt(t, norm);
+          if (!w) continue;
+          const i = lowerBound(byRecvOrder, t + 1, s => s.t) - 1;
+          if (i < 0) continue;
+          walkedS += step / 1000;
+          if (byRecvOrder[i].z !== w.z) wrongFloorS += step / 1000;
+        }
+      }
+
+      const rtts = byRecv.map(s => s.rtt).filter(v => v != null).sort((a, b) => a - b);
+      out.perSource[src] = {
+        present, rows, stalls, gaps, wrongFloorS, walkedS,
+        total: byRecv.length + norm.failed[src], okN: byRecv.length, failedN: norm.failed[src],
+        rtt: rtts.length ? { med: quantile(rtts, 0.5), p95: quantile(rtts, 0.95) } : null,
+        stats: { nearest: statsFor(rows, "nearest"), interp: statsFor(rows, "interp") },
+      };
+    }
+    return out;
+  }
+  function mkMatch(c, lng, lat, z, dtMs) {
+    return { errM: haversine(c, { lng, lat }), z, floorOk: z === c.z, dtMs };
+  }
+  function statsFor(rows, method) {
+    const ms = rows.map(r => r[method]).filter(Boolean);
+    const errs = ms.map(m => m.errM).sort((a, b) => a - b);
+    if (!errs.length) return { n: 0 };
+    return {
+      n: errs.length,
+      mean: errs.reduce((s, v) => s + v, 0) / errs.length,
+      med: quantile(errs, 0.5), p95: quantile(errs, 0.95), max: errs[errs.length - 1],
+      floorPct: 100 * ms.filter(m => m.floorOk).length / ms.length,
+    };
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Walker (animated baseline dot)
+  // ──────────────────────────────────────────────────────────────────────
+  function walkerAt(t, sess = session) {
+    const cs = sess.checkins;
+    if (!cs.length) return null;
+    const startT = sess.walkStart ?? cs[0].tMs;
+    if (t < startT) return null;
+    if (t <= cs[0].tMs) return { lng: cs[0].lng, lat: cs[0].lat, z: cs[0].z, s: cs[0].s, label: "at " + cs[0].name };
+    const last = cs[cs.length - 1];
+    if (t >= last.tMs) return { lng: last.lng, lat: last.lat, z: last.z, s: last.s, label: "at " + last.name };
+    const i = lowerBound(sess.segs, t, s => s.t1);        // first seg with t1 >= t
+    const s = sess.segs[Math.min(i, sess.segs.length - 1)];
+    const f = Math.max(0, Math.min(1, (t - s.tS) / Math.max(1, s.tE - s.tS)));
+    const label = f <= 0 ? "at " + s.a.name : f >= 1 ? "at " + s.b.name : "→ " + s.b.name;
+    if (s.a.s != null && s.b.s != null) {
+      // move along the actual route polyline, not the chord between check-ins
+      const sPos = s.a.s + (s.b.s - s.a.s) * f;
+      const p = pathPointAt(sPos, sess);
+      if (p) return { lng: p.lng, lat: p.lat, z: p.z, s: sPos, label };
+    }
+    return {
+      lng: s.a.lng + (s.b.lng - s.a.lng) * f,
+      lat: s.a.lat + (s.b.lat - s.a.lat) * f,
+      z: f < 0.5 ? s.a.z : s.b.z,
+      s: null, label,
+    };
+  }
+
+  function updateWalkerMarker(w) {
+    if (!w) { if (walkerMarker) { walkerMarker.remove(); walkerMarker = null; walkerZ = null; } return; }
+    if (walkerMarker && w.z === walkerZ) { walkerMarker.setLngLat({ lng: w.lng, lat: w.lat }); return; }
+    if (walkerMarker) walkerMarker.remove();
+    walkerMarker = new Mazemap.MazeMarker({
+      color: WP_DONE, size: 28, innerCircle: true, innerCircleColor: "#fff", innerCircleScale: 0.5, zLevel: w.z,
+    }).setLngLat({ lng: w.lng, lat: w.lat }).addTo(map);
+    walkerZ = w.z;
+    if (ui.follow) setMapZLevel(w.z);
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Playback engine
+  // ──────────────────────────────────────────────────────────────────────
+  function togglePlay() { pb.playing ? pause() : play(); }
+  function play() {
+    if (!session) return;
+    if (pb.t >= pb.t1) pb.t = pb.t0;
+    pb.playing = true; pb.lastTs = 0;
+    document.getElementById("btnPlay").textContent = "❚❚";
+    pb.raf = requestAnimationFrame(tick);
+  }
+  function pause() {
+    pb.playing = false;
+    cancelAnimationFrame(pb.raf);
+    const b = document.getElementById("btnPlay"); if (b) b.textContent = "▶";
+  }
+  function tick(ts) {
+    if (!pb.playing) return;
+    if (pb.lastTs) pb.t += (ts - pb.lastTs) * pb.speed;
+    pb.lastTs = ts;
+    if (pb.t >= pb.t1) { pb.t = pb.t1; render(pb.t); pause(); return; }
+    render(pb.t);
+    pb.raf = requestAnimationFrame(tick);
+  }
+  function seek(t) {
+    pb.t = Math.max(pb.t0, Math.min(pb.t1, t));
+    render(pb.t);
+  }
+  function stepEvent(dir) {
+    const ts = session.events.map(e => e.tMs);
+    const t = dir > 0 ? ts.find(v => v > pb.t + 1) : [...ts].reverse().find(v => v < pb.t - 1);
+    seek(t ?? (dir > 0 ? pb.t1 : pb.t0));
+  }
+
+  function render(t) {
+    if (!session) return;
+    // transport readouts
+    document.getElementById("scrub").value = Math.round(((t - pb.t0) / Math.max(1, pb.t1 - pb.t0)) * 1000);
+    document.getElementById("timeClock").textContent = new Date(t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    document.getElementById("timeElapsed").textContent = `+${fmtDur((t - pb.t0) / 1000)} / ${fmtDur((pb.t1 - pb.t0) / 1000)}`;
+
+    if (session.mode === "remote") {
+      renderRemoteCapture(t);
+      return;
+    }
+
+    const w = walkerAt(t);
+    if (mapReady) {
+      drawTrailsUpTo(t, w);
+      drawWaypointStates(t);
+      updateWalkerMarker(w);
+      drawErrLines(t, w);
+      drawBlip(t);
+      drawPolls(t, w);
+      drawSnap(t);
+      if (ui.follow && w) keepInView(w);
+    }
+    updateLive(t, w);
+    for (const k in charts) charts[k].setCursor(t);
+  }
+
+  function latestRemoteFix(device, t) {
+    const i = lowerBound(device.samples, t + 1, s => s.t) - 1;
+    return i >= 0 ? device.samples[i] : null;
+  }
+
+  function renderRemoteCapture(t) {
+    const current = session.devices.map(device => ({ device, fix: latestRemoteFix(device, t) }));
+    if (mapReady) {
+      drawRemoteHistory(t);
+      const dots = current.filter(x => x.fix).map(({ device, fix }) => ({
+        type: "Feature", properties: { z: fix.z, color: device.color, name: device.name },
+        geometry: { type: "Point", coordinates: [fix.lng, fix.lat] },
+      }));
+      const pair = current.filter(x => x.fix).slice(0, 2);
+      const link = pair.length === 2 ? [{
+        type: "Feature", properties: { z: pair[0].fix.z },
+        geometry: { type: "LineString", coordinates: pair.map(x => [x.fix.lng, x.fix.lat]) },
+      }] : [];
+      setSrc("remote-link", link);
+      setSrc("remote-dots", dots);
+      if (ui.follow && pair[0]) {
+        setMapZLevel(pair[0].fix.z);
+        keepInView(pair[0].fix);
+      }
+    }
+    updateRemoteLive(current, t);
+  }
+
+  function drawRemoteHistory(t) {
+    const points = [], lines = [];
+    const counts = session.devices.map(device => lowerBound(device.samples, t + 1, s => s.t));
+    const cacheKey = counts.join(",");
+    if (cacheKey === drawCache.remoteN) return;
+    drawCache.remoteN = cacheKey;
+    session.devices.forEach((device, deviceIndex) => {
+      const n = counts[deviceIndex];
+      const fixes = device.samples.slice(0, n);
+      let previousPosition = null;
+      for (let i = 0; i < fixes.length; i++) {
+        const fix = fixes[i];
+        if (previousPosition && previousPosition.lng === fix.lng && previousPosition.lat === fix.lat && previousPosition.z === fix.z) continue;
+        points.push({ type: "Feature", properties: { z: fix.z, color: device.color },
+          geometry: { type: "Point", coordinates: [fix.lng, fix.lat] } });
+        if (previousPosition && (previousPosition.lng !== fix.lng || previousPosition.lat !== fix.lat)) {
+          lines.push({ type: "Feature", properties: { z: previousPosition.z, color: device.color },
+            geometry: { type: "LineString", coordinates: [[previousPosition.lng, previousPosition.lat], [fix.lng, fix.lat]] } });
+        }
+        previousPosition = fix;
+      }
+    });
+    setSrc("remote-trails", lines);
+    setSrc("remote-history", points);
+  }
+
+  function updateRemoteLive(current, t) {
+    const host = document.getElementById("remoteDeviceRows");
+    host.textContent = "";
+    let worst = null;
+    for (const { device, fix } of current) {
+      const row = document.createElement("div"); row.className = "remote-live-row";
+      const sw = document.createElement("span"); sw.className = "sw"; sw.style.background = device.color;
+      const name = document.createElement("span"); name.className = "name"; name.textContent = device.name;
+      const floor = document.createElement("span"); floor.className = "floor"; floor.textContent = fix ? `L${fix.z}` : "—";
+      const age = document.createElement("span"); age.className = "age";
+      const ageS = fix ? Math.max(0, (t - fix.freshT) / 1000) : null;
+      age.textContent = fix ? (ageS >= STALE_BAD_S ? `${Math.round(ageS)} s ⚠` : `${Math.round(ageS)} s`) : "no fix";
+      age.className = "age" + (ageS >= STALE_BAD_S ? " bad" : ageS >= STALE_WARN_S ? " warn" : "");
+      if (ageS >= STALE_BAD_S && (!worst || ageS > worst.ageS)) worst = { device, ageS };
+      row.append(sw, name, floor, age); host.appendChild(row);
+    }
+    const pair = current.filter(x => x.fix).slice(0, 2);
+    const cap = document.getElementById("remoteDistance");
+    cap.textContent = pair.length === 2
+      ? `${pair[0].device.name} ↔ ${pair[1].device.name}: ${fmtM(haversine(pair[0].fix, pair[1].fix))} m` +
+        (pair[0].fix.z === pair[1].fix.z ? ` · floor L${pair[0].fix.z}` : ` · floors L${pair[0].fix.z} / L${pair[1].fix.z}`)
+      : "Waiting for both devices";
+
+    const stale = document.getElementById("staleBanner");
+    if (worst) {
+      document.getElementById("staleBannerAge").textContent = `· ${worst.device.name} ${Math.round(worst.ageS)} s`;
+      stale.style.display = "block";
+    } else stale.style.display = "none";
+
+    const floor = document.getElementById("floorBanner");
+    if (pair.length === 2 && pair[0].fix.z !== pair[1].fix.z) {
+      document.getElementById("floorBannerTxt").textContent =
+        `· ${pair[0].device.name} L${pair[0].fix.z} / ${pair[1].device.name} L${pair[1].fix.z}`;
+      floor.style.display = "block";
+    } else floor.style.display = "none";
+  }
+
+  function keepInView(w) {
+    try {
+      const b = map.getBounds();
+      const mLng = (b.getEast() - b.getWest()) * 0.15, mLat = (b.getNorth() - b.getSouth()) * 0.15;
+      if (w.lng < b.getWest() + mLng || w.lng > b.getEast() - mLng || w.lat < b.getSouth() + mLat || w.lat > b.getNorth() - mLat)
+        map.easeTo({ center: [w.lng, w.lat], duration: 400 });
+    } catch (_) {}
+  }
+
+  // latest ok fix received by time t → {fix, ageS since position last changed}
+  function latestFix(src, t) {
+    const arr = session.samples[src];
+    const i = lowerBound(arr, t + 1, s => s.t) - 1;   // last with .t <= t
+    if (i < 0) return null;
+    return { fix: arr[i], ageS: (t - arr[i].freshT) / 1000 };
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Live "device blip" — the ACTUAL cloud dot, 1:1: sits at the latest
+  // received fix and jumps when a new one lands. No colour cycling.
+  // ADDITIVE: independent of the latest-fix dot / trails / banners / zones.
+  // ──────────────────────────────────────────────────────────────────────
+  const BLIP_SRC = "cloud";                   // which source drives the blip
+
+  function blipStateAt(t) {
+    const arr = session.samples[BLIP_SRC];
+    if (!arr || !arr.length) return null;
+    const i = lowerBound(arr, t + 1, s => s.t) - 1;   // latest received ≤ t
+    if (i < 0) return null;
+    return { lng: arr[i].lng, lat: arr[i].lat, z: arr[i].z };
+  }
+
+  function drawBlip(t) {
+    if (!map || !mapReady) return;
+    const b = (ui.showBlip && session) ? blipStateAt(t) : null;
+    const feats = b ? [{ type: "Feature", properties: { z: b.z },
+      geometry: { type: "Point", coordinates: [b.lng, b.lat] } }] : [];
+    setSrc("blip", feats);
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Poll marks — the poll cycle pinned to the ROUTE: a hollow ring where the
+  // walker was when each cloud request went OUT (tSent), a filled dot where
+  // they'd got to when its response CAME BACK (tRecv), and the stretch of
+  // path walked while it was in flight. In-flight polls draw live (bigger
+  // ring + span growing to the walker); completed ones fade out over
+  // POLL_TRAIL_MS of playback time. ADDITIVE: independent of blip / trails /
+  // zones / banners.
+  // ──────────────────────────────────────────────────────────────────────
+  const POLL_SRC = "cloud";
+  const POLL_COLOR = CLOUD_COLOR;
+  const POLL_TRAIL_MS = 45000;   // how long a finished poll pair stays visible (playback ms)
+  const POLL_MIN_FADE = 0.25;    // opacity floor for the oldest visible pair
+
+  // Pure: pin every poll to the walker's distance-along-path at send/receive.
+  function computePollCycles(sess) {
+    const out = [];
+    for (const smp of sess.samples[POLL_SRC] || []) {
+      const wq = walkerAt(smp.tSent, sess);
+      if (!wq || wq.s == null) continue;             // sent before/after the walk
+      const wr = walkerAt(smp.t, sess);
+      out.push({ tSent: smp.tSent, tRecv: smp.t, sReq: wq.s, zReq: wq.z,
+        sRecv: wr && wr.s != null ? wr.s : null, zRecv: wr ? wr.z : null });
+    }
+    return out.sort((a, b) => a.tSent - b.tSent);
+  }
+
+  function drawPolls(t, w) {
+    if (!map || !mapReady) return;
+    const cycles = (ui.showPolls && session) ? (session.pollCycles || []) : [];
+    const req = [], recv = [], span = [];
+    const iEnd = lowerBound(cycles, t + 1, c => c.tSent);   // polls sent ≤ t
+    for (let i = iEnd - 1; i >= 0; i--) {
+      const c = cycles[i];
+      const live = t < c.tRecv;                             // still in flight at t
+      // lifetime anchors to COMPLETION: in-flight polls always draw, finished
+      // pairs fade for POLL_TRAIL_MS after their response landed (not send —
+      // a slow poll would otherwise pop or vanish mid-flight)
+      const doneAge = t - c.tRecv;
+      if (!live && doneAge > POLL_TRAIL_MS) continue;       // older cycles may still be in flight, keep scanning
+      const fade = live ? 1 : Math.max(POLL_MIN_FADE, 1 - doneAge / POLL_TRAIL_MS);
+      const pq = pathPointAt(c.sReq);
+      if (pq) req.push({ type: "Feature", properties: { z: c.zReq, fade, live },
+        geometry: { type: "Point", coordinates: [pq.lng, pq.lat] } });
+      const sEnd = live ? (w ? w.s : null) : c.sRecv;
+      if (sEnd != null) span.push(...pathLineFeats(c.sReq, sEnd, { fade, live }));
+      if (!live && c.sRecv != null) {
+        const pr = pathPointAt(c.sRecv);
+        if (pr) recv.push({ type: "Feature", properties: { z: c.zRecv, fade },
+          geometry: { type: "Point", coordinates: [pr.lng, pr.lat] } });
+      }
+    }
+    setSrc("poll-req", req); setSrc("poll-recv", recv); setSrc("poll-span", span);
+  }
+
+  // line features tracing the route polyline between two distances-along
+  function pathLineFeats(s0, s1, props) {
+    const a = Math.min(s0, s1), b = Math.max(s0, s1);
+    const pts = [pathPointAt(a), ...session.path.filter(p => p.s > a && p.s < b), pathPointAt(b)].filter(Boolean);
+    const feats = [];
+    for (let i = 1; i < pts.length; i++) {
+      if (pts[i - 1].lng === pts[i].lng && pts[i - 1].lat === pts[i].lat) continue;
+      feats.push({ type: "Feature", properties: { ...props, z: pts[i - 1].z },
+        geometry: { type: "LineString", coordinates: [[pts[i - 1].lng, pts[i - 1].lat], [pts[i].lng, pts[i].lat]] } });
+    }
+    return feats;
+  }
+  // opacity = per-feature fade × the usual z-level dimming
+  function pollFade(on, off) { return ["*", ["get", "fade"], zCaseNum(on, off)]; }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Snap to path (blue dot) — what a product front-end would show. Takes the
+  // latest RECEIVED cloud fix at t, draws the accuracy radius around the RAW
+  // cloud position, finds the nearest point of the route (same-floor
+  // segments preferred) and, if it lies within the radius, puts the blue
+  // dot snapped onto the path; if the path is out of reach the dot stays at
+  // the raw fix. ADDITIVE: own toggle, off by default.
+  // ──────────────────────────────────────────────────────────────────────
+  const SNAP_BLUE = "#1a73e8";
+  const SNAP_ACC_M = 3;   // fixed accuracy halo radius (metres) around the blue dot
+
+  // Pure: nearest point on the whole route polyline to lng/lat. Same segment
+  // projection math as projectCheckinsOnPath, but no leg restriction and no
+  // monotonic clamp — answers "where is the path closest RIGHT NOW".
+  function nearestPointOnPath(lng, lat, z, sess = session) {
+    const path = sess && sess.path;
+    if (!path || path.length < 2) return null;
+    const KX = 111320 * Math.cos(path[0].lat * Math.PI / 180), KY = 110540;
+    const scan = restrictZ => {
+      let best = null;
+      for (let i = 1; i < path.length; i++) {
+        const a = path[i - 1], b = path[i];
+        if (restrictZ && a.z !== z && b.z !== z) continue;
+        const ax = (a.lng - lng) * KX, ay = (a.lat - lat) * KY;
+        const dx = (b.lng - a.lng) * KX, dy = (b.lat - a.lat) * KY;
+        const len2 = dx * dx + dy * dy;
+        let f = len2 > 0 ? -(ax * dx + ay * dy) / len2 : 0;
+        f = Math.max(0, Math.min(1, f));
+        const px = ax + dx * f, py = ay + dy * f;
+        const d2 = px * px + py * py;
+        if (!best || d2 < best.d2) best = { d2, s: a.s + (b.s - a.s) * f };
+      }
+      return best;
+    };
+    const best = (z != null ? scan(true) : null) || scan(false);
+    if (!best) return null;
+    const p = pathPointAt(best.s, sess);
+    return p ? { lng: p.lng, lat: p.lat, z: p.z, s: best.s, distM: Math.sqrt(best.d2) } : null;
+  }
+
+  function drawSnap(t) {
+    if (!map || !mapReady) return;
+    const lf = (ui.showSnap && session) ? latestFix("cloud", t) : null;
+    if (!lf) { setSrc("snap-link", []); setSrc("snap-halo", []); setSrc("snap-dot", []); return; }
+    const fix = lf.fix;
+    // same-floor path point first; if that's out of radius, any-floor nearest
+    // still counts (the fix's floor may simply be lagging)
+    let near = nearestPointOnPath(fix.lng, fix.lat, fix.z);
+    if (!(near && near.distM <= ui.snapRadiusM)) {
+      const any = nearestPointOnPath(fix.lng, fix.lat, null);
+      if (any && any.distM <= ui.snapRadiusM) near = any;
+    }
+    const snapped = near && near.distM <= ui.snapRadiusM ? near : null;
+    const dot = snapped || fix;   // path out of reach → blue dot stays at the raw fix
+    setSrc("snap-link", snapped ? [{ type: "Feature", properties: { z: snapped.z },
+      geometry: { type: "LineString", coordinates: [[fix.lng, fix.lat], [snapped.lng, snapped.lat]] } }] : []);
+    // fixed 3 m accuracy halo, always around wherever the dot IS — the snapped
+    // path point when snapping, the raw fix when the path is out of reach —
+    // so snapped vs not-snapped reads at a glance
+    setSrc("snap-halo", [circleFeature(dot.lng, dot.lat, SNAP_ACC_M, { z: dot.z })]);
+    setSrc("snap-dot", [{ type: "Feature", properties: { z: dot.z, snapped: !!snapped },
+      geometry: { type: "Point", coordinates: [dot.lng, dot.lat] } }]);
+  }
+
+  // ~rM-metre circle polygon around lng/lat (GL circle-radius is px-only)
+  function circleFeature(lng, lat, rM, props) {
+    const KX = 111320 * Math.cos(lat * Math.PI / 180), KY = 110540;
+    const ring = [];
+    for (let i = 0; i <= 48; i++) {
+      const a = (i / 48) * 2 * Math.PI;
+      ring.push([lng + (Math.cos(a) * rM) / KX, lat + (Math.sin(a) * rM) / KY]);
+    }
+    return { type: "Feature", properties: props || {}, geometry: { type: "Polygon", coordinates: [ring] } };
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Live window
+  // ──────────────────────────────────────────────────────────────────────
+  function buildLiveRows() {
+    const host = document.getElementById("liveSrcRows");
+    host.textContent = "";
+    for (const src of SOURCES) {
+      if (!session.samples[src].length && !session.failed[src]) continue;
+      const row = document.createElement("div");
+      row.className = "live-row toggleable"; row.dataset.src = src;
+      row.title = "Click to show/hide this source";
+      const sw = document.createElement("span"); sw.className = "sw"; sw.style.background = SRC_META[src].color;
+      const nm = document.createElement("b"); nm.textContent = SRC_META[src].name;
+      const dist = document.createElement("span"); dist.className = "val"; dist.id = "lvDist-" + src; dist.textContent = "—";
+      const fl = document.createElement("span"); fl.className = "fl"; fl.id = "lvFl-" + src;
+      const age = document.createElement("span"); age.className = "age"; age.id = "lvAge-" + src; age.textContent = "—";
+      row.append(sw, nm, dist, fl, age);
+      row.addEventListener("click", () => {
+        ui.show[src] = !ui.show[src];
+        row.classList.toggle("off", !ui.show[src]);
+        applySourceVisibility();
+        buildCharts(); renderStalls();
+        if (mapReady) { drawStaleZones(); render(pb.t); }
+      });
+      host.appendChild(row);
+    }
+  }
+
+  function updateLive(t, w) {
+    document.getElementById("lvBaseName").textContent = w ? w.label : "not walking";
+    document.getElementById("lvBaseFl").textContent = w ? "L" + w.z : "—";
+    let worst = null;        // worst frozen visible source at t
+    let worstFloor = null;   // first visible source on the wrong floor at t
+    for (const src of SOURCES) {
+      const dEl = document.getElementById("lvDist-" + src);
+      if (!dEl) continue;
+      const flEl = document.getElementById("lvFl-" + src), aEl = document.getElementById("lvAge-" + src);
+      const lf = ui.show[src] ? latestFix(src, t) : null;
+      if (!lf) {
+        dEl.textContent = ui.show[src] ? "no fix" : "hidden";
+        flEl.textContent = ""; aEl.textContent = "—"; aEl.className = "age";
+        continue;
+      }
+      dEl.textContent = w ? fmtM(haversine(w, lf.fix)) + " m" : "—";
+      flEl.textContent = "";
+      const mismatch = w && lf.fix.z !== w.z;
+      const zSpan = document.createElement("span");
+      zSpan.textContent = "L" + lf.fix.z + " ";
+      const tick = document.createElement("span");
+      if (w) { tick.textContent = mismatch ? "✗" : "✓"; if (mismatch) { tick.className = "bad"; zSpan.className = "bad"; } }
+      flEl.append(zSpan, tick);
+      const a = lf.ageS;
+      aEl.textContent = a >= STALE_BAD_S ? `${Math.round(a)} s ⚠` : `${Math.round(a)} s`;
+      aEl.className = "age" + (a >= STALE_BAD_S ? " bad" : a >= STALE_WARN_S ? " warn" : "");
+      aEl.title = a >= STALE_BAD_S ? "Position content unchanged for " + Math.round(a) + " s (frozen)" : "Seconds since the position last changed";
+      if (a >= STALE_BAD_S && (!worst || a > worst.ageS)) worst = { src, ageS: a };
+      if (mismatch && !worstFloor) worstFloor = { src, fixZ: lf.fix.z, wZ: w.z };
+    }
+    const multi = SOURCES.filter(s => session.samples[s].length).length > 1;
+    // big red banner while the position is frozen
+    const bn = document.getElementById("staleBanner");
+    if (worst && w) {
+      document.getElementById("staleBannerAge").textContent =
+        (multi ? `· ${SRC_META[worst.src].name} ` : "· ") + `${Math.round(worst.ageS)} s`;
+      bn.style.display = "block";
+    } else bn.style.display = "none";
+    // orange banner while the dot is on the wrong floor (fresh or not)
+    const fb = document.getElementById("floorBanner");
+    if (worstFloor && w) {
+      document.getElementById("floorBannerTxt").textContent =
+        (multi ? `· ${SRC_META[worstFloor.src].name} ` : "· ") + `shows L${worstFloor.fixZ} — on L${worstFloor.wZ}`;
+      fb.style.display = "block";
+    } else fb.style.display = "none";
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Map layers & drawing (same patterns as route_survey.html)
+  // ──────────────────────────────────────────────────────────────────────
+  function ensureLayers() {
+    if (!map || !mapReady) return;
+    const mk = (id, type, paint, layout) => {
+      if (!map.getSource(id)) map.addSource(id, { type: "geojson", data: emptyFC() });
+      if (!map.getLayer(id + "-lyr")) map.addLayer({ id: id + "-lyr", type, source: id, paint, layout: layout || {} });
+    };
+    // Remote-capture mode: persistent Spaces history, latest fixes and live separation.
+    mk("remote-trails", "line", {
+      "line-width": 2.5, "line-color": zCase(["get", "color"]), "line-opacity": zCaseNum(0.9, 0.14),
+    }, { "line-join": "round", "line-cap": "round" });
+    mk("remote-history", "circle", {
+      "circle-radius": 4, "circle-color": zCase(["get", "color"]), "circle-opacity": zCaseNum(0.95, 0.22),
+      "circle-stroke-width": 1.5, "circle-stroke-color": "#ffffff", "circle-stroke-opacity": zCaseNum(0.85, 0.18),
+    });
+    mk("remote-link", "line", {
+      "line-width": 2.5, "line-color": zCase("#475467"), "line-opacity": zCaseNum(0.9, 0.18), "line-dasharray": [2, 2],
+    }, { "line-join": "round", "line-cap": "round" });
+    mk("remote-dots", "circle", {
+      "circle-radius": 10, "circle-color": zCase(["get", "color"]), "circle-opacity": zCaseNum(1, 0.28),
+      "circle-stroke-width": 3, "circle-stroke-color": "#ffffff", "circle-stroke-opacity": zCaseNum(1, 0.3),
+    });
+    mk("route-lines", "line",
+      { "line-width": 3, "line-color": zCase(ROUTE_COLOR), "line-opacity": zCaseNum(0.75, 0.15), "line-dasharray": [2, 2] },
+      { "line-join": "round", "line-cap": "round" });
+    if (!map.getLayer("route-active-lyr")) {
+      map.addLayer({
+        id: "route-active-lyr", type: "line", source: "route-lines",
+        layout: { "line-join": "round", "line-cap": "round" },
+        paint: { "line-width": 6, "line-color": zCase(WP_CURRENT), "line-opacity": zCaseNum(0.95, 0.2) },
+        filter: ["==", ["get", "legIdx"], -1],
+      });
+    }
+    // red wash over the path where positioning had stopped updating
+    mk("stale-zone", "line",
+      { "line-width": 7, "line-color": zCase(WP_SKIPPED), "line-opacity": zCaseNum(0.45, 0.1) },
+      { "line-join": "round", "line-cap": "round" });
+    mk("stale-zone-pts", "circle", {
+      "circle-radius": 10, "circle-color": zCase(WP_SKIPPED), "circle-opacity": zCaseNum(0.35, 0.08),
+      "circle-stroke-color": zCase(WP_SKIPPED), "circle-stroke-width": 2, "circle-stroke-opacity": zCaseNum(0.7, 0.12),
+    });
+    mk("cloud-trail", "line", { "line-width": 2.5, "line-color": zCase(CLOUD_COLOR), "line-opacity": zCaseNum(0.85, 0.15) });
+    mk("lipi-trail", "line", { "line-width": 2.5, "line-color": zCase(LIPI_COLOR), "line-opacity": zCaseNum(0.85, 0.15) });
+    mk("cloud-pts", "circle", trailPtPaint(CLOUD_COLOR));
+    mk("lipi-pts", "circle", trailPtPaint(LIPI_COLOR));
+    // dotted connector: latest fix → baseline walker (the live error, on-map)
+    mk("cloud-err", "line", { "line-width": 1.8, "line-color": errLineColor(CLOUD_COLOR), "line-opacity": zCaseNum(0.8, 0.15), "line-dasharray": [1, 2] });
+    mk("lipi-err", "line", { "line-width": 1.8, "line-color": errLineColor(LIPI_COLOR), "line-opacity": zCaseNum(0.8, 0.15), "line-dasharray": [1, 2] });
+    // live device blip: the actual cloud dot, plain
+    mk("blip", "circle", {
+      "circle-radius": 8, "circle-color": zCase(CLOUD_COLOR), "circle-opacity": zCaseNum(1, 0.3),
+      "circle-stroke-width": 2.5, "circle-stroke-color": "#ffffff", "circle-stroke-opacity": zCaseNum(1, 0.3),
+    });
+    // poll marks pinned to the route: span walked while in flight, hollow
+    // ring = request sent, filled dot = response received
+    mk("poll-span", "line",
+      { "line-width": ["case", ["==", ["get", "live"], true], 5, 3], "line-color": zCase(POLL_COLOR), "line-opacity": pollFade(0.55, 0.1) },
+      { "line-join": "round", "line-cap": "round" });
+    mk("poll-req", "circle", {
+      "circle-radius": ["case", ["==", ["get", "live"], true], 7, 5], "circle-color": "rgba(0,0,0,0)",
+      "circle-stroke-width": 2.5, "circle-stroke-color": zCase(POLL_COLOR), "circle-stroke-opacity": pollFade(0.95, 0.2),
+    });
+    mk("poll-recv", "circle", {
+      "circle-radius": 4.5, "circle-color": zCase(POLL_COLOR), "circle-opacity": pollFade(0.95, 0.2),
+      "circle-stroke-width": 1.5, "circle-stroke-color": "#ffffff", "circle-stroke-opacity": pollFade(0.95, 0.2),
+    });
+    mk("wp-pts", "circle", {
+      "circle-radius": ["case", ["==", ["get", "state"], "current"], 10, ["==", ["get", "kind"], "stop"], 8, 5.5],
+      "circle-color": ["match", ["get", "state"], "current", WP_CURRENT, "done", WP_DONE, "skipped", WP_SKIPPED, WP_PENDING],
+      "circle-opacity": zCaseNum(1, 0.25),
+      "circle-stroke-color": "#ffffff", "circle-stroke-width": 2, "circle-stroke-opacity": zCaseNum(1, 0.25),
+    });
+    mk("stop-pts", "circle", {
+      "circle-radius": 11, "circle-color": "rgba(0,0,0,0)",
+      "circle-stroke-color": zCase("#0f172a"), "circle-stroke-width": 2.5, "circle-stroke-opacity": zCaseNum(0.9, 0.2),
+    });
+    // snap-to-path blue dot — added LAST so it renders above everything:
+    // dotted link (raw fix → snapped point) + fixed 3 m halo + the dot
+    mk("snap-link", "line", { "line-width": 1.8, "line-color": zCase(SNAP_BLUE), "line-opacity": zCaseNum(0.8, 0.15), "line-dasharray": [1, 2] });
+    mk("snap-halo", "fill", { "fill-color": zCase(SNAP_BLUE), "fill-opacity": zCaseNum(0.2, 0.05), "fill-outline-color": zCase(SNAP_BLUE) });
+    mk("snap-dot", "circle", {
+      "circle-radius": 8, "circle-color": zCase(SNAP_BLUE), "circle-opacity": zCaseNum(1, 0.3),
+      "circle-stroke-width": 3, "circle-stroke-color": "#ffffff", "circle-stroke-opacity": zCaseNum(1, 0.3),
+    });
+    applySourceVisibility();
+  }
+  function trailPtPaint(color) {
+    return {
+      "circle-radius": ["case", ["==", ["get", "isLatest"], true], 8, 4],
+      "circle-color": zCase(color), "circle-opacity": zCaseNum(1, 0.25),
+      "circle-stroke-color": ptStroke(), "circle-stroke-width": ["case", ["==", ["get", "wrongFloor"], true], 3, 2],
+      "circle-stroke-opacity": ptStrokeOpacity(),
+    };
+  }
+  // the wrong-floor ring must stay loud even though the dot itself is dimmed
+  // to another floor — that dimming is exactly what would hide the problem
+  function ptStroke() { return ["case", ["==", ["get", "wrongFloor"], true], WRONG_FLOOR, ["==", ["get", "stale"], true], WP_SKIPPED, "#ffffff"]; }
+  function ptStrokeOpacity() { return ["case", ["==", ["get", "wrongFloor"], true], 1, zCaseNum(1, 0.25)]; }
+  function errLineColor(color) { return ["case", ["==", ["get", "wrongFloor"], true], WRONG_FLOOR, zCase(color)]; }
+  function zCase(color) { return ["case", ["==", ["get", "z"], currentZLevel], color, "#aaaaaa"]; }
+  function zCaseNum(on, off) { return ["case", ["==", ["get", "z"], currentZLevel], on, off]; }
+
+  function applyZStyling() {
+    if (!map || !mapReady) return;
+    ensureLayers();
+    const sets = [
+      ["remote-trails-lyr", "line-color", zCase(["get", "color"])], ["remote-trails-lyr", "line-opacity", zCaseNum(0.9, 0.14)],
+      ["remote-history-lyr", "circle-color", zCase(["get", "color"])], ["remote-history-lyr", "circle-opacity", zCaseNum(0.95, 0.22)], ["remote-history-lyr", "circle-stroke-opacity", zCaseNum(0.85, 0.18)],
+      ["remote-link-lyr", "line-color", zCase("#475467")], ["remote-link-lyr", "line-opacity", zCaseNum(0.9, 0.18)],
+      ["remote-dots-lyr", "circle-color", zCase(["get", "color"])], ["remote-dots-lyr", "circle-opacity", zCaseNum(1, 0.28)], ["remote-dots-lyr", "circle-stroke-opacity", zCaseNum(1, 0.3)],
+      ["route-lines-lyr", "line-color", zCase(ROUTE_COLOR)], ["route-lines-lyr", "line-opacity", zCaseNum(0.75, 0.15)],
+      ["route-active-lyr", "line-color", zCase(WP_CURRENT)], ["route-active-lyr", "line-opacity", zCaseNum(0.95, 0.2)],
+      ["stale-zone-lyr", "line-color", zCase(WP_SKIPPED)], ["stale-zone-lyr", "line-opacity", zCaseNum(0.45, 0.1)],
+      ["stale-zone-pts-lyr", "circle-color", zCase(WP_SKIPPED)], ["stale-zone-pts-lyr", "circle-opacity", zCaseNum(0.35, 0.08)],
+      ["stale-zone-pts-lyr", "circle-stroke-color", zCase(WP_SKIPPED)], ["stale-zone-pts-lyr", "circle-stroke-opacity", zCaseNum(0.7, 0.12)],
+      ["cloud-trail-lyr", "line-color", zCase(CLOUD_COLOR)], ["cloud-trail-lyr", "line-opacity", zCaseNum(0.85, 0.15)],
+      ["lipi-trail-lyr", "line-color", zCase(LIPI_COLOR)], ["lipi-trail-lyr", "line-opacity", zCaseNum(0.85, 0.15)],
+      ["cloud-pts-lyr", "circle-color", zCase(CLOUD_COLOR)], ["cloud-pts-lyr", "circle-opacity", zCaseNum(1, 0.25)], ["cloud-pts-lyr", "circle-stroke-opacity", ptStrokeOpacity()],
+      ["lipi-pts-lyr", "circle-color", zCase(LIPI_COLOR)], ["lipi-pts-lyr", "circle-opacity", zCaseNum(1, 0.25)], ["lipi-pts-lyr", "circle-stroke-opacity", ptStrokeOpacity()],
+      ["cloud-err-lyr", "line-color", errLineColor(CLOUD_COLOR)], ["cloud-err-lyr", "line-opacity", zCaseNum(0.8, 0.15)],
+      ["lipi-err-lyr", "line-color", errLineColor(LIPI_COLOR)], ["lipi-err-lyr", "line-opacity", zCaseNum(0.8, 0.15)],
+      ["blip-lyr", "circle-color", zCase(CLOUD_COLOR)], ["blip-lyr", "circle-opacity", zCaseNum(1, 0.3)], ["blip-lyr", "circle-stroke-opacity", zCaseNum(1, 0.3)],
+      ["poll-span-lyr", "line-color", zCase(POLL_COLOR)], ["poll-span-lyr", "line-opacity", pollFade(0.55, 0.1)],
+      ["poll-req-lyr", "circle-stroke-color", zCase(POLL_COLOR)], ["poll-req-lyr", "circle-stroke-opacity", pollFade(0.95, 0.2)],
+      ["poll-recv-lyr", "circle-color", zCase(POLL_COLOR)], ["poll-recv-lyr", "circle-opacity", pollFade(0.95, 0.2)], ["poll-recv-lyr", "circle-stroke-opacity", pollFade(0.95, 0.2)],
+      ["snap-link-lyr", "line-color", zCase(SNAP_BLUE)], ["snap-link-lyr", "line-opacity", zCaseNum(0.8, 0.15)],
+      ["snap-halo-lyr", "fill-color", zCase(SNAP_BLUE)], ["snap-halo-lyr", "fill-opacity", zCaseNum(0.2, 0.05)], ["snap-halo-lyr", "fill-outline-color", zCase(SNAP_BLUE)],
+      ["snap-dot-lyr", "circle-color", zCase(SNAP_BLUE)], ["snap-dot-lyr", "circle-opacity", zCaseNum(1, 0.3)], ["snap-dot-lyr", "circle-stroke-opacity", zCaseNum(1, 0.3)],
+      ["wp-pts-lyr", "circle-opacity", zCaseNum(1, 0.25)], ["wp-pts-lyr", "circle-stroke-opacity", zCaseNum(1, 0.25)],
+      ["stop-pts-lyr", "circle-stroke-color", zCase("#0f172a")], ["stop-pts-lyr", "circle-stroke-opacity", zCaseNum(0.9, 0.2)],
+    ];
+    sets.forEach(([lyr, prop, val]) => { try { if (map.getLayer(lyr)) map.setPaintProperty(lyr, prop, val); } catch (_) {} });
+  }
+
+  function applySourceVisibility() {
+    if (!map || !mapReady) return;
+    for (const src of SOURCES) {
+      const vis = ui.show[src] ? "visible" : "none";
+      [src + "-trail-lyr", src + "-pts-lyr", src + "-err-lyr"].forEach(id => {
+        try { if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", vis); } catch (_) {}
+      });
+    }
+  }
+
+  function setSrc(id, features) { map.getSource(id)?.setData({ type: "FeatureCollection", features }); }
+
+  function redrawRoute() {
+    const features = [];
+    session.legs.forEach((leg, li) => {
+      const pts = leg.coords || [];
+      for (let i = 1; i < pts.length; i++) {
+        features.push({ type: "Feature", properties: { z: pts[i - 1].z, legIdx: li },
+          geometry: { type: "LineString", coordinates: [[pts[i - 1].lng, pts[i - 1].lat], [pts[i].lng, pts[i].lat]] } });
+      }
+    });
+    setSrc("route-lines", features);
+  }
+
+  function drawStops() {
+    setSrc("stop-pts", session.stops.map(s => ({ type: "Feature", properties: { z: s.z }, geometry: { type: "Point", coordinates: [s.lng, s.lat] } })));
+  }
+
+  function drawWaypointStates(t) {
+    // count events ≤ t; only rebuild when it changes
+    const n = lowerBound(session.events, t + 1, e => e.tMs);
+    if (n === drawCache.evtN) return;
+    drawCache.evtN = n;
+    const wps = session.waypoints.map(w => ({ ...w, state: "pending" }));
+    let lastDone = -1;
+    for (let i = 0; i < n; i++) {
+      const e = session.events[i];
+      if (e.type === "checkin" || e.type === "skip") {
+        const w = wps.find(x => x.id === e.wpId);
+        if (w) { w.state = e.type === "checkin" ? "done" : "skipped"; lastDone = Math.max(lastDone, w.seq); }
+      }
+    }
+    if (lastDone + 1 < wps.length && lastDone >= 0) wps[lastDone + 1].state = "current";
+    else if (lastDone === -1 && wps.length && session.walkStart != null && session.walkStart <= t) wps[0].state = "current";
+    setSrc("wp-pts", wps.map(w => ({ type: "Feature", properties: { z: w.z, state: w.state, kind: w.kind }, geometry: { type: "Point", coordinates: [w.lng, w.lat] } })));
+    const cur = wps.find(w => w.state === "current");
+    try { map.setFilter("route-active-lyr", ["==", ["get", "legIdx"], cur ? cur.legIdx : -1]); } catch (_) {}
+  }
+
+  function drawTrailsUpTo(t, w) {
+    for (const src of SOURCES) {
+      const arr = session.samples[src];
+      const n = lowerBound(arr, t + 1, s => s.t);
+      const lf = n > 0 ? arr[n - 1] : null;
+      const stale = lf ? (t - lf.freshT) / 1000 >= STALE_BAD_S : false;
+      const wrongFloor = !!(lf && w && lf.z !== w.z);
+      if (n === drawCache.n[src] && stale === drawCache.stale[src] && wrongFloor === drawCache.wrongF[src]) continue;
+      drawCache.n[src] = n; drawCache.stale[src] = stale; drawCache.wrongF[src] = wrongFloor;
+      const fixes = arr.slice(0, n);
+      const lines = [];
+      for (let i = 1; i < fixes.length; i++) {
+        lines.push({ type: "Feature", properties: { z: fixes[i - 1].z },
+          geometry: { type: "LineString", coordinates: [[fixes[i - 1].lng, fixes[i - 1].lat], [fixes[i].lng, fixes[i].lat]] } });
+      }
+      const pts = fixes.map((s, i) => ({ type: "Feature",
+        properties: { z: s.z, isLatest: i === fixes.length - 1,
+          stale: i === fixes.length - 1 && stale, wrongFloor: i === fixes.length - 1 && wrongFloor },
+        geometry: { type: "Point", coordinates: [s.lng, s.lat] } }));
+      setSrc(src + "-trail", lines);
+      setSrc(src + "-pts", pts);
+    }
+  }
+
+  // merged distance-along-path intervals where a visible source's position was
+  // frozen: from the moment it stopped changing until it changed again
+  function computeStaleZones(sess, ana, show) {
+    const cs = sess.checkins;
+    if (!ana || !cs.length || !sess.path || sess.path.length < 2) return [];
+    const tMin = cs[0].tMs, tMax = cs[cs.length - 1].tMs;
+    const ivs = [];
+    for (const src of SOURCES) {
+      if (!show[src]) continue;
+      for (const st of ana.perSource[src].stalls) {
+        const a = Math.max(st.tStopMs, tMin);
+        const b = Math.min(st.tResumeMs ?? (sess.walkEnd ?? sess.t1), tMax);
+        if (b <= a) continue;
+        const sA = walkerAt(a, sess)?.s, sB = walkerAt(b, sess)?.s;
+        if (sA == null || sB == null) continue;
+        ivs.push([Math.min(sA, sB), Math.max(sA, sB)]);
+      }
+    }
+    ivs.sort((x, y) => x[0] - y[0]);
+    const merged = [];
+    for (const iv of ivs) {
+      const last = merged[merged.length - 1];
+      if (last && iv[0] <= last[1] + 0.5) last[1] = Math.max(last[1], iv[1]);
+      else merged.push([...iv]);
+    }
+    return merged;
+  }
+
+  function drawStaleZones() {
+    if (!map || !mapReady || !session) return;
+    ensureLayers();
+    const lineFeats = [], ptFeats = [];
+    for (const [s0, s1] of computeStaleZones(session, analysis, ui.show)) {
+      if (s1 - s0 < 3) {   // frozen while dwelling — mark the spot instead
+        const p = pathPointAt((s0 + s1) / 2);
+        if (p) ptFeats.push({ type: "Feature", properties: { z: p.z }, geometry: { type: "Point", coordinates: [p.lng, p.lat] } });
+        continue;
+      }
+      const pts = [pathPointAt(s0), ...session.path.filter(p => p.s > s0 && p.s < s1), pathPointAt(s1)].filter(Boolean);
+      for (let i = 1; i < pts.length; i++) {
+        const a = pts[i - 1], b = pts[i];
+        if (a.lng === b.lng && a.lat === b.lat) continue;
+        lineFeats.push({ type: "Feature", properties: { z: a.z },
+          geometry: { type: "LineString", coordinates: [[a.lng, a.lat], [b.lng, b.lat]] } });
+      }
+    }
+    setSrc("stale-zone", lineFeats);
+    setSrc("stale-zone-pts", ptFeats);
+  }
+
+  function drawErrLines(t, w) {
+    for (const src of SOURCES) {
+      const lf = ui.show[src] ? latestFix(src, t) : null;
+      const feats = (w && lf) ? [{ type: "Feature", properties: { z: w.z, wrongFloor: lf.fix.z !== w.z },
+        geometry: { type: "LineString", coordinates: [[lf.fix.lng, lf.fix.lat], [w.lng, w.lat]] } }] : [];
+      setSrc(src + "-err", feats);
+    }
+  }
+
+  function fitToRoute() {
+    let minLng = Infinity, minLat = Infinity, maxLng = -Infinity, maxLat = -Infinity;
+    const eat = p => { minLng = Math.min(minLng, p.lng); maxLng = Math.max(maxLng, p.lng); minLat = Math.min(minLat, p.lat); maxLat = Math.max(maxLat, p.lat); };
+    session.legs.forEach(l => (l.coords || []).forEach(eat));
+    session.stops.forEach(eat);
+    if (!isFinite(minLng)) return;
+    try { map.fitBounds([[minLng, minLat], [maxLng, maxLat]], { padding: 70, duration: 0 }); } catch (_) {}
+    const z = session.checkins[0]?.z ?? session.stops[0]?.z ?? 1;
+    setMapZLevel(z);
+  }
+
+  function fitToRemoteCapture() {
+    let minLng = Infinity, minLat = Infinity, maxLng = -Infinity, maxLat = -Infinity;
+    for (const device of session.devices) for (const p of device.samples) {
+      minLng = Math.min(minLng, p.lng); maxLng = Math.max(maxLng, p.lng);
+      minLat = Math.min(minLat, p.lat); maxLat = Math.max(maxLat, p.lat);
+    }
+    if (!isFinite(minLng)) return;
+    try { map.fitBounds([[minLng, minLat], [maxLng, maxLat]], { padding: 90, duration: 0, maxZoom: 20 }); } catch (_) {}
+    setMapZLevel(session.devices[0]?.samples[0]?.z ?? 1);
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Z-level plumbing
+  // ──────────────────────────────────────────────────────────────────────
+  function getMapZLevel() {
+    if (map && typeof map.getZLevel === "function") { try { return map.getZLevel(); } catch (_) {} }
+    if (map && typeof map.zLevel === "number") return map.zLevel;
+    return currentZLevel;
+  }
+  function setMapZLevel(z) {
+    if (!map) return;
+    if (typeof map.setZLevel === "function") map.setZLevel(z);
+    else if (typeof map.setZlevel === "function") map.setZlevel(z);
+  }
+  function startZWatch() {
+    clearInterval(zWatch);
+    zWatch = setInterval(() => {
+      const z = getMapZLevel();
+      if (z != null && z !== currentZLevel) { currentZLevel = z; applyZStyling(); }
+    }, 250);
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Panel: meta, summary cards, stalls, table
+  // ──────────────────────────────────────────────────────────────────────
+  function renderRemotePanel() {
+    const durationS = (session.t1 - session.t0) / 1000;
+    document.getElementById("remoteMetaGrid").innerHTML = [
+      ["Devices", session.devices.length], ["Records", session.recordCount], ["Duration", fmtDur(durationS)],
+      ["Started", new Date(session.t0).toLocaleTimeString()], ["Ended", new Date(session.t1).toLocaleTimeString()],
+      ["Floors", [...new Set(session.devices.flatMap(d => d.samples.map(s => s.z)))].sort((a, b) => a - b).map(z => "L" + z).join(", ")],
+    ].map(([k, v]) => `<div class="m-tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div></div>`).join("");
+
+    document.getElementById("remoteCards").innerHTML = session.devices.map(device => {
+      const rtts = device.samples.map(s => s.rtt).filter(isFinite).sort((a, b) => a - b);
+      const conf = device.samples.map(s => s.confidence).filter(isFinite).sort((a, b) => a - b);
+      const floors = [...new Set(device.samples.map(s => s.z))].sort((a, b) => a - b).map(z => "L" + z).join(", ");
+      return `<div class="card"><h4><span class="sw" style="background:${device.color}"></span>${esc(device.name)}</h4>` +
+        `<div class="kv"><span class="k">Device ID</span><span class="v">${esc(device.id)}</span></div>` +
+        `<div class="kv"><span class="k">Samples</span><span class="v">${device.samples.length}</span></div>` +
+        `<div class="kv"><span class="k">Floors</span><span class="v">${esc(floors)}</span></div>` +
+        `<div class="kv"><span class="k">Median RTT</span><span class="v">${rtts.length ? Math.round(quantile(rtts, 0.5)) + " ms" : "—"}</span></div>` +
+        `<div class="kv"><span class="k">Median confidence</span><span class="v">${conf.length ? fmtM(quantile(conf, 0.5)) : "—"}</span></div></div>`;
+    }).join("");
+  }
+
+  function renderMetaGrid() {
+    const m = session.meta;
+    const durS = ((session.walkEnd ?? session.t1) - (session.walkStart ?? session.t0)) / 1000;
+    const distM = session.legs.reduce((s, l) => s + (l.distanceM || 0), 0);
+    const tiles = [
+      ["Route", m.routeName || "—"],
+      ["Walked", m.startedAt ? new Date(m.startedAt).toLocaleDateString() + " " + new Date(m.startedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"],
+      ["Duration", fmtDur(durS)],
+      ["Distance", distM ? (distM / 1000).toFixed(2) + " km" : "—"],
+      ["Check-ins", `${session.checkins.length} / ${session.waypoints.length}`],
+      ["Poll every", m.intervalMs ? (m.intervalMs / 1000) + " s" : "—"],
+    ];
+    const host = document.getElementById("metaGrid");
+    host.innerHTML = tiles.map(([k, v]) => `<div class="m-tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div></div>`).join("");
+  }
+
+  function renderCards() {
+    const method = document.getElementById("selMethod").value;
+    const host = document.getElementById("cards");
+    host.innerHTML = "";
+    const inSession = SOURCES.filter(src => analysis.perSource[src].present || analysis.perSource[src].failedN);
+    host.style.gridTemplateColumns = inSession.length > 1 ? "1fr 1fr" : "1fr";
+    for (const src of inSession) {
+      const a = analysis.perSource[src];
+      const sm = SRC_META[src];
+      const card = document.createElement("div"); card.className = "card";
+      let body;
+      {
+        const st = a.stats[method];
+        const kv = (k, v, bad) => `<div class="kv"><span class="k">${esc(k)}</span><span class="v${bad ? " bad" : ""}">${esc(v)}</span></div>`;
+        body =
+          kv("Samples", a.failedN ? `${a.okN} ok · ${a.failedN} failed` : `${a.okN}`) +
+          kv("Matched", `${st.n || 0} / ${session.checkins.length}`) +
+          (st.n ? kv("Err mean / med", `${fmtM(st.mean)} / ${fmtM(st.med)} m`) +
+                  kv("Err p95 / max", `${fmtM(st.p95)} / ${fmtM(st.max)} m`) +
+                  kv("Floor match", `${st.floorPct.toFixed(0)} %`, st.floorPct < 90)
+                : `<div class="none">no check-in matches in window</div>`) +
+          (a.walkedS ? kv("Wrong floor", `${fmtDur(a.wrongFloorS)} (${(100 * a.wrongFloorS / a.walkedS).toFixed(0)} %)`, a.wrongFloorS / a.walkedS >= 0.05) : "") +
+          (a.rtt ? kv("RTT med / p95", `${Math.round(a.rtt.med)} / ${Math.round(a.rtt.p95)} ms`) : "") +
+          kv("Frozen ≥" + STALE_BAD_S + " s", a.stalls.length ? `${a.stalls.length} · worst ${Math.round(Math.max(...a.stalls.map(s => s.maxAge)))} s` : "0", a.stalls.length > 0) +
+          kv("Poll gaps", a.gaps.length ? `${a.gaps.length} · worst ${Math.round(Math.max(...a.gaps.map(g => g.durS)))} s` : "0");
+      }
+      card.innerHTML = `<h4><span class="sw" style="background:${sm.color}"></span>${esc(sm.name)}</h4>` + body;
+      host.appendChild(card);
+    }
+  }
+
+  function renderStalls() {
+    const host = document.getElementById("stallList");
+    host.textContent = "";
+    const all = [];
+    for (const src of SOURCES) {
+      if (!ui.show[src]) continue;
+      analysis.perSource[src].stalls.forEach(s => all.push({ src, ...s }));
+    }
+    all.sort((a, b) => b.maxAge - a.maxAge);
+    document.getElementById("stallCap").textContent = ` · fix frozen ≥ ${STALE_BAD_S} s (likely AP coverage)`;
+    if (!all.length) { host.innerHTML = `<div class="hint">None — position kept updating throughout.</div>`; return; }
+    for (const s of all) {
+      const div = document.createElement("div");
+      div.className = "stall";
+      div.title = "Click to jump playback there";
+      div.innerHTML = `<span class="sw" style="width:8px;height:8px;border-radius:50%;background:${SRC_META[s.src].color};align-self:center;flex-shrink:0;"></span>` +
+        `<span class="tt">${esc(s.startIso)}</span><b>${Math.round(s.maxAge)} s</b>` +
+        `<span class="where">L${esc(s.z)} · near ${esc(s.near || "?")} · ${s.n} polls</span>`;
+      div.addEventListener("click", () => seek(s.tSeek));
+      host.appendChild(div);
+    }
+  }
+
+  function renderTable() {
+    const method = document.getElementById("selMethod").value;
+    const present = SOURCES.filter(src => analysis.perSource[src].present);
+    const tbl = document.getElementById("ckTable");
+    let html = `<tr><th class="l">#</th><th class="l">Point</th><th>Fl</th><th>Time</th>` +
+      present.map(src => `<th title="${esc(SRC_META[src].name)} error (${method})">${esc(SRC_META[src].name)} m</th><th>Fl</th><th>Δt s</th>`).join("") + `</tr>`;
+    session.checkins.forEach((c, ci) => {
+      let row = `<tr class="rowck" data-t="${c.tMs}"><td class="l">${c.seq + 1}</td>` +
+        `<td class="nm" title="${esc(c.name)}">${esc(c.name)}</td><td>${c.z}</td>` +
+        `<td>${new Date(c.tMs).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</td>`;
+      for (const src of present) {
+        const r = analysis.perSource[src].rows[ci];
+        const m = r[method], other = r[method === "nearest" ? "interp" : "nearest"];
+        const tip = other ? `${method === "nearest" ? "interp" : "nearest"}: ${fmtM(other.errM)} m` : "";
+        if (!m) row += `<td title="no ${method} match in ±${analysis.windowS}s window">—</td><td></td><td></td>`;
+        else row += `<td class="${m.errM > 15 ? "hi" : ""}" title="${esc(tip)}">${fmtM(m.errM)}</td>` +
+          `<td>${m.floorOk ? `<span class="ok">✓</span>` : `<span class="bad">✗L${m.z}</span>`}</td>` +
+          `<td>${method === "interp" ? "·" : (m.dtMs / 1000).toFixed(1)}</td>`;
+      }
+      html += row + `</tr>`;
+    });
+    tbl.innerHTML = html;
+    tbl.querySelectorAll("tr.rowck").forEach(tr => tr.addEventListener("click", () => seek(Number(tr.dataset.t))));
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Charts — plain SVG, crosshair + tooltip, click to seek
+  // ──────────────────────────────────────────────────────────────────────
+  function buildCharts() {
+    if (!analysis) return;
+    const method = document.getElementById("selMethod").value;
+    document.getElementById("errUnit").textContent = `· m vs baseline · ${method} · ±${analysis.windowS} s`;
+    const vis = SOURCES.filter(src => ui.show[src] && analysis.perSource[src].present);
+
+    renderChart("chartErr", {
+      series: vis.map(src => ({
+        ...SRC_META[src],
+        pts: analysis.perSource[src].rows.filter(r => r[method]).map(r => ({ t: r.c.tMs, v: r[method].errM })),
+      })),
+      yFmt: v => fmtM(v), markers: true, thresholds: [],
+    });
+    renderChart("chartAge", {
+      series: vis.map(src => ({
+        ...SRC_META[src],
+        pts: session.samples[src].map(s => ({ t: s.t, v: Math.max(0, (s.t - s.freshT) / 1000) })),
+      })),
+      yFmt: v => String(Math.round(v)), markers: false,
+      thresholds: [{ v: STALE_BAD_S, label: "stale" }],
+    });
+  }
+
+  function renderChart(hostId, cfg) {
+    const host = document.getElementById(hostId);
+    host.textContent = "";
+    const W = Math.max(280, host.clientWidth || 400), H = 175;
+    const ml = 36, mr = 12, mt = 10, mb = 20;
+    const iw = W - ml - mr, ih = H - mt - mb;
+    const x0 = pb.t0, x1 = Math.max(pb.t1, x0 + 1);
+    const X = t => ml + ((t - x0) / (x1 - x0)) * iw;
+
+    let vMax = 1;
+    cfg.series.forEach(s => s.pts.forEach(p => { if (p.v > vMax) vMax = p.v; }));
+    cfg.thresholds.forEach(th => { if (th.v * 1.15 > vMax) vMax = th.v * 1.15; });
+    const yStep = niceStep(vMax / 4);
+    const yMax = Math.max(yStep, Math.ceil(vMax / yStep) * yStep);
+    const Y = v => mt + ih - (Math.min(v, yMax) / yMax) * ih;
+
+    const NS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("width", W); svg.setAttribute("height", H);
+    const el = (n, at) => { const e = document.createElementNS(NS, n); for (const k in at) e.setAttribute(k, at[k]); svg.appendChild(e); return e; };
+
+    // grid + y ticks (solid hairlines, recessive)
+    for (let v = 0; v <= yMax + 1e-9; v += yStep) {
+      el("line", { x1: ml, x2: W - mr, y1: Y(v), y2: Y(v), stroke: "#eef1f4", "stroke-width": 1 });
+      const tx = el("text", { x: ml - 5, y: Y(v) + 3, "text-anchor": "end", "font-size": 9.5, fill: "#98a2b3", style: "font-variant-numeric:tabular-nums" });
+      tx.textContent = cfg.yFmt(v);
+    }
+    // x ticks: elapsed minutes
+    const totalMin = (x1 - x0) / 60000;
+    const xStepMin = Math.max(1, niceStep(totalMin / 5));
+    for (let m = 0; m <= totalMin + 1e-9; m += xStepMin) {
+      const t = x0 + m * 60000;
+      el("line", { x1: X(t), x2: X(t), y1: mt + ih, y2: mt + ih + 3, stroke: "#cfd6df", "stroke-width": 1 });
+      const tx = el("text", { x: X(t), y: mt + ih + 13, "text-anchor": "middle", "font-size": 9.5, fill: "#98a2b3", style: "font-variant-numeric:tabular-nums" });
+      tx.textContent = Math.round(m) + "m";
+    }
+    // thresholds
+    cfg.thresholds.forEach(th => {
+      el("line", { x1: ml, x2: W - mr, y1: Y(th.v), y2: Y(th.v), stroke: WP_SKIPPED, "stroke-width": 1, "stroke-dasharray": "4 3", opacity: 0.65 });
+      const tx = el("text", { x: W - mr, y: Y(th.v) - 3, "text-anchor": "end", "font-size": 9, fill: "#b42318" });
+      tx.textContent = `${th.label} ≥${th.v}s`;
+    });
+
+    // series
+    cfg.series.forEach(s => {
+      if (!s.pts.length) return;
+      const d = s.pts.map((p, i) => `${i ? "L" : "M"}${X(p.t).toFixed(1)},${Y(p.v).toFixed(1)}`).join("");
+      const at = { d, fill: "none", stroke: s.color, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" };
+      if (s.dash) at["stroke-dasharray"] = s.dash;
+      el("path", at);
+      if (cfg.markers) s.pts.forEach(p => {
+        if (s.shape === "diamond")
+          el("rect", { x: X(p.t) - 3, y: Y(p.v) - 3, width: 6, height: 6, fill: s.color, stroke: "#fff", "stroke-width": 1.5, transform: `rotate(45 ${X(p.t)} ${Y(p.v)})` });
+        else
+          el("circle", { cx: X(p.t), cy: Y(p.v), r: 3, fill: s.color, stroke: "#fff", "stroke-width": 1.5 });
+      });
+    });
+
+    // playback cursor + crosshair
+    const cursor = el("line", { x1: X(pb.t), x2: X(pb.t), y1: mt, y2: mt + ih, stroke: WP_DONE, "stroke-width": 1.5, opacity: 0.85 });
+    const cross = el("line", { x1: 0, x2: 0, y1: mt, y2: mt + ih, stroke: "#94a3b8", "stroke-width": 1, opacity: 0, "pointer-events": "none" });
+    const hoverMarks = cfg.series.map(s => el("circle", { r: 4.5, fill: s.color, stroke: "#fff", "stroke-width": 2, opacity: 0 }));
+
+    const tip = document.createElement("div"); tip.className = "tip";
+    host.appendChild(svg); host.appendChild(tip);
+
+    const pxToT = px => x0 + ((Math.max(ml, Math.min(W - mr, px)) - ml) / iw) * (x1 - x0);
+    function nearestAt(t) {
+      return cfg.series.map(s => {
+        if (!s.pts.length) return null;
+        const i = lowerBound(s.pts, t, p => p.t);
+        const cand = [s.pts[i - 1], s.pts[i]].filter(Boolean);
+        cand.sort((a, b) => Math.abs(a.t - t) - Math.abs(b.t - t));
+        return { s, p: cand[0] };
+      }).filter(Boolean);
+    }
+    svg.addEventListener("pointermove", e => {
+      const t = pxToT(e.offsetX);
+      const near = nearestAt(t);
+      if (!near.length) return;
+      const snapT = near.reduce((best, n) => Math.abs(n.p.t - t) < Math.abs(best - t) ? n.p.t : best, near[0].p.t);
+      cross.setAttribute("x1", X(snapT)); cross.setAttribute("x2", X(snapT)); cross.setAttribute("opacity", 0.7);
+      tip.textContent = "";
+      const h = document.createElement("div"); h.className = "t-h";
+      h.textContent = new Date(snapT).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      tip.appendChild(h);
+      near.forEach((n, i) => {
+        const r = document.createElement("div"); r.className = "t-r";
+        const key = document.createElement("span"); key.className = "key"; key.style.borderTopColor = n.s.color;
+        if (n.s.dash) key.style.borderTopStyle = "dashed";
+        const val = document.createElement("b"); val.textContent = cfg.yFmt(n.p.v);
+        const nm = document.createElement("span"); nm.className = "nm"; nm.textContent = n.s.name;
+        r.append(key, val, nm); tip.appendChild(r);
+        hoverMarks[i].setAttribute("cx", X(n.p.t)); hoverMarks[i].setAttribute("cy", Y(n.p.v)); hoverMarks[i].setAttribute("opacity", 1);
+      });
+      tip.style.display = "block";
+      const tw = tip.offsetWidth;
+      tip.style.left = Math.min(W - tw - 4, Math.max(0, e.offsetX + 12)) + "px";
+      tip.style.top = Math.max(0, e.offsetY - 40) + "px";
+    });
+    svg.addEventListener("pointerleave", () => {
+      tip.style.display = "none"; cross.setAttribute("opacity", 0);
+      hoverMarks.forEach(m => m.setAttribute("opacity", 0));
+    });
+    svg.addEventListener("click", e => seek(pxToT(e.offsetX)));
+
+    charts[hostId] = { setCursor(t) { const x = X(Math.max(x0, Math.min(x1, t))); cursor.setAttribute("x1", x); cursor.setAttribute("x2", x); } };
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // CSV export of the analysis
+  // ──────────────────────────────────────────────────────────────────────
+  function exportAnalysisCsv() {
+    if (!analysis) return;
+    const present = SOURCES.filter(src => analysis.perSource[src].present);
+    const rows = [];
+    rows.push(["# route_player analysis"]);
+    rows.push(["# route", session.meta.routeName || ""]);
+    rows.push(["# session_exported", session.meta.exportedAt || ""]);
+    rows.push(["# match_window_s", analysis.windowS]);
+    rows.push([]);
+    const head = ["seq", "kind", "name", "leg", "floor", "time_iso", "t_ms"];
+    present.forEach(src => head.push(`${src}_nearest_err_m`, `${src}_nearest_dt_s`, `${src}_nearest_floor`, `${src}_nearest_floor_ok`, `${src}_interp_err_m`, `${src}_interp_floor_ok`));
+    rows.push(head);
+    session.checkins.forEach((c, ci) => {
+      const row = [c.seq + 1, c.kind, c.name, c.legIdx, c.z, new Date(c.tMs).toISOString(), c.tMs];
+      present.forEach(src => {
+        const r = analysis.perSource[src].rows[ci];
+        row.push(r.nearest ? r.nearest.errM.toFixed(2) : "", r.nearest ? (r.nearest.dtMs / 1000).toFixed(1) : "",
+          r.nearest ? r.nearest.z : "", r.nearest ? r.nearest.floorOk : "",
+          r.interp ? r.interp.errM.toFixed(2) : "", r.interp ? r.interp.floorOk : "");
+      });
+      rows.push(row);
+    });
+    rows.push([]);
+    rows.push(["# summary", "source", "samples_ok", "samples_failed", "matched", "err_mean_m", "err_med_m", "err_p95_m", "err_max_m", "floor_match_pct", "wrong_floor_s", "wrong_floor_pct", "rtt_med_ms", "stalls", "worst_stall_s", "gaps"]);
+    present.forEach(src => {
+      const a = analysis.perSource[src], st = a.stats.nearest;
+      rows.push(["", src, a.okN, a.failedN, st.n || 0,
+        st.n ? st.mean.toFixed(2) : "", st.n ? st.med.toFixed(2) : "", st.n ? st.p95.toFixed(2) : "", st.n ? st.max.toFixed(2) : "",
+        st.n ? st.floorPct.toFixed(1) : "",
+        Math.round(a.wrongFloorS), a.walkedS ? (100 * a.wrongFloorS / a.walkedS).toFixed(1) : "",
+        a.rtt ? Math.round(a.rtt.med) : "",
+        a.stalls.length, a.stalls.length ? Math.round(Math.max(...a.stalls.map(s => s.maxAge))) : "", a.gaps.length]);
+    });
+    rows.push([]);
+    rows.push(["# stalls", "source", "start_iso", "max_age_s", "polls", "floor", "near"]);
+    present.forEach(src => analysis.perSource[src].stalls.forEach(s =>
+      rows.push(["", src, s.startIso, Math.round(s.maxAge), s.n, s.z, s.near])));
+    const csv = rows.map(r => r.map(csvCell).join(",")).join("\n");
+    downloadFile(`route-player-analysis-${new Date().toISOString().replace(/[:.]/g, "-")}.csv`, csv, "text/csv");
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Utils
+  // ──────────────────────────────────────────────────────────────────────
+  function haversine(a, b) {
+    const R = 6371000, toRad = x => x * Math.PI / 180;
+    const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+  function lowerBound(arr, x, key) {   // first i with key(arr[i]) >= x
+    let lo = 0, hi = arr.length;
+    while (lo < hi) { const mid = (lo + hi) >> 1; if (key(arr[mid]) < x) lo = mid + 1; else hi = mid; }
+    return lo;
+  }
+  function quantile(sorted, q) {
+    if (!sorted.length) return 0;
+    const i = Math.min(sorted.length - 1, Math.max(0, Math.ceil(q * sorted.length) - 1));
+    return sorted[i];
+  }
+  function niceStep(x) {
+    if (!isFinite(x) || x <= 0) return 1;
+    const m = Math.pow(10, Math.floor(Math.log10(x)));
+    const f = x / m;
+    return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * m;
+  }
+  function fmtM(x) { return x < 10 ? x.toFixed(1) : String(Math.round(x)); }
+  function fmtDur(s) {
+    s = Math.max(0, Math.round(s));
+    const m = Math.floor(s / 60), sec = s % 60;
+    return `${m}:${String(sec).padStart(2, "0")}`;
+  }
+  function emptyFC() { return { type: "FeatureCollection", features: [] }; }
+  function esc(v) { return String(v ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;"); }
+  function csvCell(v) { return `"${String(v ?? "").replaceAll('"', '""')}"`; }
+  function downloadFile(filename, content, type) {
+    const blob = new Blob([content], { type });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+  function setMeta(text, isErr) {
+    const el = document.getElementById("metaLine");
+    el.textContent = text;
+    el.className = "meta" + (isErr ? " err" : "");
+  }
+</script>
+</body>
+</html>

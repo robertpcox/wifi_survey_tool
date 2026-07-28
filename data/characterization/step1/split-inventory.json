@@ -1,0 +1,437 @@
+{
+  "sourceSha256": "0fbcfa06e98ebf43c8b9f7ae259f2b6f5d7c6bd828cfc17db2864777d9405d63",
+  "legacyFunctionCount": 107,
+  "mappedFunctions": {
+    "addRouteStop": {
+      "path": "src/features/creator/route-editor.mjs",
+      "symbol": "addRouteStop"
+    },
+    "addStopFromInput": {
+      "path": "src/features/creator/creator.mjs",
+      "symbol": "addStopFromInput"
+    },
+    "advance": {
+      "path": "src/features/runner/walk-progress.mjs",
+      "symbol": "advance"
+    },
+    "alphaTag": {
+      "path": "src/domain/route-model.mjs",
+      "symbol": "alphaTag"
+    },
+    "appendPathFeatures": {
+      "path": "src/adapters/map/features.mjs",
+      "symbol": "appendPathFeatures"
+    },
+    "applyRouteData": {
+      "path": "src/features/creator/route-library.mjs",
+      "symbol": "applyRouteData"
+    },
+    "applyZStyling": {
+      "path": "src/adapters/map/layers.mjs",
+      "symbol": "applyZStyling"
+    },
+    "bearing": {
+      "path": "src/domain/checkpoints.mjs",
+      "symbol": "bearing"
+    },
+    "buildRoute": {
+      "path": "src/apps/route-survey/main.mjs",
+      "symbol": "buildRoute"
+    },
+    "buildSession": {
+      "path": "src/features/runner/runner.mjs",
+      "symbol": "buildSession"
+    },
+    "checkin": {
+      "path": "src/features/runner/capture-view.mjs",
+      "symbol": "checkin"
+    },
+    "chooseMapTarget": {
+      "path": "src/features/creator/creator.mjs",
+      "symbol": "chooseMapTarget"
+    },
+    "clearRouteForLoad": {
+      "path": "src/features/creator/route-editor.mjs",
+      "symbol": "clearRouteForLoad"
+    },
+    "clearSession": {
+      "path": "src/features/runner/runner.mjs",
+      "symbol": "clearSession"
+    },
+    "clearStops": {
+      "path": "src/features/creator/creator.mjs",
+      "symbol": "clearStops"
+    },
+    "closeTargetChoice": {
+      "path": "src/features/creator/creator-view.mjs",
+      "symbol": "closeTargetChoice"
+    },
+    "collapseMobileConfig": {
+      "path": "src/features/creator/creator-view.mjs",
+      "symbol": "collapseMobileConfig"
+    },
+    "csvCell": {
+      "path": "src/features/runner/session.mjs",
+      "symbol": "csvCell"
+    },
+    "deleteRoute": {
+      "path": "src/adapters/route-storage.mjs",
+      "symbol": "deleteRoute"
+    },
+    "depart": {
+      "path": "src/features/runner/walk-events.mjs",
+      "symbol": "depart"
+    },
+    "downloadFile": {
+      "path": "src/adapters/download.mjs",
+      "symbol": "downloadFile"
+    },
+    "drawStops": {
+      "path": "src/adapters/map/layers.mjs",
+      "symbol": "drawStops"
+    },
+    "drawStopsFrom": {
+      "path": "src/adapters/map/layers.mjs",
+      "symbol": "drawStops"
+    },
+    "drawTrails": {
+      "path": "src/adapters/map/layers.mjs",
+      "symbol": "drawTrails"
+    },
+    "drawWaypoints": {
+      "path": "src/adapters/map/layers.mjs",
+      "symbol": "drawWaypoints"
+    },
+    "emptyFC": {
+      "path": "src/adapters/map/features.mjs",
+      "symbol": "emptyFC"
+    },
+    "endWalk": {
+      "path": "src/features/runner/runner.mjs",
+      "symbol": "endWalk"
+    },
+    "ensureLayers": {
+      "path": "src/adapters/map/layers.mjs",
+      "symbol": "ensureLayers"
+    },
+    "enterPlayback": {
+      "path": "src/features/runner/playback.mjs",
+      "symbol": "enterPlayback"
+    },
+    "esc": {
+      "path": "src/features/creator/creator-view.mjs",
+      "symbol": "esc"
+    },
+    "exitPlayback": {
+      "path": "src/features/runner/playback.mjs",
+      "symbol": "exitPlayback"
+    },
+    "exportRoute": {
+      "path": "src/features/creator/creator.mjs",
+      "symbol": "exportRoute"
+    },
+    "exportSessionCsv": {
+      "path": "src/features/runner/runner.mjs",
+      "symbol": "exportSessionCsv"
+    },
+    "exportSessionJson": {
+      "path": "src/features/runner/runner.mjs",
+      "symbol": "exportSessionJson"
+    },
+    "extractPath": {
+      "path": "src/domain/route-path.mjs",
+      "symbol": "extractPath"
+    },
+    "fetchLegGeoJSON": {
+      "path": "src/adapters/map/routing.mjs",
+      "symbol": "fetchLegGeoJSON"
+    },
+    "fetchSource": {
+      "path": "src/adapters/positioning/sources.mjs",
+      "symbol": "fetchPositionSource"
+    },
+    "generateWaypoints": {
+      "path": "src/domain/checkpoints.mjs",
+      "symbol": "generateWaypoints"
+    },
+    "getMapZLevel": {
+      "path": "src/adapters/map/mazemap.mjs",
+      "symbol": "getMapZLevel"
+    },
+    "haversine": {
+      "path": "src/domain/checkpoints.mjs",
+      "symbol": "haversine"
+    },
+    "importRoute": {
+      "path": "src/features/creator/creator.mjs",
+      "symbol": "importRoute"
+    },
+    "importSession": {
+      "path": "src/features/runner/playback.mjs",
+      "symbol": "importSession"
+    },
+    "invalidateBuiltRoute": {
+      "path": "src/features/creator/route-editor.mjs",
+      "symbol": "invalidateBuiltRoute"
+    },
+    "lerp": {
+      "path": "src/domain/checkpoints.mjs",
+      "symbol": "lerp"
+    },
+    "loadRoute": {
+      "path": "src/features/creator/creator.mjs",
+      "symbol": "loadRoute"
+    },
+    "loadServerRouteManifest": {
+      "path": "src/adapters/route-storage.mjs",
+      "symbol": "loadServerRouteManifest"
+    },
+    "logEvent": {
+      "path": "src/features/runner/walk-progress.mjs",
+      "symbol": "logEvent"
+    },
+    "mkWaypoint": {
+      "path": "src/domain/checkpoints.mjs",
+      "symbol": "makeCheckpoint"
+    },
+    "moveStop": {
+      "path": "src/features/creator/creator-view.mjs",
+      "symbol": "moveStop"
+    },
+    "normalizeStop": {
+      "path": "src/domain/route-model.mjs",
+      "symbol": "normalizeStop"
+    },
+    "normalizeStops": {
+      "path": "src/domain/route-model.mjs",
+      "symbol": "normalizeStops"
+    },
+    "onMapClick": {
+      "path": "src/adapters/map/mazemap.mjs",
+      "symbol": "onMapClick"
+    },
+    "outdoorsStop": {
+      "path": "src/domain/stop-targets.mjs",
+      "symbol": "outdoorsStop"
+    },
+    "pathLength": {
+      "path": "src/domain/geometry.mjs",
+      "symbol": "pathLength"
+    },
+    "pbPause": {
+      "path": "src/features/runner/playback.mjs",
+      "symbol": "pause"
+    },
+    "pbPlay": {
+      "path": "src/features/runner/playback.mjs",
+      "symbol": "play"
+    },
+    "pbRender": {
+      "path": "src/features/runner/playback.mjs",
+      "symbol": "render"
+    },
+    "pbSeek": {
+      "path": "src/features/runner/playback.mjs",
+      "symbol": "pbSeek"
+    },
+    "pbTogglePlay": {
+      "path": "src/features/runner/playback.mjs",
+      "symbol": "pbTogglePlay"
+    },
+    "poiToStop": {
+      "path": "src/domain/stop-targets.mjs",
+      "symbol": "poiToStop"
+    },
+    "pointToStop": {
+      "path": "src/domain/stop-targets.mjs",
+      "symbol": "pointToStop"
+    },
+    "pollLoop": {
+      "path": "src/features/runner/polling.mjs",
+      "symbol": "pollLoop"
+    },
+    "pollOnce": {
+      "path": "src/features/runner/polling.mjs",
+      "symbol": "pollOnce"
+    },
+    "recentSourceFixes": {
+      "path": "src/adapters/map/features.mjs",
+      "symbol": "recentSourceFixes"
+    },
+    "redrawRoute": {
+      "path": "src/adapters/map/layers.mjs",
+      "symbol": "drawRoute"
+    },
+    "refreshSavedRoutes": {
+      "path": "src/features/creator/creator-view.mjs",
+      "symbol": "refreshSavedRoutes"
+    },
+    "removeStop": {
+      "path": "src/features/creator/creator-view.mjs",
+      "symbol": "removeStop"
+    },
+    "renderLog": {
+      "path": "src/features/runner/capture-view.mjs",
+      "symbol": "renderLog"
+    },
+    "renderStops": {
+      "path": "src/features/creator/creator-view.mjs",
+      "symbol": "renderStops"
+    },
+    "resizeMapSoon": {
+      "path": "src/adapters/map/mazemap.mjs",
+      "symbol": "resizeMapSoon"
+    },
+    "restorePrefs": {
+      "path": "src/adapters/preferences.mjs",
+      "symbol": "restorePrefs"
+    },
+    "routeDefinition": {
+      "path": "src/domain/route-model.mjs",
+      "symbol": "routeDefinition"
+    },
+    "routePoint": {
+      "path": "src/domain/route-path.mjs",
+      "symbol": "routePoint"
+    },
+    "routePointDistance": {
+      "path": "src/domain/route-path.mjs",
+      "symbol": "routePointDistance"
+    },
+    "routeWorker": {
+      "path": "src/features/creator/route-builder.mjs",
+      "symbol": "routeWorker"
+    },
+    "sameRoutePoint": {
+      "path": "src/domain/route-path.mjs",
+      "symbol": "sameRoutePoint"
+    },
+    "saveRoute": {
+      "path": "src/adapters/route-storage.mjs",
+      "symbol": "saveRoute"
+    },
+    "savedRouteMap": {
+      "path": "src/adapters/route-storage.mjs",
+      "symbol": "savedRouteMap"
+    },
+    "savedRouteStops": {
+      "path": "src/adapters/route-storage.mjs",
+      "symbol": "savedRouteStops"
+    },
+    "setActiveLeg": {
+      "path": "src/adapters/map/layers.mjs",
+      "symbol": "setActiveLeg"
+    },
+    "setCurrentWaypoint": {
+      "path": "src/features/runner/walk-progress.mjs",
+      "symbol": "setCurrentWaypoint"
+    },
+    "setMapZLevel": {
+      "path": "src/adapters/map/mazemap.mjs",
+      "symbol": "setMapZLevel"
+    },
+    "setRouteLoadBusy": {
+      "path": "src/features/creator/creator-view.mjs",
+      "symbol": "setRouteLoadBusy"
+    },
+    "setSrc": {
+      "path": "src/adapters/map/layers.mjs",
+      "symbol": "setSource"
+    },
+    "setStatus": {
+      "path": "src/apps/route-survey/app-ui.mjs",
+      "symbol": "setStatus"
+    },
+    "showLocationChoice": {
+      "path": "src/features/creator/creator-view.mjs",
+      "symbol": "showLocationChoice"
+    },
+    "showTab": {
+      "path": "src/apps/route-survey/app-ui.mjs",
+      "symbol": "showTab"
+    },
+    "showTargetChoice": {
+      "path": "src/features/creator/creator-view.mjs",
+      "symbol": "showTargetChoice"
+    },
+    "skipWaypoint": {
+      "path": "src/features/runner/runner.mjs",
+      "symbol": "skipWaypoint"
+    },
+    "sleep": {
+      "path": "src/features/creator/route-builder.mjs",
+      "symbol": "sleep"
+    },
+    "startPolling": {
+      "path": "src/features/runner/polling.mjs",
+      "symbol": "startPolling"
+    },
+    "startWalk": {
+      "path": "src/features/runner/walk.mjs",
+      "symbol": "startWalk"
+    },
+    "startZWatch": {
+      "path": "src/adapters/map/mazemap.mjs",
+      "symbol": "startZWatch"
+    },
+    "stopName": {
+      "path": "src/domain/checkpoints.mjs",
+      "symbol": "stopName"
+    },
+    "stopPolling": {
+      "path": "src/features/runner/playback.mjs",
+      "symbol": "stopPolling"
+    },
+    "stopTargetTitle": {
+      "path": "src/domain/stop-targets.mjs",
+      "symbol": "stopTargetTitle"
+    },
+    "tagOf": {
+      "path": "src/domain/stop-targets.mjs",
+      "symbol": "tagOf"
+    },
+    "trailPtPaint": {
+      "path": "src/adapters/map/layer-styles.mjs",
+      "symbol": "trailPoint"
+    },
+    "tsName": {
+      "path": "src/features/runner/runner.mjs",
+      "symbol": "tsName"
+    },
+    "undoCheckin": {
+      "path": "src/features/runner/runner.mjs",
+      "symbol": "undoCheckin"
+    },
+    "updateActiveLeg": {
+      "path": "src/features/runner/walk-view.mjs",
+      "symbol": "updateActiveLeg"
+    },
+    "updateLive": {
+      "path": "src/features/runner/capture-view.mjs",
+      "symbol": "updateLive"
+    },
+    "updateWalkCard": {
+      "path": "src/apps/route-survey/main.mjs",
+      "symbol": "updateWalkCard"
+    },
+    "updateWalkDist": {
+      "path": "src/features/runner/walk-view.mjs",
+      "symbol": "updateDistance"
+    },
+    "walkMainAction": {
+      "path": "src/features/runner/runner.mjs",
+      "symbol": "walkMainAction"
+    },
+    "zCase": {
+      "path": "src/adapters/map/layer-styles.mjs",
+      "symbol": "zCase"
+    },
+    "zCaseNum": {
+      "path": "src/adapters/map/layer-styles.mjs",
+      "symbol": "zCaseNum"
+    }
+  },
+  "legacyElementCount": 58,
+  "retainedElementCount": 58,
+  "legacyActionCount": 26
+}

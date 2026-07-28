@@ -1,0 +1,340 @@
+{
+  "provenance": "Minimal replay derived from the 2026-07-27 L00 capture.",
+  "fields": {
+    "clientIp": "10.132.184.59",
+    "configId": "1185",
+    "lipiUrl": "https://ndh-ob-public.mazepos.com/position",
+    "pollInterval": 2000,
+    "wpSpacing": 5
+  },
+  "sessionMeta": {
+    "startedAt": "2026-07-27T07:23:50.575Z",
+    "endedAt": "2026-07-27T08:07:49.081Z",
+    "routeName": "L00 Survey"
+  },
+  "stops": [
+    {
+      "label": "K01 Meeting Room 02",
+      "poiId": 1002660516,
+      "poiName": "K01 Meeting Room 02",
+      "locationType": "poi",
+      "lng": 170.5085299230571,
+      "lat": -45.872484127412974,
+      "z": 1,
+      "targetType": "point",
+      "poi": {
+        "id": 1002660516,
+        "label": "K01 Meeting Room 02",
+        "lng": 170.50855678020096,
+        "lat": -45.872476133047876,
+        "z": 1
+      },
+      "tag": "A"
+    },
+    {
+      "label": "K01 Children's Gym",
+      "poiId": 1002659934,
+      "poiName": "K01 Children's Gym",
+      "locationType": "poi",
+      "lng": 170.50836581583644,
+      "lat": -45.872440680344965,
+      "z": 1,
+      "targetType": "point",
+      "poi": {
+        "id": 1002659934,
+        "label": "K01 Children's Gym",
+        "lng": 170.50843741992628,
+        "lat": -45.87241434236625,
+        "z": 1
+      },
+      "tag": "B"
+    }
+  ],
+  "legs": [
+    {
+      "fromIdx": 0,
+      "toIdx": 1,
+      "mode": "route",
+      "geojson": {
+        "type": "FeatureCollection",
+        "features": [
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "LineString",
+              "coordinates": [
+                [
+                  170.50852992305704,
+                  -45.872484127412974
+                ],
+                [
+                  170.5085309,
+                  -45.8724844
+                ],
+                [
+                  170.5085633,
+                  -45.872426
+                ],
+                [
+                  170.5085482,
+                  -45.8724217
+                ],
+                [
+                  170.5085307,
+                  -45.8724167
+                ],
+                [
+                  170.5085076,
+                  -45.8724102
+                ],
+                [
+                  170.5084925,
+                  -45.8724058
+                ],
+                [
+                  170.5084801,
+                  -45.8724022
+                ],
+                [
+                  170.508465,
+                  -45.8724058
+                ],
+                [
+                  170.5084207,
+                  -45.8724216
+                ],
+                [
+                  170.5083664,
+                  -45.8724411
+                ],
+                [
+                  170.50836581583644,
+                  -45.872440680344965
+                ]
+              ]
+            },
+            "id": 7904484,
+            "properties": {
+              "m": 23.8,
+              "z": 1,
+              "buildingId": 1013513,
+              "target": 7842744,
+              "flags": [],
+              "travelMode": "PEDESTRIAN",
+              "travelType": "FOOT",
+              "transitInfo": null,
+              "source": "mazemap",
+              "timeEstimateSeconds": 30.226000000000003,
+              "startTime": null,
+              "endTime": null
+            }
+          }
+        ],
+        "properties": {
+          "pathMetrics": {
+            "durationWalkingMinutes": 0,
+            "durationDrivingMinutes": 0,
+            "durationCyclingMinutes": 0,
+            "distanceWalkingMeters": 24,
+            "distanceDrivingMeters": 0,
+            "distanceCyclingMeters": 0,
+            "durationEstimateSeconds": 30.226000000000003
+          }
+        }
+      },
+      "coords": [
+        {
+          "lng": 170.5085299230571,
+          "lat": -45.872484127412974,
+          "z": 1
+        },
+        {
+          "lng": 170.50852992305704,
+          "lat": -45.872484127412974,
+          "z": 1
+        },
+        {
+          "lng": 170.5085309,
+          "lat": -45.8724844,
+          "z": 1
+        },
+        {
+          "lng": 170.5085633,
+          "lat": -45.872426,
+          "z": 1
+        },
+        {
+          "lng": 170.5085482,
+          "lat": -45.8724217,
+          "z": 1
+        },
+        {
+          "lng": 170.5085307,
+          "lat": -45.8724167,
+          "z": 1
+        },
+        {
+          "lng": 170.5085076,
+          "lat": -45.8724102,
+          "z": 1
+        },
+        {
+          "lng": 170.5084925,
+          "lat": -45.8724058,
+          "z": 1
+        },
+        {
+          "lng": 170.5084801,
+          "lat": -45.8724022,
+          "z": 1
+        },
+        {
+          "lng": 170.508465,
+          "lat": -45.8724058,
+          "z": 1
+        },
+        {
+          "lng": 170.5084207,
+          "lat": -45.8724216,
+          "z": 1
+        },
+        {
+          "lng": 170.5083664,
+          "lat": -45.8724411,
+          "z": 1
+        },
+        {
+          "lng": 170.50836581583644,
+          "lat": -45.872440680344965,
+          "z": 1
+        }
+      ],
+      "distanceM": 23.891176755709278
+    }
+  ],
+  "waypoints": [
+    {
+      "id": 0,
+      "legIdx": 0,
+      "kind": "stop",
+      "name": "A — K01 Meeting Room 02",
+      "lng": 170.5085299230571,
+      "lat": -45.872484127412974,
+      "z": 1,
+      "state": "done",
+      "seq": 0,
+      "stopIdx": 0
+    },
+    {
+      "id": 1,
+      "legIdx": 0,
+      "kind": "mid",
+      "name": "Checkpoint",
+      "lng": 170.5085279509896,
+      "lat": -45.87241592646894,
+      "z": 1,
+      "state": "done",
+      "seq": 1
+    },
+    {
+      "id": 3,
+      "legIdx": 0,
+      "kind": "stop",
+      "name": "B — K01 Children's Gym",
+      "lng": 170.50836581583644,
+      "lat": -45.872440680344965,
+      "z": 1,
+      "state": "done",
+      "seq": 2,
+      "stopIdx": 1
+    }
+  ],
+  "samples": [
+    {
+      "id": 0,
+      "source": "cloud",
+      "ctx": "poll",
+      "tSentMs": 1785137023629,
+      "isoSent": "2026-07-27T07:23:43.629Z",
+      "tRecvMs": 1785137025033,
+      "isoRecv": "2026-07-27T07:23:45.033Z",
+      "rttMs": 1404,
+      "http": 200,
+      "ok": true,
+      "data": {
+        "lastSeen": 1785136939000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.872437681499456,
+        "longitude": 170.5086651277849,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    }
+  ],
+  "events": [
+    {
+      "type": "walk_start",
+      "tMs": 1785137030575,
+      "iso": "2026-07-27T07:23:50.575Z",
+      "note": "204 points, 49 legs"
+    },
+    {
+      "type": "checkin",
+      "tMs": 1785137042477,
+      "iso": "2026-07-27T07:24:02.477Z",
+      "wpId": 0,
+      "wpSeq": 0,
+      "wpKind": "stop",
+      "wpName": "A — K01 Meeting Room 02",
+      "legIdx": 0,
+      "lat": -45.872484127412974,
+      "lng": 170.5085299230571,
+      "z": 1
+    },
+    {
+      "type": "checkin",
+      "tMs": 1785137052989,
+      "iso": "2026-07-27T07:24:12.989Z",
+      "wpId": 1,
+      "wpSeq": 1,
+      "wpKind": "mid",
+      "wpName": "Checkpoint",
+      "legIdx": 0,
+      "lat": -45.87241592646894,
+      "lng": 170.5085279509896,
+      "z": 1
+    },
+    {
+      "type": "checkin",
+      "tMs": 1785137067833,
+      "iso": "2026-07-27T07:24:27.833Z",
+      "wpId": 3,
+      "wpSeq": 2,
+      "wpKind": "stop",
+      "wpName": "B — K01 Children's Gym",
+      "legIdx": 0,
+      "lat": -45.872440680344965,
+      "lng": 170.50836581583644,
+      "z": 1
+    },
+    {
+      "type": "arrive",
+      "tMs": 1785137067833,
+      "iso": "2026-07-27T07:24:27.833Z",
+      "wpId": 3,
+      "wpName": "B — K01 Children's Gym",
+      "legIdx": 0
+    },
+    {
+      "type": "depart",
+      "tMs": 1785137079772,
+      "iso": "2026-07-27T07:24:39.772Z",
+      "wpId": 3,
+      "wpName": "B — K01 Children's Gym",
+      "legIdx": 0
+    }
+  ]
+}

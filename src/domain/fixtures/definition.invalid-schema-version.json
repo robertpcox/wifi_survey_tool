@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 2,
+  "meta": {
+    "surveyId": "survey-demo-v3", "surveyName": "Demo route",
+    "customerId": "customer-demo", "customerName": "Demo Customer",
+    "campusId": "campus-demo", "campusName": "Demo Campus",
+    "timezone": "Pacific/Auckland",
+    "buildings": [{ "id": "building-a", "name": "Building A" }],
+    "zLevels": [0], "zLevelNames": { "0": "Ground" },
+    "positionSourceId": "mazemap-cloud", "authorNotes": null,
+    "sourceConfig": {
+      "configId": "config-demo", "pollIntervalMs": 2000,
+      "proxyBase": "/mm-positioning-proxy"
+    },
+    "credentialRequirements": {
+      "mapAccess": true, "appId": true, "appKey": true, "clientIp": true
+    },
+    "route": {
+      "routeId": "route-demo", "version": 1,
+      "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "distanceM": 20, "estimatedDurationSeconds": 30,
+      "checkpointSpacingM": 10, "checkpointDwellSeconds": 5
+    },
+    "createdAt": "2026-07-28T00:00:00.000Z", "authorName": null
+  },
+  "route": {
+    "routeId": "route-demo", "version": 1,
+    "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "stops": [
+      {
+        "id": "stop-a", "name": "Start", "lng": 170.5, "lat": -45.87, "z": 0,
+        "poiId": null, "locationType": "room", "provenance": { "method": "map" }
+      },
+      {
+        "id": "stop-b", "name": "Finish", "lng": 170.5002, "lat": -45.87, "z": 0,
+        "poiId": null, "locationType": "room", "provenance": { "method": "map" }
+      }
+    ],
+    "legs": [{
+      "id": "leg-a-b", "fromStopId": "stop-a", "toStopId": "stop-b", "distanceM": 20,
+      "geometry": [
+        { "lng": 170.5, "lat": -45.87, "z": 0 },
+        { "lng": 170.5002, "lat": -45.87, "z": 0 }
+      ]
+    }],
+    "checkpoints": [
+      {
+        "id": "checkpoint-a", "sequence": 0, "type": "stop",
+        "lng": 170.5, "lat": -45.87, "z": 0,
+        "stopId": "stop-a", "legId": null, "spacingBasisM": 10
+      },
+      {
+        "id": "checkpoint-b", "sequence": 1, "type": "stop",
+        "lng": 170.5002, "lat": -45.87, "z": 0,
+        "stopId": "stop-b", "legId": null, "spacingBasisM": 10
+      }
+    ],
+    "totalDistanceM": 20
+  }
+}

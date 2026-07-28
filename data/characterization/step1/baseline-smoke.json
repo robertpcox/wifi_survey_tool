@@ -1,0 +1,31 @@
+{
+  "creator": {
+    "filename": "route-Smoke-Route.json",
+    "stops": 3,
+    "version": 2
+  },
+  "runner": {
+    "completion": "Walk complete — export the session or play it back",
+    "events": [
+      "walk_start",
+      "checkin",
+      "checkin",
+      "arrive",
+      "depart",
+      "checkin",
+      "arrive",
+      "walk_end"
+    ],
+    "samples": 1,
+    "version": 2,
+    "waypoints": 3
+  },
+  "spacingCounts": {
+    "0": "49 legs, 883 m, 50 check-in points",
+    "5": "49 legs, 883 m, 111 check-in points",
+    "10": "49 legs, 883 m, 94 check-in points",
+    "15": "49 legs, 883 m, 73 check-in points",
+    "20": "49 legs, 883 m, 67 check-in points",
+    "30": "49 legs, 883 m, 56 check-in points"
+  }
+}

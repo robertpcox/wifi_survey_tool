@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Route Survey — guided position capture</title>
+  <link rel="stylesheet" href="https://api.mazemap.com/js/v3.0.6/mazemap.min.css">
+  <script src="https://api.mazemap.com/js/v3.0.6/mazemap.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #f7f8fa; color: #111; display: flex; flex-direction: column; height: 100dvh; overflow: hidden; overscroll-behavior: none; }
+
+    details.config { background: #fff; border-bottom: 1px solid #dfe4ea; flex-shrink: 0; }
+    details.config summary { padding: 9px 14px; font-weight: 700; font-size: 13px; cursor: pointer; color: #344054; user-select: none; }
+    .config-body { padding: 0 14px 12px; display: flex; flex-direction: column; gap: 10px; }
+    .cfg-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+    .field { display: flex; flex-direction: column; min-width: 0; }
+    .field label { font-size: 11px; font-weight: 700; color: #667085; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
+    .field input, .field select { padding: 9px 10px; border: 1px solid #cfd6df; border-radius: 5px; font: inherit; font-size: 14px; width: 150px; }
+    .field input.narrow, .field select.narrow { width: 95px; }
+    .field input.wide { width: 320px; }
+    .field .check { display: flex; align-items: center; gap: 6px; padding: 9px 0; font-size: 14px; }
+    .field .check input { width: auto; }
+    .route-config-field { width: min(430px, 100%); }
+    .route-picker { display: flex; gap: 8px; align-items: stretch; }
+    .route-picker select { flex: 1; width: auto; min-width: 0; }
+
+    .status-bar { display: flex; gap: 12px; padding: 6px 14px; background: #f8fafc; border-bottom: 1px solid #dfe4ea; font-size: 12px; color: #667085; flex-wrap: wrap; align-items: center; flex-shrink: 0; }
+    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #98a2b3; margin-right: 4px; vertical-align: middle; }
+    .dot.ok { background: #22a447; }
+    .dot.err { background: #d92d20; }
+    .dot.polling { background: #f59e0b; }
+    .legend { display: inline-flex; align-items: center; gap: 4px; }
+    .legend .swatch { width: 10px; height: 10px; border-radius: 50%; display: inline-block; border: 2px solid #fff; box-shadow: 0 0 0 1px #cfd6df; }
+
+    .main { display: grid; grid-template-columns: 2fr 1fr; flex: 1; min-height: 0; }
+    .map-wrap { position: relative; min-height: 0; }
+    #map { width: 100%; height: 100%; }
+
+    /* Walk card overlaying the map */
+    .walk-card { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); width: min(440px, calc(100% - 20px)); background: #fff; border: 1px solid #dfe4ea; border-radius: 10px; box-shadow: 0 8px 24px rgba(16,24,40,0.18); padding: 12px 14px; z-index: 20; }
+    .walk-prompt { font-size: 13px; color: #667085; margin-bottom: 2px; }
+    .walk-target { font-size: 17px; font-weight: 800; margin-bottom: 3px; }
+    .walk-dist { font-size: 13px; color: #2563eb; font-variant-numeric: tabular-nums; min-height: 17px; margin-bottom: 8px; }
+    .walk-actions { display: flex; gap: 8px; align-items: stretch; }
+    .btn-big { flex: 1; padding: 15px 10px; font-size: 17px; font-weight: 800; border-radius: 8px; border: 1px solid #22a447; background: #22a447; color: #fff; cursor: pointer; }
+    .btn-big:disabled { opacity: 0.55; cursor: default; }
+    .btn-big.arrive { background: #2563eb; border-color: #2563eb; }
+    .btn-big.depart { background: #f59e0b; border-color: #f59e0b; }
+    .walk-secondary { display: flex; gap: 8px; margin-top: 8px; }
+    .walk-secondary button { flex: 1; padding: 8px 6px; font-size: 13px; border: 1px solid #cfd6df; border-radius: 6px; background: #fff; cursor: pointer; color: #344054; }
+
+    .target-choice { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); width: min(520px, calc(100% - 20px)); background: #fff; border: 1px solid #dfe4ea; border-radius: 10px; box-shadow: 0 8px 24px rgba(16,24,40,0.2); padding: 13px 14px; z-index: 30; }
+    .target-choice[hidden] { display: none; }
+    .target-choice h3 { font-size: 16px; margin-bottom: 3px; }
+    .target-choice-copy { color: #667085; font-size: 12px; line-height: 1.45; margin-bottom: 10px; }
+    .target-choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .target-option { padding: 10px; text-align: left; border: 1px solid #cfd6df; border-radius: 7px; background: #fff; color: #111; cursor: pointer; font: inherit; }
+    .target-option[hidden] { display: none; }
+    .target-option:hover { border-color: #22a447; background: #f0fdf4; }
+    .target-option strong { display: block; font-size: 14px; margin-bottom: 3px; }
+    .target-option span { display: block; color: #667085; font-size: 11px; line-height: 1.4; }
+    .target-cancel { margin-top: 8px; border: none; background: none; color: #667085; cursor: pointer; font: inherit; font-size: 12px; padding: 3px; }
+
+    .panel { border-left: 1px solid #dfe4ea; display: flex; flex-direction: column; min-height: 0; background: #fff; overflow: hidden; }
+    .tabs { display: flex; border-bottom: 1px solid #dfe4ea; flex-shrink: 0; }
+    .tabs button { flex: 1; padding: 10px 4px; font-size: 13px; font-weight: 700; border: none; background: #f8fafc; color: #667085; cursor: pointer; border-bottom: 2px solid transparent; }
+    .tabs button.active { background: #fff; color: #111; border-bottom-color: #22a447; }
+    .tab-body { flex: 1; overflow: auto; min-height: 0; display: none; flex-direction: column; }
+    .tab-body.active { display: flex; }
+    .tab-inner { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+
+    button.act { padding: 10px 14px; border: 1px solid #cfd6df; border-radius: 5px; cursor: pointer; font: inherit; font-size: 14px; background: #fff; white-space: nowrap; }
+    button.act.primary { background: #22a447; color: #fff; border-color: #22a447; font-weight: 700; }
+    button.act.small { padding: 7px 9px; font-size: 13px; }
+    button.act.danger { color: #c01048; border-color: #ffb3c1; background: #fff1f3; }
+    button.act:disabled { opacity: 0.55; cursor: default; }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .stop-list { display: flex; flex-direction: column; gap: 6px; }
+    .stop-item { display: flex; align-items: center; gap: 8px; border: 1px solid #e4e8ee; border-radius: 6px; padding: 7px 9px; font-size: 13px; background: #f8fafc; }
+    .stop-item .idx { font-weight: 800; color: #22a447; min-width: 18px; }
+    .stop-item .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .stop-item .kind { color: #475467; background: #eef2f6; border-radius: 999px; padding: 2px 6px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+    .stop-item .z { color: #667085; }
+    .stop-item button { border: none; background: none; cursor: pointer; font-size: 14px; color: #667085; padding: 2px 4px; }
+
+    .log-list { display: flex; flex-direction: column; gap: 6px; }
+    .log-item { border-left: 3px solid #16a34a; background: #f8fafc; border-radius: 4px; padding: 6px 9px; font-size: 12.5px; line-height: 1.5; }
+    .log-item.evt { border-left-color: #f59e0b; }
+    .log-item .t { color: #667085; font-variant-numeric: tabular-nums; }
+    .err-val { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .err-val.cloud { color: #2563eb; }
+    .err-val.lipi { color: #9333ea; }
+    .floor-bad { color: #d92d20; font-weight: 700; }
+
+    pre { flex: 1; overflow: auto; margin: 0; padding: 12px 14px; font-size: 11.5px; line-height: 1.6; background: #f8fafc; font-family: "SF Mono", ui-monospace, monospace; white-space: pre-wrap; word-break: break-all; }
+    .live-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .live-box { border: 1px solid #e4e8ee; border-radius: 6px; padding: 8px 10px; font-size: 12px; line-height: 1.6; }
+    .live-box h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+    .live-box.cloud h4 { color: #2563eb; }
+    .live-box.lipi h4 { color: #9333ea; }
+
+    .pb-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .pb-time { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 14px; }
+    input[type=range].pb-slider { width: 100%; }
+    .hint { font-size: 12px; color: #667085; line-height: 1.5; }
+
+    @media (max-width: 700px) {
+      .main { display: block; flex: 1; min-height: 0; }
+      .map-wrap { width: 100%; height: 100%; }
+      .panel { display: none; }
+      .status-bar .legend { display: none; }
+      .field input.wide { width: 100%; }
+      .target-choice-grid { grid-template-columns: 1fr; }
+      .route-config-field { flex: 1 1 100%; width: 100%; }
+      .route-picker { display: flex; flex-direction: column; width: 100%; }
+      .route-picker select { width: 100%; }
+      .route-picker button { align-self: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<details class="config" open>
+  <summary>Configuration — credentials, sources, route</summary>
+  <div class="config-body">
+    <div class="cfg-row">
+      <div class="field"><label>App ID</label><input id="appId" placeholder="X-Mazemap-App-Id" autocomplete="off"></div>
+      <div class="field"><label>App Key</label><input id="appKey" type="password" placeholder="X-Mazemap-App-Key" autocomplete="off"></div>
+      <div class="field"><label>Config ID</label><input id="configId" value="1185" class="narrow"></div>
+      <div class="field"><label>Client IP</label><input id="clientIp" placeholder="10.x.x.x" style="width:130px"></div>
+      <div class="field"><label>Interval</label>
+        <select id="pollInterval" class="narrow">
+          <option value="0">Instant</option>
+          <option value="2000" selected>2 secs</option>
+          <option value="5000">5 secs</option>
+          <option value="10000">10 secs</option>
+        </select>
+      </div>
+      <div class="field"><label>Sources</label>
+        <div style="display:flex; gap:12px;">
+          <span class="check"><input type="checkbox" id="srcCloud" checked><label for="srcCloud" style="margin:0; text-transform:none; font-size:13px;">Cloud</label></span>
+          <span class="check"><input type="checkbox" id="srcLipi" checked><label for="srcLipi" style="margin:0; text-transform:none; font-size:13px;">LiPi</label></span>
+        </div>
+      </div>
+    </div>
+    <div class="cfg-row">
+      <div class="field"><label>LiPi URL (direct — identifies device by IP, never proxied)</label><input id="lipiUrl" class="wide" value="https://ndh-ob-public.mazepos.com/position"></div>
+      <div class="field"><label>Cloud base (blank = this site)</label><input id="cloudBase" class="wide" placeholder="https://demo.mazemap.com.au — set when page is hosted elsewhere"></div>
+      <div class="field"><label>Campus collection</label><input id="collectionTag" class="narrow" placeholder="(default)"></div>
+      <div class="field"><label>Checkpoint spacing</label>
+        <select id="wpSpacing" class="narrow">
+          <option value="5">5 m</option>
+          <option value="10">10 m</option>
+          <option value="15" selected>15 m</option>
+          <option value="20">20 m</option>
+          <option value="30">30 m</option>
+          <option value="0">Turns only</option>
+        </select>
+      </div>
+    </div>
+    <div class="cfg-row">
+      <div class="field route-config-field"><label>Test route</label>
+        <div class="route-picker">
+          <select id="savedRoutes" aria-label="Test route"></select>
+          <button class="act small" id="loadRouteBtn" onclick="loadRoute()">Load</button>
+        </div>
+      </div>
+      <div class="field"><label>&nbsp;</label>
+        <div class="btn-row">
+          <button class="act" onclick="startPolling()">▶ Poll</button>
+          <button class="act" onclick="stopPolling()">■ Stop poll</button>
+          <button class="act" onclick="exportSessionJson()">Export JSON</button>
+          <button class="act" onclick="exportSessionCsv()">Export CSV</button>
+          <button class="act danger" onclick="clearSession()">Clear session</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</details>
+
+<div class="status-bar">
+  <div><span id="dotCloud" class="dot"></span>Cloud <span id="cntCloud">0</span></div>
+  <div><span id="dotLipi" class="dot"></span>LiPi <span id="cntLipi">0</span></div>
+  <div>Floor: <span id="curFloor">—</span></div>
+  <div>Check-ins: <span id="cntCheckin">0</span></div>
+  <div id="statusText" style="flex:1; min-width:120px;">Select a test route above, then tap Load.</div>
+  <div class="legend"><span class="swatch" style="background:#2563eb"></span>Cloud</div>
+  <div class="legend"><span class="swatch" style="background:#9333ea"></span>LiPi</div>
+  <div class="legend"><span class="swatch" style="background:#f59e0b"></span>Next point</div>
+  <div class="legend"><span class="swatch" style="background:#16a34a"></span>Done</div>
+</div>
+
+<div class="main">
+  <div class="map-wrap">
+    <div id="map"></div>
+    <div class="target-choice" id="targetChoice" hidden>
+      <h3>Add this route stop</h3>
+      <div class="target-choice-copy" id="targetChoiceCopy"></div>
+      <div class="target-choice-grid">
+        <button class="target-option" onclick="chooseMapTarget('point')">
+          <strong id="targetPointTitle">Use clicked point</strong>
+          <span id="targetPointSummary"></span>
+        </button>
+        <button class="target-option" id="targetPoiOption" onclick="chooseMapTarget('poi')">
+          <strong>Use POI centre</strong>
+          <span id="targetPoiSummary"></span>
+        </button>
+        <button class="target-option" id="targetOutdoorsOption" onclick="chooseMapTarget('outdoors')" hidden>
+          <strong>Mark as outdoors</strong>
+          <span>Stores POI ID as null, POI name as “Outdoors”, and location status as outdoors.</span>
+        </button>
+      </div>
+      <button class="target-cancel" onclick="closeTargetChoice()">Cancel</button>
+    </div>
+    <div class="walk-card" id="walkCard">
+      <div class="walk-prompt" id="walkPrompt">Route not built yet</div>
+      <div class="walk-target" id="walkTarget">—</div>
+      <div class="walk-dist" id="walkDist"></div>
+      <div class="walk-actions">
+        <button class="btn-big" id="walkBtn" onclick="walkMainAction()" disabled>▶ Start walk</button>
+      </div>
+      <div class="walk-secondary" id="walkSecondary" style="display:none;">
+        <button onclick="skipWaypoint()">Skip point</button>
+        <button onclick="undoCheckin()">Undo</button>
+        <button onclick="endWalk()">End walk</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="tabs">
+      <button id="tabbtn-route" class="active" onclick="showTab('route')">Route</button>
+      <button id="tabbtn-log" onclick="showTab('log')">Log</button>
+      <button id="tabbtn-live" onclick="showTab('live')">Live</button>
+      <button id="tabbtn-play" onclick="showTab('play')">Playback</button>
+    </div>
+
+    <div class="tab-body active" id="tab-route">
+      <div class="tab-inner">
+        <div class="hint">Tap the map and choose the exact clicked point or the POI centre. Every stop records exact lat/lng/z plus POI ID, POI name, and location status for downstream reports. You can also add by POI ID or lat,lng,z.</div>
+        <div class="btn-row">
+          <input id="addPoiId" placeholder="POI ID or lat,lng,z[,outdoors]" style="flex:1; padding:9px 10px; border:1px solid #cfd6df; border-radius:5px; font:inherit; font-size:14px; min-width:0;">
+          <button class="act" onclick="addStopFromInput()">Add</button>
+        </div>
+        <div class="stop-list" id="stopList"><div class="hint">No stops yet.</div></div>
+        <div class="btn-row">
+          <button class="act primary" onclick="buildRoute()">⚙ Build route</button>
+          <button class="act small" onclick="clearStops()">Clear stops</button>
+        </div>
+        <div class="hint" id="routeInfo"></div>
+        <div class="btn-row" style="border-top:1px solid #e4e8ee; padding-top:10px;">
+          <input id="routeName" placeholder="Route name" style="flex:1; padding:8px 10px; border:1px solid #cfd6df; border-radius:5px; font:inherit; font-size:13px; min-width:0;">
+          <button class="act small" onclick="saveRoute()">Save</button>
+        </div>
+        <div class="btn-row">
+          <button class="act small" onclick="exportRoute()">Export route</button>
+          <button class="act small" onclick="document.getElementById('routeFile').click()">Import route</button>
+          <button class="act small" onclick="deleteRoute()">Delete saved route</button>
+          <input type="file" id="routeFile" accept=".json" style="display:none" onchange="importRoute(this)">
+        </div>
+        <div class="hint">Choose and load server/browser routes from Configuration above. Server routes come from routes/index.json. For manual outdoor points, enter lat,lng,z,outdoors.</div>
+      </div>
+    </div>
+
+    <div class="tab-body" id="tab-log">
+      <div class="tab-inner"><div class="log-list" id="logList"><div class="hint">Check-ins and events appear here.</div></div></div>
+    </div>
+
+    <div class="tab-body" id="tab-live">
+      <div class="tab-inner">
+        <div class="live-grid">
+          <div class="live-box cloud"><h4>Cloud</h4><div id="liveCloud">no fix yet</div></div>
+          <div class="live-box lipi"><h4>LiPi</h4><div id="liveLipi">no fix yet</div></div>
+        </div>
+      </div>
+      <pre id="liveJson">Waiting for first response…</pre>
+    </div>
+
+    <div class="tab-body" id="tab-play">
+      <div class="tab-inner">
+        <div class="hint">Import an exported session JSON to play it back — where positioning thought the device was vs the walked baseline, over time.</div>
+        <div class="btn-row">
+          <button class="act" onclick="document.getElementById('sessionFile').click()">Import session</button>
+          <input type="file" id="sessionFile" accept=".json" style="display:none" onchange="importSession(this)">
+        </div>
+        <div id="pbPanel" style="display:none; flex-direction:column; gap:8px;">
+          <div class="pb-controls">
+            <button class="act small" id="pbPlayBtn" onclick="pbTogglePlay()">▶ Play</button>
+            <select id="pbSpeed" class="narrow" style="padding:7px;">
+              <option value="1">1×</option>
+              <option value="5">5×</option>
+              <option value="10" selected>10×</option>
+              <option value="30">30×</option>
+              <option value="60">60×</option>
+            </select>
+            <span class="pb-time" id="pbTime">—</span>
+            <button class="act small" onclick="exitPlayback()">Exit</button>
+          </div>
+          <input type="range" class="pb-slider" id="pbSlider" min="0" max="1000" value="0" oninput="pbSeek(this.value)">
+          <div class="hint" id="pbInfo"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ────────────────────────────────────────────────────────────────────────
+  // Constants / config
+  // ────────────────────────────────────────────────────────────────────────
+  const CAMPUS_ID = 566;
+  const MAP_TOKEN = "82059d9500524389ad1e635f3c5a376e";
+  const CLOUD_COLOR = "#2563eb", LIPI_COLOR = "#9333ea";
+  const WP_PENDING = "#98a2b3", WP_CURRENT = "#f59e0b", WP_DONE = "#16a34a", WP_SKIPPED = "#ef4444", ROUTE_COLOR = "#111827";
+  const TURN_DEG = 35;      // bearing change that counts as a turning point
+  const MIN_WP_GAP_M = 6;   // drop generated points closer together than this
+  const ROUTE_BUILD_CONCURRENCY = 4;
+  const MAP_TRAIL_FIX_LIMIT = 300;
+  const ROUTE_FORMAT_VERSION = 2;
+  const SERVER_ROUTE_MANIFEST = "routes/index.json";
+  const LS = "routeSurvey.v1.";
+
+  // ────────────────────────────────────────────────────────────────────────
+  // State
+  // ────────────────────────────────────────────────────────────────────────
+  let map = null, mapReady = false, currentZLevel = 1, zWatch = null;
+  let stops = [];        // v2: exact lng/lat/z target + targetType + explicit POI/location context
+  let legs = [];         // {fromIdx, toIdx, mode:'route'|'direct', distanceM, coords:[{lng,lat,z}]}
+  let waypoints = [];    // {id, legIdx, seq, kind:'stop'|'turn'|'floor'|'mid', name, lng, lat, z, state:'pending'|'current'|'done'|'skipped'}
+  let samples = [];      // every positioning response, both sources
+  let sampleCounts = { cloud: 0, lipi: 0 };
+  let events = [];       // walk events incl. check-ins
+  let sampleSeq = 0;
+  let walk = { phase: "idle", wpIdx: -1, history: [] };   // phase: idle|walking|awaitDepart|done
+  let pollRun = { cloud: false, lipi: false };
+  let targetMarker = null;
+  let pendingTargetChoice = null;
+  let serverRoutes = [];
+  let routeSelectionVersion = 0;
+  let routeBuildVersion = 0;
+  let routeLoadBusy = false;
+  let sessionMeta = { startedAt: null, endedAt: null, routeName: "" };
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Boot
+  // ────────────────────────────────────────────────────────────────────────
+  window.addEventListener("load", async () => {
+    restorePrefs();
+    await loadServerRouteManifest();
+    refreshSavedRoutes();
+    if (!window.Mazemap) return;
+    Mazemap.Config.setMazemapViewToken(MAP_TOKEN);
+    map = new Mazemap.Map({ container: "map", campuses: CAMPUS_ID, zoom: 18, center: [170.508292, -45.872428] });
+    await new Promise(r => map.on("load", r));
+    mapReady = true;
+    ensureLayers();
+    map.on("click", onMapClick);
+    document.querySelector("details.config").addEventListener("toggle", resizeMapSoon);
+    window.addEventListener("resize", resizeMapSoon);
+    currentZLevel = getMapZLevel() ?? 1;
+    document.getElementById("curFloor").textContent = currentZLevel;
+    startZWatch();
+    if (routeSelectionVersion > 0) {
+      drawStops();
+      await buildRoute();
+    } else {
+      renderStops();
+      drawStops();
+      updateWalkCard();
+      setStatus("", "Select a test route above, then tap Load.");
+    }
+  });
+
+  const PREF_IDS = ["appId","appKey","configId","clientIp","pollInterval","lipiUrl","wpSpacing","collectionTag","cloudBase"];
+  const PREF_CHECKS = ["srcCloud","srcLipi"];
+  function restorePrefs() {
+    PREF_IDS.forEach(id => { const v = localStorage.getItem(LS + id); if (v !== null) document.getElementById(id).value = v; });
+    PREF_CHECKS.forEach(id => { const v = localStorage.getItem(LS + id); if (v !== null) document.getElementById(id).checked = v === "1"; });
+    PREF_IDS.forEach(id => document.getElementById(id).addEventListener("change", e => localStorage.setItem(LS + id, e.target.value)));
+    PREF_CHECKS.forEach(id => document.getElementById(id).addEventListener("change", e => localStorage.setItem(LS + id, e.target.checked ? "1" : "0")));
+  }
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Stops (exact targets, optionally associated with a POI/room)
+  // ────────────────────────────────────────────────────────────────────────
+  async function onMapClick(e) {
+    if (!mapReady || playback.active) return;
+    if (walk.phase === "walking" || walk.phase === "awaitDepart") return; // no accidental stop-adds mid-walk
+    const z = getMapZLevel() ?? currentZLevel ?? 1;
+    const lng = e.lngLat.lng, lat = e.lngLat.lat;
+    let poiStop = null;
+    try {
+      const poi = await Mazemap.Data.getPoiAt({ lng, lat }, z);
+      if (poi) poiStop = poiToStop(poi);
+    } catch (_) {}
+    const pointStop = pointToStop(lng, lat, z, poiStop);
+    if (poiStop) {
+      showTargetChoice(pointStop, poiStop);
+      return;
+    }
+    showLocationChoice(pointStop);
+  }
+
+  function poiToStop(poi) {
+    const p = poi.properties || {};
+    let lng = null, lat = null;
+    if (poi.point?.coordinates) [lng, lat] = poi.point.coordinates;
+    else if (poi.geometry?.type === "Point") [lng, lat] = poi.geometry.coordinates;
+    else if (poi.geometry?.type === "Polygon") {
+      const cs = poi.geometry.coordinates[0];
+      lng = cs.reduce((s, c) => s + c[0], 0) / cs.length;
+      lat = cs.reduce((s, c) => s + c[1], 0) / cs.length;
+    }
+    if (lng == null) return null;
+    const z = (typeof p.zLevel === "number" ? p.zLevel : p.z) ?? 1;
+    const label = p.title || `POI ${p.poiId}`;
+    const context = { id: p.poiId ?? null, label, lng, lat, z };
+    return {
+      label,
+      poiId: context.id,
+      poiName: context.label,
+      locationType: context.id != null ? "poi" : "unknown",
+      lng,
+      lat,
+      z,
+      targetType: "poi",
+      poi: context,
+    };
+  }
+
+  function pointToStop(lng, lat, z, poiStop) {
+    const poi = poiStop?.poi ? { ...poiStop.poi } : null;
+    return {
+      label: poi?.label || `${lat.toFixed(6)}, ${lng.toFixed(6)} (z${z})`,
+      poiId: poi?.id ?? null,
+      poiName: poi?.label ?? null,
+      locationType: poi?.id != null ? "poi" : "unknown",
+      lng,
+      lat,
+      z,
+      targetType: "point",
+      poi,
+    };
+  }
+
+  function outdoorsStop(pointStop) {
+    return {
+      ...pointStop,
+      label: `Outdoors — ${pointStop.lat.toFixed(6)}, ${pointStop.lng.toFixed(6)}`,
+      poiId: null,
+      poiName: "Outdoors",
+      locationType: "outdoors",
+      poi: null,
+    };
+  }
+
+  function normalizeStop(raw, index) {
+    if (!raw || typeof raw !== "object") throw new Error(`stop ${index + 1} is not an object`);
+    const lng = Number(raw.lng ?? raw.target?.lng);
+    const lat = Number(raw.lat ?? raw.target?.lat);
+    const z = Number(raw.z ?? raw.target?.z ?? 1);
+    if (![lng, lat, z].every(Number.isFinite)) throw new Error(`stop ${index + 1} has invalid lng/lat/z`);
+
+    const contextPoiId = raw.poiId ?? raw.poi_id ?? raw.poi?.id ?? raw.poi?.poiId ?? null;
+    const targetType = raw.targetType === "point" || raw.targetType === "poi"
+      ? raw.targetType
+      : (contextPoiId != null ? "poi" : "point");
+    let poi = null;
+    if (raw.poi && typeof raw.poi === "object") {
+      const poiLng = Number(raw.poi.lng);
+      const poiLat = Number(raw.poi.lat);
+      const poiZ = Number(raw.poi.z ?? z);
+      poi = {
+        ...raw.poi,
+        id: contextPoiId,
+        label: raw.poi.label || raw.poi.title || raw.poiName || raw.poi_name || raw.label || "",
+        lng: Number.isFinite(poiLng) ? poiLng : lng,
+        lat: Number.isFinite(poiLat) ? poiLat : lat,
+        z: Number.isFinite(poiZ) ? poiZ : z,
+      };
+    } else if (contextPoiId != null) {
+      poi = {
+        id: contextPoiId,
+        label: raw.poiName || raw.poi_name || raw.label || `POI ${contextPoiId}`,
+        lng,
+        lat,
+        z,
+      };
+    }
+
+    const rawPoiName = raw.poiName ?? raw.poi_name ?? poi?.label ?? null;
+    const explicitLocationType = ["poi", "outdoors", "unknown"].includes(raw.locationType) ? raw.locationType : null;
+    const locationType = explicitLocationType ||
+      (contextPoiId != null ? "poi" : (/^outdoors?$/i.test(rawPoiName || "") ? "outdoors" : "unknown"));
+    const poiName = rawPoiName || (locationType === "outdoors" ? "Outdoors" : null);
+    const label = raw.label || poi?.label || `${lat.toFixed(6)}, ${lng.toFixed(6)} (z${z})`;
+    return {
+      ...raw,
+      tag: raw.tag || alphaTag(index),
+      label,
+      poiId: contextPoiId,
+      poiName,
+      locationType,
+      lng,
+      lat,
+      z,
+      targetType,
+      poi,
+    };
+  }
+
+  function normalizeStops(rawStops) {
+    if (!Array.isArray(rawStops)) throw new Error("no stops array");
+    return rawStops.map((stop, index) => normalizeStop(stop, index));
+  }
+
+  function showTargetChoice(pointStop, poiStop) {
+    pendingTargetChoice = { point: pointStop, poi: poiStop };
+    document.getElementById("targetPointTitle").textContent = "Use clicked point";
+    document.getElementById("targetPoiOption").hidden = false;
+    document.getElementById("targetOutdoorsOption").hidden = true;
+    document.getElementById("targetChoiceCopy").textContent =
+      `This click is inside “${poiStop.label}”. Which location should routing use?`;
+    document.getElementById("targetPointSummary").textContent =
+      `${pointStop.lat.toFixed(6)}, ${pointStop.lng.toFixed(6)}, z${pointStop.z} — keeps “${poiStop.label}” as context`;
+    document.getElementById("targetPoiSummary").textContent =
+      `${poiStop.lat.toFixed(6)}, ${poiStop.lng.toFixed(6)}, z${poiStop.z} — routes to POI ${poiStop.poiId ?? "centre"}`;
+    document.getElementById("targetChoice").hidden = false;
+    setStatus("", "Choose the clicked point or the POI centre");
+  }
+
+  function showLocationChoice(pointStop) {
+    pendingTargetChoice = { point: pointStop, outdoors: outdoorsStop(pointStop) };
+    document.getElementById("targetPointTitle").textContent = "Keep POI context unknown";
+    document.getElementById("targetPoiOption").hidden = true;
+    document.getElementById("targetOutdoorsOption").hidden = false;
+    document.getElementById("targetChoiceCopy").textContent =
+      "No POI was found under this click. Mark it as outdoors only if you know it is outside.";
+    document.getElementById("targetPointSummary").textContent =
+      `${pointStop.lat.toFixed(6)}, ${pointStop.lng.toFixed(6)}, z${pointStop.z} — stores POI ID and name as null`;
+    document.getElementById("targetChoice").hidden = false;
+    setStatus("", "Choose unknown POI context or mark this point as outdoors");
+  }
+
+  function chooseMapTarget(type) {
+    const stop = pendingTargetChoice?.[type];
+    if (!stop) return;
+    closeTargetChoice();
+    addRouteStop(stop);
+    if (type === "outdoors") setStatus("ok", "Added exact outdoor point");
+    else if (type === "point" && stop.poiName) setStatus("ok", `Added exact point in “${stop.poiName}”`);
+    else if (type === "point") setStatus("ok", "Added exact point with unknown POI context");
+    else setStatus("ok", `Added POI centre “${stop.label}”`);
+  }
+
+  function closeTargetChoice() {
+    pendingTargetChoice = null;
+    document.getElementById("targetChoice").hidden = true;
+  }
+
+  function addRouteStop(stop) {
+    stops.push(normalizeStop(stop, stops.length));
+    invalidateBuiltRoute();
+    renderStops();
+    drawStops();
+  }
+
+  async function addStopFromInput() {
+    const raw = document.getElementById("addPoiId").value.trim();
+    if (!raw) return;
+    // "lat,lng,z[,outdoors]" | "lat,lng" | numeric POI id
+    const parts = raw.split(",").map(s => s.trim());
+    if (parts.length >= 2 && !isNaN(parseFloat(parts[0])) && !isNaN(parseFloat(parts[1]))) {
+      const lat = parseFloat(parts[0]), lng = parseFloat(parts[1]), z = parts.length > 2 ? parseFloat(parts[2]) : 1;
+      let stop = pointToStop(lng, lat, z, null);
+      if ((parts[3] || "").toLowerCase() === "outdoors") stop = outdoorsStop(stop);
+      else if (parts[3] && parts[3].toLowerCase() !== "null") {
+        setStatus("err", "The optional fourth value must be outdoors or null");
+        return;
+      }
+      addRouteStop(stop);
+    } else if (/^\d+$/.test(raw)) {
+      try {
+        const poi = await Mazemap.Data.getPoi(parseInt(raw, 10));
+        const stop = poiToStop(poi);
+        if (!stop) { setStatus("err", `POI ${raw}: no usable geometry`); return; }
+        addRouteStop(stop);
+      } catch (err) { setStatus("err", `POI ${raw} lookup failed: ${err.message}`); return; }
+    } else { setStatus("err", "Enter a numeric POI ID or lat,lng[,z[,outdoors]]"); return; }
+    document.getElementById("addPoiId").value = "";
+    setStatus("ok", "Stop added — build the route when ready");
+  }
+
+  function renderStops() {
+    const el = document.getElementById("stopList");
+    if (!stops.length) { el.innerHTML = '<div class="hint">No stops yet.</div>'; return; }
+    el.innerHTML = stops.map((s, i) => `
+      <div class="stop-item">
+        <span class="idx">${esc(tagOf(i))}</span>
+        <span class="nm" title="${esc(s.label)}">${esc(s.label)}</span>
+        <span class="kind" title="${esc(stopTargetTitle(s))}">${s.targetType === "poi" ? "POI centre" : "Point"}</span>
+        <span class="z">z${s.z}</span>
+        <button title="Move up" onclick="moveStop(${i},-1)">▲</button>
+        <button title="Move down" onclick="moveStop(${i},1)">▼</button>
+        <button title="Remove" onclick="removeStop(${i})">✕</button>
+      </div>`).join("");
+  }
+  function moveStop(i, d) {
+    const j = i + d;
+    if (j < 0 || j >= stops.length) return;
+    [stops[i], stops[j]] = [stops[j], stops[i]];
+    invalidateBuiltRoute(); renderStops(); drawStops();
+  }
+  function removeStop(i) { stops.splice(i, 1); invalidateBuiltRoute(); renderStops(); drawStops(); }
+  function clearStops() { closeTargetChoice(); stops = []; invalidateBuiltRoute(); renderStops(); drawStops(); }
+  function invalidateBuiltRoute() {
+    routeBuildVersion++;
+    legs = [];
+    waypoints = [];
+    walk = { phase: "idle", wpIdx: -1, history: [] };
+    document.getElementById("routeInfo").textContent = "";
+    redrawRoute();
+    drawWaypoints();
+    updateWalkCard();
+  }
+  function stopTargetTitle(stop) {
+    if (stop.targetType === "poi") return `POI centre target: ${stop.lat.toFixed(6)}, ${stop.lng.toFixed(6)}, z${stop.z}`;
+    const context = stop.poiName ? ` in ${stop.poiName}` : "";
+    return `Exact point${context}: ${stop.lat.toFixed(6)}, ${stop.lng.toFixed(6)}, z${stop.z}`;
+  }
+  function alphaTag(index) {
+    let value = index + 1;
+    let tag = "";
+    while (value > 0) {
+      value--;
+      tag = String.fromCharCode(65 + (value % 26)) + tag;
+      value = Math.floor(value / 26);
+    }
+    return tag;
+  }
+  function tagOf(i) { return stops[i]?.tag || alphaTag(i); }
+  function stopName(i) { return `${tagOf(i)} — ${stops[i].label}`; }
+
+  // Server route library + saved browser routes + file import/export
+  function savedRouteMap() { try { return JSON.parse(localStorage.getItem(LS + "routes") || "{}"); } catch { return {}; } }
+  async function loadServerRouteManifest() {
+    try {
+      const response = await fetch(SERVER_ROUTE_MANIFEST, { cache: "no-store" });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const manifest = await response.json();
+      const entries = Array.isArray(manifest) ? manifest : manifest.routes;
+      if (!Array.isArray(entries)) throw new Error("manifest has no routes array");
+      serverRoutes = entries.map((entry, index) => {
+        const item = typeof entry === "string" ? { file: entry } : entry;
+        const file = String(item?.file || "").trim();
+        if (!file || file.includes("..") || file.includes("/") || file.includes("\\") || !file.toLowerCase().endsWith(".json")) {
+          throw new Error(`route ${index + 1} has an invalid file name`);
+        }
+        return {
+          name: String(item.name || file.replace(/\.json$/i, "")).trim(),
+          file,
+          campusId: item.campusId ?? null,
+          floor: item.floor ?? null,
+        };
+      });
+    } catch (err) {
+      serverRoutes = [];
+      console.warn(`Could not load ${SERVER_ROUTE_MANIFEST}:`, err);
+    }
+  }
+  function routeDefinition(name, routeStops) {
+    return {
+      tool: "route_survey",
+      kind: "route",
+      version: ROUTE_FORMAT_VERSION,
+      name,
+      campusId: CAMPUS_ID,
+      exportedAt: new Date().toISOString(),
+      stops: normalizeStops(routeStops ?? stops),
+    };
+  }
+  function savedRouteStops(entry) {
+    return Array.isArray(entry) ? entry : entry?.stops;
+  }
+  function refreshSavedRoutes(selectedKey) {
+    const sel = document.getElementById("savedRoutes");
+    const localNames = Object.keys(savedRouteMap()).sort((a, b) => a.localeCompare(b));
+    const groups = [];
+    if (serverRoutes.length) {
+      groups.push(`<optgroup label="Server routes">${serverRoutes.map((route, index) =>
+        `<option value="server:${index}">${esc(route.name)}${route.floor ? ` · ${esc(route.floor)}` : ""}</option>`).join("")}</optgroup>`);
+    }
+    if (localNames.length) {
+      groups.push(`<optgroup label="Saved in this browser">${localNames.map(name =>
+        `<option value="local:${esc(name)}">${esc(name)}</option>`).join("")}</optgroup>`);
+    }
+    sel.innerHTML = groups.length
+      ? `<option value="">— select a test route —</option>${groups.join("")}`
+      : "<option value=''>— no routes available —</option>";
+    if (selectedKey) sel.value = selectedKey;
+  }
+  function saveRoute() {
+    const name = document.getElementById("routeName").value.trim();
+    if (!name || !stops.length) { setStatus("err", "Route name and at least one stop required"); return; }
+    const all = savedRouteMap(); all[name] = routeDefinition(name);
+    localStorage.setItem(LS + "routes", JSON.stringify(all));
+    refreshSavedRoutes(`local:${name}`); setStatus("ok", `Route "${name}" saved (${stops.length} stops)`);
+  }
+  function applyRouteData(data, fallbackName) {
+    const routeStops = normalizeStops(Array.isArray(data) ? data : data?.stops);
+    if (!routeStops.length) throw new Error("route has no stops");
+    const campusId = data.campusId ?? data.meta?.campusId;
+    if (campusId != null && Number(campusId) !== CAMPUS_ID) {
+      throw new Error(`route campus ${campusId} does not match campus ${CAMPUS_ID}`);
+    }
+    stops = routeStops;
+    routeSelectionVersion++;
+    const name = data.name || data.meta?.routeName || fallbackName || "Unnamed route";
+    document.getElementById("routeName").value = name;
+    invalidateBuiltRoute(); renderStops(); drawStops();
+    return name;
+  }
+  async function loadRoute() {
+    if (routeLoadBusy) return;
+    routeLoadBusy = true;
+    setRouteLoadBusy(true);
+    try {
+      const selected = document.getElementById("savedRoutes").value;
+      if (!selected) {
+        setStatus("err", "Select a test route first");
+        return;
+      }
+      if (selected.startsWith("server:")) {
+        const route = serverRoutes[Number(selected.slice(7))];
+        if (!route) return;
+        clearRouteForLoad();
+        setStatus("polling", `Loading server route "${route.name}"…`);
+        const response = await fetch(`routes/${encodeURIComponent(route.file)}`, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        const name = applyRouteData(data, route.name);
+        collapseMobileConfig();
+        if (mapReady) await buildRoute();
+        else setStatus("polling", `Server route "${name}" loaded (${stops.length} stops) — waiting for map`);
+        return;
+      }
+      const name = selected.startsWith("local:") ? selected.slice(6) : selected;
+      const all = savedRouteMap();
+      if (!all[name]) return;
+      clearRouteForLoad();
+      applyRouteData(all[name], name);
+      collapseMobileConfig();
+      if (mapReady) await buildRoute();
+      else setStatus("polling", `Route "${name}" loaded (${stops.length} stops) — waiting for map`);
+    } catch (err) {
+      setStatus("err", `Route load failed: ${err.message}`);
+    } finally {
+      routeLoadBusy = false;
+      setRouteLoadBusy(false);
+    }
+  }
+  function setRouteLoadBusy(busy) {
+    const button = document.getElementById("loadRouteBtn");
+    button.disabled = busy;
+    button.textContent = busy ? "Loading…" : "Load";
+  }
+  function clearRouteForLoad() {
+    closeTargetChoice();
+    stops = [];
+    routeSelectionVersion = 0;
+    document.getElementById("routeName").value = "";
+    invalidateBuiltRoute();
+    renderStops();
+    drawStops();
+  }
+  function deleteRoute() {
+    const selected = document.getElementById("savedRoutes").value;
+    if (selected.startsWith("server:")) {
+      setStatus("err", "Server routes are managed in routes/index.json and cannot be deleted in the browser");
+      return;
+    }
+    const name = selected.startsWith("local:") ? selected.slice(6) : selected;
+    const all = savedRouteMap(); delete all[name];
+    localStorage.setItem(LS + "routes", JSON.stringify(all));
+    refreshSavedRoutes();
+  }
+  function exportRoute() {
+    if (!stops.length) { setStatus("err", "Add at least one stop before exporting"); return; }
+    const name = document.getElementById("routeName").value.trim() || "unnamed";
+    const filename = name.replace(/[^a-z0-9_-]+/gi, "-").replace(/^-+|-+$/g, "") || "unnamed";
+    downloadFile(`route-${filename}.json`, JSON.stringify(routeDefinition(name), null, 2), "application/json");
+    setStatus("ok", `Exported route "${name}" in v${ROUTE_FORMAT_VERSION} format`);
+  }
+  function importRoute(input) {
+    const f = input.files?.[0]; if (!f) return;
+    f.text().then(t => {
+      const data = JSON.parse(t);
+      stops = normalizeStops(data.stops);
+      if (!stops.length) throw new Error("route has no stops");
+      const fallbackName = f.name.replace(/\.json$/i, "").replace(/^route-/, "") || "Imported route";
+      const name = data.name || data.meta?.routeName || fallbackName;
+      document.getElementById("routeName").value = name;
+      const all = savedRouteMap();
+      all[name] = routeDefinition(name);
+      localStorage.setItem(LS + "routes", JSON.stringify(all));
+      refreshSavedRoutes(`local:${name}`);
+      invalidateBuiltRoute(); renderStops(); drawStops();
+      setStatus("ok", `Imported and saved "${name}" (${stops.length} stops) — hit Build route`);
+    }).catch(err => setStatus("err", `Route import failed: ${err.message}`));
+    input.value = "";
+  }
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Route building: fetch legs, derive check-in waypoints
+  // ────────────────────────────────────────────────────────────────────────
+  async function buildRoute() {
+    if (stops.length < 2) { setStatus("err", "Need at least 2 stops to build a route"); return false; }
+    const buildVersion = ++routeBuildVersion;
+    const buildStops = stops.map(stop => ({ ...stop, poi: stop.poi ? { ...stop.poi } : null }));
+    const legCount = buildStops.length - 1;
+    const builtLegs = new Array(legCount);
+    let nextLegIndex = 0;
+    let completedLegs = 0;
+    setStatus("polling", "Building route…");
+    async function routeWorker() {
+      while (nextLegIndex < legCount) {
+        const i = nextLegIndex++;
+        const a = buildStops[i], b = buildStops[i + 1];
+        let leg = { fromIdx: i, toIdx: i + 1, mode: "direct", coords: [ {lng:a.lng,lat:a.lat,z:a.z}, {lng:b.lng,lat:b.lat,z:b.z} ] };
+        try {
+          const gj = await fetchLegGeoJSON(a, b);
+          if (buildVersion !== routeBuildVersion) return;
+          const coords = extractPath(gj, a, b);
+          if (coords.length >= 2) leg = { fromIdx: i, toIdx: i + 1, mode: "route", coords };
+        } catch (err) { console.warn(`Leg ${i} routing failed, using straight line:`, err); }
+        if (buildVersion !== routeBuildVersion) return false;
+        leg.distanceM = pathLength(leg.coords);
+        builtLegs[i] = leg;
+        completedLegs++;
+        setStatus("polling", `Built ${completedLegs}/${legCount} legs (${a.tag || alphaTag(i)} → ${b.tag || alphaTag(i + 1)})…`);
+        await sleep(0);
+      }
+    }
+    const workerCount = Math.min(ROUTE_BUILD_CONCURRENCY, legCount);
+    await Promise.all(Array.from({ length: workerCount }, () => routeWorker()));
+    if (buildVersion !== routeBuildVersion) return false;
+    legs = builtLegs;
+    generateWaypoints();
+    redrawRoute(); drawStops(); drawWaypoints();
+    walk = { phase: "idle", wpIdx: -1, history: [] };
+    updateWalkCard();
+    const total = legs.reduce((s, l) => s + l.distanceM, 0);
+    const directs = legs.filter(l => l.mode === "direct").length;
+    document.getElementById("routeInfo").textContent =
+      `${legs.length} legs, ${Math.round(total)} m, ${waypoints.length} check-in points` + (directs ? ` — ${directs} leg(s) fell back to a straight line` : "");
+    setStatus("ok", `Route built: ${waypoints.length} check-in points over ${Math.round(total)} m`);
+    collapseMobileConfig();
+    return true;
+  }
+
+  // Route one leg. POI→POI legs use the AtoB trip API (PEDESTRIAN, NONE);
+  // point-based legs fall back to getRouteJSON; buildRoute falls back to a
+  // straight line if both fail. Trip features are cloned to plain GeoJSON so
+  // the session export carries the exact route as walked.
+  async function fetchLegGeoJSON(a, b) {
+    if (a.targetType === "poi" && b.targetType === "poi" && a.poiId != null && b.poiId != null && typeof Mazemap.Data.getAtoBTrip === "function") {
+      try {
+        const params = { fromPoiId: a.poiId, toPoiId: b.poiId, mode: "PEDESTRIAN", constraint: "NONE" };
+        const tag = document.getElementById("collectionTag").value.trim();
+        if (tag) params.campusCollectionTag = tag;
+        const trip = await Mazemap.Data.getAtoBTrip(params);
+        const features = JSON.parse(JSON.stringify(trip?.features || []));
+        if (features.length) return { type: "FeatureCollection", features };
+        console.warn("getAtoBTrip returned no features, trying getRouteJSON");
+      } catch (err) { console.warn("getAtoBTrip failed, trying getRouteJSON:", err); }
+    }
+    return await Mazemap.Data.getRouteJSON(
+      { lngLat: { lng: a.lng, lat: a.lat }, zLevel: a.z },
+      { lngLat: { lng: b.lng, lat: b.lat }, zLevel: b.z });
+  }
+
+  function extractPath(geojson, from, to) {
+    const segments = [];
+    (geojson?.features || []).forEach(f => {
+      const g = f.geometry; if (!g) return;
+      const p = f.properties || {};
+      let z = p.z ?? p.zLevel ?? p.zlevel;
+      z = Number.isFinite(Number(z)) ? Number(z) : null;
+      const lines = g.type === "LineString" ? [g.coordinates] : g.type === "MultiLineString" ? g.coordinates : [];
+      lines.forEach(cs => {
+        const segment = [];
+        cs.forEach(c => {
+          const point = { lng: Number(c[0]), lat: Number(c[1]), z };
+          if (!Number.isFinite(point.lng) || !Number.isFinite(point.lat)) return;
+          const last = segment[segment.length - 1];
+          if (!last || !sameRoutePoint(last, point)) segment.push(point);
+        });
+        if (segment.length >= 2) segments.push(segment);
+      });
+    });
+    if (!segments.length) return [];
+
+    const remaining = segments.map(segment => segment.slice());
+    const points = [];
+    let cursor = routePoint(from);
+    while (remaining.length) {
+      let bestIndex = 0;
+      let reverse = false;
+      let bestDistance = Infinity;
+      remaining.forEach((segment, index) => {
+        const startDistance = routePointDistance(cursor, segment[0]);
+        const endDistance = routePointDistance(cursor, segment[segment.length - 1]);
+        if (startDistance < bestDistance) {
+          bestIndex = index;
+          reverse = false;
+          bestDistance = startDistance;
+        }
+        if (endDistance < bestDistance) {
+          bestIndex = index;
+          reverse = true;
+          bestDistance = endDistance;
+        }
+      });
+      const segment = remaining.splice(bestIndex, 1)[0];
+      if (reverse) segment.reverse();
+      if (points.length && sameRoutePoint(points[points.length - 1], segment[0])) segment.shift();
+      points.push(...segment);
+      cursor = points[points.length - 1];
+    }
+
+    const first = points[0], last = points[points.length - 1];
+    const forwardDistance = routePointDistance(from, first) + routePointDistance(to, last);
+    const reverseDistance = routePointDistance(from, last) + routePointDistance(to, first);
+    if (reverseDistance < forwardDistance) points.reverse();
+
+    let lastZ = Number(from.z);
+    if (!Number.isFinite(lastZ)) lastZ = points.find(point => point.z != null)?.z ?? 1;
+    points.forEach(point => {
+      if (point.z == null) point.z = lastZ;
+      else lastZ = point.z;
+    });
+
+    const exactFrom = routePoint(from);
+    const exactTo = routePoint(to);
+    if (sameRoutePoint(points[0], exactFrom)) points[0] = exactFrom;
+    else points.unshift(exactFrom);
+    if (sameRoutePoint(points[points.length - 1], exactTo)) points[points.length - 1] = exactTo;
+    else points.push(exactTo);
+    return points.filter((point, index) => index === 0 || !sameRoutePoint(points[index - 1], point));
+  }
+
+  function routePoint(value) {
+    return { lng: Number(value.lng), lat: Number(value.lat), z: Number(value.z) };
+  }
+  function sameRoutePoint(a, b) {
+    return a.lng === b.lng && a.lat === b.lat && Number(a.z) === Number(b.z);
+  }
+  function routePointDistance(a, b) {
+    const floorPenalty = Number.isFinite(Number(a.z)) && Number.isFinite(Number(b.z)) && Number(a.z) !== Number(b.z) ? 1000 : 0;
+    return haversine(a, b) + floorPenalty;
+  }
+
+  function generateWaypoints() {
+    waypoints = [];
+    _wpOrder = 0;
+    let id = 0;
+    const spacing = Number(document.getElementById("wpSpacing").value);
+    legs.forEach((leg, li) => {
+      const pts = leg.coords;
+      // indices worth a check-in: start, turns, floor changes, end
+      const marks = [{ i: 0, kind: li === 0 ? "stop" : null }]; // leg>0 start == previous stop, skip dup
+      for (let i = 1; i < pts.length - 1; i++) {
+        if (pts[i].z !== pts[i - 1].z) { marks.push({ i, kind: "floor" }); continue; }
+        const dPrev = haversine(pts[i - 1], pts[i]), dNext = haversine(pts[i], pts[i + 1]);
+        if (dPrev < 2 || dNext < 2) continue;  // vertex jitter
+        let diff = Math.abs(bearing(pts[i - 1], pts[i]) - bearing(pts[i], pts[i + 1]));
+        if (diff > 180) diff = 360 - diff;
+        if (diff >= TURN_DEG) marks.push({ i, kind: "turn" });
+      }
+      marks.push({ i: pts.length - 1, kind: "stop" });
+
+      const legWps = [];
+      for (let m = 0; m < marks.length; m++) {
+        const mk = marks[m];
+        if (mk.kind) legWps.push(mkWaypoint(pts[mk.i], mk.kind, li));
+        // interval fill between this mark and the next along the actual path
+        if (spacing > 0 && m < marks.length - 1) {
+          let acc = 0;
+          for (let i = mk.i; i < marks[m + 1].i; i++) {
+            const d = haversine(pts[i], pts[i + 1]);
+            if (d <= 0) continue;
+            let travelled = 0;
+            while (acc + (d - travelled) >= spacing) {
+              const need = spacing - acc;
+              const frac = (travelled + need) / d;
+              legWps.push(mkWaypoint(lerp(pts[i], pts[i + 1], frac), "mid", li));
+              travelled += need; acc = 0;
+            }
+            acc += d - travelled;
+          }
+        }
+      }
+      // prune generated points bunched up against turns/stops
+      legWps.sort((a, b) => a._order - b._order);
+      let prev = null;
+      legWps.forEach(w => {
+        if (prev && haversine(prev, w) < MIN_WP_GAP_M && w.kind === "mid") return;
+        if (prev && haversine(prev, w) < MIN_WP_GAP_M && prev.kind === "mid") { waypoints.pop(); prev = waypoints[waypoints.length - 1] || null; }
+        w.id = id++;
+        waypoints.push(w); prev = w;
+      });
+    });
+    waypoints.forEach((w, i) => {
+      w.seq = i;
+      if (w.kind === "stop") {
+        // name stops after the POI they belong to
+        const leg = legs[w.legIdx];
+        const stopIdx = (i === 0 && w.legIdx === 0) ? leg.fromIdx : leg.toIdx;
+        w.name = stopName(stopIdx);
+        w.stopIdx = stopIdx;
+      }
+      w.state = "pending";
+      delete w._order;
+    });
+  }
+
+  let _wpOrder = 0;
+  function mkWaypoint(pt, kind, legIdx) {
+    const names = { stop: "Stop", turn: "Turn point", floor: "Floor change", mid: "Checkpoint" };
+    return { id: -1, legIdx, kind, name: names[kind], lng: pt.lng, lat: pt.lat, z: pt.z, state: "pending", _order: _wpOrder++ };
+  }
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Walk state machine
+  // ────────────────────────────────────────────────────────────────────────
+  function walkMainAction() {
+    if (playback.active) return;
+    if (walk.phase === "idle" || walk.phase === "done") startWalk();
+    else if (walk.phase === "walking") checkin();
+    else if (walk.phase === "awaitDepart") depart();
+  }
+
+  function startWalk() {
+    if (!waypoints.length) { setStatus("err", "Build the route first"); return; }
+    waypoints.forEach(w => w.state = "pending");
+    walk = { phase: "walking", wpIdx: 0, history: [] };
+    sessionMeta.startedAt = sessionMeta.startedAt || new Date().toISOString();
+    sessionMeta.routeName = document.getElementById("routeName").value.trim();
+    logEvent("walk_start", { note: `${waypoints.length} points, ${legs.length} legs` });
+    if (!pollRun.cloud && !pollRun.lipi) startPolling();
+    setCurrentWaypoint(0);
+    updateWalkCard();
+  }
+
+  function checkin() {
+    const wp = waypoints[walk.wpIdx];
+    if (!wp) return;
+    // Baseline only: the click records where the surveyor actually is (the
+    // waypoint's known lat/lng/z) and when. Positioning streams separately in
+    // the background on its own timestamps; correlation happens post-export.
+    walk.history.push({ wpIdx: walk.wpIdx, phase: walk.phase });
+    logEvent("checkin", { wpId: wp.id, wpSeq: wp.seq, wpKind: wp.kind, wpName: wp.name, legIdx: wp.legIdx, lat: wp.lat, lng: wp.lng, z: wp.z });
+    wp.state = "done";
+    navigator.vibrate?.(100);
+    document.getElementById("cntCheckin").textContent = events.filter(e => e.type === "checkin").length;
+
+    const isArrivalStop = wp.kind === "stop" && wp.seq > 0;
+    const isLast = walk.wpIdx >= waypoints.length - 1;
+    if (isArrivalStop) logEvent("arrive", { wpId: wp.id, wpName: wp.name, legIdx: wp.legIdx });
+
+    if (isLast) {
+      walk.phase = "done";
+      sessionMeta.endedAt = new Date().toISOString();
+      logEvent("walk_end", {});
+      setStatus("ok", "Walk complete — export the session or play it back");
+    } else if (isArrivalStop) {
+      walk.phase = "awaitDepart";  // wait until idle at the stop; user presses Depart
+    } else {
+      advance();
+    }
+    drawWaypoints(); updateWalkCard(); renderLog();
+  }
+
+  function depart() {
+    const wp = waypoints[walk.wpIdx];
+    walk.history.push({ wpIdx: walk.wpIdx, phase: walk.phase });
+    logEvent("depart", { wpId: wp?.id, wpName: wp?.name, legIdx: wp?.legIdx });
+    walk.phase = "walking";
+    advance();
+    updateWalkCard(); renderLog();
+  }
+
+  function skipWaypoint() {
+    if (walk.phase !== "walking" && walk.phase !== "awaitDepart") return;
+    const wp = waypoints[walk.wpIdx];
+    walk.history.push({ wpIdx: walk.wpIdx, phase: walk.phase });
+    logEvent("skip", { wpId: wp.id, wpName: wp.name, legIdx: wp.legIdx });
+    wp.state = "skipped";
+    if (walk.wpIdx >= waypoints.length - 1) {
+      walk.phase = "done"; sessionMeta.endedAt = new Date().toISOString(); logEvent("walk_end", {});
+    } else { walk.phase = "walking"; advance(); }
+    drawWaypoints(); updateWalkCard(); renderLog();
+  }
+
+  function undoCheckin() {
+    const prev = walk.history.pop();
+    if (!prev) return;
+    // remove events back to (and including) the last checkin/skip/depart
+    for (let i = events.length - 1; i >= 0; i--) {
+      const t = events[i].type;
+      events.splice(i, 1);
+      if (t === "checkin" || t === "skip" || t === "depart") break;
+    }
+    const cur = waypoints[walk.wpIdx]; if (cur) cur.state = cur.state === "current" ? "pending" : cur.state;
+    walk.wpIdx = prev.wpIdx; walk.phase = prev.phase;
+    const wp = waypoints[walk.wpIdx];
+    if (wp) { wp.state = "pending"; setCurrentWaypoint(walk.wpIdx); }
+    document.getElementById("cntCheckin").textContent = events.filter(e => e.type === "checkin").length;
+    drawWaypoints(); updateWalkCard(); renderLog();
+  }
+
+  function endWalk() {
+    if (walk.phase === "idle") return;
+    walk.phase = "done";
+    sessionMeta.endedAt = new Date().toISOString();
+    logEvent("walk_end", { note: "ended manually" });
+    updateWalkCard(); renderLog();
+  }
+
+  function advance() {
+    walk.wpIdx++;
+    setCurrentWaypoint(walk.wpIdx);
+  }
+
+  function setCurrentWaypoint(idx) {
+    waypoints.forEach((w, i) => { if (w.state === "current") w.state = "pending"; });
+    const wp = waypoints[idx];
+    if (!wp) return;
+    wp.state = "current";
+    drawWaypoints();
+    if (targetMarker) { targetMarker.remove(); targetMarker = null; }
+    targetMarker = new Mazemap.MazeMarker({
+      color: WP_CURRENT, size: 42, glyph: String(wp.seq + 1), glyphSize: 14, glyphColor: "#fff",
+      innerCircle: true, innerCircleColor: "#fff", innerCircleScale: 0.55, zLevel: wp.z,
+    }).setLngLat({ lng: wp.lng, lat: wp.lat }).addTo(map);
+    setMapZLevel(wp.z);
+    map.stop?.();
+    const camera = { center: [wp.lng, wp.lat], zoom: Math.max(map.getZoom(), 19), duration: 350 };
+    if (typeof map.easeTo === "function") map.easeTo(camera);
+    else map.flyTo(camera);
+  }
+
+  function updateWalkCard() {
+    if (!playback.active) updateActiveLeg();   // playback drives the highlight itself
+    const btn = document.getElementById("walkBtn");
+    const prompt = document.getElementById("walkPrompt");
+    const target = document.getElementById("walkTarget");
+    const sec = document.getElementById("walkSecondary");
+    btn.className = "btn-big"; btn.disabled = false;
+    if (playback.active) { prompt.textContent = "Playback mode"; target.textContent = "—"; btn.disabled = true; sec.style.display = "none"; return; }
+
+    if (walk.phase === "idle" || walk.phase === "done") {
+      prompt.textContent = walk.phase === "done" ? "Walk complete" : (waypoints.length ? "Route ready" : "Route not built yet");
+      target.textContent = waypoints.length ? `${waypoints.length} check-in points` : "—";
+      btn.textContent = walk.phase === "done" ? "↻ Restart walk" : "▶ Start walk";
+      btn.disabled = !waypoints.length;
+      sec.style.display = "none";
+      return;
+    }
+    const wp = waypoints[walk.wpIdx];
+    sec.style.display = "flex";
+    if (walk.phase === "awaitDepart") {
+      prompt.textContent = "Arrived — idle here, then depart";
+      target.textContent = wp?.name ?? "—";
+      btn.textContent = `▶ Depart ${wp?.stopIdx != null ? tagOf(wp.stopIdx) : ""}`;
+      btn.classList.add("depart");
+      return;
+    }
+    const isStop = wp?.kind === "stop" && wp.seq > 0;
+    prompt.textContent = `Point ${walk.wpIdx + 1} of ${waypoints.length}` + (wp ? ` · leg ${tagOf(legs[wp.legIdx].fromIdx)}→${tagOf(legs[wp.legIdx].toIdx)} · level ${wp.z}` : "");
+    target.textContent = wp?.name ?? "—";
+    btn.textContent = isStop ? "🏁 Arrived — check in" : "✓ I'm here";
+    if (isStop) btn.classList.add("arrive");
+  }
+
+  // live distance-to-target hint
+  function updateWalkDist() {
+    const el = document.getElementById("walkDist");
+    if (playback.active || walk.phase !== "walking" || walk.wpIdx < 0) { el.textContent = ""; return; }
+    const wp = waypoints[walk.wpIdx]; if (!wp) { el.textContent = ""; return; }
+    let latest = null;
+    for (let index = samples.length - 1; index >= 0; index--) {
+      const sample = samples[index];
+      if (sample.ok && sample.data && typeof sample.data.latitude === "number") { latest = sample; break; }
+    }
+    if (!latest) { el.textContent = ""; return; }
+    const d = haversine({ lng: latest.data.longitude, lat: latest.data.latitude }, wp);
+    el.textContent = `≈ ${d.toFixed(1)} m from target (${latest.source}, ${Math.round((Date.now() - latest.tRecvMs) / 1000)}s ago)`;
+  }
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Positioning capture — cloud + LiPi
+  // ────────────────────────────────────────────────────────────────────────
+  function startPolling() {
+    if (document.getElementById("srcCloud").checked && !pollRun.cloud) { pollRun.cloud = true; pollLoop("cloud"); }
+    if (document.getElementById("srcLipi").checked && !pollRun.lipi) { pollRun.lipi = true; pollLoop("lipi"); }
+    if (!pollRun.cloud && !pollRun.lipi) setStatus("err", "Enable at least one source (Cloud / LiPi)");
+  }
+  function stopPolling() {
+    pollRun.cloud = pollRun.lipi = false;
+    document.getElementById("dotCloud").className = "dot";
+    document.getElementById("dotLipi").className = "dot";
+  }
+
+  async function pollLoop(source) {
+    while (pollRun[source]) {
+      const s = await pollOnce(source, "poll");
+      if (!pollRun[source]) break;
+      const delay = Number(document.getElementById("pollInterval").value);
+      // instant = re-poll as soon as the response lands; back off if the source is erroring
+      await sleep(delay > 0 ? delay : (s.ok ? 150 : 3000));
+    }
+  }
+
+  // One request to one source; returns and records the sample (full payload + all timestamps)
+  async function pollOnce(source, ctx) {
+    const dot = document.getElementById(source === "cloud" ? "dotCloud" : "dotLipi");
+    dot.className = "dot polling";
+    const tSent = Date.now();
+    const sample = { id: sampleSeq++, source, ctx, tSentMs: tSent, isoSent: new Date(tSent).toISOString(), tRecvMs: null, isoRecv: null, rttMs: null, http: null, ok: false, data: null, error: null };
+    try {
+      const res = await fetchSource(source);
+      sample.http = res.status;
+      const text = await res.text();
+      try { sample.data = JSON.parse(text); } catch { sample.data = { raw: text }; }
+      sample.tRecvMs = Date.now();
+      sample.ok = res.ok && typeof sample.data?.latitude === "number" && typeof sample.data?.longitude === "number";
+      dot.className = `dot ${sample.ok ? "ok" : "err"}`;
+    } catch (err) {
+      sample.error = err.message;
+      sample.tRecvMs = Date.now();
+      dot.className = "dot err";
+    }
+    sample.isoRecv = new Date(sample.tRecvMs).toISOString();
+    sample.rttMs = sample.tRecvMs - sample.tSentMs;
+    samples.push(sample);
+    sampleCounts[source]++;
+    document.getElementById(source === "cloud" ? "cntCloud" : "cntLipi").textContent = sampleCounts[source];
+    updateLive(sample);
+    if (!playback.active) { drawTrails(); updateWalkDist(); }
+    return sample;
+  }
+
+  async function fetchSource(source) {
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), 12000);
+    try {
+      if (source === "cloud") {
+        const appId = document.getElementById("appId").value.trim();
+        const appKey = document.getElementById("appKey").value.trim();
+        const configId = document.getElementById("configId").value.trim();
+        const clientIp = document.getElementById("clientIp").value.trim();
+        if (!appId || !appKey || !configId || !clientIp) throw new Error("cloud credentials missing (App ID / Key / Config ID / Client IP)");
+        const params = new URLSearchParams({ configId, clientIp });
+        // Cloud base lets this page run from another origin (e.g. a
+        // *.mazemap.com host so LiPi CORS passes) while still using the
+        // demo server's positioning proxy for the cloud side.
+        const base = document.getElementById("cloudBase").value.trim().replace(/\/+$/, "");
+        return await fetch(`${base}/mm-positioning-proxy/position?${params}`, {
+          headers: { "X-Mazemap-App-Id": appId, "X-Mazemap-App-Key": appKey, "Accept": "application/json" },
+          signal: ctl.signal,
+        });
+      }
+      // LiPi must be called directly from this device — the server identifies
+      // the device by the requesting IP, so it can never go through a proxy.
+      // It also requires a Referer header: the page's own policy is
+      // no-referrer (nginx site-wide), so force it back on for this request.
+      // Browsers only allow the page's own URL here, not arbitrary values.
+      return await fetch(document.getElementById("lipiUrl").value.trim(), {
+        headers: { "Accept": "application/json" },
+        referrer: document.location.href,
+        referrerPolicy: "unsafe-url",
+        signal: ctl.signal,
+      });
+    } finally { clearTimeout(timer); }
+  }
+
+  function updateLive(sample) {
+    const box = document.getElementById(sample.source === "cloud" ? "liveCloud" : "liveLipi");
+    if (sample.ok) {
+      const d = sample.data;
+      const age = typeof d.lastSeen === "number" ? `${Math.round((Date.now() - d.lastSeen) / 1000)}s old` : "—";
+      box.innerHTML = `${d.latitude.toFixed(6)}, ${d.longitude.toFixed(6)}<br>` +
+        `z ${d.zLevel} · conf ${d.confidenceFactor ?? "—"}<br>` +
+        `lastSeen ${age} · rtt ${sample.rttMs} ms<br>` +
+        `<span style="color:#667085">${esc(d.locationName || "")}</span>`;
+    } else {
+      box.innerHTML = `<span style="color:#d92d20">${esc(sample.error || `HTTP ${sample.http}`)}</span>`;
+    }
+    document.getElementById("liveJson").textContent =
+      `── latest ${sample.source} (${sample.isoRecv}) ──\n` + JSON.stringify(sample.data ?? { error: sample.error }, null, 2);
+  }
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Session: events, log, export, clear
+  // ────────────────────────────────────────────────────────────────────────
+  function logEvent(type, detail) {
+    const t = Date.now();
+    events.push({ type, tMs: t, iso: new Date(t).toISOString(), ...detail });
+  }
+
+  function renderLog() {
+    const el = document.getElementById("logList");
+    const items = [...events].reverse().slice(0, 200).map(e => {
+      const t = new Date(e.tMs).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      if (e.type === "checkin") {
+        return `<div class="log-item"><span class="t">${t}</span> · <b>#${e.wpSeq + 1} ${esc(e.wpName)}</b><br>${e.lat.toFixed(6)}, ${e.lng.toFixed(6)} · z${e.z}</div>`;
+      }
+      return `<div class="log-item evt"><span class="t">${t}</span> · <b>${e.type}</b>${e.wpName ? " — " + esc(e.wpName) : ""}${e.note ? " — " + esc(e.note) : ""}</div>`;
+    });
+    el.innerHTML = items.length ? items.join("") : '<div class="hint">Check-ins and events appear here.</div>';
+  }
+
+  function buildSession() {
+    return {
+      tool: "route_survey", version: ROUTE_FORMAT_VERSION,
+      meta: {
+        campusId: CAMPUS_ID,
+        routeFormatVersion: ROUTE_FORMAT_VERSION,
+        configId: document.getElementById("configId").value.trim(),
+        clientIp: document.getElementById("clientIp").value.trim(),
+        lipiUrl: document.getElementById("lipiUrl").value.trim(),
+        intervalMs: Number(document.getElementById("pollInterval").value),
+        spacingM: Number(document.getElementById("wpSpacing").value),
+        exportedAt: new Date().toISOString(),
+        ...sessionMeta,
+      },
+      stops: normalizeStops(stops), legs, waypoints, samples, events,
+    };
+  }
+
+  function exportSessionJson() {
+    downloadFile(tsName("json"), JSON.stringify(buildSession(), null, 2), "application/json");
+  }
+
+  function exportSessionCsv() {
+    // One flat table: positioning samples (source rows) and walk events
+    // (check-in baseline rows) interleaved by time. Correlation is done
+    // afterwards, off the timestamps.
+    const header = ["event","source","iso_sent","ms_sent","iso_recv","ms_recv","rtt_ms","http",
+      "lastSeen_ms","iso_lastSeen","latitude","longitude","zLevel","x","y","confidenceFactor","locationName",
+      "wp_seq","wp_kind","wp_name","leg","wp_lat","wp_lng","wp_z","note"];
+    const EMPTY_SRC = Array(13).fill("");   // iso_recv … locationName
+    const EMPTY_WP = Array(7).fill("");     // wp_seq … wp_z
+    const rows = [];
+    samples.forEach(s => {
+      const d = s.data || {};
+      rows.push({ t: s.tSentMs, row: ["sample", s.source, s.isoSent, s.tSentMs, s.isoRecv ?? "", s.tRecvMs ?? "", s.rttMs ?? "", s.http ?? "",
+        d.lastSeen ?? "", typeof d.lastSeen === "number" ? new Date(d.lastSeen).toISOString() : "",
+        d.latitude ?? "", d.longitude ?? "", d.zLevel ?? "", d.x ?? "", d.y ?? "", d.confidenceFactor ?? "", d.locationName ?? (s.error ?? ""),
+        ...EMPTY_WP, ""] });
+    });
+    events.forEach(e => {
+      if (e.type === "checkin") {
+        rows.push({ t: e.tMs, row: ["checkin", "", e.iso, e.tMs, ...EMPTY_SRC,
+          e.wpSeq + 1, e.wpKind, e.wpName, e.legIdx, e.lat, e.lng, e.z, ""] });
+      } else {
+        rows.push({ t: e.tMs, row: [e.type, "", e.iso, e.tMs, ...EMPTY_SRC,
+          e.wpSeq != null ? e.wpSeq + 1 : "", e.wpKind ?? "", e.wpName ?? "", e.legIdx ?? "", "", "", "", e.note ?? ""] });
+      }
+    });
+    rows.sort((a, b) => a.t - b.t);
+    const csv = [header, ...rows.map(r => r.row)].map(r => r.map(csvCell).join(",")).join("\n");
+    downloadFile(tsName("csv"), csv, "text/csv");
+  }
+
+  function clearSession() {
+    samples = []; events = []; sampleSeq = 0;
+    sampleCounts = { cloud: 0, lipi: 0 };
+    sessionMeta = { startedAt: null, endedAt: null, routeName: "" };
+    waypoints.forEach(w => w.state = "pending");
+    walk = { phase: "idle", wpIdx: -1, history: [] };
+    if (targetMarker) { targetMarker.remove(); targetMarker = null; }
+    ["cntCloud","cntLipi","cntCheckin"].forEach(id => document.getElementById(id).textContent = "0");
+    drawTrails(); drawWaypoints(); updateWalkCard(); renderLog();
+    setStatus("", "Session cleared — route kept");
+  }
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Playback
+  // ────────────────────────────────────────────────────────────────────────
+  const playback = { active: false, data: null, t0: 0, t1: 0, t: 0, playing: false, timer: null };
+
+  function importSession(input) {
+    const f = input.files?.[0]; if (!f) return;
+    f.text().then(t => {
+      const data = JSON.parse(t);
+      if (!Array.isArray(data.samples)) throw new Error("not a route_survey session file");
+      enterPlayback(data);
+    }).catch(err => setStatus("err", `Session import failed: ${err.message}`));
+    input.value = "";
+  }
+
+  function enterPlayback(data) {
+    if (!data) return;   // playback works off an uploaded session file only
+    const times = [...(data.samples || []).map(s => s.tRecvMs || s.tSentMs), ...(data.events || []).map(e => e.tMs)].filter(Boolean);
+    if (!times.length) { setStatus("err", "No samples or events in that file"); return; }
+    stopPolling();
+    playback.active = true; playback.data = data;
+    playback.t0 = Math.min(...times); playback.t1 = Math.max(...times); playback.t = playback.t0;
+    document.getElementById("pbPanel").style.display = "flex";
+    document.getElementById("pbInfo").textContent =
+      `${(data.samples || []).length} samples, ${(data.events || []).filter(e => e.type === "checkin").length} check-ins, ` +
+      `${Math.round((playback.t1 - playback.t0) / 1000)}s`;
+    // show the file's own route and stops
+    redrawRoute(data.legs || []); drawStopsFrom(data.stops || []);
+    if (targetMarker) { targetMarker.remove(); targetMarker = null; }
+    updateWalkCard();
+    pbRender();
+  }
+
+  function exitPlayback() {
+    pbPause();
+    playback.active = false; playback.data = null;
+    document.getElementById("pbPanel").style.display = "none";
+    redrawRoute(); drawStops(); drawWaypoints(); drawTrails(); updateWalkCard();
+  }
+
+  function pbTogglePlay() { playback.playing ? pbPause() : pbPlay(); }
+  function pbPlay() {
+    if (!playback.active) return;
+    playback.playing = true;
+    document.getElementById("pbPlayBtn").textContent = "❚❚ Pause";
+    playback.timer = setInterval(() => {
+      playback.t += Number(document.getElementById("pbSpeed").value) * 100;
+      if (playback.t >= playback.t1) { playback.t = playback.t1; pbPause(); }
+      pbRender();
+    }, 100);
+  }
+  function pbPause() {
+    playback.playing = false;
+    document.getElementById("pbPlayBtn").textContent = "▶ Play";
+    clearInterval(playback.timer);
+  }
+  function pbSeek(v) {
+    if (!playback.active) return;
+    playback.t = playback.t0 + (playback.t1 - playback.t0) * (v / 1000);
+    pbRender();
+  }
+
+  function pbRender() {
+    const d = playback.data;
+    const t = playback.t;
+    document.getElementById("pbSlider").value = Math.round(((t - playback.t0) / Math.max(1, playback.t1 - playback.t0)) * 1000);
+    document.getElementById("pbTime").textContent = new Date(t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    drawTrails(d.samples.filter(s => (s.tRecvMs || s.tSentMs) <= t));
+    // waypoint states as of t
+    const wps = (d.waypoints || []).map(w => ({ ...w, state: "pending" }));
+    let lastDone = -1;
+    (d.events || []).forEach(e => {
+      if (e.tMs > t) return;
+      if (e.type === "checkin" || e.type === "skip") {
+        const w = wps.find(x => x.id === e.wpId);
+        if (w) { w.state = e.type === "checkin" ? "done" : "skipped"; lastDone = Math.max(lastDone, w.seq); }
+      }
+    });
+    if (lastDone + 1 < wps.length && lastDone >= 0) wps[lastDone + 1].state = "current";
+    else if (lastDone === -1 && wps.length && (d.events || []).some(e => e.type === "walk_start" && e.tMs <= t)) wps[0].state = "current";
+    drawWaypoints(wps);
+    const curWp = wps.find(w => w.state === "current");
+    setActiveLeg(curWp ? curWp.legIdx : -1);
+    const lastEvt = [...(d.events || [])].filter(e => e.tMs <= t).pop();
+    document.getElementById("walkPrompt").textContent = "Playback";
+    document.getElementById("walkTarget").textContent = lastEvt ? `${lastEvt.type}${lastEvt.wpName ? " — " + lastEvt.wpName : ""}` : "…";
+  }
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Map layers & drawing
+  // ────────────────────────────────────────────────────────────────────────
+  function ensureLayers() {
+    if (!map || !mapReady) return;
+    const mk = (id, type, paint, layout) => {
+      if (!map.getSource(id)) map.addSource(id, { type: "geojson", data: emptyFC() });
+      if (!map.getLayer(id + "-lyr")) map.addLayer({ id: id + "-lyr", type, source: id, paint, layout: layout || {} });
+    };
+    mk("route-lines", "line",
+      { "line-width": 3, "line-color": zCase(ROUTE_COLOR), "line-opacity": zCaseNum(0.75, 0.15), "line-dasharray": [2, 2] },
+      { "line-join": "round", "line-cap": "round" });
+    // Active leg: solid orange on top of the dashed route, so overlapping
+    // legs don't hide which segment is being walked right now
+    if (!map.getLayer("route-active-lyr")) {
+      map.addLayer({
+        id: "route-active-lyr", type: "line", source: "route-lines",
+        layout: { "line-join": "round", "line-cap": "round" },
+        paint: { "line-width": 6, "line-color": zCase(WP_CURRENT), "line-opacity": zCaseNum(0.95, 0.2) },
+        filter: ["==", ["get", "legIdx"], -1],
+      });
+    }
+    mk("cloud-trail", "line", { "line-width": 2.5, "line-color": zCase(CLOUD_COLOR), "line-opacity": zCaseNum(0.85, 0.15) });
+    mk("lipi-trail", "line", { "line-width": 2.5, "line-color": zCase(LIPI_COLOR), "line-opacity": zCaseNum(0.85, 0.15) });
+    mk("cloud-pts", "circle", trailPtPaint(CLOUD_COLOR));
+    mk("lipi-pts", "circle", trailPtPaint(LIPI_COLOR));
+    mk("wp-pts", "circle", {
+      "circle-radius": ["case", ["==", ["get", "state"], "current"], 10, ["==", ["get", "kind"], "stop"], 8, 5.5],
+      "circle-color": ["match", ["get", "state"], "current", WP_CURRENT, "done", WP_DONE, "skipped", WP_SKIPPED, WP_PENDING],
+      "circle-opacity": zCaseNum(1, 0.25),
+      "circle-stroke-color": "#ffffff", "circle-stroke-width": 2, "circle-stroke-opacity": zCaseNum(1, 0.25),
+    });
+    mk("stop-pts", "circle", {
+      "circle-radius": 11, "circle-color": "rgba(0,0,0,0)",
+      "circle-stroke-color": zCase("#0f172a"), "circle-stroke-width": 2.5, "circle-stroke-opacity": zCaseNum(0.9, 0.2),
+    });
+  }
+  function trailPtPaint(color) {
+    return {
+      "circle-radius": ["case", ["==", ["get", "isLatest"], true], 8, 4],
+      "circle-color": zCase(color), "circle-opacity": zCaseNum(1, 0.25),
+      "circle-stroke-color": "#ffffff", "circle-stroke-width": 2, "circle-stroke-opacity": zCaseNum(1, 0.25),
+    };
+  }
+  function zCase(color) { return ["case", ["==", ["get", "z"], currentZLevel], color, "#aaaaaa"]; }
+  function zCaseNum(on, off) { return ["case", ["==", ["get", "z"], currentZLevel], on, off]; }
+
+  function applyZStyling() {
+    if (!map || !mapReady) return;
+    ensureLayers();
+    const sets = [
+      ["route-lines-lyr", "line-color", zCase(ROUTE_COLOR)], ["route-lines-lyr", "line-opacity", zCaseNum(0.75, 0.15)],
+      ["cloud-trail-lyr", "line-color", zCase(CLOUD_COLOR)], ["cloud-trail-lyr", "line-opacity", zCaseNum(0.85, 0.15)],
+      ["lipi-trail-lyr", "line-color", zCase(LIPI_COLOR)], ["lipi-trail-lyr", "line-opacity", zCaseNum(0.85, 0.15)],
+      ["cloud-pts-lyr", "circle-color", zCase(CLOUD_COLOR)], ["cloud-pts-lyr", "circle-opacity", zCaseNum(1, 0.25)], ["cloud-pts-lyr", "circle-stroke-opacity", zCaseNum(1, 0.25)],
+      ["lipi-pts-lyr", "circle-color", zCase(LIPI_COLOR)], ["lipi-pts-lyr", "circle-opacity", zCaseNum(1, 0.25)], ["lipi-pts-lyr", "circle-stroke-opacity", zCaseNum(1, 0.25)],
+      ["route-active-lyr", "line-color", zCase(WP_CURRENT)], ["route-active-lyr", "line-opacity", zCaseNum(0.95, 0.2)],
+      ["wp-pts-lyr", "circle-opacity", zCaseNum(1, 0.25)], ["wp-pts-lyr", "circle-stroke-opacity", zCaseNum(1, 0.25)],
+      ["stop-pts-lyr", "circle-stroke-color", zCase("#0f172a")], ["stop-pts-lyr", "circle-stroke-opacity", zCaseNum(0.9, 0.2)],
+    ];
+    sets.forEach(([lyr, prop, val]) => { try { if (map.getLayer(lyr)) map.setPaintProperty(lyr, prop, val); } catch (_) {} });
+  }
+
+  function setSrc(id, features) { map.getSource(id)?.setData({ type: "FeatureCollection", features }); }
+
+  function setActiveLeg(legIdx) {
+    if (!map || !mapReady) return;
+    ensureLayers();
+    try { map.setFilter("route-active-lyr", ["==", ["get", "legIdx"], legIdx ?? -1]); } catch (_) {}
+  }
+  function updateActiveLeg() {
+    const walking = walk.phase === "walking" || walk.phase === "awaitDepart";
+    setActiveLeg(walking ? (waypoints[walk.wpIdx]?.legIdx ?? -1) : -1);
+  }
+
+  function redrawRoute(legsOverride) {
+    if (!map || !mapReady) return;
+    ensureLayers();
+    const ls = legsOverride ?? legs;
+    const features = [];
+    ls.forEach((leg, legIdx) => appendPathFeatures(features, leg.coords || [], { legIdx }));
+    setSrc("route-lines", features);
+  }
+
+  function drawWaypoints(wpsOverride) {
+    if (!map || !mapReady) return;
+    ensureLayers();
+    const wps = wpsOverride ?? waypoints;
+    setSrc("wp-pts", wps.map(w => ({ type: "Feature", properties: { z: w.z, state: w.state, kind: w.kind }, geometry: { type: "Point", coordinates: [w.lng, w.lat] } })));
+  }
+
+  function drawStops() { drawStopsFrom(stops); }
+  function drawStopsFrom(ss) {
+    if (!map || !mapReady) return;
+    ensureLayers();
+    setSrc("stop-pts", ss.map(s => ({ type: "Feature", properties: { z: s.z }, geometry: { type: "Point", coordinates: [s.lng, s.lat] } })));
+  }
+
+  function drawTrails(samplesOverride) {
+    if (!map || !mapReady) return;
+    ensureLayers();
+    const src = samplesOverride ?? samples;
+    ["cloud", "lipi"].forEach(source => {
+      const fixes = recentSourceFixes(src, source, MAP_TRAIL_FIX_LIMIT);
+      const lines = [];
+      appendPathFeatures(lines, fixes.map(sample => ({
+        lng: sample.data.longitude,
+        lat: sample.data.latitude,
+        z: sample.data.zLevel ?? 1,
+      })), {});
+      const pts = fixes.map((s, i) => ({ type: "Feature",
+        properties: { z: s.data.zLevel ?? 1, isLatest: i === fixes.length - 1, ctx: s.ctx },
+        geometry: { type: "Point", coordinates: [s.data.longitude, s.data.latitude] } }));
+      setSrc(source + "-trail", lines);
+      setSrc(source + "-pts", pts);
+    });
+  }
+  function recentSourceFixes(sourceSamples, source, limit) {
+    const fixes = [];
+    for (let index = sourceSamples.length - 1; index >= 0 && fixes.length < limit; index--) {
+      const sample = sourceSamples[index];
+      if (sample.source === source && sample.ok && sample.data) fixes.push(sample);
+    }
+    return fixes.reverse();
+  }
+  function appendPathFeatures(features, points, properties) {
+    if (points.length < 2) return;
+    let z = points[0].z;
+    let coordinates = [[points[0].lng, points[0].lat]];
+    for (let index = 1; index < points.length; index++) {
+      const point = points[index];
+      if (point.z !== z) {
+        if (coordinates.length >= 2) {
+          features.push({ type: "Feature", properties: { ...properties, z }, geometry: { type: "LineString", coordinates } });
+        }
+        z = point.z;
+        coordinates = [[point.lng, point.lat]];
+      } else {
+        coordinates.push([point.lng, point.lat]);
+      }
+    }
+    if (coordinates.length >= 2) {
+      features.push({ type: "Feature", properties: { ...properties, z }, geometry: { type: "LineString", coordinates } });
+    }
+  }
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Z-level plumbing (same approach as position_diagnostic)
+  // ────────────────────────────────────────────────────────────────────────
+  function getMapZLevel() {
+    if (map && typeof map.getZLevel === "function") { try { return map.getZLevel(); } catch (_) {} }
+    if (map && typeof map.zLevel === "number") return map.zLevel;
+    return currentZLevel;
+  }
+  function setMapZLevel(z) {
+    if (typeof map.setZLevel === "function") map.setZLevel(z);
+    else if (typeof map.setZlevel === "function") map.setZlevel(z);
+  }
+  function startZWatch() {
+    clearInterval(zWatch);
+    zWatch = setInterval(() => {
+      const z = getMapZLevel();
+      if (z != null && z !== currentZLevel) {
+        currentZLevel = z;
+        document.getElementById("curFloor").textContent = z;
+        applyZStyling();
+      }
+    }, 250);
+  }
+
+  // ────────────────────────────────────────────────────────────────────────
+  // Tabs, utils
+  // ────────────────────────────────────────────────────────────────────────
+  function collapseMobileConfig() {
+    if (!window.matchMedia("(max-width: 700px)").matches) return;
+    document.querySelector("details.config").open = false;
+    resizeMapSoon();
+  }
+  function resizeMapSoon() {
+    requestAnimationFrame(() => requestAnimationFrame(() => map?.resize?.()));
+  }
+  function showTab(name) {
+    ["route","log","live","play"].forEach(n => {
+      document.getElementById("tab-" + n).classList.toggle("active", n === name);
+      document.getElementById("tabbtn-" + n).classList.toggle("active", n === name);
+    });
+  }
+
+  function haversine(a, b) {
+    const R = 6371000, toRad = x => x * Math.PI / 180;
+    const dLat = toRad(b.lat - a.lat), dLng = toRad(b.lng - a.lng);
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+  function bearing(a, b) {
+    const toRad = x => x * Math.PI / 180;
+    const y = Math.sin(toRad(b.lng - a.lng)) * Math.cos(toRad(b.lat));
+    const x = Math.cos(toRad(a.lat)) * Math.sin(toRad(b.lat)) - Math.sin(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.cos(toRad(b.lng - a.lng));
+    return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+  }
+  function lerp(a, b, f) { return { lng: a.lng + (b.lng - a.lng) * f, lat: a.lat + (b.lat - a.lat) * f, z: a.z }; }
+  function pathLength(pts) { let d = 0; for (let i = 1; i < pts.length; i++) d += haversine(pts[i - 1], pts[i]); return d; }
+
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+  function emptyFC() { return { type: "FeatureCollection", features: [] }; }
+  function esc(v) { return String(v ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;"); }
+  function csvCell(v) { return `"${String(v ?? "").replaceAll('"', '""')}"`; }
+  function tsName(ext) { return `route-survey-${new Date().toISOString().replace(/[:.]/g, "-")}.${ext}`; }
+  function downloadFile(filename, content, type) {
+    const blob = new Blob([content], { type });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+  function setStatus(type, text) {
+    const el = document.getElementById("statusText");
+    el.textContent = text;
+    el.style.color = type === "err" ? "#d92d20" : "#667085";
+  }
+</script>
+</body>
+</html>

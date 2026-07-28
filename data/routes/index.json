@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "routes": [
+    {
+      "name": "L00 Survey",
+      "file": "route-L00-Survey.json",
+      "campusId": 566,
+      "floor": "L00"
+    }
+  ]
+}

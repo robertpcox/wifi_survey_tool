@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Survey Runner</title>
+  <link rel="stylesheet" href="../src/shared/app-shell.css">
+  <script type="module" src="../src/apps/runner/main.mjs"></script>
+</head>
+<body data-app="runner">
+  <header>
+    <strong>Wi-Fi Survey v3</strong>
+    <nav>
+      <a href="../dashboard/">Dashboard</a>
+      <a href="../creator/">Creator</a>
+      <a href="../report-player/">Report Player</a>
+    </nav>
+  </header>
+  <main>
+    <p class="eyebrow">Runner</p>
+    <section class="shell-card">
+      <h1>Capture a survey run</h1>
+      <p>The mobile-first v3 shell is ready. Guided capture arrives in Step 4.</p>
+      <p data-shell-status>Starting Runner shell…</p>
+      <div class="map-access">
+        <strong>Private map access</strong>
+        <span>Optional access stays in memory and disappears when this tab closes.</span>
+        <div class="map-access-row">
+          <input data-map-access type="password" autocomplete="off">
+          <button class="primary" data-save-access>Use for this tab</button>
+          <button data-clear-access>Clear</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

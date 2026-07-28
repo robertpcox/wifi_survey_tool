@@ -1,0 +1,111 @@
+.main {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  flex: 1;
+  min-height: 0;
+}
+.map-wrap { position: relative; min-height: 0; }
+#map { width: 100%; height: 100%; }
+.panel {
+  border-left: 1px solid #dfe4ea;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: #fff;
+  overflow: hidden;
+}
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #dfe4ea;
+  flex-shrink: 0;
+}
+.tabs button {
+  flex: 1;
+  padding: 10px 4px;
+  font-size: 13px;
+  font-weight: 700;
+  border: none;
+  background: #f8fafc;
+  color: #667085;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+.tabs button.active {
+  background: #fff;
+  color: #111;
+  border-bottom-color: #22a447;
+}
+.tab-body {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+  display: none;
+  flex-direction: column;
+}
+.tab-body.active { display: flex; }
+.tab-inner {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+button.act {
+  padding: 10px 14px;
+  border: 1px solid #cfd6df;
+  border-radius: 5px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  background: #fff;
+  white-space: nowrap;
+}
+button.act.primary {
+  background: #22a447;
+  color: #fff;
+  border-color: #22a447;
+  font-weight: 700;
+}
+button.act.small { padding: 7px 9px; font-size: 13px; }
+button.act.danger {
+  color: #c01048;
+  border-color: #ffb3c1;
+  background: #fff1f3;
+}
+button.act:disabled { opacity: 0.55; cursor: default; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-row > input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid #cfd6df;
+  border-radius: 5px;
+  font: inherit;
+}
+.route-name-row {
+  border-top: 1px solid #e4e8ee;
+  padding-top: 10px;
+}
+pre {
+  flex: 1;
+  overflow: auto;
+  margin: 0;
+  padding: 12px 14px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  background: #f8fafc;
+  font-family: "SF Mono", ui-monospace, monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.hint { font-size: 12px; color: #667085; line-height: 1.5; }
+.playback-panel {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+}
+@media (max-width: 700px) {
+  .main { display: block; flex: 1; min-height: 0; }
+  .map-wrap { width: 100%; height: 100%; }
+  .panel { display: none; }
+  .status-bar .legend { display: none; }
+}

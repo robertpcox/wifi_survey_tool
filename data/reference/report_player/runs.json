@@ -1,0 +1,11 @@
+{
+  "runs": [
+    {
+      "id": "2026-07-02T01-41-39-627Z",
+      "label": "2 Jul 2026 · NDH survey",
+      "survey": "ndh-survey-2026-07-02T01-41-39-627Z.json",
+      "embedded": true,
+      "timelineStart": "2026-07-02T00:54:00.697Z"
+    }
+  ]
+}

@@ -29,6 +29,20 @@ test("Creator v3 geometry and checkpoint types draw without legacy conversion", 
   adapter.drawWaypoints([
     { lng: 1, lat: 2, z: 3, type: "intermediate" },
   ]);
+  adapter.drawPositionTrail([
+    {
+      success: true,
+      normalized: { lng: 170.1, lat: -45.1, z: 1 },
+    },
+    {
+      success: false,
+      normalized: null,
+    },
+    {
+      success: true,
+      normalized: { lng: 170.2, lat: -45.2, z: 1 },
+    },
+  ]);
   assert.equal(
     sources.get("route-lines").data.features[0].geometry.type,
     "LineString",
@@ -36,5 +50,14 @@ test("Creator v3 geometry and checkpoint types draw without legacy conversion", 
   assert.deepEqual(
     sources.get("wp-pts").data.features[0].properties,
     { z: 3, state: "pending", kind: "intermediate" },
+  );
+  assert.equal(
+    sources.get("cloud-trail").data.features[0].geometry.coordinates.length,
+    2,
+  );
+  assert.equal(sources.get("cloud-pts").data.features.length, 2);
+  assert.equal(
+    sources.get("cloud-pts").data.features[1].properties.isLatest,
+    true,
   );
 });

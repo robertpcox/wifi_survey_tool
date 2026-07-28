@@ -126,25 +126,25 @@ Standing risks, rechecked every step rather than assumed closed.
 - **Secret leakage.** Scan source, fixtures, manifests, exports, and browser storage.
 - **Meta propagation.** Verified at Steps 3, 4, and 5. Step 5 is unbuildable if it breaks.
 - **Manifest determinism.** A non-deterministic build makes every later diff untrustworthy.
-- **Module serving.** Stock Nginx may mistype `.mjs` and block it. The deployed configuration
-  declares JavaScript explicitly, and the serving test proves it.
+- **Module serving.** The deployed Nginx explicitly maps `.mjs`; the serving test proves it.
 - **Configuration activation.** A duplicate `types` block can leave the old Nginx process serving
   the wrong MIME. Keep the mapping in its dedicated location and check the live response header.
 - **Map runtime availability.** The self-contained build has no bundled remote SDK asset.
   Creator fetches v3.0.6 only after Engage, surfaces load failure/timeout, binds metadata
   to the entered campus, and only claims routed geometry after the SDK-backed map loads.
-- **Proxy reachability.** Cloud polling depends on the positioning proxy and its CORS
-  allowlist matching the origin the page is served from.
-- **Host access control.** A field device must actually be allowed to reach the host.
-  Confirm before a field release, not during one.
+- **Proxy reachability.** Cloud polling needs the proxy CORS allowlist to match the served origin.
+- **Host access control.** Confirm field-device host access before release, not during a run.
 - **Mobile behavior.** Only field acceptance covers it.
-- **Geolocation permission.** GPS capture fails silently if the deployed location's
-  permissions policy does not allow it. Verify on the served host, not only locally.
+- **Geolocation permission.** Verify GPS permissions policy on the served host, not only locally.
 - **Preflight honesty.** A green light that is easy to earn is worse than none.
   Each verdict keeps a test, so the thresholds cannot drift into always-green.
 - **Floor naming.** A widget label and raw z-level can differ by one. Confirm the explicit
   mapping against a real campus; never derive it arithmetically.
 - **Heatmap floor separation.** Heat layers are not floor-aware by default and will blend
   floors unless filtered per z-level.
+- **Field-device acceptance.** Mobile-sized Chrome proves the responsive workflow, not radio,
+  private-map, battery, or proxy behavior. Keep release closed until both devices pass.
+- **Definition timezone.** The live NDH export names `Australia/Melbourne` for Dunedin campus
+  566; confirm or correct it before reports interpret local timestamps.
 
 Append newly discovered risks here as they are found.

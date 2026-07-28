@@ -16,6 +16,7 @@ import {
   secretValuePaths,
   validationResult,
 } from "./validation.mjs";
+import { validateResultProgressV3 } from "./survey-result-progress-v3.mjs";
 
 const RUN_PATHS = [
   "resultId", "surveyId", "routeId", "routeHash", "customerId", "campusId",
@@ -26,8 +27,7 @@ const RUN_PATHS = [
   "preflight.acknowledged",
 ];
 const CAPTURE_PATHS = [
-  "checkIns", "checkIns.0.checkpointId", "checkIns.0.at",
-  "checkIns.0.groundTruth", "events", "events.0.type", "events.0.at",
+  "checkIns", "events", "events.0.type", "events.0.at",
   "polls", "polls.0.id", "polls.0.sourceId", "polls.0.sentAt",
   "polls.0.receivedAt", "polls.0.roundTripMs", "polls.0.httpStatus",
   "polls.0.success", "polls.0.normalized", "polls.0.raw", "polls.0.error",
@@ -49,6 +49,7 @@ export function validateSurveyResultV3(result) {
   issues.push(...validateRouteSnapshot(result?.route));
   validateRun(result?.run, issues);
   validateCaptures(result, issues);
+  validateResultProgressV3(result, issues);
   compareIdentity(result, issues);
   for (const path of secretValuePaths(result)) {
     issues.push(`${path}: serialized credential values are forbidden`);
@@ -93,7 +94,7 @@ function validateRun(run, issues) {
 }
 
 function validateCaptures(result, issues) {
-  expectArray(result?.checkIns, "checkIns", issues, 1);
+  expectArray(result?.checkIns, "checkIns", issues);
   expectArray(result?.events, "events", issues, 1);
   expectArray(result?.polls, "polls", issues, 1);
   for (const [index, checkIn] of (result?.checkIns || []).entries()) {
@@ -114,7 +115,7 @@ function validatePoll(poll, path, issues) {
   for (const key of ["id", "sourceId"]) expectString(poll?.[key], `${path}.${key}`, issues);
   for (const key of ["sentAt", "receivedAt"]) expectIso(poll?.[key], `${path}.${key}`, issues);
   expectNumber(poll?.roundTripMs, `${path}.roundTripMs`, issues, 0);
-  expectNumber(poll?.httpStatus, `${path}.httpStatus`, issues, 100);
+  expectNumber(poll?.httpStatus, `${path}.httpStatus`, issues, 0);
   if (typeof poll?.success !== "boolean") issues.push(`${path}.success: must be a boolean`);
   if (poll?.normalized !== null) expectRecord(poll?.normalized, `${path}.normalized`, issues);
   if (poll?.error !== null) expectString(poll?.error, `${path}.error`, issues);

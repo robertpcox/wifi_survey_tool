@@ -15,5 +15,14 @@ export function compactModuleFields(base, fields, limit = 150) {
 }
 
 export function compactImportPath(value) {
+  for (const [prefix, alias] of [
+    ["../../adapters/", "@a/"],
+    ["../../domain/", "@d/"],
+    ["../../features/", "@f/"],
+    ["../../shared/", "@s/"],
+  ]) {
+    if (value.startsWith(prefix)) return `${alias}${value.slice(prefix.length)}`;
+  }
+  if (value.startsWith("./")) return value.slice(2);
   return value.startsWith("../../") ? `@/${value.slice(6)}` : value;
 }

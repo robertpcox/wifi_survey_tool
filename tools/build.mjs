@@ -37,6 +37,7 @@ export async function runBuild({
     run(["tools/check_secrets.mjs", staging], root);
     run(["tools/shell_browser_smoke.mjs", staging], root);
     run(["tools/creator_browser_smoke.mjs", staging], root);
+    run(["tools/runner_browser_smoke.mjs", staging], root);
     await rename(staging, dist);
     return dist;
   } catch (error) {

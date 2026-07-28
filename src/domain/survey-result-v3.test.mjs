@@ -47,3 +47,45 @@ test("result identity and serialized credentials cannot drift", async () => {
   assert.match(errors, /run\.routeHash: must match meta/);
   assert.match(errors, /run\.runtime\.mapAccess: serialized credential values are forbidden/);
 });
+
+test("aborted runs may stop before check-in but completed runs preserve order", async () => {
+  const aborted = await readFixture("result.valid.json");
+  aborted.run.completionStatus = "aborted";
+  aborted.checkIns = [];
+  assert.equal(validateSurveyResultV3(aborted).valid, true);
+
+  const incomplete = await readFixture("result.valid.json");
+  incomplete.checkIns.pop();
+  assert.match(
+    validateSurveyResultV3(incomplete).errors.join("\n"),
+    /completed run must include every route checkpoint/,
+  );
+  incomplete.checkIns = incomplete.route.checkpoints.map((checkpoint, index) => ({
+    checkpointId: checkpoint.id,
+    at: `2026-07-28T01:00:0${index + 1}.000Z`,
+    groundTruth: {
+      lng: checkpoint.lng,
+      lat: checkpoint.lat,
+      z: checkpoint.z,
+    },
+  }));
+  assert.equal(validateSurveyResultV3(incomplete).valid, true);
+  incomplete.checkIns.reverse();
+  assert.match(
+    validateSurveyResultV3(incomplete).errors.join("\n"),
+    /must follow route checkpoint order/,
+  );
+});
+
+test("timeout polls use zero status and preflight must reference a poll", async () => {
+  const result = await readFixture("result.valid.json");
+  result.run.completionStatus = "aborted";
+  result.checkIns = [];
+  result.polls[0].httpStatus = 0;
+  assert.equal(validateSurveyResultV3(result).valid, true);
+  result.run.preflight.sampleId = "missing";
+  assert.match(
+    validateSurveyResultV3(result).errors.join("\n"),
+    /must reference an exported poll/,
+  );
+});

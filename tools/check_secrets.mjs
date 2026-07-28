@@ -9,6 +9,7 @@ const defaultTargets = [
   "tools",
   "data/characterization",
   "data/manifests",
+  "data/positioning",
   "data/routes",
   "data/surveys",
   "docs",

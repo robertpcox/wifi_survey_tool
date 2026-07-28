@@ -81,10 +81,16 @@
       "verdict": "green", "sampleId": "poll-1", "acknowledged": true
     }
   },
-  "checkIns": [{
-    "checkpointId": "checkpoint-a", "at": "2026-07-28T01:00:05.000Z",
-    "groundTruth": { "lng": 170.5, "lat": -45.87, "z": 0 }
-  }],
+  "checkIns": [
+    {
+      "checkpointId": "checkpoint-a", "at": "2026-07-28T01:00:05.000Z",
+      "groundTruth": { "lng": 170.5, "lat": -45.87, "z": 0 }
+    },
+    {
+      "checkpointId": "checkpoint-b", "at": "2026-07-28T01:00:10.000Z",
+      "groundTruth": { "lng": 170.5002, "lat": -45.87, "z": 0 }
+    }
+  ],
   "events": [{
     "type": "run-started", "at": "2026-07-28T01:00:00.000Z"
   }],

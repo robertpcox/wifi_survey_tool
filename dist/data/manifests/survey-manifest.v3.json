@@ -10,6 +10,16 @@
       "routeId": "route-dunedin-level-00-dev",
       "routeHash": "925fe238f82176e3646bbb34658e0b0caa1b8a92362aeaa654f45e50cd3cf637",
       "path": "data/surveys/survey-dunedin-level-00-dev-v3.definition.v3.json"
+    },
+    {
+      "surveyId": "5ef73912-3851-406a-81cc-93ca19cec12b",
+      "surveyName": "NDH Straight",
+      "customerId": "292",
+      "customerName": "NDH",
+      "campusId": "566",
+      "routeId": "1",
+      "routeHash": "853eef5f35418632353eb99fc6bb05df56d53c1aa0cf5e8df8513d253e952b00",
+      "path": "data/surveys/5ef73912-3851-406a-81cc-93ca19cec12b.definition.v3.json"
     }
   ]
 }

@@ -1,0 +1,264 @@
+{
+  "schemaVersion": 3,
+  "meta": {
+    "surveyId": "56600000-0000-4000-8000-000000000001",
+    "surveyName": "Level 00 Runner development route",
+    "customerId": "health-new-zealand",
+    "customerName": "Health New Zealand | Te Whatu Ora",
+    "campusId": "566",
+    "campusName": "Dunedin Hospital",
+    "timezone": "Pacific/Auckland",
+    "buildings": [
+      {
+        "id": "1013513",
+        "name": "Clinical Services Building"
+      }
+    ],
+    "zLevels": [
+      1
+    ],
+    "zLevelNames": {
+      "1": "Level 00"
+    },
+    "positionSourceId": "mazemap-cloud",
+    "authorNotes": "Two-stop validated route for Runner development and repeatable smoke surveys.",
+    "authorName": null,
+    "sourceConfig": {
+      "configId": "1185",
+      "pollIntervalMs": 2000,
+      "proxyBase": "/mm-positioning-proxy"
+    },
+    "credentialRequirements": {
+      "mapAccess": true,
+      "appId": true,
+      "appKey": true,
+      "clientIp": true
+    },
+    "route": {
+      "routeId": "route-dunedin-level-00-dev",
+      "version": 1,
+      "hash": "925fe238f82176e3646bbb34658e0b0caa1b8a92362aeaa654f45e50cd3cf637",
+      "distanceM": 23.891176755709278,
+      "estimatedDurationSeconds": 38.89117675570928,
+      "checkpointSpacingM": 10,
+      "checkpointDwellSeconds": 5
+    },
+    "createdAt": "2026-07-28T04:00:00.000Z"
+  },
+  "route": {
+    "routeId": "route-dunedin-level-00-dev",
+    "version": 1,
+    "hash": "925fe238f82176e3646bbb34658e0b0caa1b8a92362aeaa654f45e50cd3cf637",
+    "stops": [
+      {
+        "id": "stop-1",
+        "name": "K01 Meeting Room 02",
+        "lng": 170.5085299230571,
+        "lat": -45.872484127412974,
+        "z": 1,
+        "poiId": "1002660516",
+        "poiName": "K01 Meeting Room 02",
+        "locationType": "room",
+        "provenance": {
+          "method": "map"
+        }
+      },
+      {
+        "id": "stop-2",
+        "name": "K01 Children's Gym",
+        "lng": 170.50836581583644,
+        "lat": -45.872440680344965,
+        "z": 1,
+        "poiId": "1002659934",
+        "poiName": "K01 Children's Gym",
+        "locationType": "room",
+        "provenance": {
+          "method": "map"
+        }
+      }
+    ],
+    "legs": [
+      {
+        "id": "leg-1",
+        "fromStopId": "stop-1",
+        "toStopId": "stop-2",
+        "distanceM": 23.891176755709278,
+        "geometry": [
+          {
+            "lng": 170.5085299230571,
+            "lat": -45.872484127412974,
+            "z": 1
+          },
+          {
+            "lng": 170.50852992305704,
+            "lat": -45.872484127412974,
+            "z": 1
+          },
+          {
+            "lng": 170.5085309,
+            "lat": -45.8724844,
+            "z": 1
+          },
+          {
+            "lng": 170.5085633,
+            "lat": -45.872426,
+            "z": 1
+          },
+          {
+            "lng": 170.5085482,
+            "lat": -45.8724217,
+            "z": 1
+          },
+          {
+            "lng": 170.5085307,
+            "lat": -45.8724167,
+            "z": 1
+          },
+          {
+            "lng": 170.5085076,
+            "lat": -45.8724102,
+            "z": 1
+          },
+          {
+            "lng": 170.5084925,
+            "lat": -45.8724058,
+            "z": 1
+          },
+          {
+            "lng": 170.5084801,
+            "lat": -45.8724022,
+            "z": 1
+          },
+          {
+            "lng": 170.508465,
+            "lat": -45.8724058,
+            "z": 1
+          },
+          {
+            "lng": 170.5084207,
+            "lat": -45.8724216,
+            "z": 1
+          },
+          {
+            "lng": 170.5083664,
+            "lat": -45.8724411,
+            "z": 1
+          },
+          {
+            "lng": 170.50836581583644,
+            "lat": -45.872440680344965,
+            "z": 1
+          }
+        ]
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "checkpoint-1",
+        "sequence": 0,
+        "type": "stop",
+        "lng": 170.5085299230571,
+        "lat": -45.872484127412974,
+        "z": 1,
+        "stopId": "stop-1",
+        "legId": null,
+        "spacingBasisM": 10
+      },
+      {
+        "id": "checkpoint-2",
+        "sequence": 1,
+        "type": "intermediate",
+        "lng": 170.5085279509896,
+        "lat": -45.87241592646894,
+        "z": 1,
+        "stopId": null,
+        "legId": "leg-1",
+        "spacingBasisM": 10
+      },
+      {
+        "id": "checkpoint-3",
+        "sequence": 2,
+        "type": "stop",
+        "lng": 170.50836581583644,
+        "lat": -45.872440680344965,
+        "z": 1,
+        "stopId": "stop-2",
+        "legId": null,
+        "spacingBasisM": 10
+      }
+    ],
+    "totalDistanceM": 23.891176755709278
+  },
+  "run": {
+    "resultId": "runner-fixture-aborted",
+    "surveyId": "56600000-0000-4000-8000-000000000001",
+    "routeId": "route-dunedin-level-00-dev",
+    "routeHash": "925fe238f82176e3646bbb34658e0b0caa1b8a92362aeaa654f45e50cd3cf637",
+    "customerId": "health-new-zealand",
+    "campusId": "566",
+    "sourceId": "mazemap-cloud",
+    "device": {
+      "type": "asset",
+      "os": "AssetOS 2",
+      "name": "Fixture asset",
+      "clientIp": "192.0.2.8"
+    },
+    "band": "mixed",
+    "operatorComment": null,
+    "startedAt": "2026-07-28T01:00:00.000Z",
+    "stoppedAt": "2026-07-28T02:00:05.000Z",
+    "exportedAt": "2026-07-28T02:00:05.000Z",
+    "completionStatus": "aborted",
+    "pollingIntervalMs": 2000,
+    "checkpointDwellSeconds": 5,
+    "preflight": {
+      "verdict": "amber",
+      "sampleId": "poll-fixture-1",
+      "acknowledged": true,
+      "reasons": [
+        {
+          "level": "amber",
+          "text": "Recorded distant-position override."
+        }
+      ]
+    }
+  },
+  "checkIns": [],
+  "events": [
+    {
+      "type": "run-started",
+      "at": "2026-07-28T01:00:00.000Z"
+    },
+    {
+      "type": "run-aborted",
+      "at": "2026-07-28T02:00:05.000Z"
+    }
+  ],
+  "polls": [
+    {
+      "id": "poll-fixture-1",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-28T00:59:59.900Z",
+      "receivedAt": "2026-07-28T01:00:00.000Z",
+      "roundTripMs": 100,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -46,
+        "lng": 170.7,
+        "z": 1,
+        "fixTime": "2026-07-28T00:59:59.000Z",
+        "confidence": 0.9
+      },
+      "raw": {
+        "latitude": -46,
+        "longitude": 170.7,
+        "zLevel": 1,
+        "lastSeen": "2026-07-28T00:59:59.000Z",
+        "confidenceFactor": 0.9,
+        "recordedFixture": true
+      },
+      "error": null
+    }
+  ]
+}

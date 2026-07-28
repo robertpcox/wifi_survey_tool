@@ -22,6 +22,9 @@ test("module fields inline when readable and retain wrapped continuations", () =
 });
 
 test("two-parent imports use the documented compact alias", () => {
-  assert.equal(compactImportPath("../../domain/route.mjs"), "@/domain/route.mjs");
-  assert.equal(compactImportPath("./local.mjs"), "./local.mjs");
+  assert.equal(compactImportPath("../../domain/route.mjs"), "@d/route.mjs");
+  assert.equal(compactImportPath("../../adapters/map.mjs"), "@a/map.mjs");
+  assert.equal(compactImportPath("../../features/view.mjs"), "@f/view.mjs");
+  assert.equal(compactImportPath("../../shared/time.mjs"), "@s/time.mjs");
+  assert.equal(compactImportPath("./local.mjs"), "local.mjs");
 });

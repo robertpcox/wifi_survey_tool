@@ -1,0 +1,131 @@
+import { constants } from "node:fs";
+import { access, readFile, stat } from "node:fs/promises";
+import { createRequire } from "node:module";
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import {
+  runnerDownloadFindings,
+  setRunnerEntry,
+} from "./runner_browser_assertions.mjs";
+import { installRunnerBrowserEnvironment } from "./runner_browser_environment.mjs";
+import { startStaticServer } from "./static_server.mjs";
+
+const require = createRequire(import.meta.url);
+const defaultChrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+const defaultPuppeteer = "/tmp/wifi-survey-puppeteer/node_modules/puppeteer-core";
+const definitionPath =
+  "data/surveys/survey-dunedin-level-00-dev-v3.definition.v3.json";
+
+export async function runRunnerBrowserSmoke({
+  root = ".",
+  chrome = process.env.CHROME_PATH || defaultChrome,
+  puppeteerPath = process.env.PUPPETEER_CORE_PATH || defaultPuppeteer,
+} = {}) {
+  try {
+    await access(chrome, constants.X_OK);
+  } catch {
+    return { skipped: true, reason: `Chrome unavailable at ${chrome}` };
+  }
+  let puppeteer;
+  try {
+    puppeteer = require(puppeteerPath);
+  } catch (error) {
+    return { skipped: true, reason: `puppeteer-core unavailable: ${error.message}` };
+  }
+  const absoluteRoot = resolve(root);
+  const staged = await stat(resolve(absoluteRoot, "runner/index.html"))
+    .then(metadata => metadata.isFile(), () => false);
+  const definition = JSON.parse(
+    await readFile(resolve(absoluteRoot, definitionPath), "utf8"),
+  );
+  const server = await startStaticServer(absoluteRoot);
+  let browser;
+  try {
+    browser = await puppeteer.launch({
+      executablePath: chrome,
+      headless: true,
+      args: ["--no-sandbox", "--disable-gpu"],
+    });
+    const profiles = [
+      { name: "iPhone", width: 390, height: 844 },
+      { name: "Android", width: 412, height: 915 },
+    ];
+    const downloads = [];
+    for (const profile of profiles) {
+      downloads.push(await exerciseProfile({
+        browser,
+        definition,
+        origin: server.origin,
+        path: staged ? "/runner/" : "/src/apps/runner/index.html",
+        profile,
+      }));
+    }
+    return { skipped: false, downloads };
+  } finally {
+    if (browser) await browser.close();
+    await new Promise(resolveClose => server.instance.close(resolveClose));
+  }
+}
+
+async function exerciseProfile({ browser, definition, origin, path, profile }) {
+  const page = await browser.newPage();
+  const failures = [];
+  await page.setViewport({
+    width: profile.width,
+    height: profile.height,
+    deviceScaleFactor: 2,
+    isMobile: true,
+    hasTouch: true,
+  });
+  await installRunnerBrowserEnvironment(page, origin, definition);
+  page.on("console", message => {
+    if (message.type() === "error") failures.push(message.text());
+  });
+  page.on("pageerror", error => failures.push(error.message));
+  page.on("response", response => {
+    if (response.status() >= 400) failures.push(`${response.status()} ${response.url()}`);
+  });
+  await page.goto(`${origin}${path}`, { waitUntil: "networkidle0" });
+  await page.waitForFunction(() => document
+    .querySelector("[data-runner-status]").textContent.includes("Survey loaded"));
+  await setRunnerEntry(page, profile.name);
+  await page.click('[data-action="preflight"]');
+  await page.waitForFunction(() => document
+    .querySelector("[data-preflight-light]").textContent === "GREEN");
+  await page.click('[data-action="go"]');
+  for (let index = 0; index < definition.route.checkpoints.length; index++) {
+    await page.waitForFunction(() => !document
+      .querySelector('[data-action="check-in"]').disabled);
+    await page.click('[data-action="check-in"]');
+  }
+  await page.waitForSelector("[data-finish-panel]:not([hidden])");
+  await page.type("[data-operator-comment]", `${profile.name} browser run`);
+  await page.click('[data-action="download-result"]');
+  await page.waitForFunction(() => Boolean(window.__runnerDownloadName));
+  const download = await page.evaluate(async () => {
+    const result = JSON.parse(await window.__runnerBlob.text());
+    const databases = indexedDB.databases ? await indexedDB.databases() : [];
+    return {
+      filename: window.__runnerDownloadName,
+      mapAccessUsed: window.__runnerMapAccessUsed,
+      result,
+      storageEntries: localStorage.length + sessionStorage.length + databases.length,
+    };
+  });
+  failures.push(...runnerDownloadFindings(
+    download,
+    definition.route.checkpoints.length,
+  ));
+  await page.close();
+  if (failures.length) throw new Error(`${profile.name}: ${failures.join("\n")}`);
+  return { filename: download.filename, profile: profile.name };
+}
+
+const isCli = process.argv[1]
+  && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isCli) {
+  const result = await runRunnerBrowserSmoke({ root: process.argv[2] || "." });
+  if (result.skipped) console.log(`SKIP Runner browser smoke: ${result.reason}`);
+  else console.log(`Runner browser smoke passed (${result.downloads.length} mobile profiles).`);
+}

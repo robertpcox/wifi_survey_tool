@@ -107,6 +107,7 @@ export function createMazeMapAdapter(options = {}) {
   return {
     ...controls,
     describePoint,
+    drawPositionTrail: polls => layers?.drawPositionTrail(polls),
     drawRoute: legs => layers?.drawRoute(legs),
     drawStops: stops => layers?.drawStops(stops),
     drawTrails: samples => layers?.drawTrails(samples),

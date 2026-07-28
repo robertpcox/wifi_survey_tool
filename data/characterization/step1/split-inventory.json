@@ -11,7 +11,7 @@
       "symbol": "addStopFromInput"
     },
     "advance": {
-      "path": "src/features/runner/walk-progress.mjs",
+      "path": "src/domain/runner-progress-v3.mjs",
       "symbol": "advance"
     },
     "alphaTag": {

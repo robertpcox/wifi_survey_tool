@@ -22,10 +22,6 @@ function run(root) {
   });
 }
 
-function longestLine(text) {
-  return Math.max(...text.trimEnd().split("\n").map(line => Buffer.byteLength(line)));
-}
-
 test("module map is deterministic, accurate, and exposes a stale snapshot", async t => {
   const root = await mkdtemp(join(tmpdir(), "wifi-module-map-"));
   t.after(() => rm(root, { recursive: true, force: true }));
@@ -61,17 +57,17 @@ test("module map is deterministic, accurate, and exposes a stale snapshot", asyn
   assert.match(firstRun.stdout, /Wrote docs\/module-map\.md \(5 modules\)/);
   const outputPath = join(root, "docs/module-map.md");
   const first = await readFile(outputPath, "utf8");
-  const metric = `4/${Buffer.byteLength(alpha)}/${longestLine(alpha)}`;
+  const metric = `4/${Buffer.byteLength(alpha)}`;
   assert.ok(first.includes(
-    `- alpha.mjs ${metric} T+`,
+    `- alpha ${metric}`,
   ));
   assert.ok(first.includes("E alpha, renamed, zebra"));
-  assert.ok(first.includes("I ./side"));
+  assert.ok(first.includes("I side"));
   assert.ok(first.includes(
-    "I ./alpha, ./theme.css",
+    "I alpha, theme.css",
   ));
-  assert.match(first, /## feature\/\n\n- nested\.mjs .* T-/);
-  assert.ok(first.indexOf("alpha.mjs") < first.indexOf("page.html"));
+  assert.match(first, /## feature\/\n- nested .* T-/);
+  assert.ok(first.indexOf("- alpha ") < first.indexOf("page.html"));
 
   const secondRun = run(root);
   assert.equal(secondRun.status, 0, secondRun.stderr);

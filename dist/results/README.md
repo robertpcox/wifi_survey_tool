@@ -1,11 +1,12 @@
-# Survey results
+# Runner result fixtures
 
-This family contains exported `SurveyResultV3` JSON files.
-The expected filename is
-`customerId__campusId__surveyId__YYYY-MM-DDTHH-MM-SSZ.result.v3.json`.
+These deterministic `SurveyResultV3` files prove the two Step 4 completion paths.
+The completed mobile run includes every embedded checkpoint. The aborted asset run stops
+before its first check-in and records an acknowledged amber preflight.
 
-Inspect one run without opening its poll evidence with:
+Both use reserved documentation IP `192.0.2.8`, recorded provider payloads, and no credentials.
+Regenerate them after an intentional contract change with:
 
 ```sh
-jq '{schemaVersion, meta, run, counts:{polls:(.polls|length)}}' results/example.result.v3.json
+node tools/generate_runner_fixtures.mjs
 ```

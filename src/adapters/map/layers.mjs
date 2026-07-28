@@ -84,6 +84,25 @@ export function createMapLayers(map, getCurrentZLevel) {
     }
   }
 
+  function drawPositionTrail(polls) {
+    ensureLayers();
+    const fixes = polls
+      .filter(poll => poll?.success && poll?.normalized)
+      .slice(-MAP_TRAIL_FIX_LIMIT);
+    const lines = [];
+    appendPathFeatures(lines, fixes.map(poll => poll.normalized), {});
+    const points = fixes.map((poll, index) => pointFeature(
+      poll.normalized,
+      {
+        z: poll.normalized.z,
+        isLatest: index === fixes.length - 1,
+        ctx: "v3",
+      },
+    ));
+    setSource("cloud-trail", lines);
+    setSource("cloud-pts", points);
+  }
+
   function setActiveLeg(legIndex) {
     ensureLayers();
     try {
@@ -98,6 +117,7 @@ export function createMapLayers(map, getCurrentZLevel) {
   return {
     applyZStyling: () => styles.applyTo(map),
     drawRoute,
+    drawPositionTrail,
     drawStops,
     drawTrails,
     drawWaypoints,

@@ -9,9 +9,9 @@ compares, maps, exports, and plays one shared V3 result without reloading it.
 Focused unit and headless Chrome acceptance are green. The final complete build passed
 366 tests with zero skipped and emitted 150 staged files.
 
-No commit, deployment, or publishing was performed. The physical `292` field result remains
-sensitive, and the build copies it into `dist/results/`. A successful build is validation,
-not authorization to replace the existing demo artifact.
+Source commit `06c589f` is pushed to `wifi_survey_tool/main`. With the data owner's explicit
+authorization, the byte-identical 150-file build, including the physical `292` field result,
+was deployed to the demo and recorded in `demo.mazemap_nginx` commit `6a9bffd`.
 
 ## Step 5 outcome
 
@@ -91,6 +91,9 @@ not authorization to replace the existing demo artifact.
 - The complete build passed 366 tests with zero skipped, emitted 150 files, booted all
   four shells, passed Creator Chrome, both Runner mobile profiles, and the
   Dashboard-to-Report Player Chrome path.
+- The deployed directory is byte-identical to `dist`; all four deployed shells and the
+  customer-292 Report Player path pass Chrome. Live HTML, manifest, module, and field-result
+  endpoints return HTTP 200 with the expected content types.
 - The complete boundary command, including source size, headers, imports, schemas,
   manifests, reference migration, secrets, goldens, module-map freshness, all tests,
   staging, four shell boots, and all feature browser paths, is:
@@ -111,8 +114,8 @@ node tools/build.mjs
   omits Client IP, but host access and release content still require a real security boundary.
 - `stageDistribution(root, destination)` still copies every validated result. The live
   field result contains exact indoor positions/times, an internal Client IP, and
-  operator/device metadata. No deployment or publishing is authorized without an explicit
-  sensitive-result allowlist or equivalent release review.
+  operator/device metadata. Its owner explicitly authorized this demo release; later
+  publishing still requires an explicit sensitive-result allowlist or equivalent review.
 - The live Dunedin definition still says `Australia/Melbourne`; confirm or re-export it
   as `Pacific/Auckland` if intended before interpreting local report times.
 - Physical Android, current OS/browser versions, green-start, and full-length battery

@@ -6,7 +6,7 @@ Follow `Scope/step_standard.md`.
 
 This is the downstream backlog recorded at the Step 5 boundary, not an automatic
 implementation assignment. Start a work package only when it is explicitly assigned.
-No deployment or publishing is authorized. The physical field result at
+This backlog authorizes no further deployment or publishing. The physical field result at
 `results/292__566__5ef73912-3851-406a-81cc-93ca19cec12b__2026-07-28T09-00-54Z.result.v3.json`
 contains exact indoor positions and times, an internal Client IP, and device/operator
 metadata. `stageDistribution(root, destination)` in `tools/build_assets.mjs` currently

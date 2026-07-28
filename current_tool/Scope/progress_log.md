@@ -17,8 +17,10 @@
 - Made discovery manifests omit Client IP while retaining device labels and band.
 - Passed the final build: 366 tests, zero skipped, 150 staged files, four shell boots,
   Creator Chrome, two Runner mobile profiles, and Dashboard-to-Report Player Chrome.
-- The physical field result remains sensitive. No commit, deployment, or publishing was
-  performed, and work stopped at the Step 5 boundary.
+- Pushed source commit `06c589f` and, with the data owner's explicit authorization,
+  deployed the byte-identical 150-file artifact including the physical field result.
+  Demo commit `6a9bffd` is pushed; deployed Chrome paths and live HTTP endpoints pass.
+- Work stopped at the Step 5 boundary.
 
 ## 2026-07-28 — Step 4 closed with Rob field smoke and map-first refinement
 

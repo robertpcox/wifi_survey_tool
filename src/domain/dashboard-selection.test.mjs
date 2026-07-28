@@ -11,6 +11,7 @@ import test from "node:test";
 import {
   createDashboardModel,
   customerIdFromUrl,
+  reportPlayerBaseFromUrl,
   reportPlayerUrl,
 } from "./dashboard-selection.mjs";
 
@@ -27,6 +28,22 @@ test("dashboard model is customer-scoped and launches only completed results", (
   assert.equal(customerIdFromUrl("https://survey.test/dashboard/customer-b"), "customer-b");
   assert.equal(customerIdFromUrl("https://survey.test/dashboard/index.html"), null);
   assert.equal(customerIdFromUrl("https://survey.test/src/apps/dashboard/index.html"), null);
+  assert.equal(
+    reportPlayerBaseFromUrl("https://survey.test/wifi-survey-v3/?customer_id=customer-a"),
+    "/wifi-survey-v3/report-player/",
+  );
+  assert.equal(
+    reportPlayerBaseFromUrl("https://survey.test/wifi-survey-v3/dashboard/"),
+    "/wifi-survey-v3/report-player/",
+  );
+  assert.equal(
+    reportPlayerBaseFromUrl("https://survey.test/wifi-survey-v3/dashboard"),
+    "/wifi-survey-v3/report-player/",
+  );
+  assert.equal(
+    reportPlayerBaseFromUrl("https://survey.test/src/apps/dashboard/index.html"),
+    "/src/apps/report-player/",
+  );
   const model = createDashboardModel({
     schemaVersion: 3,
     customerId: "customer-a",
@@ -37,7 +54,11 @@ test("dashboard model is customer-scoped and launches only completed results", (
   assert.equal(model.surveys[0].results.length, 1);
   assert.match(model.surveys[0].results[0].deviceLabel, /Handset · mobile · OS 1 · 5 GHz/);
   assert.equal(model.surveys[0].results[0].device.clientIp, undefined);
-  assert.match(reportPlayerUrl(completed), /result_id=result-a/);
+  assert.equal(
+    reportPlayerUrl(completed, "/wifi-survey-v3/report-player/"),
+    "/wifi-survey-v3/report-player/?customer_id=customer-a&result_id=result-a",
+  );
+  assert.throws(() => reportPlayerUrl(completed), /base must be a directory URL/);
   assert.throws(() => createDashboardModel({
     schemaVersion: 3, customerId: "other", surveys: [], results: [],
   }, "customer-a"), /does not match/);

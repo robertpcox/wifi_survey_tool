@@ -15,7 +15,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - stop-input 69/1986 T+ E createStopInput I @a/map/routing, @d/stop-targets
 ## dashboard/
 - dashboard.css 102/2293 T+
-- dashboard 82/2822 T+ E mountDashboard, renderDashboard I @d/dashboard-selection, @s/format
+- dashboard 87/2903 T+ E mountDashboard, renderDashboard I @d/dashboard-selection, @s/format
 ## definition-creator/
 - components.css 150/2547 T+
 - controller-render 24/760 T+ E renderCreatorController I map-coverage, workflow

@@ -8,7 +8,7 @@
 import { constants } from "node:fs";
 import { access, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
-import { resolve } from "node:path";
+import { basename, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { startStaticServer } from "./static_server.mjs";
@@ -44,7 +44,8 @@ export async function runReportPlayerBrowserSmoke({
   const selected = completed[0];
   const result = JSON.parse(await readFile(resolve(absoluteRoot, selected.path)));
   const expectedFloors = result.meta.zLevels.map(z => result.meta.zLevelNames[String(z)]);
-  const server = await startStaticServer(absoluteRoot);
+  const server = await startStaticServer(dirname(absoluteRoot));
+  const mountPath = `/${basename(absoluteRoot)}`;
   let browser;
   try {
     browser = await puppeteer.launch({
@@ -57,7 +58,9 @@ export async function runReportPlayerBrowserSmoke({
       completedCount: completed.length,
       expectedFloors,
       origin: server.origin,
-      path: staged ? "/" : "/src/apps/dashboard/index.html",
+      path: staged
+        ? `${mountPath}/`
+        : `${mountPath}/src/apps/dashboard/index.html`,
     });
     if (findings.length) throw new Error(findings.join("\n"));
     return { skipped: false, resultRequests: 1 };
@@ -76,7 +79,7 @@ async function exercise({ browser, completedCount, expectedFloors, origin, path 
     if (message.type() === "error") failures.push(message.text());
   });
   page.on("response", response => {
-    if (new URL(response.url()).pathname.startsWith("/results/")) resultRequests += 1;
+    if (new URL(response.url()).pathname.includes("/results/")) resultRequests += 1;
     if (response.status() >= 400) failures.push(`${response.status()} ${response.url()}`);
   });
   await page.goto(`${origin}${path}?customer_id=292`, { waitUntil: "networkidle0" });

@@ -9,7 +9,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
   - I @a/files, @a/geolocation, @a/map/mazemap-sdk, @a/map/mazemap, @a/memory-credentials, @f/definition-creator/definition-creator, @s/shell-boot
 ## dashboard/
 - index.html 33/1181 T+ I @f/dashboard/dashboard.css, @s/app-shell.css, main
-- main 24/988 T+ E bootDashboard I @a/manifest-source, @d/dashboard-selection, @f/dashboard/dashboard
+- main 28/1083 T+ E bootDashboard I @a/manifest-source, @d/dashboard-selection, @f/dashboard/dashboard
 ## report-player/
 - index.html 32/1260 T+ I @f/report-player/report-player.css, @f/report-player/report-visuals.css, @s/app-shell.css, main
 - main 35/1460 T+ E bootReportPlayer

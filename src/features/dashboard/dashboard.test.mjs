@@ -33,19 +33,21 @@ test("dashboard renders one customer's surveys, devices, and Report Player launc
       ...manifest.surveys[0],
       results: [{ ...manifest.results[0], deviceLabel: "Phone · mobile · OS 1 · 5 GHz" }],
     }],
-  });
+  }, "/wifi-survey-v3/report-player/");
   assert.match(html, /Customer &lt;A&gt;/);
   assert.match(html, /Phone · mobile · OS 1 · 5 GHz/);
   assert.match(html, /Open Report Player/);
-  assert.match(html, /result_id=result-a/);
+  assert.match(html, /wifi-survey-v3\/report-player\/\?customer_id=customer-a/);
   const root = fakeRoot();
   const model = await mountDashboard({
     root,
     customerId: "customer-a",
     manifestSource: { customer: async () => manifest },
+    reportPlayerBase: "/wifi-survey-v3/report-player/",
   });
   assert.equal(model.customerId, "customer-a");
   assert.match(root.innerHTML, /Ward walk/);
+  assert.match(root.innerHTML, /wifi-survey-v3\/report-player\//);
   assert.equal(root.busy, false);
 });
 

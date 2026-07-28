@@ -6,7 +6,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 ## ./
 - checkpoints 144/4201 T+ E generateCheckpoints, generateWaypoints I geometry, route-contract, stop-targets
 - creator-route-v3 139/4453 T+ E SHORT_LEG_THRESHOLD_M, createRouteLegV3, generateRouteCheckpointsV3 I geometry
-- dashboard-selection 70/2577 T+ E createDashboardModel, customerIdFromUrl, reportPlayerUrl
+- dashboard-selection 92/3523 T+ E createDashboardModel, customerIdFromUrl, reportPlayerBaseFromUrl, reportPlayerUrl
 - definition-authoring-v3 149/6595 T+ E authorSurveyDefinitionV3, immutableDefinitionCopy, importSurveyDefinitionV3
   - I creator-route-v3, route-duration-v3, route-hash-v3, survey-definition-v3, survey-meta-v3
 - geometry 38/1241 T+ E bearing, haversine, lerp, pathLength

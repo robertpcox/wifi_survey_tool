@@ -6,7 +6,10 @@
 // PROVENANCE:   Scope/steps/05_dashboard_report_player.md
 
 import { createManifestSource } from "../../adapters/manifest-source.mjs";
-import { customerIdFromUrl } from "../../domain/dashboard-selection.mjs";
+import {
+  customerIdFromUrl,
+  reportPlayerBaseFromUrl,
+} from "../../domain/dashboard-selection.mjs";
 import { mountDashboard } from "../../features/dashboard/dashboard.mjs";
 
 export function bootDashboard({
@@ -18,6 +21,7 @@ export function bootDashboard({
     root: documentRef.querySelector("[data-dashboard-root]"),
     customerId: customerIdFromUrl(locationRef.href),
     manifestSource,
+    reportPlayerBase: reportPlayerBaseFromUrl(locationRef.href),
   });
 }
 

@@ -8,7 +8,7 @@
 import { createDashboardModel, reportPlayerUrl } from "../../domain/dashboard-selection.mjs";
 import { esc } from "../../shared/format.mjs";
 
-export function renderDashboard(model) {
+export function renderDashboard(model, reportPlayerBase) {
   const surveyCards = model.surveys.map(survey => {
     const options = survey.results.length
       ? survey.results.map(result => `
@@ -17,7 +17,7 @@ export function renderDashboard(model) {
             <strong>${esc(result.deviceLabel)}</strong>
             <span>${esc(formatDate(result.exportedAt))}</span>
           </div>
-          <a class="dashboard-launch" href="${esc(reportPlayerUrl(result))}">
+          <a class="dashboard-launch" href="${esc(reportPlayerUrl(result, reportPlayerBase))}">
             Open Report Player
           </a>
         </li>`).join("")
@@ -41,7 +41,12 @@ export function renderDashboard(model) {
     <section class="dashboard-grid">${surveyCards || emptyDashboard()}</section>`;
 }
 
-export async function mountDashboard({ root, customerId, manifestSource }) {
+export async function mountDashboard({
+  root,
+  customerId,
+  manifestSource,
+  reportPlayerBase,
+}) {
   if (!customerId) {
     root.innerHTML = `
       <section class="shell-card">
@@ -56,7 +61,7 @@ export async function mountDashboard({ root, customerId, manifestSource }) {
       await manifestSource.customer(customerId),
       customerId,
     );
-    root.innerHTML = renderDashboard(model);
+    root.innerHTML = renderDashboard(model, reportPlayerBase);
     return model;
   } catch (error) {
     root.innerHTML = `

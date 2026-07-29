@@ -16,9 +16,13 @@ export function definitionCreatorTemplate() {
           <label>Campus ID <input data-field="campusId" inputmode="numeric" required></label>
           <label>Campus name <input data-field="campusName" readonly
             placeholder="Loaded from MazeMap on Engage"></label>
-          <label>MazeMap access token (private campuses only)
-            <input data-engage-access type="password" autocomplete="off"></label>
           <button type="button" class="primary" data-action="engage-map">Engage</button>
+          <div class="wide" data-engage-access-prompt hidden>
+            <label>MazeMap access token
+              <input data-engage-access type="password" autocomplete="off"></label>
+            <p class="creator-help">This campus denied public access. Enter a temporary
+              token, then retry Engage.</p>
+          </div>
         </fieldset>
         <p class="creator-campus-summary" data-campus-summary hidden></p>
 
@@ -61,7 +65,7 @@ export function definitionCreatorTemplate() {
               <button type="button" class="primary" data-action="export-definition"
                 data-requires-engagement-action disabled>Validate and export</button>
               <button type="button" data-action="choose-import"
-                data-requires-engagement-action disabled>Import definition</button>
+                data-requires-engagement-action disabled>Upload survey to edit</button>
               <input data-definition-file type="file" accept=".json,application/json" hidden>
             </div>
           </aside>

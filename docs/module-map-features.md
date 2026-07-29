@@ -17,36 +17,40 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - dashboard.css 102/2293 T+
 - dashboard 87/2903 T+ E mountDashboard, renderDashboard I @d/dashboard-selection, @s/format
 ## definition-creator/
-- checkpoint-dwell 86/2693 T+ E applyCreatorCheckpointDwells, replaceCreatorCheckpointDwell
+- checkpoint-dwell 88/2818 T+ E applyCreatorCheckpointDwells, replaceCreatorCheckpointDwell
 - components.css 150/2547 T+
 - controller-clear-route 29/926 T+ E clearCreatorRoute
 - controller-dwell 38/1098 T+ E createCreatorDwellActions
 - controller-render 25/807 T+ E renderCreatorController I map-coverage, workflow
+- controller-route-actions 49/1390 T- E createCreatorRouteActions
 - controller-state 27/587 T+ E createCreatorControllerState, nextCreatorStopId
-- controller 149/6098 T+ E createDefinitionCreatorController
-  - I controller-clear-route, controller-dwell, controller-render, controller-state, definition-files, form, stop-order
+- controller 140/5739 T+ E createDefinitionCreatorController
+  - I controller-clear-route, controller-dwell, controller-render, controller-route-actions, controller-state, definition-files, form, stop-order
 - creator.css 150/3036 T+
 - definition-creator 85/2930 T+ E mountDefinitionCreator I controller, map-session, providers, stop-actions, view, workflow
-- definition-files 83/2777 T+ E createDefinitionFiles I form, map-coverage
+- definition-files 86/2822 T+ E createDefinitionFiles I form, map-coverage
 - dwell-schedule.css 61/1181 T+
 - form 127/3819 T+ E assertCreatorCampus, fieldsFromDefinition, parseCreatorFields, parseCreatorPlanFields I @d/checkpoint-dwell-v3
+- map-access 41/1321 T- E createCreatorMapAccess
 - map-choice 31/1172 T+ E closeCreatorMapChoice, coordinateSummary, showCreatorMapChoice
 - map-coverage 150/4330 T+ E deriveMapCoverage, mapContextFromPoi
-- map-session 145/4874 T+ E createCreatorMapSession
+- map-session 150/4952 T+ E createCreatorMapSession I map-access
 - preview-projection 76/2442 T+ E createPreviewProjection, distinctPreviewLevels, previewZ
 - preview 122/5030 T+ E routePreviewMarkup I preview-projection
 - providers 58/1596 T+ E resolveCreatorProviders I @a/map/routing, @d/route-path
 - stop-actions 100/3068 T+ E createStopActions I map-coverage, stops
 - stop-order 24/862 T+ E reorderCreatorStops
 - stops 150/4633 T+ E adjustStop, createExactStop, createGpsStop, createPoiStop, gpsAccuracyWarning
-- template 141/8725 T+ E definitionCreatorTemplate I timezones
+- template 145/8920 T+ E definitionCreatorTemplate I timezones
 - timezones 36/1109 T+ E creatorTimezones, ensureTimezoneOption, timezoneOptionsMarkup
+- view-access 20/801 T- E showCreatorMapAccessPrompt, takeCreatorMapAccess
 - view-dwell 88/3337 T+ E readCreatorCheckpointDwell, renderCreatorDwellSchedule I @d/checkpoint-dwell-v3
 - view-render 63/2462 T+ E renderCreatorCoverage, renderCreatorRoute, renderCreatorStops I preview
-- view 147/5266 T+ E createDefinitionCreatorView I map-choice, template, timezones, view-dwell, view-render
+- view 147/5326 T+ E createDefinitionCreatorView I map-choice, template, timezones, view-access, view-dwell, view-render
 - workflow-route 51/1239 T+ E creatorRouteResult, updateCreatorRouteDwell I checkpoint-dwell
-- workflow 137/3827 T+ E createCreatorWorkflow, shortLegWarning
-  - I @d/creator-route-v3, @d/definition-authoring-v3, @d/route-duration-v3, checkpoint-dwell, workflow-route
+- workflow-routing 112/3350 T+ E createCreatorRouting I checkpoint-dwell, workflow-route
+- workflow 92/2694 T+ E createCreatorWorkflow, shortLegWarning
+  - I @d/creator-route-v3, @d/definition-authoring-v3, @d/route-duration-v3, workflow-route, workflow-routing
 ## report-player/
 - comparison-view 65/2650 T+ E renderComparisonView I @s/format
 - floor-route-view 40/1822 T+ E renderFloorRouteView I @s/format

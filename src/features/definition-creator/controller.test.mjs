@@ -44,15 +44,13 @@ function harness() {
       distanceM: 8,
     }],
   };
-  const workflow = {
-    rebuild: async stops => {
-      calls.rebuilds = (calls.rebuilds ?? 0) + 1;
-      if (calls.failRoute && stops.length > 1) throw new Error("provider offline");
-      return stops.length < 2
-        ? { ...route, checkpoints: [], distanceM: 0, legs: [], shortLegs: [] }
-        : route;
-    },
+  const routeStops = async stops => {
+    if (calls.failRoute && stops.length > 1) throw new Error("provider offline");
+    return stops.length < 2
+      ? { ...route, checkpoints: [], distanceM: 0, legs: [], shortLegs: [] }
+      : route;
   };
+  const workflow = { append: routeStops, rebuild: routeStops, replan: routeStops };
   const stopActions = {
     adjust: (_values, stop) => ({ ...stop, name: "Adjusted" }),
     exact: (_values, id) => ({
@@ -80,7 +78,7 @@ function harness() {
   controller.engage({ campusId: "campus-a" });
   return { calls, fields, controller };
 }
-test("controller locks planning and live-routes every added or reordered stop", async () => {
+test("controller locks planning, appends stops, and redraws reordered stops", async () => {
   const { calls, controller, fields } = harness();
   fields.surveyName = "";
   fields.configId = "";
@@ -93,9 +91,7 @@ test("controller locks planning and live-routes every added or reordered stop", 
   assert.match(calls.shortWarnings.at(-1), /Start → Finish/);
   await controller.dispatch("add-exact");
   await controller.dispatch("select-stop", { dataset: { index: "1" } });
-  const rebuilds = calls.rebuilds;
   await controller.dispatch("move-stop-down", { dataset: { index: "1" } });
-  assert.equal(calls.rebuilds, rebuilds + 1);
   assert.deepEqual(controller.state.stops.map(stop => stop.id),
     ["stop-1", "stop-3", "stop-2"]);
   assert.equal(controller.state.selectedIndex, 2);

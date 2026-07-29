@@ -56,6 +56,7 @@ export async function capturedCreatorDownload(page) {
       legs: definition.route.legs.length,
       mapAccessUsed: Boolean(window.__mapAccessUsed),
       reengagePresent: document.body.textContent.includes("Re-engage"),
+      routeRequests: window.__creatorRouteRequests ?? 0,
       routeMode: document.querySelector("[data-route-mode]").textContent,
       shortWarningHidden: document.querySelector("[data-short-warning]").hidden,
       stops: definition.route.stops.length,
@@ -90,6 +91,8 @@ export function creatorDownloadFindings(download) {
   if (download.reengagePresent) findings.push("Re-engage was rendered");
   if (download.choiceSummariesSeen !== 3) findings.push("map choices were not summarized");
   if (download.immediateCommits !== 3) findings.push("map choices did not commit immediately");
+  if (download.routeRequests !== 2) findings.push("adding stops rerouted existing legs");
+  if (!download.checkpointDwells.includes(17)) findings.push("uploaded survey was not editable");
   checkStopTargets(download.stopRecords, findings);
   checkDesktopLayout(download.layout, findings);
   if (download.distanceText === "0 m") findings.push("distance did not update");
@@ -97,7 +100,7 @@ export function creatorDownloadFindings(download) {
   if (!download.routeMode.includes("MazeMap route geometry is active")) {
     findings.push("MazeMap routing was not active");
   }
-  if (!download.mapAccessUsed) findings.push("Engage did not apply map access");
+  if (download.mapAccessUsed) findings.push("public Engage unexpectedly applied map access");
   if (download.campusName !== "Dunedin Hospital") findings.push("campus was not derived");
   if (download.buildings?.[0]?.name !== "Clinical Services Building") {
     findings.push("building was not derived from map points");

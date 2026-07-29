@@ -1,9 +1,11 @@
+import { createCreatorMapAccess } from "./map-access.mjs";
 export function createCreatorMapSession({
   credentials,
   mapAdapter,
   view,
 }) {
   let clickRevision = 0;
+  const mapAccess = createCreatorMapAccess({ credentials, view });
   async function engage() {
     if (typeof mapAdapter?.launch !== "function") {
       throw new Error("MazeMap SDK loader is unavailable.");
@@ -12,15 +14,18 @@ export function createCreatorMapSession({
     const customerId = required(fields.customerId, "customerId");
     const customerName = required(fields.customerName, "customerName");
     const campusId = required(fields.campusId, "campusId");
-    const enteredAccess = view.takeMapAccess?.();
-    const access = enteredAccess || credentials?.read?.("mapAccess") || null;
-    if (access) credentials?.set?.("mapAccess", access);
+    const access = mapAccess.take();
     view.setStatus("Loading the MazeMap campus…");
-    const initialZ = await mapAdapter.launch(
-      access,
-      event => void onMapClick(event),
-      { campusId },
-    );
+    let initialZ;
+    try {
+      initialZ = await mapAdapter.launch(
+        access,
+        event => void onMapClick(event),
+        { campusId },
+      );
+    } catch (error) {
+      mapAccess.rethrow(error, access);
+    }
     const campusName = required(mapAdapter.campusName, "MazeMap campus name");
     view.writeFields({ campusId, campusName, needsMapAccess: Boolean(access) });
     if (Number.isFinite(Number(initialZ))) {

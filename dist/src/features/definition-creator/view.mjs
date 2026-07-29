@@ -7,6 +7,10 @@ import {
   readCreatorCheckpointDwell,
   renderCreatorDwellSchedule,
 } from "./view-dwell.mjs";
+import {
+  showCreatorMapAccessPrompt,
+  takeCreatorMapAccess,
+} from "./view-access.mjs";
 export function createDefinitionCreatorView(root) {
   root.innerHTML = definitionCreatorTemplate();
   const find = selector => root.querySelector(selector);
@@ -122,6 +126,7 @@ export function createDefinitionCreatorView(root) {
     selectStop,
     setPlanLocked,
     setEngaged,
+    showMapAccessPrompt: visible => showCreatorMapAccessPrompt(find, visible),
     setRouteMode: message => { find("[data-route-mode]").textContent = message; },
     setStatus,
     showMapChoice: value => showCreatorMapChoice(find, value),
@@ -131,12 +136,7 @@ export function createDefinitionCreatorView(root) {
       message,
       "[data-short-warning-text]",
     ),
-    takeMapAccess() {
-      const input = find("[data-engage-access]");
-      const value = input.value.trim();
-      input.value = "";
-      return value;
-    },
+    takeMapAccess: () => takeCreatorMapAccess(find),
     writeMapSelection(values, context) {
       mapContext = context ? structuredClone(context) : null;
       writeFields(values);

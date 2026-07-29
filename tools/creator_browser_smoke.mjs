@@ -10,6 +10,7 @@ import {
   installCreatorDownloadCapture,
 } from "./creator_browser_assertions.mjs";
 import { installCreatorMazeMapStub } from "./creator_browser_mazemap_stub.mjs";
+import { uploadDownloadedSurveyAndEditDwell } from "./creator_browser_upload.mjs";
 import { startStaticServer } from "./static_server.mjs";
 const require = createRequire(import.meta.url);
 const defaultChrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
@@ -64,7 +65,6 @@ export async function runCreatorBrowserSmoke({
   }
 }
 async function exerciseCreator(page) {
-  const access = ["browser", "runtime", "map"].join("-");
   await page.evaluate(() => {
     window.__choiceSummariesSeen = 0;
     window.__immediateCommits = 0;
@@ -74,7 +74,6 @@ async function exerciseCreator(page) {
   const engagement = { customerId: "customer-browser",
     customerName: "Browser Customer", campusId: "566" };
   for (const [name, value] of Object.entries(engagement)) await setField(page, name, value);
-  await page.type("[data-engage-access]", access);
   await page.click('[data-action="engage-map"]');
   await page.waitForFunction(() => document
     .querySelector('[data-field="campusName"]').value === "Dunedin Hospital");
@@ -98,6 +97,7 @@ async function exerciseCreator(page) {
   await page.click('[data-action="dismiss-short-warning"]');
   await page.click('[data-action="export-definition"]');
   await page.waitForFunction(() => Boolean(window.__creatorDownloadName));
+  await uploadDownloadedSurveyAndEditDwell(page);
 }
 async function chooseMapTarget(page, action, lng, lat) {
   const expected = await page.$$eval("[data-stop-list] li", items => items.length) + 1;

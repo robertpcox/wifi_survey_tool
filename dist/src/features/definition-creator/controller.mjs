@@ -1,6 +1,7 @@
 import { createCreatorControllerState, nextCreatorStopId } from "./controller-state.mjs";
 import { clearCreatorRoute } from "./controller-clear-route.mjs";
 import { createCreatorDwellActions } from "./controller-dwell.mjs";
+import { createCreatorRouteActions } from "./controller-route-actions.mjs";
 import { createDefinitionFiles } from "./definition-files.mjs";
 import { assertCreatorCampus, parseCreatorPlanFields } from "./form.mjs";
 import { renderCreatorController } from "./controller-render.mjs";
@@ -9,6 +10,7 @@ export function createDefinitionCreatorController(options) {
   const { view, workflow, stopActions, mapAdapter } = options;
   const state = createCreatorControllerState(); const configuredCampusId = () => state.engagedCampusId;
   const render = () => renderCreatorController({ mapAdapter, state, view });
+  const routeActions = createCreatorRouteActions({ render, state, view, workflow });
   async function lockPlan() {
     if (state.planLocked) {
       state.planLocked = false;
@@ -19,7 +21,7 @@ export function createDefinitionCreatorController(options) {
     const fields = view.readFields();
     const plan = parseCreatorPlanFields(fields);
     assertCreatorCampus({ campusId: fields.campusId }, configuredCampusId);
-    const result = await workflow.rebuild(state.stops, plan);
+    const result = await workflow.replan(state.stops, plan, state.route);
     if (result.stale) return;
     state.plan = plan;
     state.route = result;
@@ -43,21 +45,6 @@ export function createDefinitionCreatorController(options) {
     if (!state.planLocked) await lockPlan();
     requirePlan();
   }
-  async function commitStops(stops, message, selection = -1, warning = null) {
-    const result = await workflow.rebuild(stops, state.plan, state.route);
-    if (result.stale) return;
-    state.stops = stops;
-    state.route = result;
-    state.selectedIndex = selection;
-    view.selectStop(selection < 0 ? null : stops[selection], selection);
-    if (warning) view.showGpsWarning(warning);
-    render();
-    view.setStatus(message, "ok");
-  }
-  async function addStop(stop, warning = null) {
-    return commitStops([...state.stops, stop],
-      `${stop.name} added; route and review updated.`, -1, warning);
-  }
   async function adjustSelected() {
     requirePlan();
     const index = state.selectedIndex;
@@ -65,19 +52,23 @@ export function createDefinitionCreatorController(options) {
     const stops = state.stops.map((stop, stopIndex) => (
       stopIndex === index ? adjusted : stop
     ));
-    await commitStops(stops, `${adjusted.name} adjusted; route and review updated.`, index);
+    await routeActions.replan(
+      stops,
+      `${adjusted.name} adjusted; route and review updated.`,
+      index,
+    );
   }
   async function removeStop(index) {
     requirePlan();
     const removed = state.stops[index];
     if (!removed) throw new Error(`stop ${index + 1}: does not exist`);
     const stops = state.stops.filter((_stop, stopIndex) => stopIndex !== index);
-    await commitStops(stops, `${removed.name} removed; route and review updated.`);
+    await routeActions.reshuffle(stops, `${removed.name} removed; route and review updated.`);
   }
   async function moveStop(index, offset) {
     requirePlan();
     const moved = reorderCreatorStops(state.stops, index, offset, state.selectedIndex);
-    await commitStops(moved.stops,
+    await routeActions.reshuffle(moved.stops,
       `${moved.movedStop.name} moved; route and review updated.`, moved.selectedIndex);
   }
   function selectStop(index) {
@@ -97,17 +88,17 @@ export function createDefinitionCreatorController(options) {
   const actions = {
     "add-exact": async () => {
       await ensurePlan();
-      await addStop(stopActions.exact(view.readFields(), nextCreatorStopId(state)));
+      await routeActions.add(stopActions.exact(view.readFields(), nextCreatorStopId(state)));
     },
     "add-poi": async () => {
       await ensurePlan();
-      await addStop(await stopActions.poi(view.readFields(), nextCreatorStopId(state)));
+      await routeActions.add(await stopActions.poi(view.readFields(), nextCreatorStopId(state)));
     },
     "adjust-stop": adjustSelected,
     "capture-gps": async () => {
       await ensurePlan();
       const result = await stopActions.gps(view.readFields(), nextCreatorStopId(state));
-      await addStop(result.stop, result.warning);
+      await routeActions.add(result.stop, result.warning);
     },
     "choose-import": () => view.chooseImport(),
     "clear-current-route": () => clearCreatorRoute({ render, state, view, workflow }),

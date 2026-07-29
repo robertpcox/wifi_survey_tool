@@ -49,8 +49,10 @@ export function replaceCreatorCheckpointDwell(
 
 function previousDwells(route) {
   const values = new Map();
+  const terminalSequence = route?.checkpoints?.at(-1)?.sequence;
   for (const checkpoint of route?.checkpoints ?? []) {
     if (!Object.hasOwn(checkpoint, "dwellSeconds")) continue;
+    if (checkpoint.sequence === terminalSequence) continue;
     values.set(
       checkpointKey(checkpoint, route?.legs ?? []),
       checkpoint.dwellSeconds,

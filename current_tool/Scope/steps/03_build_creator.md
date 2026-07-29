@@ -45,14 +45,15 @@ file under `data/surveys/`. Device and band remain absent from definitions.
 
 ## Workflow
 
-1. Enter customer and campus access, then enter survey and positioning-provider metadata.
+1. Enter customer and campus details, then select Engage for a public map attempt.
    Building and floor coverage comes only from committed MazeMap points.
-2. Enter temporary map access when required.
+2. Only after a typed access denial, enter temporary map access and retry Engage.
 3. Set spacing and default mid-leg and leg-end dwell; the first map choice locks the plan.
-4. Create or import an ordered route; Clear current route removes its points without losing setup.
+4. After Engage, create an ordered route or upload a survey to edit; Clear current route
+   removes its points without losing setup.
 5. Click the map, choose its exact coordinates or the discovered POI centre, and add the
    selected target immediately; captured device GPS remains a separate optional action.
-6. Watch each added stop route, draw, and generate checkpoints immediately, and adjust.
+6. Watch each new final leg route and append immediately; only a reshuffle reroutes every leg.
 7. Edit or omit dwell per generated check-in, then freeze immutable legs and checkpoints.
 8. Review distance, checkpoint count, dwell contribution, and estimated duration.
 9. Validate and export `SurveyDefinitionV3`.
@@ -74,7 +75,8 @@ position is usually network-derived and low accuracy, which the recorded accurac
 
 ## Live route building
 
-Adding a stop routes it from the previous stop and redraws at once.
+Adding a stop routes only the new leg from the previous stop and redraws at once.
+Existing legs are reused until stops are reordered or removed.
 Distance, checkpoint count, and duration update with every change.
 The author sees the real route while building rather than after generating.
 
@@ -114,6 +116,8 @@ Display walking time, dwell time, and total estimate separately.
 - A captured stop exports position, accuracy, timestamp, and capture provenance.
 - Denied or unavailable geolocation is reported, and no stop is created.
 - Adding a stop updates route, checkpoints, distance, and duration without a separate action.
+- Three sequential stops make two routing calls; a plan edit makes none; a reshuffle rebuilds all legs.
+- After Engage, an uploaded definition opens with editable stops, order, dwell, and configuration.
 - Creator works on supported desktop browsers.
 - Map access entered by the author never reaches the exported definition.
 - Files and module map pass the context gates.

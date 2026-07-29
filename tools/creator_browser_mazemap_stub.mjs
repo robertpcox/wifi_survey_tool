@@ -129,6 +129,7 @@ function installMazemap() {
         return pointPoi(Number(lng), Number(lat), Number(z), String(id));
       },
       async getRouteJSON(from, to) {
+        window.__creatorRouteRequests = (window.__creatorRouteRequests ?? 0) + 1;
         return {
           type: "FeatureCollection",
           features: [{

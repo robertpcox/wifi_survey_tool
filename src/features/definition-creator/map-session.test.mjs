@@ -33,6 +33,7 @@ function harness(access = "memory-only-access") {
       campusId: "566",
     }),
     setStatus: (...args) => calls.statuses.push(args),
+    showMapAccessPrompt: value => { calls.accessPrompt = value; },
     showMapChoice: value => { calls.choice = value; },
     takeMapAccess: () => access,
     writeFields: value => calls.fields.push(value),
@@ -52,18 +53,19 @@ function harness(access = "memory-only-access") {
   return { calls, context, mapAdapter, session };
 }
 
-test("Engage keeps access in memory and launches the entered campus", async () => {
+test("Engage launches publicly before reading available access", async () => {
   const state = harness();
   assert.deepEqual(await state.session.engage(), {
     campusId: "566",
     campusName: "Dunedin Hospital",
     customerId: "health-nz",
     customerName: "Health New Zealand",
-    mapAccessRequired: true,
+    mapAccessRequired: false,
   });
-  assert.equal(state.calls.access, "memory-only-access");
+  assert.equal(state.calls.access, null);
   assert.deepEqual(state.calls.runtime, { campusId: "566" });
-  assert.equal(state.calls.fields[0].needsMapAccess, true);
+  assert.equal(state.calls.fields[0].needsMapAccess, false);
+  assert.equal(state.calls.storedAccess, undefined);
   assert.equal(state.calls.engaged, undefined);
   assert.equal(JSON.stringify(state.session).includes("memory-only-access"), false);
 });

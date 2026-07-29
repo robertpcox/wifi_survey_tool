@@ -8,12 +8,10 @@ import {
 } from "../../domain/definition-authoring-v3.mjs";
 import { estimateRouteDuration } from "../../domain/route-duration-v3.mjs";
 import {
-  applyCreatorCheckpointDwells,
-} from "./checkpoint-dwell.mjs";
-import {
   creatorRouteResult,
   updateCreatorRouteDwell,
 } from "./workflow-route.mjs";
+import { createCreatorRouting } from "./workflow-routing.mjs";
 
 const DEFAULT_DOMAIN = Object.freeze({
   authorSurveyDefinitionV3,
@@ -29,50 +27,7 @@ export function createCreatorWorkflow({
   cryptoRef,
   domain = DEFAULT_DOMAIN,
 } = {}) {
-  let revision = 0;
-
-  async function rebuild(stops, plan, previousRoute = null) {
-    const buildRevision = ++revision;
-    if (stops.length < 2) {
-      return creatorRouteResult(domain, [], [], [], 0);
-    }
-    const legs = [];
-    for (let index = 0; index < stops.length - 1; index++) {
-      const from = stops[index];
-      const to = stops[index + 1];
-      let geometry;
-      try {
-        geometry = await routeProvider(from, to);
-      } catch (error) {
-        if (buildRevision !== revision) return { stale: true };
-        throw new Error(`Route ${from.name} → ${to.name}: ${error.message}`);
-      }
-      if (buildRevision !== revision) return { stale: true };
-      try {
-        legs.push(domain.createRouteLegV3(from, to, geometry, index));
-      } catch (error) {
-        throw new Error(`Route ${from.name} → ${to.name}: ${error.message}`);
-      }
-    }
-    const generated = domain.generateRouteCheckpointsV3(
-      stops,
-      legs,
-      plan.spacingM,
-    );
-    const checkpoints = applyCreatorCheckpointDwells(
-      generated.checkpoints,
-      legs,
-      plan,
-      previousRoute,
-    );
-    return creatorRouteResult(
-      domain,
-      legs,
-      checkpoints,
-      generated.shortLegs,
-      0,
-    );
-  }
+  const routing = createCreatorRouting({ domain, routeProvider });
 
   function reviewImported(imported) {
     const definition = imported.previousDefinition;
@@ -105,12 +60,12 @@ export function createCreatorWorkflow({
   }
 
   return {
+    append: routing.append,
     author,
-    cancel() {
-      revision++;
-    },
+    cancel: routing.cancel,
     importDefinition: value => domain.importSurveyDefinitionV3(value),
-    rebuild,
+    rebuild: routing.rebuild,
+    replan: routing.replan,
     reviewImported,
     updateCheckpointDwell: (route, sequence, dwellSeconds) => (
       updateCreatorRouteDwell(domain, route, sequence, dwellSeconds)

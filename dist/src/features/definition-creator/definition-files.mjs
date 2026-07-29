@@ -69,7 +69,10 @@ export function createDefinitionFiles(options) {
     view.writeFields(fieldsFromDefinition(definition));
     view.setPlanLocked(true);
     render();
-    view.setStatus(`Imported ${definition.meta.surveyId} without rerouting.`, "ok");
+    view.setStatus(
+      `Uploaded ${definition.meta.surveyId} and opened it for editing without rerouting.`,
+      "ok",
+    );
     return definition;
   }
 

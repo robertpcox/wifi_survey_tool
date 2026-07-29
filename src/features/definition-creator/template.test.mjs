@@ -31,7 +31,8 @@ test("Creator template exposes launch, three-column authoring, and map choices",
   assert.match(html, /role="img"[\s\S]*creator-route-preview-title creator-route-preview-desc/);
   assert.match(html, /data-metric="walking"/);
   assert.match(html, /data-engage-access type="password"/);
-  assert.match(html, /private campuses only/);
+  assert.match(html, /data-engage-access-prompt hidden/);
+  assert.match(html, /denied public access/);
   assert.doesNotMatch(html, /data-engage-access[^>]*required/);
   assert.match(html, /data-coverage-buildings/);
   assert.match(html, /UUID is generated automatically/);

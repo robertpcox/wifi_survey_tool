@@ -79,6 +79,21 @@ export function createRunnerRunView(documentRef) {
     );
   }
 
+  function resetSession() {
+    activeState = null;
+    latestFix = null;
+    const run = find("[data-run-panel]");
+    const finish = find("[data-finish-panel]");
+    if (run) run.hidden = true;
+    if (finish) finish.hidden = true;
+    const comment = find("[data-operator-comment]");
+    if (comment) comment.value = "";
+    setText("[data-poll-count]", 0);
+    setText("[data-poll-state]", "Starting");
+    setText("[data-source-health]", "—");
+    setText("[data-target-distance]", "Waiting for fix");
+  }
+
   return Object.freeze({
     bind(handlers) {
       find('[data-action="check-in"]')?.addEventListener("click", handlers.checkIn);
@@ -90,6 +105,7 @@ export function createRunnerRunView(documentRef) {
     comment: () => find("[data-operator-comment]")?.value ?? "",
     renderRun,
     renderSource,
+    resetSession,
     showFinish,
     showValidation(result) {
       const output = find("[data-validation-result]");

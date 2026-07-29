@@ -84,6 +84,28 @@ export function createRunnerSetup(options) {
     ).length === 0;
   }
 
+  function resetAfterDownload() {
+    pollLoop?.stop();
+    pollLoop = null;
+    state.definition = null;
+    state.preflight = null;
+    state.polls = [];
+    state.activeRun = null;
+    state.lastResult = null;
+    state.busy = false;
+    mapAdapter.drawPositionTrail?.([]);
+    mapAdapter.drawRoute?.([]);
+    mapAdapter.drawStops?.([]);
+    mapAdapter.drawWaypoints?.([]);
+    mapAdapter.setActiveLeg?.(null);
+    mapAdapter.clearTargetMarker?.();
+    formView.setRunning(false);
+    formView.resetRouteSelection?.();
+    runView.resetSession?.();
+    updateActions();
+    formView.setStatus("Result downloaded. Choose the next survey.", "ok");
+  }
+
   function updateActions() {
     formView.setActions({
       entryComplete: entryComplete(),
@@ -116,6 +138,7 @@ export function createRunnerSetup(options) {
     entryComplete,
     initialize,
     get pollLoop() { return pollLoop; },
+    resetAfterDownload,
     selectSurvey,
     updateActions,
   });

@@ -116,8 +116,8 @@ the result. Starting on amber or red requires an explicit acknowledgement and is
 - The initial v3 Runner uses MazeMap Cloud through the provider-neutral poller contract.
 - Show current target, progress, source health, polling state, and dwell countdown.
 - Preserve normalized and raw responses with request and response timing.
-- Credentials and map access remain only in memory.
-- Refresh or tab close loses credentials and the active run.
+- Successful download clears route/run evidence but retains entry and memory credentials in-tab.
+- Refresh or tab close still loses credentials and the active run.
 - No resume workflow is provided.
 - Stop produces `completionStatus: "aborted"` and prompts download.
 - Only explicit End session after the endpoint produces completed status and download.
@@ -138,7 +138,7 @@ the result. Starting on amber or red requires an explicit acknowledgement and is
 - The comment prompt never blocks or delays the export, on either completion path.
 - Go waits for required positioning fields and preflight, never an unproved map-token need.
 - Each preflight failure reason is reachable by a test and stated in plain words.
-- A run started on amber or red carries the acknowledgement and the sample in its export.
+- Amber/red acknowledgement enables Start anyway without rerunning preflight and reaches export.
 - An asset run never requests the Runner device's own position.
 - Filename follows the v3 contract.
 - Raw payload, normalized fix, HTTP status, and round-trip timing are present.

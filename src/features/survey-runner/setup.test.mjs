@@ -28,7 +28,8 @@ test("setup selects definitions, reads entry state, and records poll samples", a
     id: "mazemap-cloud",
     poll: async () => ({ id: "poll-1", success: true }),
   };
-  const calls = { buttons: [], source: [] };
+  const calls = { buttons: [], resets: [], source: [] };
+  const credentials = createMemoryCredentialStore();
   const definition = {
     meta: {
       campusId: "566",
@@ -51,16 +52,19 @@ test("setup selects definitions, reads entry state, and records poll samples", a
   };
   const setup = createRunnerSetup({
     state,
-    credentials: createMemoryCredentialStore(),
+    credentials,
     source,
     mapAdapter: {
       campusId: "566",
       ready: true,
       drawRoute: value => { calls.route = value; },
+      drawPositionTrail: value => { calls.trail = value; },
       drawStops: value => { calls.stops = value; },
       drawWaypoints: value => { calls.points = value; },
       fitRoute: value => { calls.fit = value; },
+      clearTargetMarker: () => calls.resets.push("target"),
       resizeMapSoon: () => { calls.resized = true; },
+      setActiveLeg: value => { calls.activeLeg = value; },
     },
     formView: {
       readValues: () => values,
@@ -72,9 +76,11 @@ test("setup selects definitions, reads entry state, and records poll samples", a
         calls.surveys = surveys;
         calls.selectedId = selectedId;
       },
+      resetRouteSelection: () => calls.resets.push("form"),
       setStatus() {},
     },
     runView: {
+      resetSession: () => calls.resets.push("run"),
       renderSource: sample => calls.source.push(sample),
     },
     runtime: {
@@ -108,4 +114,20 @@ test("setup selects definitions, reads entry state, and records poll samples", a
   assert.equal(state.polls[0].id, "poll-1");
   assert.equal(calls.source[0].id, "poll-1");
   assert.equal(calls.buttons.at(-1).entryComplete, true);
+  state.activeRun = {};
+  state.lastResult = {};
+  state.preflight = { verdict: "green" };
+  setup.resetAfterDownload();
+  assert.equal(state.definition, null);
+  assert.equal(state.activeRun, null);
+  assert.equal(state.lastResult, null);
+  assert.deepEqual(state.polls, []);
+  assert.deepEqual(calls.route, []);
+  assert.deepEqual(calls.stops, []);
+  assert.deepEqual(calls.points, []);
+  assert.deepEqual(calls.trail, []);
+  assert.deepEqual(calls.resets, ["target", "form", "run"]);
+  assert.equal(calls.activeLeg, null);
+  assert.equal(state.entry.deviceName, "Tag 4");
+  assert.equal(credentials.read("appKey"), values.appKey);
 });

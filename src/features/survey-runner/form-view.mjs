@@ -25,7 +25,7 @@ export function createRunnerFormView(documentRef) {
   function populateSurveys(surveys, selectedSurveyId = null) {
     const select = find("[data-survey-select]");
     if (!select) return;
-    select.innerHTML = surveys.map(entry =>
+    select.innerHTML = '<option value="">Choose next survey…</option>' + surveys.map(entry =>
       `<option value="${esc(entry.surveyId)}">`
       + `${esc(entry.customerName)} — ${esc(entry.surveyName)}</option>`).join("");
     if (selectedSurveyId) select.value = selectedSurveyId;
@@ -78,11 +78,26 @@ export function createRunnerFormView(documentRef) {
     if (node) node.textContent = String(text);
   }
 
+  function resetRouteSelection() {
+    const select = find("[data-survey-select]");
+    if (select) select.value = "";
+    for (const selector of [
+      "[data-survey-name]", "[data-campus-name]", "[data-route-distance]",
+      "[data-route-duration]", "[data-checkpoint-count]",
+    ]) setText(selector, "—");
+    const result = find("[data-preflight-result]");
+    if (result) result.hidden = true;
+    const override = find("[data-preflight-override]");
+    if (override) override.hidden = true;
+    const acknowledgement = find('[name="override"]');
+    if (acknowledgement) acknowledgement.checked = false;
+  }
+
   return Object.freeze({
     bind(handlers) {
       find("[data-survey-select]")?.addEventListener("change", handlers.selectSurvey);
       form?.addEventListener("input", handlers.entryChanged);
-      find('[name="override"]')?.addEventListener("input", handlers.entryChanged);
+      find('[name="override"]')?.addEventListener("input", handlers.overrideChanged);
       find('[data-action="preflight"]')?.addEventListener("click", handlers.preflight);
       find('[data-action="go"]')?.addEventListener("click", handlers.go);
       find('[data-action="override-go"]')?.addEventListener("click", handlers.overrideGo);
@@ -90,6 +105,7 @@ export function createRunnerFormView(documentRef) {
     populateSurveys,
     readValues,
     renderPreflight,
+    resetRouteSelection,
     selectedSurveyId: () => find("[data-survey-select]")?.value ?? "",
     setActions,
     setRunning(running) {

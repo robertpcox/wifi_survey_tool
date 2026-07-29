@@ -1,14 +1,11 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-
 import { createMemoryCredentialStore } from "../../adapters/memory-credentials.mjs";
 import { mountSurveyRunner } from "./survey-runner.mjs";
-
 const definition = JSON.parse(await readFile(
   new URL("../../../data/fixtures/runner/definition.fixture.v3.json", import.meta.url),
 ));
-
 function harness(sampleOverrides = {}) {
   const values = {
     deviceType: "mobile",
@@ -113,6 +110,8 @@ test("Runner loads one survey, gates Go, preflights, and aborts with export", as
   assert.equal(downloaded.result.run.completionStatus, "aborted");
   assert.equal(downloaded.result.run.band, "5");
   assert.deepEqual(downloaded.result.meta, definition.meta);
+  assert.equal(runner.state.definition, null);
+  assert.deepEqual(runner.state.polls, []);
 });
 
 test("amber start keeps Go disabled and records explicit override", async () => {
@@ -132,6 +131,8 @@ test("amber start keeps Go disabled and records explicit override", async () => 
   runner.actions.go();
   assert.equal(runner.state.activeRun, null);
   values.override = true;
+  calls.actions.overrideChanged();
+  assert.equal(runner.state.preflight.verdict, "amber");
   runner.actions.overrideGo();
   assert.equal(runner.state.preflight.acknowledged, true);
   runner.actions.stop();

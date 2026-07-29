@@ -113,7 +113,9 @@ export function mountSurveyRunner(options = {}) {
       downloadFile: options.downloadFile,
       documentRef,
     });
-    return state.lastResult;
+    const downloaded = state.lastResult;
+    setup.resetAfterDownload();
+    return downloaded;
   }
 
   const actions = {
@@ -122,6 +124,7 @@ export function mountSurveyRunner(options = {}) {
     endSession: () => state.activeRun?.endSession(),
     entryChanged: setup.entryChanged,
     go: () => start(false),
+    overrideChanged: setup.updateActions,
     overrideGo: () => start(true),
     preflight,
     selectSurvey: setup.selectSurvey,

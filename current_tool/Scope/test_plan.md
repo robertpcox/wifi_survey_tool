@@ -74,7 +74,7 @@ Runner tests:
 - map launch and later survey selection fit the route; Go opens a no-scroll viewport map
 - checkpoint progression keeps the target lit, north-up, named, distance- and floor-labelled
 - stopping early exports `completionStatus: "aborted"` and prompts download
-- completion exports `completionStatus: "completed"` and prompts a contract-named download
+- completion downloads, clears route/run state, and keeps in-tab settings ready for the next test
 - the meta block in the result is identical to the definition's
 - device type, operating system, name, Client IP, and band are present in every export
 - band is required at load and the entered value reaches the export

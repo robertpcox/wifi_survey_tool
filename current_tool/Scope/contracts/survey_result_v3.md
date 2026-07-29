@@ -97,6 +97,9 @@ The capture is one-and-done and has no resume workflow.
 Stopping before explicit endpoint finish exports `completionStatus: "aborted"`.
 At the terminal checkpoint, polling continues until explicit finish exports `"completed"`.
 Both paths visibly prompt download.
+After a successful download, Runner clears the selected survey, route, preflight, polls,
+comment, and capture UI. Entry fields and memory credentials remain for the next run in
+that tab; refresh or tab close still clears those runtime-only values.
 
 Only completed runs are eligible for comparison.
 

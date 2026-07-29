@@ -84,6 +84,9 @@ test("run view shows target, progress, dwell, source health, and finish paths", 
   assert.equal(nodes.get("[data-poll-indicator]").dataset.state, "error");
   view.showFinish("aborted");
   assert.match(nodes.get("[data-finish-status]").textContent, /stopped early/);
+  view.resetSession();
+  assert.equal(nodes.get("[data-finish-panel]").hidden, true);
+  assert.equal(nodes.get("[data-poll-count]").textContent, "0");
 });
 
 test("comment and validation viewer stay optional", () => {

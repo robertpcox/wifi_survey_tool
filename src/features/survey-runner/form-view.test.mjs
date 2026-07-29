@@ -1,8 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-
 import { createRunnerFormView, preflightMetrics } from "./form-view.mjs";
-
 function harness() {
   const nodes = new Map();
   const make = selector => {
@@ -43,9 +41,8 @@ function harness() {
     '[data-action="go"]', "[data-preflight-override]",
     '[data-action="override-go"]', "[data-preflight-result]",
     "[data-preflight-light]", "[data-preflight-reasons]",
-    "[data-preflight-position]", "[data-preflight-floor]",
-    "[data-preflight-age]", "[data-preflight-rtt]",
-    "[data-setup-panel]", "[data-setup-controls]",
+    "[data-preflight-position]", "[data-preflight-floor]", "[data-preflight-age]",
+    "[data-preflight-rtt]", "[data-setup-panel]", "[data-setup-controls]",
     "[data-runner-status]", '[name="override"]',
   ]) make(selector);
   const classes = new Set();
@@ -66,7 +63,6 @@ function harness() {
     }),
   };
 }
-
 test("form view reads operator values and keeps Go gated by green", () => {
   const { classes, nodes, values, view } = harness();
   assert.equal(view.readValues().deviceOs, "ExampleOS 1");
@@ -78,16 +74,18 @@ test("form view reads operator values and keeps Go gated by green", () => {
   assert.equal(nodes.get('[data-action="override-go"]').disabled, false);
   view.setActions({ entryComplete: true, preflight: { verdict: "green" } });
   assert.equal(nodes.get('[data-action="go"]').disabled, false);
-  let changes = 0;
+  let changes = 0, overrides = 0;
   view.bind({
     entryChanged: () => changes++,
+    overrideChanged: () => overrides++,
     selectSurvey() {},
     preflight() {},
     go() {},
     overrideGo() {},
   });
   nodes.get('[name="override"]').listeners.input();
-  assert.equal(changes, 1);
+  assert.equal(changes, 0);
+  assert.equal(overrides, 1);
   view.setRunning(true);
   assert.equal(nodes.get("[data-setup-panel]").dataset.running, "true");
   assert.equal(nodes.get("[data-setup-controls]").hidden, true);
@@ -129,8 +127,10 @@ test("definition summary and preflight evidence render without secrets", () => {
   });
   assert.equal(nodes.get("[data-preflight-light]").textContent, "GREEN");
   assert.equal(nodes.get("[data-preflight-rtt]").textContent, "90 ms");
+  view.resetRouteSelection();
+  assert.equal(nodes.get("[data-survey-select]").value, "");
+  assert.equal(nodes.get("[data-preflight-result]").hidden, true);
 });
-
 test("preflight metrics expose empty and usable samples", () => {
   assert.deepEqual(
     preflightMetrics(null, 1000),

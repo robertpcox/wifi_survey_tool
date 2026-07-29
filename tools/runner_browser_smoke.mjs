@@ -5,18 +5,11 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { bearingTo } from "../src/adapters/map/camera-bearing.mjs";
 import {
-  openRunnerShareLink,
-  readRunnerActiveView,
-  readRunnerMapTransition,
-  runnerActiveViewFindings,
-  runnerDownloadFindings,
-  runnerMapTransitionFindings,
+  openRunnerShareLink, readRunnerActiveView, readRunnerMapTransition,
+  runnerActiveViewFindings, runnerDownloadFindings, runnerMapTransitionFindings,
   startRunnerCapture,
 } from "./runner_browser_assertions.mjs";
-import {
-  installRunnerBrowserEnvironment,
-  RUNNER_BROWSER_POSITION,
-} from "./runner_browser_environment.mjs";
+import { installRunnerBrowserEnvironment, RUNNER_BROWSER_POSITION } from "./runner_browser_environment.mjs";
 import { multiFloorRunnerDefinition } from "./runner_browser_fixture.mjs";
 import { startStaticServer } from "./static_server.mjs";
 const require = createRequire(import.meta.url);
@@ -53,19 +46,14 @@ export async function runRunnerBrowserSmoke({
       headless: true,
       args: ["--no-sandbox", "--disable-gpu"],
     });
-    const profiles = [
-      { name: "iPhone", width: 390, height: 844 },
-      { name: "Android", width: 412, height: 915 },
-    ];
+    const profiles = [{ name: "iPhone", width: 390, height: 844 },
+      { name: "Android", width: 412, height: 915 }];
     const downloads = [];
     for (const profile of profiles) {
       downloads.push(await exerciseProfile({
-        browser,
-        definition,
-        origin: server.origin,
+        browser, definition, origin: server.origin,
         path: staged ? "/runner/" : "/src/apps/runner/index.html",
-        profile,
-      }));
+        profile }));
     }
     return { skipped: false, downloads };
   } finally {
@@ -137,12 +125,24 @@ async function exerciseProfile({ browser, definition, origin, path, profile }) {
     download,
     definition.route.checkpoints.length,
   ));
+  const reset = await page.evaluate(() => ({
+    device: document.querySelector('[name="deviceName"]').value,
+    finishHidden: document.querySelector("[data-finish-panel]").hidden,
+    pollCount: Number(document.querySelector("[data-poll-count]").textContent),
+    preflightHidden: document.querySelector("[data-preflight-result]").hidden,
+    survey: document.querySelector("[data-survey-select]").value,
+  }));
+  if (!reset.finishHidden || !reset.preflightHidden || reset.pollCount
+    || reset.survey || reset.device !== `${profile.name} field device`) {
+    failures.push("download did not clear the route/run while retaining settings");
+  }
+  await page.select("[data-survey-select]", definition.meta.surveyId);
+  await page.waitForFunction(() => !document.querySelector('[data-action="preflight"]').disabled);
   await page.close();
   if (failures.length) throw new Error(`${profile.name}: ${failures.join("\n")}`);
   return { filename: download.filename, profile: profile.name };
 }
-const isCli = process.argv[1]
-  && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+const isCli = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isCli) {
   const result = await runRunnerBrowserSmoke({ root: process.argv[2] || "." });
   if (result.skipped) console.log(`SKIP Runner browser smoke: ${result.reason}`);

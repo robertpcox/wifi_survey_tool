@@ -97,15 +97,15 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 ## survey-runner/
 - active-run 132/3715 T+ E createActiveRunner I @d/runner-progress-v3
 - entry 56/1655 T+ E RUNNER_ENTRY_FIELDS, normalizeRunnerEntry, runnerEntryIssues, runnerPositionRequest, syncRunnerCredentials
-- form-view 133/5155 T+ E createRunnerFormView, preflightMetrics I @s/format
+- form-view 149/5855 T+ E createRunnerFormView, preflightMetrics I @s/format
 - loader 41/1668 T+ E loadRunnerDefinition, loadRunnerManifest, surveyIdFromUrl I @d/survey-definition-v3
 - poll-loop 52/1578 T+ E createRunnerPollLoop I @a/positioning/source-contract
 - preflight 53/1573 T+ E createPreflightPollLoopOptions, runRunnerPreflight I @d/runner-preflight-v3, entry
 - result-download 29/1038 T+ E downloadRunnerResult I @a/files, @d/runner-result-v3
 - result-upload 16/553 T+ E validateRunnerResultFile I @a/files, @d/survey-result-v3
-- run-view 115/4228 T+ E checkpointDistanceText, createRunnerRunView, targetName I @d/geometry
+- run-view 131/4760 T+ E checkpointDistanceText, createRunnerRunView, targetName I @d/geometry
 - runner-active.css 140/2720 T+
 - runner.css 125/3932 T+
-- setup 122/3540 T+ E createRunnerSetup I entry, loader, poll-loop, preflight
-- survey-runner 141/4731 T+ E mountSurveyRunner
+- setup 145/4218 T+ E createRunnerSetup I entry, loader, poll-loop, preflight
+- survey-runner 144/4840 T+ E mountSurveyRunner
   - I @a/map/mazemap, @a/memory-credentials, @a/positioning/mazemap-cloud-v3, active-run, form-view, preflight, result-download, result-upload, run-view, setup

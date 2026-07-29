@@ -2,6 +2,16 @@
   "schemaVersion": 3,
   "surveys": [
     {
+      "surveyId": "4a9ba424-a96f-466d-a000-d0ba5d62571e",
+      "surveyName": "All Floors",
+      "customerId": "292",
+      "customerName": "NTT - NDH",
+      "campusId": "566",
+      "routeId": "5",
+      "routeHash": "c2ea69731cbc592211e76bcefcb00957ae0eb37f84167596142bbb86131d165f",
+      "path": "data/surveys/4a9ba424-a96f-466d-a000-d0ba5d62571e.definition.v3.json"
+    },
+    {
       "surveyId": "701fc3a3-aba8-48f7-b22b-d0d26d780e8c",
       "surveyName": "L00 - K01 Wait Straight Line - No Dwell",
       "customerId": "292",
@@ -10,16 +20,6 @@
       "routeId": "1a",
       "routeHash": "69d2c5f11ffe448946ec822a3d7ef1b76f68493d56edf5687d711112847348eb",
       "path": "data/surveys/701fc3a3-aba8-48f7-b22b-d0d26d780e8c.definition.v3.json"
-    },
-    {
-      "surveyId": "76468764-17fb-41f2-b48a-e591cbd4783c",
-      "surveyName": "Full Hospital - Walk",
-      "customerId": "292",
-      "customerName": "NTT - NDH",
-      "campusId": "566",
-      "routeId": "6",
-      "routeHash": "4e7cd1c6dadcc123ba31bda0008314831ea5eb13a694e92651f1752f3234c6dc",
-      "path": "data/surveys/76468764-17fb-41f2-b48a-e591cbd4783c.definition.v3.json"
     },
     {
       "surveyId": "87bca6ff-38c9-4a3a-8602-90bc6278a3b5",

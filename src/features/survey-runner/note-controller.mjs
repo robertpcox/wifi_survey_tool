@@ -5,11 +5,14 @@
 // RULES:        Failed capture prompts once; map clicks are ignored unless placement is armed.
 // PROVENANCE:   Runner offline field feedback
 
+import { RUNNER_NOTES_ENABLED } from "./feature-flags.mjs";
+
 export function createRunnerNoteController(options) {
   let failurePrompted = false;
+  const enabled = options.enabled ?? RUNNER_NOTES_ENABLED;
 
   function handleSample(sample, context) {
-    if (context !== "capture" || sample?.success || failurePrompted) return;
+    if (!enabled || context !== "capture" || sample?.success || failurePrompted) return;
     const run = options.state.activeRun;
     if (!run || run.state.completionStatus) return;
     failurePrompted = true;
@@ -17,18 +20,20 @@ export function createRunnerNoteController(options) {
   }
 
   function handleMapClick(event) {
-    if (!options.runView.placementArmed?.()) return false;
+    if (!enabled || !options.runView.placementArmed?.()) return false;
     const point = mapPoint(event, options.mapAdapter.currentZLevel);
     return options.state.activeRun?.placeNote(point) ?? false;
   }
 
   return Object.freeze({
-    add: () => options.state.activeRun?.addNote(options.runView.noteText()),
-    cancel: () => options.state.activeRun?.cancelNote(),
+    add: () => enabled
+      ? options.state.activeRun?.addNote(options.runView.noteText())
+      : undefined,
+    cancel: () => enabled ? options.state.activeRun?.cancelNote() : undefined,
     handleMapClick,
     handleSample,
-    manual: () => options.state.activeRun?.openNote("manual"),
-    noteState: () => options.state.activeRun?.state.note ?? null,
+    manual: () => enabled ? options.state.activeRun?.openNote("manual") : undefined,
+    noteState: () => enabled ? options.state.activeRun?.state.note ?? null : null,
     reset: () => { failurePrompted = false; },
   });
 }

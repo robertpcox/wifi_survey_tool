@@ -72,17 +72,7 @@ test("run view shows target, progress, dwell, source health, and finish paths", 
   assert.equal(nodes.get("[data-poll-indicator]").dataset.state, "ok");
   assert.match(nodes.get("[data-target-distance]").textContent, /^≈ \d+ m$/);
   assert.equal(nodes.get('[data-action="check-in"]').disabled, false);
-  state.note = {
-    id: "note-1",
-    trigger: "source-failure",
-    sourceError: "proxy offline",
-    position: { lng: 170.5, lat: -45.87, z: 1 },
-  };
-  view.renderRun(state);
-  assert.equal(nodes.get("[data-note-panel]").hidden, false);
-  assert.equal(nodes.get('[data-action="check-in"]').disabled, true);
-  assert.match(nodes.get("[data-note-position]").textContent, /z 1/);
-  state.note = null;
+  assert.equal(nodes.get("[data-note-panel]").hidden, true);
   state.progress.phase = "dwelling";
   state.progress.dwellRemainingSeconds = 4;
   view.renderRun(state);

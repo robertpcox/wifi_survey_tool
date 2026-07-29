@@ -21,6 +21,7 @@ test("first capture failure prompts once and reset permits the next run", () => 
   };
   let armed = false;
   const controller = createRunnerNoteController({
+    enabled: true,
     state,
     mapAdapter: { currentZLevel: 2 },
     runView: {
@@ -39,4 +40,24 @@ test("first capture failure prompts once and reset permits the next run", () => 
   controller.reset();
   controller.handleSample({ success: false, error: "new run" }, "capture");
   assert.equal(calls.opens.length, 2);
+});
+
+test("disabled note logging never prompts, places, or exposes note state", () => {
+  const calls = [];
+  const controller = createRunnerNoteController({
+    state: {
+      activeRun: {
+        state: { note: { id: "note-1" } },
+        openNote: value => calls.push(value),
+        placeNote: value => calls.push(value),
+      },
+    },
+    mapAdapter: { currentZLevel: 1 },
+    runView: { placementArmed: () => true },
+  });
+  controller.handleSample({ success: false, error: "offline" }, "capture");
+  assert.equal(controller.handleMapClick({ lng: 1, lat: 2 }), false);
+  controller.manual();
+  assert.deepEqual(calls, []);
+  assert.equal(controller.noteState(), null);
 });

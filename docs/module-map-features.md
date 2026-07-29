@@ -100,11 +100,12 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 ## survey-runner/
 - active-run 150/4396 T+ E createActiveRunner I @d/runner-progress-v3, note-capture
 - entry 56/1655 T+ E RUNNER_ENTRY_FIELDS, normalizeRunnerEntry, runnerEntryIssues, runnerPositionRequest, syncRunnerCredentials
+- feature-flags 8/416 T- E RUNNER_NOTES_ENABLED
 - form-view 149/5855 T+ E createRunnerFormView, preflightMetrics I @s/format
 - loader 41/1668 T+ E loadRunnerDefinition, loadRunnerManifest, surveyIdFromUrl I @d/survey-definition-v3
 - note-capture 120/3881 T+ E createRunnerNoteCapture
-- note-controller 42/1695 T+ E createRunnerNoteController
-- note-view 110/4016 T- E createRunnerNoteView
+- note-controller 47/1934 T+ E createRunnerNoteController I feature-flags
+- note-view 116/4245 T- E createRunnerNoteView I feature-flags
 - poll-loop 52/1578 T+ E createRunnerPollLoop I @a/positioning/source-contract
 - preflight 53/1595 T+ E createPreflightPollLoopOptions, runRunnerPreflight I @d/runner-preflight-v3, entry
 - result-download 30/1068 T+ E downloadRunnerResult I @a/files, @d/runner-result-v3

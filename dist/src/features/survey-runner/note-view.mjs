@@ -5,13 +5,16 @@
 // RULES:        Add requires note text and finite held ground truth.
 // PROVENANCE:   Runner offline field feedback
 
+import { RUNNER_NOTES_ENABLED } from "./feature-flags.mjs";
+
 export function createRunnerNoteView(documentRef) {
   const find = selector => documentRef.querySelector(selector);
-  ensureMarkup(find);
+  if (RUNNER_NOTES_ENABLED) ensureMarkup(find);
   let currentId = null;
   let placing = false;
 
   function render(note) {
+    if (!RUNNER_NOTES_ENABLED) return;
     const panel = find("[data-note-panel]");
     if (!panel) return;
     panel.hidden = !note;
@@ -39,6 +42,7 @@ export function createRunnerNoteView(documentRef) {
   }
 
   function bind(handlers) {
+    if (!RUNNER_NOTES_ENABLED) return;
     find('[data-action="manual-note"]')?.addEventListener("click", handlers.manualNote);
     find('[data-action="add-note"]')?.addEventListener("click", handlers.addNote);
     find('[data-action="cancel-note"]')?.addEventListener("click", handlers.cancelNote);
@@ -55,8 +59,10 @@ export function createRunnerNoteView(documentRef) {
 
   return Object.freeze({
     bind,
-    noteText: () => find("[data-note-text]")?.value ?? "",
-    placementArmed: () => placing,
+    noteText: () => RUNNER_NOTES_ENABLED
+      ? find("[data-note-text]")?.value ?? ""
+      : "",
+    placementArmed: () => RUNNER_NOTES_ENABLED && placing,
     render,
   });
 }

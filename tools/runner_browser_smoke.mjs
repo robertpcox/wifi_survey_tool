@@ -11,7 +11,7 @@ import {
 } from "./runner_browser_assertions.mjs";
 import { installRunnerBrowserEnvironment, RUNNER_BROWSER_POSITION } from "./runner_browser_environment.mjs";
 import { multiFloorRunnerDefinition } from "./runner_browser_fixture.mjs";
-import { exercisePromptedRunnerNote, runnerNoteFindings } from "./runner_browser_note.mjs";
+import { runnerNoteFindings } from "./runner_browser_note.mjs";
 import { startStaticServer } from "./static_server.mjs";
 const require = createRequire(import.meta.url);
 const defaultChrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
@@ -81,7 +81,6 @@ async function exerciseProfile({ browser, definition, origin, path, profile }) {
   const surveyId = encodeURIComponent(definition.meta.surveyId);
   await openRunnerShareLink(page, `${origin}${path}?survey_id=${surveyId}`);
   await startRunnerCapture(page, profile.name);
-  await exercisePromptedRunnerNote(page);
   const firstCheckpoint = definition.route.checkpoints[0];
   const expectedFloor = definition.meta.zLevelNames[String(firstCheckpoint.z)];
   const firstBearing = bearingTo(RUNNER_BROWSER_POSITION, firstCheckpoint);
@@ -123,7 +122,7 @@ async function exerciseProfile({ browser, definition, origin, path, profile }) {
     };
   });
   failures.push(...runnerDownloadFindings(download, definition.route.checkpoints.length));
-  failures.push(...runnerNoteFindings(download.result, 1));
+  failures.push(...runnerNoteFindings(download.result, 0));
   const reset = await page.evaluate(() => ({
     device: document.querySelector('[name="deviceName"]').value,
     finishHidden: document.querySelector("[data-finish-panel]").hidden,

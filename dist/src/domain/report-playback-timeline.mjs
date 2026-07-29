@@ -29,6 +29,8 @@ export function preparePlaybackTimeline(result) {
     .filter(item => inRun(item.atMs, bounds));
   const events = timed(result.events, event => event.at)
     .filter(item => inRun(item.atMs, bounds));
+  const notes = timed(result.notes, note => note.openedAt)
+    .filter(item => inRun(item.atMs, bounds));
   const captureEvents = [
     ...checkIns.map(item => ({
       atMs: item.atMs,
@@ -44,6 +46,7 @@ export function preparePlaybackTimeline(result) {
   const eventTimes = uniqueTimes([
     bounds.startMs,
     ...captureEvents.map(item => item.atMs),
+    ...notes.map(item => Date.parse(item.value.resumedAt)),
     bounds.endMs,
   ]);
   const transitionTimes = uniqueTimes([
@@ -55,6 +58,7 @@ export function preparePlaybackTimeline(result) {
     bounds,
     checkIns,
     events,
+    notes,
     captureEvents,
     truth,
     pollCycles,

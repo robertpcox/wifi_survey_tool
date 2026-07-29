@@ -5,6 +5,7 @@ import {
   runnerActiveViewFindings,
   runnerDownloadFindings,
 } from "./runner_browser_assertions.mjs";
+import { runnerNoteFindings } from "./runner_browser_note.mjs";
 
 test("Runner browser findings cover capture, storage, and credential leaks", () => {
   const valid = {
@@ -64,5 +65,35 @@ test("Runner active-view findings enforce map-first capture geometry", () => {
   ]);
   assert.deepEqual(runnerActiveViewFindings(valid, "Level 0", 90), [
     "checkpoint camera bearing does not face the target",
+  ]);
+});
+
+test("Runner note findings require distinct IDs and route-scoped event anchors", () => {
+  const routeAnchor = {
+    type: "checkpoint-interval",
+    routeHash: "a".repeat(64),
+    fromCheckpointId: "checkpoint-a",
+    toCheckpointId: "checkpoint-b",
+    legId: "leg-a-b",
+  };
+  const result = {
+    route: {
+      hash: routeAnchor.routeHash,
+      checkpoints: [{ id: "checkpoint-a" }, { id: "checkpoint-b" }],
+      legs: [{ id: "leg-a-b" }],
+    },
+    run: { routeHash: routeAnchor.routeHash },
+    notes: [{ id: "note-1", routeAnchor }],
+    events: [{ noteId: "note-1", routeAnchor }],
+  };
+  assert.deepEqual(runnerNoteFindings(result, 1), []);
+  result.events[0].routeAnchor = { ...routeAnchor, toCheckpointId: "checkpoint-a" };
+  assert.deepEqual(runnerNoteFindings(result, 1), [
+    "note event anchor mismatch",
+  ]);
+  result.events[0].routeAnchor = routeAnchor;
+  result.notes[0].checkpointId = "note-1";
+  assert.deepEqual(runnerNoteFindings(result, 1), [
+    "note pseudo-checkpoint ID present",
   ]);
 });

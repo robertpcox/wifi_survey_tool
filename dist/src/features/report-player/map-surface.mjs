@@ -77,6 +77,7 @@ export function createReportMapSurface({
     adapter.drawRoute(result.route.legs);
     adapter.drawStops(result.route.stops);
     adapter.drawWaypoints(result.route.checkpoints);
+    adapter.drawReportNotes?.(result.notes ?? []);
     adapter.setViewMode(viewMode);
     adapter.setMapZLevel(floor);
   }

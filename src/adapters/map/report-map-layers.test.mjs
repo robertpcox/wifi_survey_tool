@@ -23,12 +23,27 @@ test("report heat retains exact weighted coordinates and filters the meta floor"
     },
   };
   assert.equal(layers.draw("sticky", analysis), 2);
+  layers.drawNotes([{
+    id: "note-1",
+    routeAnchor: {
+      type: "checkpoint-interval",
+      routeHash: "a".repeat(64),
+      fromCheckpointId: "checkpoint-a",
+      toCheckpointId: "checkpoint-b",
+      legId: "leg-a-b",
+    },
+    groundTruth: { lng: 170.51, lat: -45.88, z: 1 },
+  }]);
   const features = harness.sources.get("report-sticky-heat").data.features;
   assert.deepEqual(features.map(item => item.geometry.coordinates), [
     [170.5001, -45.8701],
     [170.5004, -45.8704],
   ]);
   assert.deepEqual(features.map(item => item.properties.weightSeconds), [2.75, 1]);
+  assert.equal(
+    harness.sources.get("report-notes").data.features[0].properties.routeHash,
+    "a".repeat(64),
+  );
   assert.deepEqual(harness.filters.get("report-sticky-heat-lyr"), [
     "==", ["get", "z"], 0,
   ]);
@@ -50,8 +65,8 @@ test("heat selection toggles stable layers without adding sources again", () => 
   layers.draw("accuracy", [{ lng: 1, lat: 2, z: 0, weightSeconds: 3 }]);
   layers.select("none");
   layers.setVisible(true);
-  assert.equal(harness.addSourceCalls, 2);
-  assert.equal(harness.addLayerCalls, 2);
+  assert.equal(harness.addSourceCalls, 3);
+  assert.equal(harness.addLayerCalls, 3);
   assert.equal(harness.visibility.get("report-sticky-heat-lyr"), "none");
   assert.equal(harness.visibility.get("report-accuracy-heat-lyr"), "none");
 });

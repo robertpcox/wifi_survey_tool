@@ -10,10 +10,11 @@ export async function installRunnerBrowserEnvironment(
   origin,
   definition,
 ) {
+  const responseState = {};
   await page.evaluateOnNewDocument(installBrowserDoubles);
   await page.setRequestInterception(true);
   page.on("request", request => {
-    void respondRunnerBrowserRequest(request, origin, definition);
+    void respondRunnerBrowserRequest(request, origin, definition, responseState);
   });
 }
 
@@ -31,6 +32,7 @@ function installBrowserDoubles() {
     }
     on(name, callback) {
       if (name === "load") setTimeout(callback, 0);
+      if (name === "click") window.__runnerMapClick = callback;
     }
     addSource(id) { this.sources.set(id, new Source()); }
     getSource(id) { return this.sources.get(id); }

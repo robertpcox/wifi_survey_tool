@@ -7,6 +7,7 @@
 import { geoCircle, geoPath, geoPoint, validMapPoint } from "./map-geojson.mjs";
 import { playerChangedFixHistory } from "./player-fix-history.mjs";
 import { liveRawFixFeature } from "./player-live-raw-fix.mjs";
+import { notePointFeatures } from "./note-features.mjs";
 export function buildPlayerFeatureCollections(frame = {}, snap = {}) {
   snap = snap ?? {};
   const evidence = frame.evidence ?? frame.mapEvidence ?? frame.pollEvidence ?? {};
@@ -33,6 +34,7 @@ export function buildPlayerFeatureCollections(frame = {}, snap = {}) {
   };
   return Object.freeze({
     "player-walker": compact([geoPoint(walker, { role: "walker" }, "walker")]),
+    "player-notes": notePointFeatures(frame.notes),
     "player-raw-fix": compact([liveRawFixFeature(frame, rawFix, walker)]),
     "player-fix-history": history.map((item, index) => (
       geoPoint(item.point, evidenceProps(item.value, { role: "changed-fix" }), `fix:${index}`)

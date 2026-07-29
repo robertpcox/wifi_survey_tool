@@ -70,7 +70,7 @@ Use native MazeMap/Mapbox GeoJSON sources and layers for:
 - selected run trails and ground truth
 - elapsed-time-weighted sticky heat
 - elapsed-time-weighted outside-accuracy heat
-- wrong-floor transitions and other explainable issue markers
+- wrong-floor, route-wedge, and reviewed-exception markers at captured ground truth
 - selected issue interval and its supporting samples
 
 Heat uses the existing `weightSeconds`, is filtered by z-level, and updates with thresholds.
@@ -78,21 +78,22 @@ Provide a non-map issue list and location details for accessibility.
 
 ## Repeat-run stacking
 
-Before implementation fan-out, extend `Scope/contracts/report_analysis.md` with exact
-route-interval adjacency tolerance, grouping rules, severity formula, and stable tie-breakers.
-No issue ranking begins while those choices remain phrases such as "adjacent" or "such as."
+Before implementation, freeze exact route-interval adjacency tolerance, grouping rules,
+severity formula, and stable tie-breakers in `Scope/contracts/report_analysis.md`.
 
-Only completed results with matching survey ID and route hash may stack.
-Retain the existing oldest-completed baseline and label every run by result, date, device,
-operating system, band, and operator comment.
+Only completed results in the same resolved `surveyFamilyId` and exact `route.hash` cohort
+may stack. Changed hashes remain visible in family history but are not compared numerically.
+Use the oldest eligible completed run as baseline and label every run by immutable survey
+revision, result, date, device, operating system, band, and operator comment.
+Route wedges and reviewed exceptions remain run evidence; excluded runs stay visible and
+playable but cannot enter metrics or baseline selection. Comments alone never gate eligibility.
 
 Project contributions onto cumulative distance along the canonical route. Group issue areas
 deterministically by metric, floor, and adjacent route intervals. Preserve per-run identity;
 never merge data into an opaque heat layer that cannot explain its contributing runs.
 
-Rank issue areas using only the frozen affected-run, proportion, and elapsed-time formula.
-Separate recurring issues from single-run issues and display sample size so one observation
-cannot masquerade as a trend.
+Rank with the frozen affected-run, proportion, and elapsed-time formula; separate recurring
+from single-run issues and show sample size so one observation cannot masquerade as a trend.
 
 ## Report-to-Player handoff
 
@@ -110,8 +111,8 @@ and issue selection.
 
 Extend deterministic JSON and CSV analysis exports with issue lineage:
 
-- survey ID and route hash
-- selected result IDs and baseline
+- survey-family ID, immutable survey-revision ID, and exact route hash
+- selected result IDs, baseline, and reviewed exception dispositions and reasons
 - thresholds and metric kind
 - floor and route-distance interval
 - affected runs and weighted seconds
@@ -122,7 +123,7 @@ Exports describe analysis; they never alter or re-export captured fixes as corre
 ## Explicit non-goals
 
 - Creator, Runner, positioning adapters, result schema, or captured result mutation
-- cross-survey, cross-route, incomplete, or aborted-run stacking
+- cross-family, cross-route-hash, incomplete, excluded, or aborted-run stacking
 - snapping recorded fixes or using Player snap output as report truth
 - statistical or machine-learning root-cause claims
 - a second map, persisted credential, backend aggregation, or runtime folder scanning
@@ -130,9 +131,9 @@ Exports describe analysis; they never alter or re-export captured fixes as corre
 
 ## Acceptance
 
-- Three matching completed fixtures stack; mismatched survey/route and aborted fixtures reject.
-- Issue grouping is order-independent, floor-separated, metric-separated, and reproducible.
-- Recurring and single-run issue areas are distinguished and retain per-run lineage.
+- Three eligible same-family/exact-hash fixtures stack; changed hashes remain visible while
+  family/hash mismatches, aborted runs, and reviewed exclusions reject numerical comparison.
+- Grouping is reproducible and separated by floor and metric; recurring and single-run issues retain lineage.
 - Every visible run is labelled, toggleable, and compared against the oldest baseline.
 - Threshold changes update KPIs, issue areas, heat layers, and selected runs without refetching.
 - Report and Player reuse one map/result; mode changes preserve Player time and Report selection.

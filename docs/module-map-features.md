@@ -54,11 +54,11 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - identity-view 75/2867 T+ E renderIdentityView I @s/format
 - kpi-view 36/1500 T+ E renderKpiView I @s/format
 - map-access 76/2875 T+ E bindMapAccess, renderMapAccess I @s/format
-- map-fallback 67/2553 T+ E drawRouteFallback
-- map-model 82/3042 T+ E createMapFrame
+- map-fallback 68/2635 T+ E drawRouteFallback
+- map-model 85/3205 T+ E createMapFrame
 - map-surface-layout 47/1445 T+ E createMapSurfaceLayout, routeCenter, safelyCreateMap
 - map-surface.css 61/1518 T+
-- map-surface 149/5010 T+ E createReportMapSurface I @a/map/mazemap-errors, map-fallback, map-model, map-surface-layout
+- map-surface 150/5061 T+ E createReportMapSurface I @a/map/mazemap-errors, map-fallback, map-model, map-surface-layout
 - methodology-view 148/5327 T+ E buildAnalysisCsv, createAnalysisExports, createAnalysisSummary, downloadAnalysisExports, renderMethodologyView I @s/format
 - playback-controller 122/3105 T+ E createPlaybackController I @d/report-playback
 - playback-view 138/4892 T+ E mountPlaybackView, renderPlaybackView
@@ -95,17 +95,22 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - walk-view 124/4511 T+ E createWalkView I @d/geometry, @d/stop-targets
 - walk 74/2077 T+ E createWalkController I walk-events, walk-progress
 ## survey-runner/
-- active-run 132/3715 T+ E createActiveRunner I @d/runner-progress-v3
+- active-run 150/4396 T+ E createActiveRunner I @d/runner-progress-v3, note-capture
 - entry 56/1655 T+ E RUNNER_ENTRY_FIELDS, normalizeRunnerEntry, runnerEntryIssues, runnerPositionRequest, syncRunnerCredentials
 - form-view 149/5855 T+ E createRunnerFormView, preflightMetrics I @s/format
 - loader 41/1668 T+ E loadRunnerDefinition, loadRunnerManifest, surveyIdFromUrl I @d/survey-definition-v3
+- note-capture 120/3881 T+ E createRunnerNoteCapture
+- note-controller 42/1695 T+ E createRunnerNoteController
+- note-view 110/4016 T- E createRunnerNoteView
 - poll-loop 52/1578 T+ E createRunnerPollLoop I @a/positioning/source-contract
-- preflight 53/1573 T+ E createPreflightPollLoopOptions, runRunnerPreflight I @d/runner-preflight-v3, entry
-- result-download 29/1038 T+ E downloadRunnerResult I @a/files, @d/runner-result-v3
+- preflight 53/1595 T+ E createPreflightPollLoopOptions, runRunnerPreflight I @d/runner-preflight-v3, entry
+- result-download 30/1068 T+ E downloadRunnerResult I @a/files, @d/runner-result-v3
 - result-upload 16/553 T+ E validateRunnerResultFile I @a/files, @d/survey-result-v3
-- run-view 131/4760 T+ E checkpointDistanceText, createRunnerRunView, targetName I @d/geometry
-- runner-active.css 140/2720 T+
+- run-view 144/5164 T+ E checkpointDistanceText, createRunnerRunView, targetName I @d/geometry, note-view
+- runner-active.css 141/2749 T+ I runner-note.css
+- runner-note.css 61/1467 T-
 - runner.css 125/3932 T+
-- setup 145/4218 T+ E createRunnerSetup I entry, loader, poll-loop, preflight
-- survey-runner 144/4840 T+ E mountSurveyRunner
-  - I @a/map/mazemap, @a/memory-credentials, @a/positioning/mazemap-cloud-v3, active-run, form-view, preflight, result-download, result-upload, run-view, setup
+- setup 146/4278 T+ E createRunnerSetup I entry, loader, poll-loop, preflight
+- survey-runner 147/5271 T+ E mountSurveyRunner
+  - I @a/map/mazemap, @a/memory-credentials, @a/positioning/mazemap-cloud-v3, active-run, form-view, note-controller, preflight, result-download,
+    result-upload, run-view, setup

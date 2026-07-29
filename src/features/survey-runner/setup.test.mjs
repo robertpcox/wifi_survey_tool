@@ -28,7 +28,7 @@ test("setup selects definitions, reads entry state, and records poll samples", a
     id: "mazemap-cloud",
     poll: async () => ({ id: "poll-1", success: true }),
   };
-  const calls = { buttons: [], resets: [], source: [] };
+  const calls = { buttons: [], hooks: [], resets: [], source: [] };
   const credentials = createMemoryCredentialStore();
   const definition = {
     meta: {
@@ -98,6 +98,7 @@ test("setup selects definitions, reads entry state, and records poll samples", a
         href: "https://demo.mazemap.com.au/wifi-survey-v3/runner/"
           + "?survey_id=survey-1",
       },
+      onRunnerSample: (sample, context) => calls.hooks.push([sample.id, context]),
       setTimer: () => 1,
       clearTimer() {},
     },
@@ -113,6 +114,7 @@ test("setup selects definitions, reads entry state, and records poll samples", a
   await setup.pollLoop.sampleOnce("preflight");
   assert.equal(state.polls[0].id, "poll-1");
   assert.equal(calls.source[0].id, "poll-1");
+  assert.deepEqual(calls.hooks, [["poll-1", "preflight"]]);
   assert.equal(calls.buttons.at(-1).entryComplete, true);
   state.activeRun = {};
   state.lastResult = {};

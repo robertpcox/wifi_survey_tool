@@ -1,6 +1,6 @@
 {
   "description": "Reviewed before/after analysis for the explicitly authorized NDH field result.",
-  "input": "results/292__566__5ef73912-3851-406a-81cc-93ca19cec12b__2026-07-28T09-00-54Z.result.v3.json",
+  "input": "private field result removed after reviewed golden",
   "verificationCommand": "node --test src/domain/report-route-truth-golden.test.mjs",
   "before": {
     "thresholds": { "stickySeconds": 5, "accuracyM": 10 },

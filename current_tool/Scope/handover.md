@@ -2,18 +2,19 @@
 
 ## Current state
 
-Step 5a is complete at source commit `b8702fe`. Playback is now the full-screen V3 Player, and the
-existing Report and Player share one parsed result, analysis context, map adapter, and live
-MazeMap instance. No Step 5b issue grouping, ranking, or Report redesign has begun.
+Step 5a remains complete at `b8702fe`; no Step 5b grouping/ranking work has begun.
+The adjacent Runner note correction is complete: a note has distinct evidence identity and
+a typed anchor into the frozen route. Player holds its walker only for the note timestamps
+at exact captured ground truth; it never reroutes or invents a checkpoint.
 
-- The clean canonical build at automation commit `638abee` passed 459 tests with zero failures
-  and zero skips.
-- Staged Chrome passed four shells, Creator, two mobile Runner profiles, and four Report
-  Player map scenarios. The regenerated `dist/` contains 186 files.
-- The separate real public MazeMap smoke passed for campus 566 with no access value, using
-  the synthetic local-upload fixture.
-- Module-map generation records 179 source modules with no adjacent-test gaps.
-- Demo commit `a8781fc` is on `origin/main`; live HTTPS, module MIME, and all four shells pass.
+- The no-deploy build passed 492 tests with zero skips, four shells, Creator, both mobile
+  Runner profiles, and four Report Player map scenarios.
+- Manifests contain five surveys, five completed private field results, and one customer;
+  `dist/` contains 204 files and was not synchronized to the demo.
+- Routes 1a and 1b use different revision IDs but exact hash `69d2c5f11ffe…`, proving why
+  survey family, immutable revision, and exact-route cohort are separate identities.
+- The old private field input was removed; its reviewed route-truth golden remains a receipt
+  and no longer makes the build depend on a production result filename.
 
 ## Assigned work and stop boundary
 
@@ -22,6 +23,9 @@ Execute `Scope/steps/05b_improve_report.md`.
 Turn the current single-run Report into deterministic, explainable issue intelligence and
 repeat-run stacking. Freeze its adjacency, grouping, severity, and tie-break rules in
 `Scope/contracts/report_analysis.md` before implementation fan-out.
+
+Resolve survey lineage and reviewed exception annotations per
+`Scope/contracts/survey_lineage_and_exceptions.md`; never group on route hash alone.
 
 Reuse the delivered Player and shared map. Do not change playback transport/truth semantics,
 mutate captured evidence, add a second map, or begin Step 6. Stop at the 5b respawn boundary.
@@ -82,13 +86,12 @@ explicitly defines a non-secret query contract.
 
 - Primary: `data/fixtures/report-player/result.fixture.v3.json`
 - Turns/floor transition: `data/fixtures/report-player/route-turns.fixture.v3.json`
-- Reviewed field delta: `data/fixtures/report-player/route-truth-analysis.golden.json`
+- Reviewed removed-field receipt: `data/fixtures/report-player/route-truth-analysis.golden.json`
 - Sanitized launch errors: `data/fixtures/map/mazemap-launch-errors.fixture.json`
-- Authorized field input: `results/292__566__5ef73912-3851-406a-81cc-93ca19cec12b__2026-07-28T09-00-54Z.result.v3.json`
 
-For that field input, corrected route truth leaves sticky at 25 points / 60.028 seconds and
+The receipt records sticky at 25 points / 60.028 seconds and
 outside-accuracy at 2 points / 2.963 seconds. Median error changes from 3.638 m to 3.730 m;
-the maximum receipt-truth shift is 0.163 m. The fixture records the reviewed explanation.
+the maximum reviewed route-truth shift is 0.163 m.
 
 ## Current ownership
 
@@ -99,6 +102,8 @@ the maximum receipt-truth shift is 0.163 m. The fixture records the reviewed exp
   `report-interactions.mjs`, `report-mode-controller.mjs`, and `map-surface.mjs`.
 - Player UI: `player-{transport,evidence-view,evidence-detail,charts}.mjs` and the three
   focused Player/map stylesheets.
+- Note capture/validation: `src/features/survey-runner/note-{capture,controller,view}.mjs`,
+  `src/domain/capture-note-v3.mjs`, and `src/adapters/map/note-features.mjs`.
 - Browser acceptance: `tools/report_player_browser_*.mjs` and
   `tools/report_player_actual_sdk_smoke.mjs`.
 
@@ -111,19 +116,19 @@ browser-storage audit.
   It deliberately uploads only the synthetic fixture, not the authorized physical result.
 - The provider SDK may create its own telemetry storage. Acceptance separately rejects app
   credential fields; source, staged output, URLs, results, and app storage remain clean.
-- `dist/` contains the authorized physical result. Default builds sync it to the local demo
-  checkout; use `--no-deploy` unless that publication is authorized.
-- Concurrent Creator/per-checkpoint-dwell changes remain uncommitted and were deliberately
-  excluded from this build and deployment. Preserve them outside the 5b Report redesign.
-- Physical Android Runner acceptance and the Dunedin timezone follow-up remain project risks,
-  not Step 5b scope.
+- `dist/` contains five private field results. Default builds sync it to the local demo;
+  keep using `--no-deploy` until their publication is explicitly authorized.
+- `surveyFamilyId`, lineage sidecar projection, and reviewed-exception consumption are
+  contracted but not implemented. Legacy resolution falls back to `surveyId`.
+- Physical Android Runner acceptance remains a project risk, not Step 5b scope.
 
 ## Exact next read order
 
 1. This handover.
 2. `Scope/steps/05b_improve_report.md`.
 3. `Scope/step_standard.md`, `coding_pattern.md`, `test_standard.md`, and `test_plan.md`.
-4. `Scope/contracts/report_analysis.md`.
+4. `Scope/contracts/survey_lineage_and_exceptions.md`, `capture_note_v3.md`, then
+   `report_analysis.md`.
 5. The delivered map, mode, store, truth, playback, and snap owners listed above.
 6. The four fixtures above and current analysis/comparison/export modules.
 7. `tools/report_player_browser_smoke.mjs`.

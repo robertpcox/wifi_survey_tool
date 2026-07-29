@@ -15,7 +15,7 @@ export async function runRunnerPreflight(options) {
   try {
     await mapAdapter.launch(
       credentials.read("mapAccess"),
-      null,
+      options.onMapClick ?? null,
       { campusId: definition.meta.campusId },
     );
     if (String(mapAdapter.campusId) !== String(definition.meta.campusId)) {

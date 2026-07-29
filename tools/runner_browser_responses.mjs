@@ -11,7 +11,12 @@ export const RUNNER_BROWSER_POSITION = Object.freeze({
   z: 1,
 });
 
-export async function respondRunnerBrowserRequest(request, origin, definition) {
+export async function respondRunnerBrowserRequest(
+  request,
+  origin,
+  definition,
+  state = {},
+) {
   const url = request.url();
   if (url.endsWith("mazemap.min.css")) {
     await request.respond({ status: 200, contentType: "text/css", body: "" });
@@ -28,6 +33,15 @@ export async function respondRunnerBrowserRequest(request, origin, definition) {
     return;
   }
   if (url.includes("/mm-positioning-proxy/position?")) {
+    state.positionRequests = (state.positionRequests ?? 0) + 1;
+    if (state.positionRequests === 2) {
+      await request.respond({
+        status: 200,
+        contentType: "text/plain",
+        body: "Positioning proxy unavailable",
+      });
+      return;
+    }
     await respondJson(request, {
       latitude: RUNNER_BROWSER_POSITION.lat,
       longitude: RUNNER_BROWSER_POSITION.lng,

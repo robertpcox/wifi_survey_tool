@@ -16,7 +16,19 @@ const result = JSON.parse(await readFile(
 ));
 
 test("map frame composes embedded route and ground-truth heat by meta floor", () => {
-  const mapFrame = createMapFrame(result, {
+  const noted = structuredClone(result);
+  noted.notes = [{
+    id: "note-1",
+    routeAnchor: {
+      type: "checkpoint-interval",
+      routeHash: noted.route.hash,
+      fromCheckpointId: "checkpoint-a",
+      toCheckpointId: "checkpoint-b",
+      legId: "leg-a-c",
+    },
+    groundTruth: { lng: 170.5001, lat: -45.87, z: 0 },
+  }];
+  const mapFrame = createMapFrame(noted, {
     floor: 0,
     heatKind: "sticky",
     analysis: {
@@ -37,5 +49,6 @@ test("map frame composes embedded route and ground-truth heat by meta floor", ()
   assert.ok(mapFrame.routeLines.length);
   assert.ok(mapFrame.routeLines[0].at(-1).x - mapFrame.routeLines[0][0].x > 0.5);
   assert.ok(mapFrame.walker);
+  assert.equal(mapFrame.notes[0].routeAnchor.toCheckpointId, "checkpoint-b");
   assert.equal(createMapFrame(result, { floor: 1 }).floorName, "First");
 });

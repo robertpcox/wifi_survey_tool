@@ -8,7 +8,7 @@ import { downloadRunnerResult } from "./result-download.mjs";
 import { validateRunnerResultFile } from "./result-upload.mjs";
 import { createRunnerRunView } from "./run-view.mjs";
 import { createRunnerSetup } from "./setup.mjs";
-
+import { createRunnerNoteController } from "./note-controller.mjs";
 export function mountSurveyRunner(options = {}) {
   const documentRef = options.documentRef ?? globalThis.document;
   const credentials = options.credentials ?? createMemoryCredentialStore();
@@ -28,6 +28,7 @@ export function mountSurveyRunner(options = {}) {
     lastResult: null,
     busy: false,
   };
+  const noteController = createRunnerNoteController({ state, runView, mapAdapter });
   const setup = createRunnerSetup({
     state,
     formView,
@@ -35,9 +36,8 @@ export function mountSurveyRunner(options = {}) {
     credentials,
     mapAdapter,
     source,
-    runtime: options,
+    runtime: { ...options, onRunnerSample: noteController.handleSample },
   });
-
   async function preflight() {
     if (!setup.entryComplete() || state.busy) return;
     state.busy = true;
@@ -50,6 +50,7 @@ export function mountSurveyRunner(options = {}) {
         credentials,
         mapAdapter,
         pollLoop: setup.pollLoop,
+        onMapClick: noteController.handleMapClick,
         nowMs: () => nowDate().getTime(),
       });
       state.preflight = result.outcome;
@@ -65,7 +66,6 @@ export function mountSurveyRunner(options = {}) {
       setup.updateActions();
     }
   }
-
   function start(overridden = false) {
     if (!state.preflight || !setup.entryComplete()) return;
     if (!overridden && state.preflight.verdict !== "green") return;
@@ -74,6 +74,7 @@ export function mountSurveyRunner(options = {}) {
       ...state.preflight,
       acknowledged: overridden,
     };
+    noteController.reset();
     state.activeRun = createActiveRunner({
       definition: state.definition,
       pollLoop: setup.pollLoop,
@@ -98,7 +99,6 @@ export function mountSurveyRunner(options = {}) {
     mapAdapter.resizeMapSoon?.();
     state.activeRun.start();
   }
-
   function download() {
     if (!state.activeRun?.state.completionStatus) return null;
     state.lastResult = downloadRunnerResult({
@@ -117,13 +117,16 @@ export function mountSurveyRunner(options = {}) {
     setup.resetAfterDownload();
     return downloaded;
   }
-
   const actions = {
+    addNote: noteController.add,
+    cancelNote: noteController.cancel,
     checkIn: () => state.activeRun?.checkIn(),
     download,
     endSession: () => state.activeRun?.endSession(),
     entryChanged: setup.entryChanged,
     go: () => start(false),
+    manualNote: noteController.manual,
+    noteState: noteController.noteState,
     overrideChanged: setup.updateActions,
     overrideGo: () => start(true),
     preflight,

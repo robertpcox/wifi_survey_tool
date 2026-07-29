@@ -65,10 +65,11 @@ export function createRunnerSetup(options) {
       entry: () => state.entry,
       credentials,
       source,
-      onSample(sample) {
+      onSample(sample, context) {
         state.polls.push(sample);
         mapAdapter.drawPositionTrail?.(state.polls);
         runView.renderSource(sample, state.polls.length);
+        runtime.onRunnerSample?.(sample, context);
       },
       setTimer: runtime.setTimer,
       clearTimer: runtime.clearTimer,

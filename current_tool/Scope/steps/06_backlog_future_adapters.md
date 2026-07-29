@@ -6,11 +6,10 @@ Follow `Scope/step_standard.md`.
 
 This is the downstream backlog recorded at the Step 5 boundary, not an automatic
 implementation assignment. Start a work package only when it is explicitly assigned.
-This backlog authorizes no further deployment or publishing. The physical field result at
-`results/292__566__5ef73912-3851-406a-81cc-93ca19cec12b__2026-07-28T09-00-54Z.result.v3.json`
-contains exact indoor positions and times, an internal Client IP, and device/operator
-metadata. `stageDistribution(root, destination)` in `tools/build_assets.mjs` currently
-copies the complete `results/` family, so any `dist/` containing it is sensitive.
+This backlog authorizes no further deployment or publishing. Physical files under `results/`
+contain exact indoor positions and times, internal Client IPs, and device/operator metadata.
+`stageDistribution(root, destination)` in `tools/build_assets.mjs` copies that complete
+family, so any `dist/` containing field results is sensitive.
 
 ## Inputs from Step 5
 
@@ -59,8 +58,8 @@ copies the complete `results/` family, so any `dist/` containing it is sensitive
   elapsed time beyond freshness while ground truth moves; planned dwell is excluded.
   Accuracy heat counts elapsed time beyond distance at ground-truth coordinates.
 - Heatmaps are separated by the ordered z-levels and names in `result.meta`.
-- Comparison accepts completed runs only, requires survey ID and route hash equality,
-  chooses the oldest start as baseline, and applies one threshold pair to every run.
+- Comparison accepts eligible completed runs with matching resolved family and exact route
+  hash, applies reviewed exclusions, and chooses the oldest remaining start as baseline.
 - Step 5a supersedes the canvas-first map rule: Report Player attempts real MazeMap publicly,
   keeps submitted access in memory, and uses the labelled schematic only on actual failure.
 - `SurveyResultV3` remains provider-neutral: every poll retains raw response, normalized
@@ -119,8 +118,7 @@ recorded response demonstrates a missing provider-neutral field.
 
 ## Remaining low-priority and field work
 
-- Confirm or re-export the Dunedin definition timezone; it still says
-  `Australia/Melbourne` rather than `Pacific/Auckland`.
+- Keep campus 566 definitions on the now-corrected `Pacific/Auckland` timezone.
 - Complete Android, current OS/browser, green-start, and full-length battery acceptance.
 - Retain the v1/v2 report references only as characterization evidence; removal is a
   separate explicit cleanup after their Step 5 gates are no longer needed.

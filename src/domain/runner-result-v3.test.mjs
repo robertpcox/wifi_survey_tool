@@ -35,6 +35,7 @@ test("completed result preserves meta, route, device, band, sample, and filename
   });
   assert.equal(result.run.band, "5");
   assert.equal(result.run.operatorComment, "clear walk");
+  assert.deepEqual(result.notes, []);
   assert.equal(result.polls[0].id, result.run.preflight.sampleId);
   assert.equal(result.run.pollingIntervalMs, definition.meta.sourceConfig.pollIntervalMs);
   assert.equal(
@@ -49,6 +50,40 @@ test("aborted result validates with zero check-ins and an omitted comment", () =
   assert.equal(result.run.completionStatus, "aborted");
   assert.equal(result.run.operatorComment, null);
   assert.deepEqual(result.checkIns, []);
+});
+
+test("capture note preserves distinct identity, route anchor, and held position", () => {
+  const input = options("aborted", [], "offline");
+  const routeAnchor = {
+    type: "checkpoint-interval",
+    routeHash: definition.route.hash,
+    fromCheckpointId: null,
+    toCheckpointId: "checkpoint-1",
+    legId: null,
+  };
+  input.notes = [{
+    id: "note-1",
+    routeAnchor,
+    note: "Wi-Fi disconnected",
+    trigger: "source-failure",
+    sourceError: "proxy offline",
+    openedAt: "2026-07-28T01:00:10.000Z",
+    resumedAt: "2026-07-28T01:00:22.000Z",
+    dwellSeconds: 12,
+    groundTruth: { lng: 170.5, lat: -45.87, z: 1 },
+  }];
+  input.events.splice(1, 0, {
+    type: "capture-note",
+    at: input.notes[0].openedAt,
+    resumedAt: input.notes[0].resumedAt,
+    dwellSeconds: 12,
+    noteId: "note-1",
+    routeAnchor,
+  });
+  const result = buildSurveyResultV3(input);
+  assert.equal("checkpointId" in result.notes[0], false);
+  assert.deepEqual(result.notes[0].routeAnchor, result.events[1].routeAnchor);
+  assert.notEqual(result.notes[0].routeAnchor, result.events[1].routeAnchor);
 });
 
 function options(completionStatus, checkIns, operatorComment) {

@@ -24,20 +24,16 @@ fold it into its caller. Behavior does not change and the goldens stay green.
   in every sample.
 - The shared map adapter exposes `drawPositionTrail(polls)` and bounds the rendered V3 fix
   trail without changing the embedded route.
-- Primary field result:
-  `results/292__566__5ef73912-3851-406a-81cc-93ca19cec12b__2026-07-28T09-00-54Z.result.v3.json`.
-  Rob's physical iPhone run completed all six checkpoints with 41/41 HTTP 200 polls and
-  a matching route hash.
-- Deterministic completed result:
-  `results/health-new-zealand__566__56600000-0000-4000-8000-000000000001__2026-07-28T01-01-00Z.result.v3.json`.
-  The adjacent aborted fixture ends in `2026-07-28T02-00-05Z.result.v3.json`.
+- Current private evidence is five completed 292/566 field results: routes 1a, 1b twice,
+  2, and 3, containing 79, 58, 63, 196, and 65 polls respectively.
+- Routes 1a and 1b have different immutable survey IDs but exact hash `69d2c5f11ffe…`;
+  this is the lineage/frozen-route comparison case, not permission to mutate either result.
+- Deterministic Report tests use `data/fixtures/report-player/result.fixture.v3.json`;
+  production-result replacement must not break the build.
 - Result discovery is `data/manifests/result-manifest.v3.json`; customer discovery is
-  under `data/manifests/customers/`. The build currently emits two surveys, three results,
-  and two customers.
-- Live Creator export: `data/surveys/5ef73912-3851-406a-81cc-93ca19cec12b.definition.v3.json`
-  (`NDH Straight`, 49.16 m, six checkpoints). Its recorded provider body is
-  `data/positioning/ndh-outpatient-level-00.mazemap-cloud.response.json`, which is
-  normalization and preflight evidence only, with no HTTP envelope or run result.
+  under `data/manifests/customers/`. The current build emits five surveys/results and one customer.
+- All five current definitions use `Pacific/Auckland`. The recorded Level 00 provider body
+  under `data/positioning/` remains normalization/preflight evidence only, not a run result.
 - The analysis source remains `data/reference/report_player/analyze-survey.js`;
   Step 4 added no analysis module.
 - Runner has a minimal result-file viewer, but Report Player is the first full consumer.
@@ -49,10 +45,9 @@ fold it into its caller. Behavior does not change and the goldens stay green.
 Rob's iPhone run proves private map rendering and live proxy reachability. Android,
 current OS/browser versions, and a green start remain; amber began on a 262-second-old fix.
 
-The live `NDH Straight` definition also says `Australia/Melbourne` while campus 566 is
-Dunedin. Runner and result preserve that meta block unchanged; confirm or re-export it if
-`Pacific/Auckland` was intended. The field result contains exact indoor positions/times,
-an internal Client IP, and operator/device metadata, so do not publish it implicitly.
+Current definitions correct campus 566 to `Pacific/Auckland`. Field results still contain
+exact indoor positions/times, internal Client IPs, and operator/device metadata, so replacing
+production evidence never implies permission to publish it.
 
 ## Report Player sources
 
@@ -96,12 +91,13 @@ then composes independent modules:
 - same-survey comparison
 - methodology and export
 
-Adding or changing one module must not require loading every other module.
-Analysis modules and playback share the loaded result, the meta block, and the map surface.
-Neither re-parses the result nor keeps a second copy of the analysis.
+Modules stay independent while sharing one result, meta block, map, and analysis.
+Playback indexes authored checkpoints by `id` within `route.hash`; markers, check-ins, and
+checkpoint events join there. Notes keep distinct IDs and typed route anchors, so a run
+exception can be shown without inserting or shifting an authored checkpoint.
 
-Private map access is prompted only when the campus requires it, held in memory,
-and never persisted. Declining leaves the public map plus embedded route overlays.
+Private map access is prompted only when required, held in memory, and never persisted.
+Declining leaves the public map plus embedded route overlays.
 
 ## Interactive thresholds
 
@@ -116,9 +112,10 @@ Both place heat at ground-truth locations and separate data by z-level.
 ## Comparison
 
 - compare only completed results
-- require matching survey ID and route hash
+- require matching resolved survey-family ID and exact route hash
+- apply reviewed run or interval exclusions while keeping their evidence visible
 - allow different devices, and label every value and delta with its device
-- use the oldest completed run as baseline
+- use the oldest eligible completed run as baseline
 - apply the same selected thresholds to every compared run
 - show absolute values and delta from baseline
 
@@ -127,24 +124,21 @@ Both place heat at ground-truth locations and separate data by z-level.
 Playback reads v3 metadata, embedded route, check-ins, normalized fixes, raw timing, and events.
 Result selection comes from generated manifests, with local file upload as a fallback.
 
-Keep snap-to-current-path-segment correction in the low-priority backlog.
-
 ## Gates
 
 - Every authored file carries a complete header, and the gate fails a missing or blank field.
 - The planted violation proves the failure path, not only the pass.
 - Customer URL shows only its manifest entries.
 - New results populate selectors after a build, with no runtime folder scanning.
-- Every module passes its own fixture test.
+- Fixtures reject dangling route anchors, pseudo-checkpoint notes, and positional joins.
 - Heatmaps update without page reload.
 - Switching between analysis and playback does not reload or re-parse the result.
 - Floors and floor names come from the meta block, not from markup or observed z-levels.
-- Comparison rejects mismatched or aborted runs.
+- Comparison rejects different route hashes, reviewed exclusions, and aborted runs.
 - The page functions without a private token using public map plus route overlays.
 - Files, dependencies, and module map pass all context gates.
 - No inline data literal and no hard-coded token survive from the reference sources.
 
 ## Downstream addition
 
-Record remaining low-priority defects and future source adapters.
-Replace future backlog scope assumptions with actual module paths, exports, fixtures, and commands.
+Record remaining defects/adapters with actual paths, exports, fixtures, and commands.

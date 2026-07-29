@@ -1,0 +1,2345 @@
+{
+  "schemaVersion": 3,
+  "meta": {
+    "surveyId": "ff3e7307-a71c-4708-9ce9-6dd7fc182a89",
+    "surveyName": "L00 - K01 Wait Straight Line - 5sec Dwell",
+    "customerId": "292",
+    "customerName": "NTT - NDH",
+    "campusId": "566",
+    "campusName": "Dunedin Hospital",
+    "timezone": "Pacific/Auckland",
+    "buildings": [
+      {
+        "id": "1013513",
+        "name": "Outpatient Building"
+      }
+    ],
+    "zLevels": [
+      1
+    ],
+    "zLevelNames": {
+      "1": "Level 0"
+    },
+    "positionSourceId": "mazemap-cloud",
+    "authorNotes": "Walk to the stairs and back",
+    "authorName": "Rob Cox",
+    "sourceConfig": {
+      "configId": "1185",
+      "pollIntervalMs": 2000,
+      "proxyBase": "/mm-positioning-proxy"
+    },
+    "credentialRequirements": {
+      "mapAccess": true,
+      "appId": true,
+      "appKey": true,
+      "clientIp": true
+    },
+    "route": {
+      "routeId": "1b",
+      "version": 2,
+      "hash": "69d2c5f11ffe448946ec822a3d7ef1b76f68493d56edf5687d711112847348eb",
+      "distanceM": 58.38424248756375,
+      "estimatedDurationSeconds": 83.38424248756375,
+      "checkpointSpacingM": 10,
+      "checkpointDwellSeconds": 0
+    },
+    "createdAt": "2026-07-29T00:52:02.351Z"
+  },
+  "route": {
+    "routeId": "1b",
+    "version": 2,
+    "hash": "69d2c5f11ffe448946ec822a3d7ef1b76f68493d56edf5687d711112847348eb",
+    "stops": [
+      {
+        "id": "stop-1",
+        "name": "00CLB049",
+        "lng": 170.5084897153286,
+        "lat": -45.87240534549312,
+        "z": 1,
+        "poiId": "1002660499",
+        "poiName": "00CLB049",
+        "locationType": "room",
+        "provenance": {
+          "method": "map"
+        }
+      },
+      {
+        "id": "stop-2",
+        "name": "00WCO027",
+        "lng": 170.50918344357945,
+        "lat": -45.87259547229392,
+        "z": 1,
+        "poiId": "1002659909",
+        "poiName": "00WCO027",
+        "locationType": "room",
+        "provenance": {
+          "method": "map"
+        }
+      }
+    ],
+    "legs": [
+      {
+        "id": "leg-1",
+        "fromStopId": "stop-1",
+        "toStopId": "stop-2",
+        "distanceM": 58.38424248756375,
+        "geometry": [
+          {
+            "lng": 170.5084897153286,
+            "lat": -45.87240534549312,
+            "z": 1
+          },
+          {
+            "lng": 170.50848971532855,
+            "lat": -45.87240534549312,
+            "z": 1
+          },
+          {
+            "lng": 170.5084925,
+            "lat": -45.8724058,
+            "z": 1
+          },
+          {
+            "lng": 170.5085076,
+            "lat": -45.8724102,
+            "z": 1
+          },
+          {
+            "lng": 170.5085307,
+            "lat": -45.8724167,
+            "z": 1
+          },
+          {
+            "lng": 170.5085482,
+            "lat": -45.8724217,
+            "z": 1
+          },
+          {
+            "lng": 170.5085633,
+            "lat": -45.872426,
+            "z": 1
+          },
+          {
+            "lng": 170.5085679,
+            "lat": -45.8724273,
+            "z": 1
+          },
+          {
+            "lng": 170.5086117,
+            "lat": -45.8724397,
+            "z": 1
+          },
+          {
+            "lng": 170.5086306,
+            "lat": -45.8724449,
+            "z": 1
+          },
+          {
+            "lng": 170.5086391,
+            "lat": -45.8724474,
+            "z": 1
+          },
+          {
+            "lng": 170.5086475,
+            "lat": -45.8724498,
+            "z": 1
+          },
+          {
+            "lng": 170.5086605,
+            "lat": -45.8724535,
+            "z": 1
+          },
+          {
+            "lng": 170.5086802,
+            "lat": -45.8724591,
+            "z": 1
+          },
+          {
+            "lng": 170.5087009,
+            "lat": -45.872465,
+            "z": 1
+          },
+          {
+            "lng": 170.508712,
+            "lat": -45.8724681,
+            "z": 1
+          },
+          {
+            "lng": 170.5087277,
+            "lat": -45.8724726,
+            "z": 1
+          },
+          {
+            "lng": 170.5087401,
+            "lat": -45.8724761,
+            "z": 1
+          },
+          {
+            "lng": 170.5087632,
+            "lat": -45.8724827,
+            "z": 1
+          },
+          {
+            "lng": 170.5087971,
+            "lat": -45.8724923,
+            "z": 1
+          },
+          {
+            "lng": 170.5088202,
+            "lat": -45.8724988,
+            "z": 1
+          },
+          {
+            "lng": 170.5088247,
+            "lat": -45.8725001,
+            "z": 1
+          },
+          {
+            "lng": 170.5088423,
+            "lat": -45.8725051,
+            "z": 1
+          },
+          {
+            "lng": 170.5088897,
+            "lat": -45.8725185,
+            "z": 1
+          },
+          {
+            "lng": 170.5089151,
+            "lat": -45.8725257,
+            "z": 1
+          },
+          {
+            "lng": 170.5089408,
+            "lat": -45.872533,
+            "z": 1
+          },
+          {
+            "lng": 170.5089675,
+            "lat": -45.8725406,
+            "z": 1
+          },
+          {
+            "lng": 170.5089889,
+            "lat": -45.8725466,
+            "z": 1
+          },
+          {
+            "lng": 170.5090211,
+            "lat": -45.8725558,
+            "z": 1
+          },
+          {
+            "lng": 170.5090487,
+            "lat": -45.8725637,
+            "z": 1
+          },
+          {
+            "lng": 170.5090848,
+            "lat": -45.872574,
+            "z": 1
+          },
+          {
+            "lng": 170.5090879,
+            "lat": -45.8725685,
+            "z": 1
+          },
+          {
+            "lng": 170.5091044,
+            "lat": -45.8725732,
+            "z": 1
+          },
+          {
+            "lng": 170.5091113,
+            "lat": -45.8725751,
+            "z": 1
+          },
+          {
+            "lng": 170.5091294,
+            "lat": -45.8725802,
+            "z": 1
+          },
+          {
+            "lng": 170.509158,
+            "lat": -45.8725882,
+            "z": 1
+          },
+          {
+            "lng": 170.5091757,
+            "lat": -45.8725932,
+            "z": 1
+          },
+          {
+            "lng": 170.50918344357945,
+            "lat": -45.87259547229392,
+            "z": 1
+          }
+        ]
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "checkpoint-1",
+        "sequence": 0,
+        "type": "stop",
+        "lng": 170.5084897153286,
+        "lat": -45.87240534549312,
+        "z": 1,
+        "stopId": "stop-1",
+        "legId": null,
+        "spacingBasisM": 10,
+        "dwellSeconds": 0
+      },
+      {
+        "id": "checkpoint-2",
+        "sequence": 1,
+        "type": "intermediate",
+        "lng": 170.50860942440988,
+        "lat": -45.872439055769014,
+        "z": 1,
+        "stopId": null,
+        "legId": "leg-1",
+        "spacingBasisM": 10,
+        "dwellSeconds": 5
+      },
+      {
+        "id": "checkpoint-3",
+        "sequence": 2,
+        "type": "intermediate",
+        "lng": 170.50872904495253,
+        "lat": -45.8724729796237,
+        "z": 1,
+        "stopId": null,
+        "legId": "leg-1",
+        "spacingBasisM": 10,
+        "dwellSeconds": 5
+      },
+      {
+        "id": "checkpoint-4",
+        "sequence": 3,
+        "type": "intermediate",
+        "lng": 170.50884866934413,
+        "lat": -45.87250690061627,
+        "z": 1,
+        "stopId": null,
+        "legId": "leg-1",
+        "spacingBasisM": 10,
+        "dwellSeconds": 5
+      },
+      {
+        "id": "checkpoint-5",
+        "sequence": 4,
+        "type": "intermediate",
+        "lng": 170.50896829355676,
+        "lat": -45.872540822492546,
+        "z": 1,
+        "stopId": null,
+        "legId": "leg-1",
+        "spacingBasisM": 10,
+        "dwellSeconds": 5
+      },
+      {
+        "id": "checkpoint-6",
+        "sequence": 5,
+        "type": "intermediate",
+        "lng": 170.5090860019936,
+        "lat": -45.87257186743068,
+        "z": 1,
+        "stopId": null,
+        "legId": "leg-1",
+        "spacingBasisM": 10,
+        "dwellSeconds": 5
+      },
+      {
+        "id": "checkpoint-7",
+        "sequence": 6,
+        "type": "stop",
+        "lng": 170.50918344357945,
+        "lat": -45.87259547229392,
+        "z": 1,
+        "stopId": "stop-2",
+        "legId": null,
+        "spacingBasisM": 10,
+        "dwellSeconds": 0
+      }
+    ],
+    "totalDistanceM": 58.38424248756375
+  },
+  "run": {
+    "resultId": "8ecb4401-0686-4241-a396-2a8b5bc97802",
+    "surveyId": "ff3e7307-a71c-4708-9ce9-6dd7fc182a89",
+    "routeId": "1b",
+    "routeHash": "69d2c5f11ffe448946ec822a3d7ef1b76f68493d56edf5687d711112847348eb",
+    "customerId": "292",
+    "campusId": "566",
+    "sourceId": "mazemap-cloud",
+    "device": {
+      "type": "mobile",
+      "os": "Spectrlink",
+      "name": "Test",
+      "clientIp": "10.132.156.42"
+    },
+    "band": "5",
+    "operatorComment": null,
+    "startedAt": "2026-07-29T02:14:53.695Z",
+    "stoppedAt": "2026-07-29T02:16:59.474Z",
+    "exportedAt": "2026-07-29T02:17:04.387Z",
+    "completionStatus": "completed",
+    "pollingIntervalMs": 2000,
+    "checkpointDwellSeconds": 0,
+    "preflight": {
+      "verdict": "amber",
+      "reasons": [
+        {
+          "level": "amber",
+          "text": "The provider fix is stale (185 seconds old)."
+        }
+      ],
+      "sampleId": "poll-1",
+      "acknowledged": true
+    }
+  },
+  "checkIns": [
+    {
+      "checkpointId": "checkpoint-1",
+      "at": "2026-07-29T02:15:08.011Z",
+      "groundTruth": {
+        "lng": 170.5084897153286,
+        "lat": -45.87240534549312,
+        "z": 1
+      }
+    },
+    {
+      "checkpointId": "checkpoint-2",
+      "at": "2026-07-29T02:15:20.997Z",
+      "groundTruth": {
+        "lng": 170.50860942440988,
+        "lat": -45.872439055769014,
+        "z": 1
+      }
+    },
+    {
+      "checkpointId": "checkpoint-3",
+      "at": "2026-07-29T02:15:36.169Z",
+      "groundTruth": {
+        "lng": 170.50872904495253,
+        "lat": -45.8724729796237,
+        "z": 1
+      }
+    },
+    {
+      "checkpointId": "checkpoint-4",
+      "at": "2026-07-29T02:15:52.538Z",
+      "groundTruth": {
+        "lng": 170.50884866934413,
+        "lat": -45.87250690061627,
+        "z": 1
+      }
+    },
+    {
+      "checkpointId": "checkpoint-5",
+      "at": "2026-07-29T02:16:09.070Z",
+      "groundTruth": {
+        "lng": 170.50896829355676,
+        "lat": -45.872540822492546,
+        "z": 1
+      }
+    },
+    {
+      "checkpointId": "checkpoint-6",
+      "at": "2026-07-29T02:16:31.067Z",
+      "groundTruth": {
+        "lng": 170.5090860019936,
+        "lat": -45.87257186743068,
+        "z": 1
+      }
+    },
+    {
+      "checkpointId": "checkpoint-7",
+      "at": "2026-07-29T02:16:47.927Z",
+      "groundTruth": {
+        "lng": 170.50918344357945,
+        "lat": -45.87259547229392,
+        "z": 1
+      }
+    }
+  ],
+  "events": [
+    {
+      "type": "run-started",
+      "at": "2026-07-29T02:14:53.695Z"
+    },
+    {
+      "type": "checkpoint-reached",
+      "at": "2026-07-29T02:15:08.011Z",
+      "checkpointId": "checkpoint-1"
+    },
+    {
+      "type": "checkpoint-reached",
+      "at": "2026-07-29T02:15:20.997Z",
+      "checkpointId": "checkpoint-2"
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:15:21.999Z",
+      "remainingSeconds": 4
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:15:23.000Z",
+      "remainingSeconds": 3
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:15:24.000Z",
+      "remainingSeconds": 2
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:15:25.001Z",
+      "remainingSeconds": 1
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:15:26.002Z",
+      "remainingSeconds": 0
+    },
+    {
+      "type": "checkpoint-reached",
+      "at": "2026-07-29T02:15:36.169Z",
+      "checkpointId": "checkpoint-3"
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:15:37.171Z",
+      "remainingSeconds": 4
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:15:38.172Z",
+      "remainingSeconds": 3
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:15:39.173Z",
+      "remainingSeconds": 2
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:15:40.177Z",
+      "remainingSeconds": 1
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:15:41.178Z",
+      "remainingSeconds": 0
+    },
+    {
+      "type": "checkpoint-reached",
+      "at": "2026-07-29T02:15:52.538Z",
+      "checkpointId": "checkpoint-4"
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:15:53.539Z",
+      "remainingSeconds": 4
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:15:54.541Z",
+      "remainingSeconds": 3
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:15:55.550Z",
+      "remainingSeconds": 2
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:15:56.551Z",
+      "remainingSeconds": 1
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:15:57.553Z",
+      "remainingSeconds": 0
+    },
+    {
+      "type": "checkpoint-reached",
+      "at": "2026-07-29T02:16:09.070Z",
+      "checkpointId": "checkpoint-5"
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:16:10.080Z",
+      "remainingSeconds": 4
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:16:11.087Z",
+      "remainingSeconds": 3
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:16:12.087Z",
+      "remainingSeconds": 2
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:16:13.087Z",
+      "remainingSeconds": 1
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:16:14.088Z",
+      "remainingSeconds": 0
+    },
+    {
+      "type": "checkpoint-reached",
+      "at": "2026-07-29T02:16:31.067Z",
+      "checkpointId": "checkpoint-6"
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:16:32.068Z",
+      "remainingSeconds": 4
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:16:33.069Z",
+      "remainingSeconds": 3
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:16:34.070Z",
+      "remainingSeconds": 2
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:16:35.071Z",
+      "remainingSeconds": 1
+    },
+    {
+      "type": "dwell-tick",
+      "at": "2026-07-29T02:16:36.072Z",
+      "remainingSeconds": 0
+    },
+    {
+      "type": "checkpoint-reached",
+      "at": "2026-07-29T02:16:47.927Z",
+      "checkpointId": "checkpoint-7"
+    },
+    {
+      "type": "endpoint-hold-started",
+      "at": "2026-07-29T02:16:47.927Z",
+      "checkpointId": "checkpoint-7"
+    },
+    {
+      "type": "run-completed",
+      "at": "2026-07-29T02:16:59.474Z"
+    }
+  ],
+  "polls": [
+    {
+      "id": "poll-1",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:14:44.162Z",
+      "receivedAt": "2026-07-29T02:14:45.151Z",
+      "roundTripMs": 989,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.872451767249125,
+        "lng": 170.50855410592985,
+        "z": 1,
+        "fixTime": "2026-07-29T02:11:40.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291100000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.872451767249125,
+        "longitude": 170.50855410592985,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-2",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:14:53.696Z",
+      "receivedAt": "2026-07-29T02:14:54.594Z",
+      "roundTripMs": 898,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.872451767249125,
+        "lng": 170.50855410592985,
+        "z": 1,
+        "fixTime": "2026-07-29T02:11:40.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291100000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.872451767249125,
+        "longitude": 170.50855410592985,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-3",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:14:55.698Z",
+      "receivedAt": "2026-07-29T02:14:56.694Z",
+      "roundTripMs": 996,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.872451767249125,
+        "lng": 170.50855410592985,
+        "z": 1,
+        "fixTime": "2026-07-29T02:11:40.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291100000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.872451767249125,
+        "longitude": 170.50855410592985,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-4",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:14:57.700Z",
+      "receivedAt": "2026-07-29T02:14:58.601Z",
+      "roundTripMs": 901,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.872451767249125,
+        "lng": 170.50855410592985,
+        "z": 1,
+        "fixTime": "2026-07-29T02:11:40.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291100000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.872451767249125,
+        "longitude": 170.50855410592985,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-5",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:14:59.700Z",
+      "receivedAt": "2026-07-29T02:15:00.669Z",
+      "roundTripMs": 969,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.872451767249125,
+        "lng": 170.50855410592985,
+        "z": 1,
+        "fixTime": "2026-07-29T02:11:40.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291100000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.872451767249125,
+        "longitude": 170.50855410592985,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-6",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:01.701Z",
+      "receivedAt": "2026-07-29T02:15:02.649Z",
+      "roundTripMs": 948,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.872451767249125,
+        "lng": 170.50855410592985,
+        "z": 1,
+        "fixTime": "2026-07-29T02:11:40.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291100000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.872451767249125,
+        "longitude": 170.50855410592985,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-7",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:03.701Z",
+      "receivedAt": "2026-07-29T02:15:05.135Z",
+      "roundTripMs": 1434,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.872451767249125,
+        "lng": 170.50855410592985,
+        "z": 1,
+        "fixTime": "2026-07-29T02:11:40.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291100000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.872451767249125,
+        "longitude": 170.50855410592985,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-8",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:05.703Z",
+      "receivedAt": "2026-07-29T02:15:06.746Z",
+      "roundTripMs": 1043,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.872451767249125,
+        "lng": 170.50855410592985,
+        "z": 1,
+        "fixTime": "2026-07-29T02:11:40.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291100000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.872451767249125,
+        "longitude": 170.50855410592985,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-9",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:07.705Z",
+      "receivedAt": "2026-07-29T02:15:08.817Z",
+      "roundTripMs": 1112,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.872451767249125,
+        "lng": 170.50855410592985,
+        "z": 1,
+        "fixTime": "2026-07-29T02:11:40.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291100000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.872451767249125,
+        "longitude": 170.50855410592985,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-10",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:09.708Z",
+      "receivedAt": "2026-07-29T02:15:10.598Z",
+      "roundTripMs": 890,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87242573132196,
+        "lng": 170.50849344936523,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:06.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291306000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87242573132196,
+        "longitude": 170.50849344936523,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-11",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:11.711Z",
+      "receivedAt": "2026-07-29T02:15:12.602Z",
+      "roundTripMs": 891,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87242573132196,
+        "lng": 170.50849344936523,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:06.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291306000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87242573132196,
+        "longitude": 170.50849344936523,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-12",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:13.712Z",
+      "receivedAt": "2026-07-29T02:15:14.609Z",
+      "roundTripMs": 897,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87242573132196,
+        "lng": 170.50849344936523,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:06.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291306000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87242573132196,
+        "longitude": 170.50849344936523,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-13",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:15.713Z",
+      "receivedAt": "2026-07-29T02:15:16.678Z",
+      "roundTripMs": 965,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87242573132196,
+        "lng": 170.50849344936523,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:06.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291306000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87242573132196,
+        "longitude": 170.50849344936523,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-14",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:17.713Z",
+      "receivedAt": "2026-07-29T02:15:18.592Z",
+      "roundTripMs": 879,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87242573132196,
+        "lng": 170.50849344936523,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:06.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291306000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87242573132196,
+        "longitude": 170.50849344936523,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-15",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:19.714Z",
+      "receivedAt": "2026-07-29T02:15:20.874Z",
+      "roundTripMs": 1160,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87242573132196,
+        "lng": 170.50849344936523,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:06.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291306000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87242573132196,
+        "longitude": 170.50849344936523,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-16",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:21.715Z",
+      "receivedAt": "2026-07-29T02:15:23.497Z",
+      "roundTripMs": 1782,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87242573132196,
+        "lng": 170.50849344936523,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:06.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291306000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87242573132196,
+        "longitude": 170.50849344936523,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-17",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:23.716Z",
+      "receivedAt": "2026-07-29T02:15:24.593Z",
+      "roundTripMs": 877,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87243715464327,
+        "lng": 170.50859481661536,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:22.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291322000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87243715464327,
+        "longitude": 170.50859481661536,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-18",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:25.717Z",
+      "receivedAt": "2026-07-29T02:15:26.642Z",
+      "roundTripMs": 925,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87245534842331,
+        "lng": 170.508620938674,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:24.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291324000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87245534842331,
+        "longitude": 170.508620938674,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-19",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:27.718Z",
+      "receivedAt": "2026-07-29T02:15:28.611Z",
+      "roundTripMs": 893,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87245534842331,
+        "lng": 170.508620938674,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:24.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291324000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87245534842331,
+        "longitude": 170.508620938674,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-20",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:29.720Z",
+      "receivedAt": "2026-07-29T02:15:30.715Z",
+      "roundTripMs": 995,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87245534842331,
+        "lng": 170.508620938674,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:24.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291324000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87245534842331,
+        "longitude": 170.508620938674,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-21",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:31.719Z",
+      "receivedAt": "2026-07-29T02:15:32.605Z",
+      "roundTripMs": 886,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87245534842331,
+        "lng": 170.508620938674,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:24.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291324000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87245534842331,
+        "longitude": 170.508620938674,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-22",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:33.720Z",
+      "receivedAt": "2026-07-29T02:15:34.631Z",
+      "roundTripMs": 911,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87245534842331,
+        "lng": 170.508620938674,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:24.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291324000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87245534842331,
+        "longitude": 170.508620938674,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-23",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:35.721Z",
+      "receivedAt": "2026-07-29T02:15:36.605Z",
+      "roundTripMs": 884,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87245534842331,
+        "lng": 170.508620938674,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:24.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291324000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87245534842331,
+        "longitude": 170.508620938674,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-24",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:37.722Z",
+      "receivedAt": "2026-07-29T02:15:39.521Z",
+      "roundTripMs": 1799,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87245534842331,
+        "lng": 170.508620938674,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:24.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291324000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87245534842331,
+        "longitude": 170.508620938674,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-25",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:39.723Z",
+      "receivedAt": "2026-07-29T02:15:40.609Z",
+      "roundTripMs": 886,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87245534842331,
+        "lng": 170.508620938674,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:24.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291324000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87245534842331,
+        "longitude": 170.508620938674,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-26",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:41.723Z",
+      "receivedAt": "2026-07-29T02:15:42.613Z",
+      "roundTripMs": 890,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87245534842331,
+        "lng": 170.508620938674,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:24.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291324000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87245534842331,
+        "longitude": 170.508620938674,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-27",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:43.724Z",
+      "receivedAt": "2026-07-29T02:15:44.614Z",
+      "roundTripMs": 890,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87245534842331,
+        "lng": 170.508620938674,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:24.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291324000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87245534842331,
+        "longitude": 170.508620938674,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-28",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:45.724Z",
+      "receivedAt": "2026-07-29T02:15:46.905Z",
+      "roundTripMs": 1181,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87245534842331,
+        "lng": 170.508620938674,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:24.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291324000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87245534842331,
+        "longitude": 170.508620938674,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-29",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:47.725Z",
+      "receivedAt": "2026-07-29T02:15:49.746Z",
+      "roundTripMs": 2021,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87245534842331,
+        "lng": 170.508620938674,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:24.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291324000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87245534842331,
+        "longitude": 170.508620938674,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-30",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:49.750Z",
+      "receivedAt": "2026-07-29T02:15:50.645Z",
+      "roundTripMs": 895,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87245534842331,
+        "lng": 170.508620938674,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:24.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291324000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87245534842331,
+        "longitude": 170.508620938674,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-31",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:51.750Z",
+      "receivedAt": "2026-07-29T02:15:53.334Z",
+      "roundTripMs": 1584,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.872502176547115,
+        "lng": 170.5088063739926,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:48.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291348000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.872502176547115,
+        "longitude": 170.5088063739926,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-32",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:53.750Z",
+      "receivedAt": "2026-07-29T02:15:54.979Z",
+      "roundTripMs": 1229,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87252037604562,
+        "lng": 170.50881595930352,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:52.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291352000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87252037604562,
+        "longitude": 170.50881595930352,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-33",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:55.752Z",
+      "receivedAt": "2026-07-29T02:15:56.643Z",
+      "roundTripMs": 891,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87252037604562,
+        "lng": 170.50881595930352,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:52.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291352000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87252037604562,
+        "longitude": 170.50881595930352,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-34",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:57.755Z",
+      "receivedAt": "2026-07-29T02:15:58.758Z",
+      "roundTripMs": 1003,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87252037604562,
+        "lng": 170.50881595930352,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:52.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291352000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87252037604562,
+        "longitude": 170.50881595930352,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-35",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:15:59.756Z",
+      "receivedAt": "2026-07-29T02:16:01.026Z",
+      "roundTripMs": 1270,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87252037604562,
+        "lng": 170.50881595930352,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:52.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291352000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87252037604562,
+        "longitude": 170.50881595930352,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-36",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:01.758Z",
+      "receivedAt": "2026-07-29T02:16:02.691Z",
+      "roundTripMs": 933,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87252037604562,
+        "lng": 170.50881595930352,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:52.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291352000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87252037604562,
+        "longitude": 170.50881595930352,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-37",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:03.758Z",
+      "receivedAt": "2026-07-29T02:16:06.056Z",
+      "roundTripMs": 2298,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87252037604562,
+        "lng": 170.50881595930352,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:52.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291352000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87252037604562,
+        "longitude": 170.50881595930352,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-38",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:06.065Z",
+      "receivedAt": "2026-07-29T02:16:07.009Z",
+      "roundTripMs": 944,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87252037604562,
+        "lng": 170.50881595930352,
+        "z": 1,
+        "fixTime": "2026-07-29T02:15:52.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291352000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87252037604562,
+        "longitude": 170.50881595930352,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-39",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:08.066Z",
+      "receivedAt": "2026-07-29T02:16:08.964Z",
+      "roundTripMs": 898,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87251575833493,
+        "lng": 170.5088734789665,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:04.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291364000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87251575833493,
+        "longitude": 170.5088734789665,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-40",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:10.066Z",
+      "receivedAt": "2026-07-29T02:16:11.029Z",
+      "roundTripMs": 963,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87251575833493,
+        "lng": 170.5088734789665,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:04.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291364000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87251575833493,
+        "longitude": 170.5088734789665,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-41",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:12.067Z",
+      "receivedAt": "2026-07-29T02:16:15.031Z",
+      "roundTripMs": 2964,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87251575833493,
+        "lng": 170.5088734789665,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:04.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291364000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87251575833493,
+        "longitude": 170.5088734789665,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-42",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:15.034Z",
+      "receivedAt": "2026-07-29T02:16:15.931Z",
+      "roundTripMs": 897,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87251575833493,
+        "lng": 170.5088734789665,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:04.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291364000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87251575833493,
+        "longitude": 170.5088734789665,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-43",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:17.035Z",
+      "receivedAt": "2026-07-29T02:16:17.930Z",
+      "roundTripMs": 895,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87254037686109,
+        "lng": 170.508964412668,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:16.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291376000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87254037686109,
+        "longitude": 170.508964412668,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-44",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:19.036Z",
+      "receivedAt": "2026-07-29T02:16:19.955Z",
+      "roundTripMs": 919,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87254037686109,
+        "lng": 170.508964412668,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:16.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291376000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87254037686109,
+        "longitude": 170.508964412668,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-45",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:21.044Z",
+      "receivedAt": "2026-07-29T02:16:21.933Z",
+      "roundTripMs": 889,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.872547591454364,
+        "lng": 170.50896801471077,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:18.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291378000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.872547591454364,
+        "longitude": 170.50896801471077,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-46",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:23.045Z",
+      "receivedAt": "2026-07-29T02:16:23.934Z",
+      "roundTripMs": 889,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.872547591454364,
+        "lng": 170.50896801471077,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:18.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291378000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.872547591454364,
+        "longitude": 170.50896801471077,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-47",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:25.046Z",
+      "receivedAt": "2026-07-29T02:16:25.943Z",
+      "roundTripMs": 897,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.872547591454364,
+        "lng": 170.50896801471077,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:18.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291378000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.872547591454364,
+        "longitude": 170.50896801471077,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-48",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:27.047Z",
+      "receivedAt": "2026-07-29T02:16:27.949Z",
+      "roundTripMs": 902,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.872547591454364,
+        "lng": 170.50896801471077,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:18.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291378000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.872547591454364,
+        "longitude": 170.50896801471077,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-49",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:29.054Z",
+      "receivedAt": "2026-07-29T02:16:29.969Z",
+      "roundTripMs": 915,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.872547591454364,
+        "lng": 170.50896801471077,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:18.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291378000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.872547591454364,
+        "longitude": 170.50896801471077,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-50",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:31.055Z",
+      "receivedAt": "2026-07-29T02:16:31.974Z",
+      "roundTripMs": 919,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.872547591454364,
+        "lng": 170.50896801471077,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:18.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291378000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.872547591454364,
+        "longitude": 170.50896801471077,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-51",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:33.056Z",
+      "receivedAt": "2026-07-29T02:16:35.613Z",
+      "roundTripMs": 2557,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.872547591454364,
+        "lng": 170.50896801471077,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:18.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291378000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.872547591454364,
+        "longitude": 170.50896801471077,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-52",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:35.616Z",
+      "receivedAt": "2026-07-29T02:16:36.499Z",
+      "roundTripMs": 883,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87257684528765,
+        "lng": 170.50911849479024,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:34.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291394000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87257684528765,
+        "longitude": 170.50911849479024,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-53",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:37.620Z",
+      "receivedAt": "2026-07-29T02:16:38.506Z",
+      "roundTripMs": 886,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87257684528765,
+        "lng": 170.50911849479024,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:34.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291394000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87257684528765,
+        "longitude": 170.50911849479024,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-54",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:39.621Z",
+      "receivedAt": "2026-07-29T02:16:40.564Z",
+      "roundTripMs": 943,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87257684528765,
+        "lng": 170.50911849479024,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:36.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291396000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87257684528765,
+        "longitude": 170.50911849479024,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-55",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:41.623Z",
+      "receivedAt": "2026-07-29T02:16:42.515Z",
+      "roundTripMs": 892,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87257684528765,
+        "lng": 170.50911849479024,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:36.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291396000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87257684528765,
+        "longitude": 170.50911849479024,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-56",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:43.624Z",
+      "receivedAt": "2026-07-29T02:16:44.610Z",
+      "roundTripMs": 986,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87257684528765,
+        "lng": 170.50911849479024,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:36.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291396000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87257684528765,
+        "longitude": 170.50911849479024,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-57",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:45.625Z",
+      "receivedAt": "2026-07-29T02:16:46.530Z",
+      "roundTripMs": 905,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87257684528765,
+        "lng": 170.50911849479024,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:36.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291396000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87257684528765,
+        "longitude": 170.50911849479024,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-58",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:47.626Z",
+      "receivedAt": "2026-07-29T02:16:48.572Z",
+      "roundTripMs": 946,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87257684528765,
+        "lng": 170.50911849479024,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:36.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291396000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87257684528765,
+        "longitude": 170.50911849479024,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-59",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:49.627Z",
+      "receivedAt": "2026-07-29T02:16:50.528Z",
+      "roundTripMs": 901,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87257684528765,
+        "lng": 170.50911849479024,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:36.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291396000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87257684528765,
+        "longitude": 170.50911849479024,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-60",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:51.628Z",
+      "receivedAt": "2026-07-29T02:16:53.326Z",
+      "roundTripMs": 1698,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87257684528765,
+        "lng": 170.50911849479024,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:36.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291396000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87257684528765,
+        "longitude": 170.50911849479024,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-61",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:53.630Z",
+      "receivedAt": "2026-07-29T02:16:54.752Z",
+      "roundTripMs": 1122,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87257684528765,
+        "lng": 170.50911849479024,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:36.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291396000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87257684528765,
+        "longitude": 170.50911849479024,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-62",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:55.631Z",
+      "receivedAt": "2026-07-29T02:16:56.524Z",
+      "roundTripMs": 893,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87257684528765,
+        "lng": 170.50911849479024,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:36.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291396000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87257684528765,
+        "longitude": 170.50911849479024,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    },
+    {
+      "id": "poll-63",
+      "sourceId": "mazemap-cloud",
+      "sentAt": "2026-07-29T02:16:57.642Z",
+      "receivedAt": "2026-07-29T02:16:58.534Z",
+      "roundTripMs": 892,
+      "httpStatus": 200,
+      "success": true,
+      "normalized": {
+        "lat": -45.87257684528765,
+        "lng": 170.50911849479024,
+        "z": 1,
+        "fixTime": "2026-07-29T02:16:36.000Z",
+        "confidence": 4.8768
+      },
+      "raw": {
+        "lastSeen": 1785291396000,
+        "confidenceFactor": 4.8768,
+        "latitude": -45.87257684528765,
+        "longitude": 170.50911849479024,
+        "zLevel": 1,
+        "x": 42,
+        "y": 42,
+        "locationName": "Health New Zealand > Te Waipounamu > NDH > Outpatient Building > OB Level 00"
+      },
+      "error": null
+    }
+  ]
+}

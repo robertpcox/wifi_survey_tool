@@ -48,6 +48,23 @@ test("result identity and serialized credentials cannot drift", async () => {
   assert.match(errors, /run\.runtime\.mapAccess: serialized credential values are forbidden/);
 });
 
+test("embedded route identity must match the copied meta route identity", async () => {
+  const replacements = {
+    routeId: "different-route",
+    version: 99,
+    hash: "f".repeat(64),
+  };
+  for (const [field, replacement] of Object.entries(replacements)) {
+    const invalid = await readFixture("result.valid.json");
+    invalid.route[field] = replacement;
+    assert.match(
+      validateSurveyResultV3(invalid).errors.join("\n"),
+      new RegExp(`route\\.${field}: must match meta\\.route`),
+      field,
+    );
+  }
+});
+
 test("aborted runs may stop before check-in but completed runs preserve order", async () => {
   const aborted = await readFixture("result.valid.json");
   aborted.run.completionStatus = "aborted";
@@ -88,4 +105,41 @@ test("timeout polls use zero status and preflight must reference a poll", async 
     validateSurveyResultV3(result).errors.join("\n"),
     /must reference an exported poll/,
   );
+});
+
+test("capture notes require an embedded-route anchor matching their event", async () => {
+  const result = await readFixture("result.valid.json");
+  const routeAnchor = {
+    type: "checkpoint-interval",
+    routeHash: result.route.hash,
+    fromCheckpointId: "checkpoint-a",
+    toCheckpointId: "checkpoint-b",
+    legId: "leg-a-b",
+  };
+  result.notes = [{
+    id: "note-1",
+    routeAnchor,
+    note: "Offline",
+    trigger: "source-failure",
+    sourceError: null,
+    openedAt: "2026-07-28T01:00:01.000Z",
+    resumedAt: "2026-07-28T01:00:03.000Z",
+    dwellSeconds: 2,
+    groundTruth: { lng: 170.5, lat: -45.87, z: 1 },
+  }];
+  result.events.push({
+    type: "capture-note",
+    noteId: "note-1",
+    routeAnchor,
+    at: result.notes[0].openedAt,
+    resumedAt: result.notes[0].resumedAt,
+    dwellSeconds: 2,
+  });
+  assert.equal(validateSurveyResultV3(result).valid, true);
+  result.events.at(-1).routeAnchor = {
+    ...routeAnchor,
+    toCheckpointId: "checkpoint-a",
+  };
+  assert.match(validateSurveyResultV3(result).errors.join("\n"),
+    /routeAnchor: must match capture-note event/);
 });

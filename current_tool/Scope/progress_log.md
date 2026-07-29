@@ -1,5 +1,21 @@
 # Progress log — newest entry first
 
+## 2026-07-29 — Frozen-route notes and replacement field set validated
+
+- Replaced pseudo-checkpoint notes with distinct evidence IDs and typed anchors scoped to
+  immutable route hashes and authored checkpoint/leg IDs.
+- Player now holds the walker at exact note ground truth only between its two timestamps;
+  the UI hold never shifts route geometry or checkpoint progress.
+- Hardened embedded route/meta identity and unique stop, leg, and checkpoint validation.
+- Defined stable survey-family, immutable revision, exact-hash cohort, route-wedge, and
+  reviewed-exception contracts; updated the Step 5b package and work-package retrospective.
+- Validated five replacement 292/566 field results as completed. Routes 1a and 1b have
+  different revision IDs but the same exact route hash, proving the lineage boundary.
+- Removed the build dependency on the deleted private field result while retaining its
+  reviewed route-truth receipt.
+- The no-deploy build passed 492 tests, zero skips, 204 staged files, all four shells,
+  Creator, two mobile Runner profiles, and four Player map scenarios. Demo sync was skipped.
+
 ## 2026-07-29 — Successful builds now synchronize the demo
 
 - Added checkout preflight, typo-safe CLI arguments, staged replacement, and rollback-safe
@@ -119,23 +135,6 @@
 - Replaced `/Users/robert/Git/demo.mazemap_nginx/html/wifi-survey-v3` with the 94-file
   build, confirmed byte identity with `dist`, and repeated both deployed-directory
   Chrome smokes successfully.
-
-## 2026-07-28 — Step 3 Creator complete
-
-- Closed Step 2 serving acceptance: live `.mjs` MIME is JavaScript and all four shells
-  booted in live Chrome.
-- Built the Creator feature with metadata, unlockable checkpoint plan, exact/POI/GPS
-  stops, live routing, SVG review, metrics, warnings, import, and validated export.
-- Added deterministic route integrity, canonical SHA-256 plan hashing, 1 metre/second
-  duration, short-leg checkpoint rules, and GPS capture provenance.
-- Added the Creator Chrome path and shared static-server support to the staged build.
-- Added one validated Dunedin development definition and deterministic survey/customer
-  manifests for Step 4.
-- Bundled no remote MazeMap SDK; exact-line fallback is labelled and configured campus
-  metadata is bound to an injected map adapter.
-- Passed the complete build: 237 tests, staged secret scan, four-shell Chrome smoke,
-  Creator Chrome export smoke, and an emitted `dist/`.
-- Performed no deployment and stopped before Step 4 Runner implementation.
 
 Older entries: `Scope/progress_log_archive.md`
 Current handover: `Scope/handover.md`

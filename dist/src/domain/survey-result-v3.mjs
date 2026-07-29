@@ -17,6 +17,7 @@ import {
   validationResult,
 } from "./validation.mjs";
 import { validateResultProgressV3 } from "./survey-result-progress-v3.mjs";
+import { validateCaptureNotes } from "./capture-note-v3.mjs";
 
 const RUN_PATHS = [
   "resultId", "surveyId", "routeId", "routeHash", "customerId", "campusId",
@@ -49,6 +50,7 @@ export function validateSurveyResultV3(result) {
   issues.push(...validateRouteSnapshot(result?.route));
   validateRun(result?.run, issues);
   validateCaptures(result, issues);
+  validateCaptureNotes(result, issues);
   validateResultProgressV3(result, issues);
   compareIdentity(result, issues);
   for (const path of secretValuePaths(result)) {
@@ -134,5 +136,10 @@ function compareIdentity(result, issues) {
   ];
   for (const [key, expected] of pairs) {
     if (result?.run?.[key] !== expected) issues.push(`run.${key}: must match meta`);
+  }
+  for (const key of ["routeId", "version", "hash"]) {
+    if (result?.route?.[key] !== result?.meta?.route?.[key]) {
+      issues.push(`route.${key}: must match meta.route`);
+    }
   }
 }

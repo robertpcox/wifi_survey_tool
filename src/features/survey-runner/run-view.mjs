@@ -1,9 +1,11 @@
 import { haversine } from "../../domain/geometry.mjs";
+import { createRunnerNoteView } from "./note-view.mjs";
 
 export function createRunnerRunView(documentRef) {
   const find = selector => documentRef.querySelector(selector);
   let activeState = null;
   let latestFix = null;
+  const noteView = createRunnerNoteView(documentRef);
   const setText = (selector, value) => {
     const node = find(selector);
     if (node) node.textContent = String(value);
@@ -11,6 +13,7 @@ export function createRunnerRunView(documentRef) {
 
   function renderRun(state) {
     activeState = state;
+    noteView.render(state.note);
     const panel = find("[data-run-panel]");
     if (panel) panel.hidden = Boolean(state.completionStatus);
     if (state.completionStatus) return;
@@ -36,12 +39,19 @@ export function createRunnerRunView(documentRef) {
     const stop = find('[data-action="stop"]');
     const endSession = find('[data-action="end-session"]');
     const awaitingEnd = progress.phase === "awaiting-end";
+    const noteOpen = Boolean(state.note);
     if (checkIn) {
-      checkIn.disabled = progress.phase !== "walking";
+      checkIn.disabled = progress.phase !== "walking" || noteOpen;
       checkIn.hidden = awaitingEnd;
     }
-    if (stop) stop.hidden = awaitingEnd;
-    if (endSession) endSession.hidden = !awaitingEnd;
+    if (stop) {
+      stop.hidden = awaitingEnd;
+      stop.disabled = noteOpen;
+    }
+    if (endSession) {
+      endSession.hidden = !awaitingEnd;
+      endSession.disabled = noteOpen;
+    }
   }
 
   function renderSource(sample, count) {
@@ -96,6 +106,7 @@ export function createRunnerRunView(documentRef) {
 
   return Object.freeze({
     bind(handlers) {
+      noteView.bind(handlers);
       find('[data-action="check-in"]')?.addEventListener("click", handlers.checkIn);
       find('[data-action="end-session"]')?.addEventListener("click", handlers.endSession);
       find('[data-action="stop"]')?.addEventListener("click", handlers.stop);
@@ -103,6 +114,8 @@ export function createRunnerRunView(documentRef) {
       find("[data-result-file]")?.addEventListener("change", handlers.validateFile);
     },
     comment: () => find("[data-operator-comment]")?.value ?? "",
+    noteText: noteView.noteText,
+    placementArmed: noteView.placementArmed,
     renderRun,
     renderSource,
     resetSession,

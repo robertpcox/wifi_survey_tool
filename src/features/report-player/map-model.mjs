@@ -28,6 +28,9 @@ export function createMapFrame(result, {
     routeLines: routeLines.map(line => line.map(project)),
     stops: result.route.stops.filter(item => item.z === floor).map(project),
     checkpoints: result.route.checkpoints.filter(item => item.z === floor).map(project),
+    notes: (frame?.notes ?? result.notes ?? [])
+      .filter(note => note.groundTruth.z === floor)
+      .map(note => project({ ...note.groundTruth, ...note })),
     heat: heat.map(item => ({ ...project(item), weightSeconds: item.weightSeconds ?? item.weight })),
     pollTrail: pollTrail.map(project),
     walker: frame?.walker?.z === floor ? project(frame.walker) : null,

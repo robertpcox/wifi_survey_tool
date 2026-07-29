@@ -3,6 +3,9 @@ export function validateRouteIntegrityV3(route, path = "route") {
   const legs = Array.isArray(route?.legs) ? route.legs : [];
   const checkpoints = Array.isArray(route?.checkpoints) ? route.checkpoints : [];
   const issues = [];
+  validateUniqueIds(stops, `${path}.stops`, issues);
+  validateUniqueIds(legs, `${path}.legs`, issues);
+  validateUniqueIds(checkpoints, `${path}.checkpoints`, issues);
   if (stops.length >= 2 && legs.length !== stops.length - 1) {
     issues.push(`${path}.legs: must connect each adjacent stop exactly once`);
   }
@@ -49,6 +52,15 @@ export function validateRouteIntegrityV3(route, path = "route") {
     }
   }
   return issues;
+}
+
+function validateUniqueIds(values, path, issues) {
+  const ids = new Set();
+  values.forEach((value, index) => {
+    if (typeof value?.id !== "string") return;
+    if (ids.has(value.id)) issues.push(`${path}.${index}.id: must be unique`);
+    ids.add(value.id);
+  });
 }
 
 function validateEndpoints(leg, from, to, path, issues) {

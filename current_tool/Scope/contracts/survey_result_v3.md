@@ -93,7 +93,7 @@ recorded in the result so a questionable run is explainable rather than mysterio
 
 Before starting, Runner requires acknowledgement that the test records device position.
 
-The capture is one-and-done and has no resume workflow.
+Stopping a run is final; a capture note only pauses polling inside the active run.
 Stopping before explicit endpoint finish exports `completionStatus: "aborted"`.
 At the terminal checkpoint, polling continues until explicit finish exports `"completed"`.
 Both paths visibly prompt download.
@@ -108,7 +108,7 @@ Only completed runs are eligible for comparison.
 A result contains:
 
 - the definition meta block copied verbatim, including customer, campus, timezone,
-  survey identity, buildings, ordered z-levels, and z-level display names
+  immutable revision, buildings, floors; a missing family ID resolves to the survey ID
 - the device under test: type, operating system, name, and identifying Client IP
 - the wireless band the run was made on
 - an optional operator comment captured at the end of the run
@@ -118,11 +118,20 @@ A result contains:
 - completion status
 - definition polling interval and per-checkpoint dwell (legacy global fallback)
 - ordered check-ins and Runner events
+- capture notes with held ground truth, dwell, distinct evidence IDs, and typed route anchors
 - `endpoint-hold-started` when final-checkpoint polling begins
 - every normalized poll and complete raw response
 - HTTP status, request timing, round-trip timing, and errors
 - no access or positioning secrets
 
+## Checkpoint identity
+
+`route.checkpoints[].id` is canonical within its exact route hash. Player and Report build
+one authored index; `checkIns` and checkpoint events join through `checkpointId`, never
+sequence, label, array position, or coordinates. `stopId` supplies context after that match.
+A capture note has its own `note.id` and a typed `routeAnchor` containing the exact route
+hash and authored checkpoint or leg IDs. Its event repeats the note ID and anchor. Notes
+never enter the checkpoint index; Player and Report use their exact held ground truth.
 The filename is:
 
 ```text
@@ -138,5 +147,4 @@ The Node build generates:
 - per-customer dashboard manifest
 - validation summary
 
-Customer ID in the URL filters for convenience, not authorization.
-Temporary customer data is removed from the build when no longer required.
+Customer ID in the URL filters for convenience, not authorization. Temporary customer data is removed from the build when no longer required.

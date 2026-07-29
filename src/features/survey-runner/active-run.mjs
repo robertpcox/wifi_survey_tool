@@ -5,7 +5,7 @@ import {
   startRunnerProgress,
   tickRunnerDwell,
 } from "../../domain/runner-progress-v3.mjs";
-
+import { createRunnerNoteCapture } from "./note-capture.mjs";
 export function createActiveRunner(options) {
   const progress = startRunnerProgress(
     createRunnerProgress(options.definition),
@@ -13,6 +13,8 @@ export function createActiveRunner(options) {
   const state = {
     progress,
     events: [],
+    notes: [],
+    note: null,
     startedAt: null,
     stoppedAt: null,
     completionStatus: null,
@@ -22,7 +24,20 @@ export function createActiveRunner(options) {
   const clearTimer = options.clearTimer ?? globalThis.clearTimeout;
   let dwellTimer = null;
   let focusedCheckpointId = null;
-
+  const noteCapture = createRunnerNoteCapture({
+    state, definition: options.definition,
+    pollLoop: options.pollLoop,
+    mapAdapter: options.mapAdapter,
+    currentPosition: options.currentPosition,
+    nowIso,
+    onPause: () => clearTimer(dwellTimer),
+    onRender: options.onRender,
+    onResume() {
+      if (progress.phase === "dwelling") scheduleDwell();
+      focusedCheckpointId = null;
+      refresh();
+    },
+  });
   function start() {
     state.startedAt = nowIso();
     state.events.push({ type: "run-started", at: state.startedAt });
@@ -30,9 +45,8 @@ export function createActiveRunner(options) {
     refresh();
     return state;
   }
-
   function checkIn() {
-    if (state.completionStatus) return;
+    if (state.completionStatus || state.note) return;
     const checkpoint = progress.checkpoints[progress.currentIndex];
     const at = nowIso();
     const transition = checkInCurrent(progress, at);
@@ -81,7 +95,7 @@ export function createActiveRunner(options) {
   }
 
   function endSession() {
-    if (state.completionStatus) return;
+    if (state.completionStatus || state.note) return;
     const transition = finishRunnerProgress(progress);
     if (transition.completed) finish("completed");
   }
@@ -113,8 +127,12 @@ export function createActiveRunner(options) {
   }
 
   return Object.freeze({
+    addNote: noteCapture.add,
+    cancelNote: noteCapture.cancel,
     checkIn,
     endSession,
+    openNote: noteCapture.open,
+    placeNote: noteCapture.place,
     start,
     state,
     stop,

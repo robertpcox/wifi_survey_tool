@@ -8,7 +8,7 @@ read their identity, floors, and labels from it. Nothing downstream re-derives t
 A Creator export contains:
 
 - `schemaVersion: 3`
-- Creator-generated RFC 4122 UUID `surveyId` and human-readable `surveyName`
+- immutable UUID `surveyId`, optional stable `surveyFamilyId`, and human-readable `surveyName`
 - `customerId` and `customerName`
 - `campusId` and `campusName`
 - `timezone`
@@ -24,19 +24,19 @@ A Creator export contains:
 
 The definition then carries the complete immutable route snapshot.
 
-The first successful definition build/export creates the UUID. A changed route or
-checkpoint plan creates a new UUID and increments the route version. An unchanged
-re-export preserves the survey ID, route ID, route version, route hash, and creation time.
-The author never types or edits a survey ID.
+A lineage-aware first export sets `surveyFamilyId` to its immutable `surveyId`; legacy data
+without the family field resolves it as `surveyId`. A route, route-ID, or checkpoint-plan
+change forks a new revision ID in the same family and increments the route version.
+An unchanged re-export preserves both IDs, the frozen route identity, and creation time.
 
 The route hash is a lowercase SHA-256 digest of one canonical route plan containing
 ordered stops, ordered legs and geometry, ordered checkpoints, checkpoint spacing,
 and checkpoint dwell. Object keys are sorted recursively before hashing. The stored
 hash and other route-summary fields do not contribute to that digest.
 
-The definition states what must be captured. It says nothing about what is doing the
-capturing. Device, wireless band, and tester belong to the run, so one survey ID covers
-every run of this route, however many devices and bands it is walked with.
+Exact `route.hash` is the numerical-comparison cohort. Revisions with changed hashes stay
+visible in one family history but are never combined numerically. Device, band, tester,
+route wedges, and reviewed exceptions belong to run evidence, not the frozen definition.
 
 ## Route snapshot
 
@@ -139,12 +139,12 @@ It requires three positioning values; private map access is requested only when 
 - Cloud App Key
 - Client IP
 
-Run identity, collected on every run:
+Run values captured when applicable:
 
 - device type, operating system, and name
 - wireless band
+- route-wedge evidence; reviewed dispositions may stay in a separate sidecar
 
-Config ID, polling interval, campus metadata, and other safe values remain in the definition.
-No access token or positioning secret is serialized.
+Run evidence never rewrites the route; safe config remains in the definition, and no secret is serialized.
 
 Creator keeps private map access in memory only and never writes it to definitions or storage.

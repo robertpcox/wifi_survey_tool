@@ -18,42 +18,33 @@ One desktop page holding both analysis and playback for a single loaded result.
 
 ## Survey structure
 
-**Survey definition**  
-Immutable v3 authoring output containing metadata, safe config, route, checkpoints, and dwell.
+**Survey definition** — Immutable v3 output containing metadata, safe config, route, checkpoints, and dwell.
 
-**Survey ID**  
-Stable identity of one exact test plan. A route or checkpoint-plan change creates a new ID.
+**Survey family ID** — Stable UUID linking every immutable revision of one planned survey.
 
-**Route snapshot**  
-Ordered stops, exact leg geometry, checkpoints, and route measurements embedded in a definition.
+**Survey ID** — Immutable UUID for one definition revision; a route or checkpoint change creates another.
 
-**Route hash**  
-Deterministic identity of embedded route and checkpoint content used to guard comparison.
+**Route revision** — One frozen route snapshot in a survey family, ordered by `route.version`.
 
-**Stop**  
-Named route destination or context point, often a room, POI centre, or outdoor location.
+**Route snapshot** — Ordered stops, exact leg geometry, checkpoints, and measurements in a definition.
 
-**Leg**  
-One ordered route section between two stops.
+**Route hash** — Deterministic exact-plan cohort; changed hashes stay visible but are not compared numerically.
 
-**Checkpoint**  
-Exact ground-truth position the Runner asks the surveyor to visit and confirm.
+**Stop** — Named route destination or context point, often a room, POI centre, or outdoor location.
 
-**Checkpoint spacing**  
-Creator setting controlling generated distance between checkpoints along route geometry.
+**Leg** — One ordered route section between two stops.
 
-**Short leg**  
-Leg under 10 metres. It generates no intermediate checkpoint and raises a dismissible warning.
+**Checkpoint** — Exact ground-truth position the Runner asks the surveyor to visit and confirm.
 
-**Meta block**  
-Planned-test identity authored in Creator, copied verbatim into results, and read by every
-downstream surface for customer, campus, survey, timezone, buildings, and z-level naming.
+**Checkpoint spacing** — Creator setting controlling generated distance between route checkpoints.
 
-**Checkpoint dwell**  
-Creator setting controlling how long Runner waits at each checkpoint for this test.
+**Short leg** — Leg under 10 metres; it creates no intermediate checkpoint and raises a warning.
 
-**Ground truth**  
-The surveyor's expected position and floor derived from exact checkpoints and capture events.
+**Meta block** — Planned-test identity copied verbatim into results and read by downstream surfaces.
+
+**Checkpoint dwell** — Creator setting controlling how long Runner waits at each checkpoint.
+
+**Ground truth** — Expected position and floor derived from exact checkpoints and capture events.
 
 ## Position capture
 
@@ -80,6 +71,8 @@ Green enables Go. The sample is exported with the result as evidence.
 
 **Captured stop**  
 Stop placed from the device's GPS position, storing accuracy, timestamp, and provenance.
+
+**Route wedge** — Run evidence of departure from the frozen authored route; it never rewrites that route.
 
 **Capture interval**  
 Configured delay between polls. It is observation cadence, not a quality threshold.
@@ -113,8 +106,10 @@ Result that reached every required checkpoint and may participate in comparison.
 **Aborted result**  
 Result exported after an early stop. It remains inspectable but is excluded from comparison.
 
+**Reviewed exception** — Reviewed run evidence; excluded runs remain visible but not numerical.
+
 **Baseline**  
-Oldest completed result with the same survey ID and route hash.
+Oldest eligible completed result in the same survey family and exact route-hash cohort.
 
 **Heatmap weight**  
 Elapsed seconds meeting a selected failure condition at a ground-truth map location.

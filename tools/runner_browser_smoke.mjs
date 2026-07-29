@@ -11,6 +11,7 @@ import {
 } from "./runner_browser_assertions.mjs";
 import { installRunnerBrowserEnvironment, RUNNER_BROWSER_POSITION } from "./runner_browser_environment.mjs";
 import { multiFloorRunnerDefinition } from "./runner_browser_fixture.mjs";
+import { exercisePromptedRunnerNote, runnerNoteFindings } from "./runner_browser_note.mjs";
 import { startStaticServer } from "./static_server.mjs";
 const require = createRequire(import.meta.url);
 const defaultChrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
@@ -74,18 +75,18 @@ async function exerciseProfile({ browser, definition, origin, path, profile }) {
   await installRunnerBrowserEnvironment(page, origin, definition);
   page.on("console", message => { if (message.type() === "error") failures.push(message.text()); });
   page.on("pageerror", error => failures.push(error.message));
-  page.on("response", response => { if (response.status() >= 400) failures.push(`${response.status()} ${response.url()}`); });
+  page.on("response", response => {
+    if (response.status() >= 400) failures.push(`${response.status()} ${response.url()}`);
+  });
   const surveyId = encodeURIComponent(definition.meta.surveyId);
   await openRunnerShareLink(page, `${origin}${path}?survey_id=${surveyId}`);
   await startRunnerCapture(page, profile.name);
+  await exercisePromptedRunnerNote(page);
   const firstCheckpoint = definition.route.checkpoints[0];
   const expectedFloor = definition.meta.zLevelNames[String(firstCheckpoint.z)];
   const firstBearing = bearingTo(RUNNER_BROWSER_POSITION, firstCheckpoint);
-  failures.push(...runnerActiveViewFindings(
-    await readRunnerActiveView(page),
-    expectedFloor,
-    firstBearing,
-  ));
+  failures.push(...runnerActiveViewFindings(await readRunnerActiveView(page),
+    expectedFloor, firstBearing));
   for (let index = 0; index < definition.route.checkpoints.length; index++) {
     await page.waitForFunction(() => !document
       .querySelector('[data-action="check-in"]').disabled);
@@ -121,10 +122,8 @@ async function exerciseProfile({ browser, definition, origin, path, profile }) {
       storageEntries: localStorage.length + sessionStorage.length + databases.length,
     };
   });
-  failures.push(...runnerDownloadFindings(
-    download,
-    definition.route.checkpoints.length,
-  ));
+  failures.push(...runnerDownloadFindings(download, definition.route.checkpoints.length));
+  failures.push(...runnerNoteFindings(download.result, 1));
   const reset = await page.evaluate(() => ({
     device: document.querySelector('[name="deviceName"]').value,
     finishHidden: document.querySelector("[data-finish-panel]").hidden,

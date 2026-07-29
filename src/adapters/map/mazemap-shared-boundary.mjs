@@ -24,6 +24,10 @@ export function createMazeMapSharedBoundary({ setFloor }) {
     return layers?.drawReportHeat(kind, pointsOrAnalysis) ?? false;
   }
 
+  function drawReportNotes(notes) {
+    return layers?.drawReportNotes(notes);
+  }
+
   function drawPlayerFrame(frame, snap) {
     return layers?.drawPlayerFrame(frame, snap) ?? false;
   }
@@ -64,6 +68,7 @@ export function createMazeMapSharedBoundary({ setFloor }) {
     disablePlayerLayers,
     drawPlayerFrame,
     drawReportHeat,
+    drawReportNotes,
     followWalker,
     focusEvidence,
     onEvidenceSelect,

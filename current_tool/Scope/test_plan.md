@@ -139,10 +139,10 @@ Standing risks, rechecked every step rather than assumed closed.
 - **Floor naming.** Confirm the explicit mapping against a real campus; never derive it arithmetically.
 - **Heatmap floor separation.** Heat layers blend floors unless filtered per z-level.
 - **Field-device acceptance.** Chrome proves responsive UI, not radio, map, battery, or proxy; both devices remain required.
-- **Definition timezone.** Dunedin says `Australia/Melbourne`; correct it before local-time reporting if unintended.
+- **Definition timezone.** Keep the corrected Dunedin definitions on `Pacific/Auckland`.
 - **Header context debt.** The sorted Step 5 baseline defers legacy files; recover missing metadata and context before removal.
 - **Customer filtering.** Customer manifests and URLs are convenience, not authorization; use host control or separate artifacts.
-- **Sensitive artifact publishing.** `dist/` includes the physical field run. A default build
+- **Sensitive artifact publishing.** `dist/` includes five physical field runs. A default build
   syncs it to demo after success; use `--no-deploy` unless that publication is authorized.
 - **Analysis interval semantics.** Fixture tests must cover repeated fixes, preflight, tails, dwell, and exact equality.
 - **Provider expansion.** LiPi and DNA Spaces need real redacted responses and the V3 contract, not legacy-shape reuse.

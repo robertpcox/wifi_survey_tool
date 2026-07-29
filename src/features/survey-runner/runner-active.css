@@ -1,3 +1,4 @@
+@import "./runner-note.css";
 [hidden] { display: none !important; }
 
 .poll-status {

@@ -29,3 +29,19 @@ test("disconnected geometry and checkpoint references are named precisely", () =
   assert.match(errors, /stops\.0\.id: requires a stop checkpoint/);
   assert.match(errors, /totalDistanceM/);
 });
+
+test("route stop, leg, and checkpoint IDs are unique in their namespaces", () => {
+  for (const collection of ["stops", "legs", "checkpoints"]) {
+    const invalid = structuredClone(route);
+    if (invalid[collection].length === 1) {
+      invalid[collection].push(structuredClone(invalid[collection][0]));
+    } else {
+      invalid[collection][1].id = invalid[collection][0].id;
+    }
+    assert.match(
+      validateRouteIntegrityV3(invalid).join("\n"),
+      new RegExp(`${collection}\\.1\\.id: must be unique`),
+      collection,
+    );
+  }
+});

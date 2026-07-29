@@ -21,18 +21,19 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - mazemap-queries 32/1203 T+ E createMazeMapQueries I mazemap-catalog
 - mazemap-runtime 38/1032 T+ E errorMessage, normalizeCampusId, numericZ, waitForMapLoad
 - mazemap-sdk 68/2437 T+ E MAZEMAP_CSS_URL, MAZEMAP_JS_URL, loadMazemapSdk
-- mazemap-shared-boundary 73/2279 T+ E createMazeMapSharedBoundary
+- mazemap-shared-boundary 78/2384 T+ E createMazeMapSharedBoundary
 - mazemap 150/5858 T+ E createMazeMapAdapter
   - I @d/route-contract, layers, map-resize, mazemap-controls, mazemap-errors, mazemap-launch, mazemap-queries, mazemap-runtime, mazemap-sdk,
     mazemap-shared-boundary, shared-map-layers
+- note-features 37/1262 T+ E notePointFeatures
 - player-fix-history 41/1490 T+ E playerChangedFixHistory I map-geojson
-- player-layer-definitions 97/3490 T+ E PLAYER_EVIDENCE_LAYERS, playerLayerDefinitions
+- player-layer-definitions 102/3710 T+ E PLAYER_EVIDENCE_LAYERS, playerLayerDefinitions
 - player-live-raw-fix 25/959 T+ E liveRawFixFeature I map-geojson
-- player-map-features 148/5670 T+ E buildPlayerFeatureCollections I map-geojson, player-fix-history, player-live-raw-fix
+- player-map-features 150/5779 T+ E buildPlayerFeatureCollections I map-geojson, note-features, player-fix-history, player-live-raw-fix
 - player-map-layers 53/1823 T+ E createPlayerMapLayers I evidence-interactions, geojson-layer-group, player-layer-definitions, player-map-features
-- report-map-layers 116/3592 T+ E createReportMapLayers I geojson-layer-group
+- report-map-layers 133/4053 T+ E createReportMapLayers I geojson-layer-group, note-features
 - routing 41/1295 T+ E fetchLegGeoJSON, getPoi, getPoiAt
-- shared-map-layers 71/2246 T+ E createSharedMapLayers I map-camera-follow, player-map-layers, report-map-layers
+- shared-map-layers 77/2381 T+ E createSharedMapLayers I map-camera-follow, player-map-layers, report-map-layers
 ## positioning/
 - cloud 16/528 T+ E fetchCloudPosition
 - lipi 11/300 T+ E fetchLipiPosition

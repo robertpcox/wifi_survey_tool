@@ -6,6 +6,7 @@
 // PROVENANCE:   Scope/contracts/report_analysis.md shared-map heat contract
 
 import { createGeoJsonLayerGroup } from "./geojson-layer-group.mjs";
+import { notePointFeatures } from "./note-features.mjs";
 
 const KINDS = ["sticky", "accuracy"];
 const COLORS = [
@@ -24,7 +25,17 @@ export function createReportMapLayers(map, currentFloor) {
     source: `report-${kind}-heat`,
     type: "heatmap",
     paint: heatPaint(),
-  }));
+  })).concat([{
+    id: "report-notes-lyr",
+    source: "report-notes",
+    type: "circle",
+    paint: {
+      "circle-color": "#f59e0b",
+      "circle-radius": 8,
+      "circle-stroke-color": "#fff",
+      "circle-stroke-width": 2,
+    },
+  }]);
   const group = createGeoJsonLayerGroup(map, definitions, currentFloor);
   let selectedKind = "sticky";
 
@@ -57,11 +68,17 @@ export function createReportMapLayers(map, currentFloor) {
   function setVisible(visible) {
     if (!visible) return group.setVisible(false);
     select(selectedKind);
+    group.setLayerVisible("report-notes-lyr", true);
+  }
+
+  function drawNotes(notes) {
+    group.setData("report-notes", notePointFeatures(notes));
   }
 
   return Object.freeze({
     applyFloor: group.applyFloor,
     draw,
+    drawNotes,
     ensure: group.ensure,
     select,
     setVisible,

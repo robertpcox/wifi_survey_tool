@@ -24,6 +24,7 @@ export function drawRouteFallback(canvas, model) {
   model.routeLines.forEach(line => drawLine(context, line, width, height, "#2457a6", 5));
   drawLine(context, model.pollTrail, width, height, "#2563eb", 3);
   drawPoints(context, model.checkpoints, width, height, "#ffffff", "#14213d", 5);
+  drawPoints(context, model.notes ?? [], width, height, "#f59e0b", "#ffffff", 8);
   if (model.walker) drawPoints(context, [model.walker], width, height, "#20a47a", "#ffffff", 8);
 }
 

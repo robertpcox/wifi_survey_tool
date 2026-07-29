@@ -70,9 +70,9 @@ timezone          author-selected IANA zone yes       yes
 credentials       operator memory           yes       no
 ```
 
-State recomputation triggers too. Removing, adjusting, or reordering a stop must atomically
-recompute coverage, geometry, checkpoints, metrics, and identity. Campus 566 should have made
-`Pacific/Auckland` an acceptance example instead of silently retaining Melbourne.
+Family ID links revisions while route hash guards exact comparison. Notes keep distinct IDs
+and route-scoped anchors, wedging exceptions into a run without shifting authored geometry.
+Route edits rotate revision identity; campus 566 should use Auckland.
 
 ### 4. Specify interaction and failure states as decision tables
 
@@ -124,7 +124,7 @@ Step 5 is also too broad as one closeable unit. Split it into:
 4. map playback
 5. comparison and release acceptance
 
-Each package needs owned paths, a shared-file owner, entry/exit gates, targets, exclusions, commit/deploy authority; see `runner_public_url_contract.md`.
+Each needs owned paths, a shared owner, gates, targets, exclusions, and commit/deploy authority; see `runner_public_url_contract.md`.
 
 ## Suggested package header
 

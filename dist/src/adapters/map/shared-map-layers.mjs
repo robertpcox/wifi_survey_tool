@@ -34,6 +34,11 @@ export function createSharedMapLayers(map, currentFloor) {
     return count;
   }
 
+  function drawReportNotes(notes) {
+    report.drawNotes(notes);
+    report.setVisible(mode === "analysis");
+  }
+
   function drawPlayerFrame(frame, snap) {
     if (!playerEnabled) return false;
     player.drawFrame(frame, snap);
@@ -60,6 +65,7 @@ export function createSharedMapLayers(map, currentFloor) {
     disablePlayerLayers,
     drawPlayerFrame,
     drawReportHeat,
+    drawReportNotes,
     followWalker,
     focusEvidence: player.focusEvidence,
     onEvidenceSelect: player.onEvidenceSelect,

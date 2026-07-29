@@ -13,6 +13,7 @@ const selected = (normal, active) => [
 ];
 
 export const PLAYER_EVIDENCE_LAYERS = Object.freeze([
+  ["player-notes-lyr", "player-notes"],
   ["player-request-rings-lyr", "player-request-rings"],
   ["player-failures-lyr", "player-failures"],
   ["player-outcomes-lyr", "player-outcomes"],
@@ -22,6 +23,10 @@ export const PLAYER_EVIDENCE_LAYERS = Object.freeze([
 
 export function playerLayerDefinitions() {
   return [
+    circle("player-notes", {
+      "circle-color": "#f59e0b", "circle-radius": selected(8, 11),
+      "circle-stroke-color": "#fff", "circle-stroke-width": selected(2, 4),
+    }),
     line("player-fix-trail", {
       "line-color": "#2563eb", "line-width": 2.5, "line-opacity": 0.55,
     }),

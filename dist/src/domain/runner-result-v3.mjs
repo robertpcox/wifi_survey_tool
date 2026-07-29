@@ -8,6 +8,7 @@ export function buildSurveyResultV3(options) {
     polls,
     checkIns,
     events,
+    notes = [],
     startedAt,
     stoppedAt,
     exportedAt,
@@ -45,6 +46,7 @@ export function buildSurveyResultV3(options) {
     },
     checkIns: structuredClone(checkIns),
     events: structuredClone(events),
+    notes: structuredClone(notes),
     polls: structuredClone(polls),
   };
   const validation = validateSurveyResultV3(result);

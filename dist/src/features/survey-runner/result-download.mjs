@@ -13,6 +13,7 @@ export function downloadRunnerResult(options) {
     polls: options.polls,
     checkIns: options.run.progress.checkIns,
     events: options.run.events,
+    notes: options.run.notes,
     startedAt: options.run.startedAt,
     stoppedAt: options.run.stoppedAt,
     exportedAt,

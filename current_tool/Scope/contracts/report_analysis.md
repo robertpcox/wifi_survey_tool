@@ -11,6 +11,20 @@ campus without a view token. Only a runtime access failure reveals the in-memory
 prompt. SDK/network failure or declined access leaves a labelled schematic route fallback.
 Report and Player modes reuse the same map, result, meta block, and analysis context.
 
+## Checkpoint identity
+
+Build one checkpoint index from `route.checkpoints[].id`.
+Map markers, `checkIns`, and `checkpoint-reached` events join only by `checkpointId`,
+never by array position, display label, or coordinates. A checkpoint's `stopId` or
+`legId` supplies authored context after the checkpoint match.
+
+Capture notes have distinct evidence IDs and typed anchors scoped by `route.hash`.
+Their `capture-note` events repeat the note ID and anchor; every authored checkpoint or leg
+reference resolves through the embedded route. Player and Report render the note at its
+exact held ground truth without inserting a checkpoint or shifting authored geometry.
+`meta.authorNotes` remains survey-wide and `run.operatorComment` remains run-wide.
+Dangling, duplicate, or mismatched references are validation errors.
+
 ## Interactive thresholds
 
 Sticky and accuracy thresholds are Report controls, not survey-definition settings.
@@ -53,9 +67,13 @@ Each view exposes threshold control, legend, summary, and location tooltip.
 
 ## Comparison
 
-Runs compare only when survey ID and route hash match.
-Only completed runs participate.
-The oldest completed run is the automatic baseline.
+Runs compare only when resolved survey-family ID and exact route hash match.
+Only completed runs not excluded by a reviewed exception participate.
+The oldest eligible completed run is the automatic baseline.
+
+Different route hashes remain visible as revisions in the same survey family, but never
+produce cross-route deltas, recurrence groups, or combined heat. A route wedge remains
+visible evidence; an `exclude-interval` disposition removes only its disclosed coverage.
 
 Apply identical selected thresholds to every compared run.
 Show absolute values and delta from baseline.
@@ -76,6 +94,7 @@ The Playback tab becomes a full-screen Player using embedded route geometry and 
 check-ins. Its ground-truth walker follows the authored polyline and planned dwell.
 It displays V3 metadata, poll request/response timing, raw and normalized IPS evidence,
 capture events, floor state, and the distance between reported and inferred positions.
+Capture-note timestamps add a UI-only hold at exact note ground truth; anchors never reroute.
 
 ## Playback poll map evidence
 

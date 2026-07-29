@@ -30,6 +30,7 @@ export function playbackFrame(result, atMs) {
   const polls = pollEvidence.completedPolls;
   const checkIns = through(timeline.checkIns, time);
   const events = through(timeline.events, time);
+  const notes = through(timeline.notes, time);
   const elapsedMs = time - timeline.bounds.startMs;
   return {
     bounds: timeline.bounds,
@@ -51,6 +52,7 @@ export function playbackFrame(result, atMs) {
     chartSeries: pollEvidence.chartSeries,
     checkIns,
     events,
+    notes,
     captureEvents: timeline.captureEvents
       .filter(item => item.atMs <= time)
       .map(item => item.capture),
@@ -58,8 +60,20 @@ export function playbackFrame(result, atMs) {
     transitionTimes: [...timeline.transitionTimes],
     previousEventMs: previousEvent(timeline.eventTimes, time),
     nextEventMs: nextEvent(timeline.eventTimes, time),
-    walker: timeline.truth.at(time),
+    walker: heldNotePosition(timeline.notes, time) ?? timeline.truth.at(time),
   };
+}
+
+function heldNotePosition(notes, atMs) {
+  const note = notes.find(item => (
+    atMs >= item.atMs && atMs < Date.parse(item.value.resumedAt)
+  ))?.value;
+  return note ? {
+    ...note.groundTruth,
+    moving: false,
+    noteHold: true,
+    noteId: note.id,
+  } : null;
 }
 
 function through(items, atMs) {

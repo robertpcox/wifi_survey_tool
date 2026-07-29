@@ -38,14 +38,11 @@ export async function runReportPlayerBrowserSmoke({
   const absoluteRoot = resolve(root);
   const staged = await access(resolve(absoluteRoot, "dashboard/index.html"))
     .then(() => true, () => false);
-  const customerId = "292";
-  const manifest = JSON.parse(await readFile(
-    resolve(absoluteRoot, `data/manifests/customers/${customerId}.manifest.v3.json`),
-  ));
-  const completed = manifest.results.filter(item => item.completionStatus === "completed");
-  const selected = completed[0];
-  const result = JSON.parse(await readFile(resolve(absoluteRoot, selected.path)));
-  const expectedFloors = result.meta.zLevels.map(z => result.meta.zLevelNames[String(z)]);
+  const fixture = JSON.parse(await readFile(new URL(
+    "../data/fixtures/report-player/result.fixture.v3.json",
+    import.meta.url,
+  )));
+  const expectedFloors = fixture.meta.zLevels.map(z => fixture.meta.zLevelNames[String(z)]);
   const server = await startStaticServer(dirname(absoluteRoot));
   const mountPath = `/${basename(absoluteRoot)}`;
   let browser;
@@ -57,8 +54,10 @@ export async function runReportPlayerBrowserSmoke({
     });
     const publicResult = await exercisePublicReportPlayer({
       browser,
-      completedCount: completed.length,
+      completedCount: 1,
+      customerId: fixture.run.customerId,
       expectedFloors,
+      fixture,
       origin: server.origin,
       path: staged
         ? `${mountPath}/`
@@ -68,6 +67,7 @@ export async function runReportPlayerBrowserSmoke({
       ...publicResult.failures,
       ...await exerciseMapLaunchFailures({
         browser,
+        fixture,
         origin: server.origin,
         reportUrl: publicResult.reportUrl,
       }),

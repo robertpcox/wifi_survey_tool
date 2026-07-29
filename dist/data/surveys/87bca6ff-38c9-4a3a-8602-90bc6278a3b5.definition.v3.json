@@ -1,0 +1,618 @@
+{
+  "schemaVersion": 3,
+  "meta": {
+    "surveyId": "87bca6ff-38c9-4a3a-8602-90bc6278a3b5",
+    "surveyName": "Star Test - 20 Dwell in Lifts",
+    "customerId": "292",
+    "customerName": "NTT - NDH",
+    "campusId": "566",
+    "campusName": "Dunedin Hospital",
+    "timezone": "Pacific/Auckland",
+    "buildings": [
+      {
+        "id": "1013513",
+        "name": "Outpatient Building"
+      }
+    ],
+    "zLevels": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "zLevelNames": {
+      "1": "Level 0",
+      "2": "Level 1",
+      "3": "Level 2",
+      "4": "Level 3"
+    },
+    "positionSourceId": "mazemap-cloud",
+    "authorNotes": "Walk to the stairs and back",
+    "authorName": "Rob Cox",
+    "sourceConfig": {
+      "configId": "1185",
+      "pollIntervalMs": 2000,
+      "proxyBase": "/mm-positioning-proxy"
+    },
+    "credentialRequirements": {
+      "mapAccess": true,
+      "appId": true,
+      "appKey": true,
+      "clientIp": true
+    },
+    "route": {
+      "routeId": "5",
+      "version": 1,
+      "hash": "a1cfc5237fba4569b58ed91a5946d51f765df5cdf0ec931d1c0fd7644190850c",
+      "distanceM": 144.1348829522591,
+      "estimatedDurationSeconds": 144.1348829522591,
+      "checkpointSpacingM": 10,
+      "checkpointDwellSeconds": 0
+    },
+    "createdAt": "2026-07-29T00:58:10.914Z"
+  },
+  "route": {
+    "routeId": "5",
+    "version": 1,
+    "hash": "a1cfc5237fba4569b58ed91a5946d51f765df5cdf0ec931d1c0fd7644190850c",
+    "stops": [
+      {
+        "id": "stop-1",
+        "name": "Mapped point",
+        "lng": 170.5091882509526,
+        "lat": -45.872397632429305,
+        "z": 1,
+        "poiId": "1002660509",
+        "poiName": null,
+        "locationType": "room",
+        "provenance": {
+          "method": "map"
+        }
+      },
+      {
+        "id": "stop-2",
+        "name": "Stairs",
+        "lng": 170.5092180387196,
+        "lat": -45.872496942047775,
+        "z": 1,
+        "poiId": "1002659860",
+        "poiName": "Stairs",
+        "locationType": "room",
+        "provenance": {
+          "method": "map"
+        }
+      },
+      {
+        "id": "stop-3",
+        "name": "Mapped point",
+        "lng": 170.50919356121273,
+        "lat": -45.87239066038904,
+        "z": 2,
+        "poiId": "1002660378",
+        "poiName": null,
+        "locationType": "room",
+        "provenance": {
+          "method": "map"
+        }
+      },
+      {
+        "id": "stop-4",
+        "name": "Mapped point",
+        "lng": 170.50920030091493,
+        "lat": -45.87238824867958,
+        "z": 3,
+        "poiId": "1002660035",
+        "poiName": null,
+        "locationType": "room",
+        "provenance": {
+          "method": "map"
+        }
+      },
+      {
+        "id": "stop-5",
+        "name": "Mapped point",
+        "lng": 170.5091953018051,
+        "lat": -45.87239196829207,
+        "z": 4,
+        "poiId": "1002659822",
+        "poiName": null,
+        "locationType": "room",
+        "provenance": {
+          "method": "map"
+        }
+      }
+    ],
+    "legs": [
+      {
+        "id": "leg-1",
+        "fromStopId": "stop-1",
+        "toStopId": "stop-2",
+        "distanceM": 24.11747103401943,
+        "geometry": [
+          {
+            "lng": 170.5091882509526,
+            "lat": -45.872397632429305,
+            "z": 1
+          },
+          {
+            "lng": 170.50918825095255,
+            "lat": -45.872397632429305,
+            "z": 1
+          },
+          {
+            "lng": 170.5091872,
+            "lat": -45.8723973,
+            "z": 1
+          },
+          {
+            "lng": 170.5091787,
+            "lat": -45.8724122,
+            "z": 1
+          },
+          {
+            "lng": 170.5091642,
+            "lat": -45.8724378,
+            "z": 1
+          },
+          {
+            "lng": 170.5091466,
+            "lat": -45.8724678,
+            "z": 1
+          },
+          {
+            "lng": 170.5091294,
+            "lat": -45.8724974,
+            "z": 1
+          },
+          {
+            "lng": 170.5091736,
+            "lat": -45.87251,
+            "z": 1
+          },
+          {
+            "lng": 170.5092166,
+            "lat": -45.8725222,
+            "z": 1
+          },
+          {
+            "lng": 170.5092241,
+            "lat": -45.872524,
+            "z": 1
+          },
+          {
+            "lng": 170.5092337,
+            "lat": -45.8725079,
+            "z": 1
+          },
+          {
+            "lng": 170.5092367,
+            "lat": -45.872503,
+            "z": 1
+          },
+          {
+            "lng": 170.5092180387196,
+            "lat": -45.872496942047775,
+            "z": 1
+          }
+        ]
+      },
+      {
+        "id": "leg-2",
+        "fromStopId": "stop-2",
+        "toStopId": "stop-3",
+        "distanceM": 33.15056363324515,
+        "geometry": [
+          {
+            "lng": 170.5092180387196,
+            "lat": -45.872496942047775,
+            "z": 1
+          },
+          {
+            "lng": 170.5092176,
+            "lat": -45.8724977,
+            "z": 1
+          },
+          {
+            "lng": 170.5091843,
+            "lat": -45.8724884,
+            "z": 1
+          },
+          {
+            "lng": 170.5091843,
+            "lat": -45.8724884,
+            "z": 2
+          },
+          {
+            "lng": 170.5092149,
+            "lat": -45.8724349,
+            "z": 2
+          },
+          {
+            "lng": 170.509238,
+            "lat": -45.8724414,
+            "z": 2
+          },
+          {
+            "lng": 170.5092074,
+            "lat": -45.8724944,
+            "z": 2
+          },
+          {
+            "lng": 170.5091851,
+            "lat": -45.872488,
+            "z": 2
+          },
+          {
+            "lng": 170.5091499,
+            "lat": -45.8724783,
+            "z": 2
+          },
+          {
+            "lng": 170.5091525,
+            "lat": -45.8724737,
+            "z": 2
+          },
+          {
+            "lng": 170.5091793,
+            "lat": -45.8724267,
+            "z": 2
+          },
+          {
+            "lng": 170.5091835,
+            "lat": -45.8724197,
+            "z": 2
+          },
+          {
+            "lng": 170.5091995,
+            "lat": -45.8723923,
+            "z": 2
+          },
+          {
+            "lng": 170.50919356121267,
+            "lat": -45.87239066038904,
+            "z": 2
+          },
+          {
+            "lng": 170.50919356121273,
+            "lat": -45.87239066038904,
+            "z": 2
+          }
+        ]
+      },
+      {
+        "id": "leg-3",
+        "fromStopId": "stop-3",
+        "toStopId": "stop-4",
+        "distanceM": 43.65726046715363,
+        "geometry": [
+          {
+            "lng": 170.50919356121273,
+            "lat": -45.87239066038904,
+            "z": 2
+          },
+          {
+            "lng": 170.50919356121267,
+            "lat": -45.87239066038904,
+            "z": 2
+          },
+          {
+            "lng": 170.5091995,
+            "lat": -45.8723923,
+            "z": 2
+          },
+          {
+            "lng": 170.5091835,
+            "lat": -45.8724197,
+            "z": 2
+          },
+          {
+            "lng": 170.5091793,
+            "lat": -45.8724267,
+            "z": 2
+          },
+          {
+            "lng": 170.5091525,
+            "lat": -45.8724737,
+            "z": 2
+          },
+          {
+            "lng": 170.5091499,
+            "lat": -45.8724783,
+            "z": 2
+          },
+          {
+            "lng": 170.5091851,
+            "lat": -45.872488,
+            "z": 2
+          },
+          {
+            "lng": 170.5091851,
+            "lat": -45.872488,
+            "z": 3
+          },
+          {
+            "lng": 170.5092152,
+            "lat": -45.8724353,
+            "z": 3
+          },
+          {
+            "lng": 170.5092372,
+            "lat": -45.8724411,
+            "z": 3
+          },
+          {
+            "lng": 170.5092062,
+            "lat": -45.8724937,
+            "z": 3
+          },
+          {
+            "lng": 170.5091854,
+            "lat": -45.8724879,
+            "z": 3
+          },
+          {
+            "lng": 170.5091501,
+            "lat": -45.872478,
+            "z": 3
+          },
+          {
+            "lng": 170.5091603,
+            "lat": -45.8724588,
+            "z": 3
+          },
+          {
+            "lng": 170.5091737,
+            "lat": -45.8724368,
+            "z": 3
+          },
+          {
+            "lng": 170.5091827,
+            "lat": -45.8724211,
+            "z": 3
+          },
+          {
+            "lng": 170.5091947,
+            "lat": -45.8724001,
+            "z": 3
+          },
+          {
+            "lng": 170.5092013,
+            "lat": -45.8723885,
+            "z": 3
+          },
+          {
+            "lng": 170.50920030091493,
+            "lat": -45.87238824867958,
+            "z": 3
+          }
+        ]
+      },
+      {
+        "id": "leg-4",
+        "fromStopId": "stop-4",
+        "toStopId": "stop-5",
+        "distanceM": 43.20958781784089,
+        "geometry": [
+          {
+            "lng": 170.50920030091493,
+            "lat": -45.87238824867958,
+            "z": 3
+          },
+          {
+            "lng": 170.5092013,
+            "lat": -45.8723885,
+            "z": 3
+          },
+          {
+            "lng": 170.5091947,
+            "lat": -45.8724001,
+            "z": 3
+          },
+          {
+            "lng": 170.5091827,
+            "lat": -45.8724211,
+            "z": 3
+          },
+          {
+            "lng": 170.5091737,
+            "lat": -45.8724368,
+            "z": 3
+          },
+          {
+            "lng": 170.5091603,
+            "lat": -45.8724588,
+            "z": 3
+          },
+          {
+            "lng": 170.5091501,
+            "lat": -45.872478,
+            "z": 3
+          },
+          {
+            "lng": 170.5091854,
+            "lat": -45.8724879,
+            "z": 3
+          },
+          {
+            "lng": 170.5091854,
+            "lat": -45.8724879,
+            "z": 4
+          },
+          {
+            "lng": 170.5092161,
+            "lat": -45.8724351,
+            "z": 4
+          },
+          {
+            "lng": 170.5092364,
+            "lat": -45.8724408,
+            "z": 4
+          },
+          {
+            "lng": 170.5092061,
+            "lat": -45.8724938,
+            "z": 4
+          },
+          {
+            "lng": 170.5091835,
+            "lat": -45.8724872,
+            "z": 4
+          },
+          {
+            "lng": 170.5091485,
+            "lat": -45.8724772,
+            "z": 4
+          },
+          {
+            "lng": 170.509161,
+            "lat": -45.8724551,
+            "z": 4
+          },
+          {
+            "lng": 170.5091764,
+            "lat": -45.8724279,
+            "z": 4
+          },
+          {
+            "lng": 170.5091916,
+            "lat": -45.8724012,
+            "z": 4
+          },
+          {
+            "lng": 170.5091968,
+            "lat": -45.8723924,
+            "z": 4
+          },
+          {
+            "lng": 170.5091953018051,
+            "lat": -45.87239196829207,
+            "z": 4
+          }
+        ]
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "checkpoint-1",
+        "sequence": 0,
+        "type": "stop",
+        "lng": 170.5091882509526,
+        "lat": -45.872397632429305,
+        "z": 1,
+        "stopId": "stop-1",
+        "legId": null,
+        "spacingBasisM": 10,
+        "dwellSeconds": 0
+      },
+      {
+        "id": "checkpoint-2",
+        "sequence": 1,
+        "type": "intermediate",
+        "lng": 170.509139505184,
+        "lat": -45.872480009683365,
+        "z": 1,
+        "stopId": null,
+        "legId": "leg-1",
+        "spacingBasisM": 10,
+        "dwellSeconds": 0
+      },
+      {
+        "id": "checkpoint-3",
+        "sequence": 2,
+        "type": "stop",
+        "lng": 170.5092180387196,
+        "lat": -45.872496942047775,
+        "z": 1,
+        "stopId": "stop-2",
+        "legId": null,
+        "spacingBasisM": 10,
+        "dwellSeconds": 0
+      },
+      {
+        "id": "checkpoint-4",
+        "sequence": 3,
+        "type": "stop",
+        "lng": 170.50919356121273,
+        "lat": -45.87239066038904,
+        "z": 2,
+        "stopId": "stop-3",
+        "legId": null,
+        "spacingBasisM": 10,
+        "dwellSeconds": 0
+      },
+      {
+        "id": "checkpoint-5",
+        "sequence": 4,
+        "type": "intermediate",
+        "lng": 170.50915369187985,
+        "lat": -45.87247160976293,
+        "z": 2,
+        "stopId": null,
+        "legId": "leg-3",
+        "spacingBasisM": 10,
+        "dwellSeconds": 0
+      },
+      {
+        "id": "checkpoint-6",
+        "sequence": 5,
+        "type": "intermediate",
+        "lng": 170.50918438196956,
+        "lat": -45.87248761449005,
+        "z": 3,
+        "stopId": null,
+        "legId": "leg-3",
+        "spacingBasisM": 10,
+        "dwellSeconds": 0
+      },
+      {
+        "id": "checkpoint-7",
+        "sequence": 6,
+        "type": "stop",
+        "lng": 170.50920030091493,
+        "lat": -45.87238824867958,
+        "z": 3,
+        "stopId": "stop-4",
+        "legId": null,
+        "spacingBasisM": 10,
+        "dwellSeconds": 0
+      },
+      {
+        "id": "checkpoint-8",
+        "sequence": 7,
+        "type": "intermediate",
+        "lng": 170.5091536664472,
+        "lat": -45.87247128668764,
+        "z": 3,
+        "stopId": null,
+        "legId": "leg-4",
+        "spacingBasisM": 10,
+        "dwellSeconds": 0
+      },
+      {
+        "id": "checkpoint-9",
+        "sequence": 8,
+        "type": "intermediate",
+        "lng": 170.50918363377508,
+        "lat": -45.872487239067055,
+        "z": 4,
+        "stopId": null,
+        "legId": "leg-4",
+        "spacingBasisM": 10,
+        "dwellSeconds": 0
+      },
+      {
+        "id": "checkpoint-10",
+        "sequence": 9,
+        "type": "stop",
+        "lng": 170.5091953018051,
+        "lat": -45.87239196829207,
+        "z": 4,
+        "stopId": "stop-5",
+        "legId": null,
+        "spacingBasisM": 10,
+        "dwellSeconds": 0
+      }
+    ],
+    "totalDistanceM": 144.1348829522591
+  }
+}

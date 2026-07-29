@@ -13,7 +13,7 @@ Follow `Scope/step_standard.md`.
 
 - Runner shell: `src/apps/runner/index.html` and `main.mjs`.
   `bootRunner(documentRef)` currently mounts only the shared shell and a new memory store.
-- Development definition: `data/surveys/survey-dunedin-level-00-dev-v3.definition.v3.json`.
+- Development fixture: `data/fixtures/runner/definition.fixture.v3.json`.
   It is campus `566`: one recorded MazeMap leg, two stops, three checkpoints,
   10 metre spacing, 5 second dwell, and no credential values.
 - Discovery files: `data/manifests/survey-manifest.v3.json` and

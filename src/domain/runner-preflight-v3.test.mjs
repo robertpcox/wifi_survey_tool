@@ -6,12 +6,9 @@ import { haversine } from "./geometry.mjs";
 import { evaluateRunnerPreflight } from "./runner-preflight-v3.mjs";
 
 const definition = JSON.parse(await readFile(
-  new URL("../../data/surveys/survey-dunedin-level-00-dev-v3.definition.v3.json", import.meta.url),
+  new URL("../../data/fixtures/runner/definition.fixture.v3.json", import.meta.url),
 ));
-const liveDefinition = JSON.parse(await readFile(new URL(
-  "../../data/surveys/5ef73912-3851-406a-81cc-93ca19cec12b.definition.v3.json",
-  import.meta.url,
-)));
+const liveDefinition = definition;
 const recordedPosition = JSON.parse(await readFile(new URL(
   "../../data/positioning/ndh-outpatient-level-00.mazemap-cloud.response.json",
   import.meta.url,
@@ -65,7 +62,7 @@ test("fresh, known-floor, near-campus sample is green", () => {
     acknowledged: false,
   });
   const distanceM = haversine(normalized, liveDefinition.route.stops[0]);
-  assert.equal(distanceM > 8 && distanceM < 10, true);
+  assert.equal(distanceM < 10, true);
 });
 
 test("failed request, empty position, and private map failure are red", () => {

@@ -8,7 +8,7 @@ import {
 } from "./runner-result-v3.mjs";
 
 const definition = JSON.parse(await readFile(
-  new URL("../../data/surveys/survey-dunedin-level-00-dev-v3.definition.v3.json", import.meta.url),
+  new URL("../../data/fixtures/runner/definition.fixture.v3.json", import.meta.url),
 ));
 
 test("completed result preserves meta, route, device, band, sample, and filename", () => {

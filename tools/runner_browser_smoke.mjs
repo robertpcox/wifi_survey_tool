@@ -22,7 +22,7 @@ import { startStaticServer } from "./static_server.mjs";
 const require = createRequire(import.meta.url);
 const defaultChrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const defaultPuppeteer = "/tmp/wifi-survey-puppeteer/node_modules/puppeteer-core";
-const definitionPath = "data/surveys/survey-dunedin-level-00-dev-v3.definition.v3.json";
+const definitionUrl = new URL("../data/fixtures/runner/definition.fixture.v3.json", import.meta.url);
 export async function runRunnerBrowserSmoke({
   root = ".",
   chrome = process.env.CHROME_PATH || defaultChrome,
@@ -43,7 +43,7 @@ export async function runRunnerBrowserSmoke({
   const staged = await stat(resolve(absoluteRoot, "runner/index.html"))
     .then(metadata => metadata.isFile(), () => false);
   const definition = multiFloorRunnerDefinition(JSON.parse(
-    await readFile(resolve(absoluteRoot, definitionPath), "utf8"),
+    await readFile(definitionUrl, "utf8"),
   ));
   const server = await startStaticServer(absoluteRoot);
   let browser;

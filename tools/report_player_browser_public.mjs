@@ -14,7 +14,9 @@ import {
 export async function exercisePublicReportPlayer({
   browser,
   completedCount,
+  customerId,
   expectedFloors,
+  fixture,
   origin,
   path,
 }) {
@@ -29,15 +31,18 @@ export async function exercisePublicReportPlayer({
     if (new URL(response.url()).pathname.includes("/results/")) resultRequests += 1;
     if (response.status() >= 400) failures.push(`${response.status()} ${response.url()}`);
   });
-  await installReportPlayerMazeMapStub(page, origin, "public");
-  await page.goto(`${origin}${path}?customer_id=292`, { waitUntil: "networkidle0" });
+  await installReportPlayerMazeMapStub(page, origin, "public", fixture);
+  await page.goto(
+    `${origin}${path}?customer_id=${encodeURIComponent(customerId)}`,
+    { waitUntil: "networkidle0" },
+  );
   await page.waitForSelector(".dashboard-launch");
   const dashboard = await page.evaluate(() => ({
     launches: document.querySelectorAll(".dashboard-launch").length,
     text: document.body.textContent,
   }));
   if (dashboard.launches !== completedCount) failures.push("completed dashboard count differs");
-  if (dashboard.text.includes("Health New Zealand")) failures.push("customer entries leaked");
+  if (!dashboard.text.includes(fixture.meta.customerName)) failures.push("customer name missing");
   await Promise.all([
     page.waitForNavigation({ waitUntil: "networkidle0" }),
     page.click(".dashboard-launch"),

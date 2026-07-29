@@ -9,7 +9,7 @@ import {
 
 const root = resolve(new URL("../", import.meta.url).pathname);
 const definitionPath =
-  "data/surveys/survey-dunedin-level-00-dev-v3.definition.v3.json";
+  "data/fixtures/runner/definition.fixture.v3.json";
 
 export function buildRunnerFixtures(definition) {
   const sample = positionSample();

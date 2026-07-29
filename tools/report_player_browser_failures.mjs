@@ -9,19 +9,20 @@ import { installReportPlayerMazeMapStub } from "./report_player_browser_stub.mjs
 
 export async function exerciseMapLaunchFailures({
   browser,
+  fixture,
   origin,
   reportUrl,
 }) {
   const failures = [];
-  failures.push(...await accessRetry(browser, origin, reportUrl));
+  failures.push(...await accessRetry(browser, fixture, origin, reportUrl));
   for (const scenario of ["network-failure", "unknown-failure"]) {
-    failures.push(...await promptFree(browser, origin, reportUrl, scenario));
+    failures.push(...await promptFree(browser, fixture, origin, reportUrl, scenario));
   }
   return failures;
 }
 
-async function accessRetry(browser, origin, reportUrl) {
-  const { page, failures } = await scenarioPage(browser, origin, "access-denied");
+async function accessRetry(browser, fixture, origin, reportUrl) {
+  const { page, failures } = await scenarioPage(browser, fixture, origin, "access-denied");
   await page.goto(reportUrl, { waitUntil: "networkidle0" });
   await page.waitForFunction(() => !document.querySelector("[data-map-access-panel]").hidden);
   const denied = await page.evaluate(async () => {
@@ -69,8 +70,8 @@ async function accessRetry(browser, origin, reportUrl) {
   return failures.map(value => `access-denied: ${value}`);
 }
 
-async function promptFree(browser, origin, reportUrl, scenario) {
-  const { page, failures } = await scenarioPage(browser, origin, scenario);
+async function promptFree(browser, fixture, origin, reportUrl, scenario) {
+  const { page, failures } = await scenarioPage(browser, fixture, origin, scenario);
   await page.goto(reportUrl, { waitUntil: "networkidle0" });
   await page.waitForFunction(() => (
     document.querySelector("[data-map-runtime-status]")?.textContent.includes("fallback active")
@@ -92,13 +93,13 @@ async function promptFree(browser, origin, reportUrl, scenario) {
   return failures.map(value => `${scenario}: ${value}`);
 }
 
-async function scenarioPage(browser, origin, scenario) {
+async function scenarioPage(browser, fixture, origin, scenario) {
   const page = await browser.newPage();
   const failures = [];
   page.on("pageerror", error => failures.push(error.message));
   page.on("console", message => {
     if (message.type() === "error") failures.push(message.text());
   });
-  await installReportPlayerMazeMapStub(page, origin, scenario);
+  await installReportPlayerMazeMapStub(page, origin, scenario, fixture);
   return { page, failures };
 }

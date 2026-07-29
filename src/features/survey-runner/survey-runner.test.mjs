@@ -6,7 +6,7 @@ import { createMemoryCredentialStore } from "../../adapters/memory-credentials.m
 import { mountSurveyRunner } from "./survey-runner.mjs";
 
 const definition = JSON.parse(await readFile(
-  new URL("../../../data/surveys/survey-dunedin-level-00-dev-v3.definition.v3.json", import.meta.url),
+  new URL("../../../data/fixtures/runner/definition.fixture.v3.json", import.meta.url),
 ));
 
 function harness(sampleOverrides = {}) {

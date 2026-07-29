@@ -2,24 +2,54 @@
   "schemaVersion": 3,
   "surveys": [
     {
-      "surveyId": "56600000-0000-4000-8000-000000000001",
-      "surveyName": "Level 00 Runner development route",
-      "customerId": "health-new-zealand",
-      "customerName": "Health New Zealand | Te Whatu Ora",
+      "surveyId": "701fc3a3-aba8-48f7-b22b-d0d26d780e8c",
+      "surveyName": "L00 - K01 Wait Straight Line - No Dwell",
+      "customerId": "292",
+      "customerName": "NTT - NDH",
       "campusId": "566",
-      "routeId": "route-dunedin-level-00-dev",
-      "routeHash": "925fe238f82176e3646bbb34658e0b0caa1b8a92362aeaa654f45e50cd3cf637",
-      "path": "data/surveys/survey-dunedin-level-00-dev-v3.definition.v3.json"
+      "routeId": "1a",
+      "routeHash": "69d2c5f11ffe448946ec822a3d7ef1b76f68493d56edf5687d711112847348eb",
+      "path": "data/surveys/701fc3a3-aba8-48f7-b22b-d0d26d780e8c.definition.v3.json"
     },
     {
-      "surveyId": "5ef73912-3851-406a-81cc-93ca19cec12b",
-      "surveyName": "NDH Straight",
+      "surveyId": "87bca6ff-38c9-4a3a-8602-90bc6278a3b5",
+      "surveyName": "Star Test - 20 Dwell in Lifts",
       "customerId": "292",
-      "customerName": "NDH",
+      "customerName": "NTT - NDH",
       "campusId": "566",
-      "routeId": "1",
-      "routeHash": "853eef5f35418632353eb99fc6bb05df56d53c1aa0cf5e8df8513d253e952b00",
-      "path": "data/surveys/5ef73912-3851-406a-81cc-93ca19cec12b.definition.v3.json"
+      "routeId": "5",
+      "routeHash": "a1cfc5237fba4569b58ed91a5946d51f765df5cdf0ec931d1c0fd7644190850c",
+      "path": "data/surveys/87bca6ff-38c9-4a3a-8602-90bc6278a3b5.definition.v3.json"
+    },
+    {
+      "surveyId": "8bed4861-476e-417f-943c-0c08c40e7e1c",
+      "surveyName": "L00 - Information to L01 K11 Clinical Room",
+      "customerId": "292",
+      "customerName": "NTT - NDH",
+      "campusId": "566",
+      "routeId": "3",
+      "routeHash": "28b9e451f9a3a3a5eb1430d7383612ea9e8b0bd33976736de4267177c543fbe5",
+      "path": "data/surveys/8bed4861-476e-417f-943c-0c08c40e7e1c.definition.v3.json"
+    },
+    {
+      "surveyId": "b714527c-6197-4a08-b4cb-3d33ee022f9c",
+      "surveyName": "L00 - K01 Wait To Stairs - Return",
+      "customerId": "292",
+      "customerName": "NTT - NDH",
+      "campusId": "566",
+      "routeId": "2",
+      "routeHash": "3a2ee3e146f75113c5861c521a404e8aa4e2b4eb59f01debca5b6da1ee1092e4",
+      "path": "data/surveys/b714527c-6197-4a08-b4cb-3d33ee022f9c.definition.v3.json"
+    },
+    {
+      "surveyId": "ff3e7307-a71c-4708-9ce9-6dd7fc182a89",
+      "surveyName": "L00 - K01 Wait Straight Line - 5sec Dwell",
+      "customerId": "292",
+      "customerName": "NTT - NDH",
+      "campusId": "566",
+      "routeId": "1b",
+      "routeHash": "69d2c5f11ffe448946ec822a3d7ef1b76f68493d56edf5687d711112847348eb",
+      "path": "data/surveys/ff3e7307-a71c-4708-9ce9-6dd7fc182a89.definition.v3.json"
     }
   ]
 }

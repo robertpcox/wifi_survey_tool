@@ -5,25 +5,19 @@
 // RULES:        Permit repository requests only and never send entered access to a network.
 // PROVENANCE:   Scope/test_plan.md Step 5a browser gates
 
-export async function installReportPlayerMazeMapStub(page, origin, scenario = "public") {
+import { respondReportPlayerRequest } from "./report_player_browser_data.mjs";
+
+export async function installReportPlayerMazeMapStub(
+  page,
+  origin,
+  scenario = "public",
+  fixture = null,
+) {
   await page.evaluateOnNewDocument(installMazemap, scenario);
   await page.setRequestInterception(true);
   page.on("request", request => {
-    void respond(request, origin);
+    void respondReportPlayerRequest(request, origin, fixture);
   });
-}
-
-async function respond(request, origin) {
-  const url = request.url();
-  if (url.endsWith("mazemap.min.css")) {
-    await request.respond({ status: 200, contentType: "text/css", body: "" });
-  } else if (url.endsWith("/favicon.ico")) {
-    await request.respond({ status: 204 });
-  } else if (url.startsWith(origin)) {
-    await request.continue();
-  } else {
-    await request.abort("blockedbyclient");
-  }
 }
 
 function installMazemap(scenario) {

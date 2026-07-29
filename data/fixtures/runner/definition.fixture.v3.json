@@ -21,7 +21,7 @@
       "1": "Level 00"
     },
     "positionSourceId": "mazemap-cloud",
-    "authorNotes": "Two-stop validated route for Runner development and repeatable smoke surveys.",
+    "authorNotes": "Stable synthetic Runner fixture; production surveys may be rotated independently.",
     "authorName": null,
     "sourceConfig": {
       "configId": "1185",

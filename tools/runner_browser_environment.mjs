@@ -1,8 +1,10 @@
-export const RUNNER_BROWSER_POSITION = Object.freeze({
-  lat: -45.87248,
-  lng: 170.50853,
-  z: 1,
-});
+import {
+  respondRunnerBrowserRequest,
+  RUNNER_BROWSER_POSITION,
+} from "./runner_browser_responses.mjs";
+
+export { RUNNER_BROWSER_POSITION };
+
 export async function installRunnerBrowserEnvironment(
   page,
   origin,
@@ -11,45 +13,8 @@ export async function installRunnerBrowserEnvironment(
   await page.evaluateOnNewDocument(installBrowserDoubles);
   await page.setRequestInterception(true);
   page.on("request", request => {
-    void respond(request, origin, definition);
+    void respondRunnerBrowserRequest(request, origin, definition);
   });
-}
-
-async function respond(request, origin, definition) {
-  const url = request.url();
-  if (url.endsWith("mazemap.min.css")) {
-    await request.respond({ status: 200, contentType: "text/css", body: "" });
-    return;
-  }
-  if (url.includes("/mm-positioning-proxy/position?")) {
-    const body = JSON.stringify({
-      latitude: RUNNER_BROWSER_POSITION.lat,
-      longitude: RUNNER_BROWSER_POSITION.lng,
-      zLevel: RUNNER_BROWSER_POSITION.z,
-      lastSeen: new Date().toISOString(),
-      confidenceFactor: 0.93,
-      recordedBrowserFixture: true,
-    });
-    await request.respond({
-      status: 200,
-      contentType: "application/json",
-      body,
-    });
-    return;
-  }
-  if (url.endsWith(".definition.v3.json")) {
-    const fast = structuredClone(definition);
-    fast.meta.sourceConfig.pollIntervalMs = 50;
-    fast.meta.route.checkpointDwellSeconds = 0;
-    await request.respond({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify(fast),
-    });
-    return;
-  }
-  if (url.startsWith(origin)) await request.continue();
-  else await request.abort("blockedbyclient");
 }
 
 function installBrowserDoubles() {

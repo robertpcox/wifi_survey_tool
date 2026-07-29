@@ -1,0 +1,335 @@
+{
+  "schemaVersion": 3,
+  "meta": {
+    "surveyId": "8bed4861-476e-417f-943c-0c08c40e7e1c",
+    "surveyName": "L00 - Information to L01 K11 Clinical Room",
+    "customerId": "292",
+    "customerName": "NTT - NDH",
+    "campusId": "566",
+    "campusName": "Dunedin Hospital",
+    "timezone": "Pacific/Auckland",
+    "buildings": [
+      {
+        "id": "1013513",
+        "name": "Outpatient Building"
+      }
+    ],
+    "zLevels": [
+      1,
+      2
+    ],
+    "zLevelNames": {
+      "1": "Level 0",
+      "2": "Level 1"
+    },
+    "positionSourceId": "mazemap-cloud",
+    "authorNotes": "Walk to the stairs and back",
+    "authorName": "Rob Cox",
+    "sourceConfig": {
+      "configId": "1185",
+      "pollIntervalMs": 2000,
+      "proxyBase": "/mm-positioning-proxy"
+    },
+    "credentialRequirements": {
+      "mapAccess": true,
+      "appId": true,
+      "appKey": true,
+      "clientIp": true
+    },
+    "route": {
+      "routeId": "3",
+      "version": 1,
+      "hash": "28b9e451f9a3a3a5eb1430d7383612ea9e8b0bd33976736de4267177c543fbe5",
+      "distanceM": 79.07701987911025,
+      "estimatedDurationSeconds": 104.07701987911025,
+      "checkpointSpacingM": 10,
+      "checkpointDwellSeconds": 0
+    },
+    "createdAt": "2026-07-29T00:54:10.616Z"
+  },
+  "route": {
+    "routeId": "3",
+    "version": 1,
+    "hash": "28b9e451f9a3a3a5eb1430d7383612ea9e8b0bd33976736de4267177c543fbe5",
+    "stops": [
+      {
+        "id": "stop-1",
+        "name": "Outpatient's Lobby",
+        "lng": 170.50854642932774,
+        "lat": -45.87228954175641,
+        "z": 1,
+        "poiId": "1002659498",
+        "poiName": "Outpatient's Lobby",
+        "locationType": "room",
+        "provenance": {
+          "method": "map"
+        }
+      },
+      {
+        "id": "stop-2",
+        "name": "K11 Clinical Workroom 1",
+        "lng": 170.50885259727355,
+        "lat": -45.872223093189774,
+        "z": 2,
+        "poiId": "1002659945",
+        "poiName": "K11 Clinical Workroom 1",
+        "locationType": "poi",
+        "provenance": {
+          "method": "poi"
+        }
+      }
+    ],
+    "legs": [
+      {
+        "id": "leg-1",
+        "fromStopId": "stop-1",
+        "toStopId": "stop-2",
+        "distanceM": 79.07701987911025,
+        "geometry": [
+          {
+            "lng": 170.50854642932774,
+            "lat": -45.87228954175641,
+            "z": 1
+          },
+          {
+            "lng": 170.50854642932768,
+            "lat": -45.87228954175641,
+            "z": 1
+          },
+          {
+            "lng": 170.508545,
+            "lat": -45.87229,
+            "z": 1
+          },
+          {
+            "lng": 170.5085316,
+            "lat": -45.8722711,
+            "z": 1
+          },
+          {
+            "lng": 170.5085453,
+            "lat": -45.8722665,
+            "z": 1
+          },
+          {
+            "lng": 170.508561,
+            "lat": -45.8722613,
+            "z": 1
+          },
+          {
+            "lng": 170.5086087,
+            "lat": -45.8722445,
+            "z": 1
+          },
+          {
+            "lng": 170.5086297,
+            "lat": -45.8722413,
+            "z": 1
+          },
+          {
+            "lng": 170.5086066,
+            "lat": -45.8722825,
+            "z": 1
+          },
+          {
+            "lng": 170.5086066,
+            "lat": -45.8722825,
+            "z": 2
+          },
+          {
+            "lng": 170.5085463,
+            "lat": -45.8723884,
+            "z": 2
+          },
+          {
+            "lng": 170.5085782,
+            "lat": -45.8723973,
+            "z": 2
+          },
+          {
+            "lng": 170.5085903,
+            "lat": -45.872376,
+            "z": 2
+          },
+          {
+            "lng": 170.5086061,
+            "lat": -45.8723483,
+            "z": 2
+          },
+          {
+            "lng": 170.5086254,
+            "lat": -45.8723146,
+            "z": 2
+          },
+          {
+            "lng": 170.5086455,
+            "lat": -45.8722795,
+            "z": 2
+          },
+          {
+            "lng": 170.5086556,
+            "lat": -45.8722618,
+            "z": 2
+          },
+          {
+            "lng": 170.5086615,
+            "lat": -45.8722514,
+            "z": 2
+          },
+          {
+            "lng": 170.5086671,
+            "lat": -45.8722416,
+            "z": 2
+          },
+          {
+            "lng": 170.5087131,
+            "lat": -45.8722544,
+            "z": 2
+          },
+          {
+            "lng": 170.5087224,
+            "lat": -45.8722569,
+            "z": 2
+          },
+          {
+            "lng": 170.5087543,
+            "lat": -45.8722658,
+            "z": 2
+          },
+          {
+            "lng": 170.508776,
+            "lat": -45.8722274,
+            "z": 2
+          },
+          {
+            "lng": 170.5087878,
+            "lat": -45.8722064,
+            "z": 2
+          },
+          {
+            "lng": 170.5088097,
+            "lat": -45.8721684,
+            "z": 2
+          },
+          {
+            "lng": 170.5088251,
+            "lat": -45.8721726,
+            "z": 2
+          },
+          {
+            "lng": 170.5088443,
+            "lat": -45.8721779,
+            "z": 2
+          },
+          {
+            "lng": 170.5088782,
+            "lat": -45.8721873,
+            "z": 2
+          },
+          {
+            "lng": 170.5088568,
+            "lat": -45.8722243,
+            "z": 2
+          },
+          {
+            "lng": 170.50885259727352,
+            "lat": -45.872223093189774,
+            "z": 2
+          },
+          {
+            "lng": 170.50885259727355,
+            "lat": -45.872223093189774,
+            "z": 2
+          }
+        ]
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "checkpoint-1",
+        "sequence": 0,
+        "type": "stop",
+        "lng": 170.50854642932774,
+        "lat": -45.87228954175641,
+        "z": 1,
+        "stopId": "stop-1",
+        "legId": null,
+        "spacingBasisM": 10,
+        "dwellSeconds": 0
+      },
+      {
+        "id": "checkpoint-2",
+        "sequence": 1,
+        "type": "intermediate",
+        "lng": 170.50861970693649,
+        "lat": -45.87224282275254,
+        "z": 1,
+        "stopId": null,
+        "legId": "leg-1",
+        "spacingBasisM": 10,
+        "dwellSeconds": 5
+      },
+      {
+        "id": "checkpoint-3",
+        "sequence": 2,
+        "type": "intermediate",
+        "lng": 170.50856575792218,
+        "lat": -45.872393828699295,
+        "z": 2,
+        "stopId": null,
+        "legId": "leg-1",
+        "spacingBasisM": 10,
+        "dwellSeconds": 5
+      },
+      {
+        "id": "checkpoint-4",
+        "sequence": 3,
+        "type": "intermediate",
+        "lng": 170.50862093634325,
+        "lat": -45.87232239405348,
+        "z": 2,
+        "stopId": null,
+        "legId": "leg-1",
+        "spacingBasisM": 10,
+        "dwellSeconds": 5
+      },
+      {
+        "id": "checkpoint-5",
+        "sequence": 4,
+        "type": "intermediate",
+        "lng": 170.50867107350703,
+        "lat": -45.872242705671525,
+        "z": 2,
+        "stopId": null,
+        "legId": "leg-1",
+        "spacingBasisM": 10,
+        "dwellSeconds": 5
+      },
+      {
+        "id": "checkpoint-6",
+        "sequence": 5,
+        "type": "intermediate",
+        "lng": 170.5087687885415,
+        "lat": -45.872240161290634,
+        "z": 2,
+        "stopId": null,
+        "legId": "leg-1",
+        "spacingBasisM": 10,
+        "dwellSeconds": 5
+      },
+      {
+        "id": "checkpoint-7",
+        "sequence": 6,
+        "type": "stop",
+        "lng": 170.50885259727355,
+        "lat": -45.872223093189774,
+        "z": 2,
+        "stopId": "stop-2",
+        "legId": null,
+        "spacingBasisM": 10,
+        "dwellSeconds": 0
+      }
+    ],
+    "totalDistanceM": 79.07701987911025
+  }
+}

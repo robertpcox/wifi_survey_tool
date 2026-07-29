@@ -38,7 +38,7 @@ function harness(launch) {
       showMapAccessPrompt: value => calls.prompt.push(value),
       takeMapAccess: () => {
         calls.tokenReads = (calls.tokenReads ?? 0) + 1;
-        return "retry-token";
+        return calls.tokenReads === 1 ? "" : "retry-token";
       },
       writeFields() {},
     },
@@ -53,10 +53,10 @@ test("typed denial reveals access only after public Engage, then retries", async
     }
     return 1;
   });
-  await assert.rejects(state.session.engage(), /Enter the token, then retry/);
+  await assert.rejects(state.session.engage(), /Enter the optional token/);
   assert.deepEqual(state.calls.access, [null]);
-  assert.equal(state.calls.tokenReads, undefined);
-  assert.deepEqual(state.calls.prompt, [true]);
+  assert.equal(state.calls.tokenReads, 1);
+  assert.deepEqual(state.calls.prompt, []);
   assert.equal((await state.session.engage()).mapAccessRequired, true);
   assert.deepEqual(state.calls.access, [null, "retry-token"]);
   assert.equal(state.calls.stored, "retry-token");
@@ -68,5 +68,5 @@ test("generic public launch failure remains prompt-free", async () => {
   await assert.rejects(state.session.engage(), error => error === failure);
   assert.deepEqual(state.calls.access, [null]);
   assert.deepEqual(state.calls.prompt, []);
-  assert.equal(state.calls.tokenReads, undefined);
+  assert.equal(state.calls.tokenReads, 1);
 });

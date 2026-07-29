@@ -45,9 +45,9 @@ file under `data/surveys/`. Device and band remain absent from definitions.
 
 ## Workflow
 
-1. Enter customer and campus details, then select Engage for a public map attempt.
+1. Enter customer and campus details, with optional temporary map access.
    Building and floor coverage comes only from committed MazeMap points.
-2. Only after a typed access denial, enter temporary map access and retry Engage.
+2. Select Engage: blank access loads public maps; entered access loads private maps.
 3. Set spacing and default mid-leg and leg-end dwell; the first map choice locks the plan.
 4. After Engage, create an ordered route or upload a survey to edit; Clear current route
    removes its points without losing setup.

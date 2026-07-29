@@ -77,7 +77,7 @@ test("mountDefinitionCreator names a missing app container", () => {
 
 test("one successful campus launch is reused instead of engaging again", async () => {
   const state = seams();
-  let launches = 0;
+  const launches = [];
   state.view.readFields = () => ({
     campusId: "566",
     customerId: "health-nz",
@@ -87,8 +87,8 @@ test("one successful campus launch is reused instead of engaging again", async (
     credentials: { read: () => "memory-access" },
     mapAdapter: {
       campusName: "Dunedin Hospital",
-      launch: async () => {
-        launches += 1;
+      launch: async access => {
+        launches.push(access);
         return 1;
       },
     },
@@ -99,6 +99,6 @@ test("one successful campus launch is reused instead of engaging again", async (
   });
   await mounted.engage();
   await mounted.engage();
-  assert.equal(launches, 1);
+  assert.deepEqual(launches, [null]);
   assert.equal(state.calls.writtenFields.needsMapAccess, false);
 });

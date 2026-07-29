@@ -60,10 +60,9 @@ Do not overload `completed`, `dwelling`, or `walking` for endpoint hold.
 
 MazeMap access must not gate Runner before launch.
 
-- The operator enters the normal non-map Runner requirements and selects Go.
-- Go attempts the public campus first without reading or submitting map access.
-- Only a typed MazeMap access denial reveals the memory-only token field.
-- The operator enters the token after that failed Go attempt, then retries Go.
+- Keep the memory-only map token optional on the Go form.
+- Blank access loads the public map; entered access loads the private map.
+- The optional token must never gate Go.
 - Retry uses the token without serializing it or writing browser storage.
 - Generic network, SDK, timeout, and tile failures remain prompt-free and use
   the labelled failure path.
@@ -95,8 +94,8 @@ Add focused tests proving:
 - no completed export exists before explicit session end;
 - early Stop remains aborted;
 - legacy global dwell still works for an old definition;
-- initial Go does not read or submit a MazeMap token;
-- typed access denial reveals the token retry after Go;
+- blank map access launches public and does not gate Go;
+- entered map access launches private;
 - retry uses memory-only access and generic launch failure stays prompt-free;
 - secrets remain absent from definitions, results, events, URLs, and storage.
 

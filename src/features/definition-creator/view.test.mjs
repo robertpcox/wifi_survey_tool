@@ -29,7 +29,6 @@ function harness() {
   const planButton = add('[data-action="lock-plan"]');
   const stopFields = add("[data-stop-fields]");
   const engageButton = add('[data-action="engage-map"]', { textContent: "Engage" });
-  const accessPrompt = add("[data-engage-access-prompt]", { hidden: true });
   const launchPanel = add("[data-launch-panel]");
   const campusSummary = add("[data-campus-summary]", { hidden: true });
   const engageFieldset = { disabled: true };
@@ -65,7 +64,7 @@ function harness() {
     },
     removeEventListener() {},
   };
-  return { accessPrompt, elements, engageAction, engageButton, engageFieldset,
+  return { elements, engageAction, engageButton, engageFieldset,
     campusSummary, launchPanel, planButton, planInput, root, stopFields };
 }
 test("view reads fields and locks the plan before enabling stop controls", () => {
@@ -89,9 +88,6 @@ test("view reads fields and locks the plan before enabling stop controls", () =>
   assert.equal(state.engageButton.textContent, "Engage");
   assert.equal(state.launchPanel.hidden, true);
   assert.equal(state.campusSummary.hidden, false);
-  view.showMapAccessPrompt(true);
-  assert.equal(state.accessPrompt.hidden, false);
-  assert.equal(state.engageButton.textContent, "Retry Engage");
   assert.match(state.campusSummary.textContent, /Customer A · Campus A/);
   view.setPlanLocked(true);
   assert.equal(state.planInput.disabled, true);

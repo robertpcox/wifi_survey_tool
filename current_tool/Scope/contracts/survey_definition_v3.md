@@ -52,11 +52,11 @@ Every target stores real `lng`, `lat`, and `z`.
 
 MazeMap is a runtime authoring dependency; no remote SDK asset is bundled into the
 self-contained build. The author enters customer and campus ID, then selects Engage.
-Engage first attempts public access. Only a typed access denial reveals the temporary
-token retry. Engage fetches the exact v3.0.6 SDK, resolves the campus name and centre,
-and loads that campus before authoring is enabled. When routing is available, Creator
-records the returned geometry. Without routing, Creator labels and
-records exact endpoint-to-endpoint geometry. The engaged campus ID must match
+Engage accepts an optional temporary token: blank loads the public map and entered
+access loads the private map. The token never gates Engage. Engage fetches the exact
+v3.0.6 SDK, resolves the campus name and centre, and loads that campus before authoring
+is enabled. When routing is available, Creator records the returned geometry. Otherwise it
+labels and records exact endpoint-to-endpoint geometry. The engaged campus ID must match
 `meta.campusId` before the checkpoint plan can be locked.
 
 ## Stop capture

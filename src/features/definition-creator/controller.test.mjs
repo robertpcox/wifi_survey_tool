@@ -106,6 +106,9 @@ test("controller locks planning and live-routes every added or reordered stop", 
   fields.spacingM = 12;
   await controller.dispatch("add-exact");
   assert.equal(controller.state.plan.spacingM, 12);
+  await controller.dispatch("clear-current-route");
+  assert.equal(controller.state.stops.length, 0);
+  assert.equal(controller.state.planLocked, true);
 });
 test("short-leg dismissal lasts for subsequent route renders", async () => {
   const { calls, controller } = harness();

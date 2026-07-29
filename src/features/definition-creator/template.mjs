@@ -39,6 +39,8 @@ export function definitionCreatorTemplate() {
               <button type="button" class="primary" data-action="lock-plan">Lock checkpoint plan</button>
             </fieldset>
             <h2>Ordered route</h2>
+            <button type="button" data-action="clear-current-route"
+              data-requires-engagement-action disabled>Clear current route</button>
             <div class="creator-coverage" aria-live="polite">
               <strong>Coverage from committed map points</strong>
               <span data-coverage-buildings>No mapped buildings yet.</span>

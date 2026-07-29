@@ -49,7 +49,7 @@ file under `data/surveys/`. Device and band remain absent from definitions.
    Building and floor coverage comes only from committed MazeMap points.
 2. Enter temporary map access when required.
 3. Set spacing and default mid-leg and leg-end dwell; the first map choice locks the plan.
-4. Create or import an ordered route.
+4. Create or import an ordered route; Clear current route removes its points without losing setup.
 5. Click the map, choose its exact coordinates or the discovered POI centre, and add the
    selected target immediately; captured device GPS remains a separate optional action.
 6. Watch each added stop route, draw, and generate checkpoints immediately, and adjust.

@@ -1,4 +1,5 @@
 import { createCreatorControllerState, nextCreatorStopId } from "./controller-state.mjs";
+import { clearCreatorRoute } from "./controller-clear-route.mjs";
 import { createCreatorDwellActions } from "./controller-dwell.mjs";
 import { createDefinitionFiles } from "./definition-files.mjs";
 import { assertCreatorCampus, parseCreatorPlanFields } from "./form.mjs";
@@ -86,9 +87,7 @@ export function createDefinitionCreatorController(options) {
     view.selectStop(stop, index);
     view.renderStops(state.stops, index);
   }
-  const dwellActions = createCreatorDwellActions(
-    { render, requirePlan, state, view, workflow },
-  );
+  const dwellActions = createCreatorDwellActions({ render, requirePlan, state, view, workflow });
   const files = createDefinitionFiles({
     ...options,
     configuredCampusId,
@@ -111,6 +110,7 @@ export function createDefinitionCreatorController(options) {
       await addStop(result.stop, result.warning);
     },
     "choose-import": () => view.chooseImport(),
+    "clear-current-route": () => clearCreatorRoute({ render, state, view, workflow }),
     "dismiss-short-warning": () => {
       state.shortWarningDismissed = true;
       view.showShortWarning(null);

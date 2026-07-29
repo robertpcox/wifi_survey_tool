@@ -15,7 +15,7 @@ test("Creator template exposes launch, three-column authoring, and map choices",
   for (const action of [
     "lock-plan", "add-exact", "add-poi", "capture-gps", "adjust-stop",
     "dismiss-short-warning", "export-definition", "choose-import", "engage-map",
-    "cancel-map-choice",
+    "cancel-map-choice", "clear-current-route",
   ]) {
     assert.match(html, new RegExp(`data-action="${action}"`));
   }

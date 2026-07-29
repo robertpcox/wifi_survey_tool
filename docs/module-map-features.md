@@ -19,10 +19,12 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 ## definition-creator/
 - checkpoint-dwell 86/2693 T+ E applyCreatorCheckpointDwells, replaceCreatorCheckpointDwell
 - components.css 150/2547 T+
+- controller-clear-route 29/926 T+ E clearCreatorRoute
 - controller-dwell 38/1098 T+ E createCreatorDwellActions
 - controller-render 25/807 T+ E renderCreatorController I map-coverage, workflow
 - controller-state 27/587 T+ E createCreatorControllerState, nextCreatorStopId
-- controller 149/5954 T+ E createDefinitionCreatorController I controller-dwell, controller-render, controller-state, definition-files, form, stop-order
+- controller 149/6098 T+ E createDefinitionCreatorController
+  - I controller-clear-route, controller-dwell, controller-render, controller-state, definition-files, form, stop-order
 - creator.css 150/3036 T+
 - definition-creator 85/2930 T+ E mountDefinitionCreator I controller, map-session, providers, stop-actions, view, workflow
 - definition-files 83/2777 T+ E createDefinitionFiles I form, map-coverage
@@ -37,7 +39,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - stop-actions 100/3068 T+ E createStopActions I map-coverage, stops
 - stop-order 24/862 T+ E reorderCreatorStops
 - stops 150/4633 T+ E adjustStop, createExactStop, createGpsStop, createPoiStop, gpsAccuracyWarning
-- template 139/8573 T+ E definitionCreatorTemplate I timezones
+- template 141/8725 T+ E definitionCreatorTemplate I timezones
 - timezones 36/1109 T+ E creatorTimezones, ensureTimezoneOption, timezoneOptionsMarkup
 - view-dwell 88/3337 T+ E readCreatorCheckpointDwell, renderCreatorDwellSchedule I @d/checkpoint-dwell-v3
 - view-render 63/2462 T+ E renderCreatorCoverage, renderCreatorRoute, renderCreatorStops I preview

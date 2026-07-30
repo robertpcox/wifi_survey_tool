@@ -6,6 +6,7 @@
 // PROVENANCE:   Scope/test_plan.md Step 5a browser gates
 
 import { installReportPlayerMazeMapStub } from "./report_player_browser_stub.mjs";
+import { exerciseReportAnalysis } from "./report_player_browser_analysis.mjs";
 import {
   exercisePlayerFollow,
   inspectPlayerLayout,
@@ -51,6 +52,7 @@ export async function exercisePublicReportPlayer({
     document.querySelector("[data-map-runtime-status]")?.textContent.includes("Public MazeMap")
   ));
   const reportUrl = page.url();
+  failures.push(...await exerciseReportAnalysis(page, fixture));
   await changeThreshold(page);
   await page.evaluate(() => scrollTo(0, 420));
   const programmatic = await page.evaluate(async () => {

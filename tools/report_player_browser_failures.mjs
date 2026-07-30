@@ -35,6 +35,12 @@ async function accessRetry(browser, fixture, origin, reportUrl) {
   });
   if (!denied.fallback || !denied.mapHidden) failures.push("access denial lacked fallback");
   if (denied.storage) failures.push("access denial wrote browser storage");
+  await page.evaluate(async () => {
+    const moduleUrl = document.querySelector('script[type="module"]').src;
+    const session = await (await import(moduleUrl)).reportPlayerReady;
+    session.player.setMode("playback");
+  });
+  await page.waitForSelector("body.player-active");
   await page.$eval("[data-map-access]", input => { input.value = "x".repeat(12); });
   await page.click("[data-save-access]");
   await page.waitForFunction(() => (
@@ -50,6 +56,7 @@ async function accessRetry(browser, fixture, origin, reportUrl) {
     session.player.setMode("analysis");
     return {
       accessPanelHidden: document.querySelector("[data-map-access-panel]").hidden,
+      accessInputCleared: !document.querySelector("[data-map-access]").value,
       beforeModeSwitch,
       fallbackHidden: document.querySelector("[data-map-fallback]").hidden,
       instances: window.__reportMapState.instances,
@@ -61,6 +68,7 @@ async function accessRetry(browser, fixture, origin, reportUrl) {
   if (!unlocked.accessPanelHidden || !unlocked.fallbackHidden || !unlocked.mapVisible) {
     failures.push(`access retry did not restore MazeMap ${JSON.stringify(unlocked)}`);
   }
+  if (!unlocked.accessInputCleared) failures.push("Player access retry did not clear its input");
   if (unlocked.submittedCount !== 1) failures.push("access retry was not submitted once");
   if (unlocked.instances !== unlocked.beforeModeSwitch) {
     failures.push("mode switch constructed another map after access retry");

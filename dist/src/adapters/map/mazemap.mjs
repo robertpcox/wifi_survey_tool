@@ -113,10 +113,7 @@ export function createMazeMapAdapter(options = {}) {
     return true;
   }
   function fitRoute(route) {
-    const fitted = controls.fitRoute(route);
-    currentZLevel = numericZ(controls.getMapZLevel()) ?? currentZLevel;
-    applyZStyling();
-    return fitted;
+    return controls.fitRoute(route);
   }
   function drawPlayerFrame(frame, snap) {
     const drawn = shared.drawPlayerFrame(frame, snap);

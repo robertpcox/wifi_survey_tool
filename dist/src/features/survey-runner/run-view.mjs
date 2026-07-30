@@ -1,11 +1,13 @@
 import { haversine } from "../../domain/geometry.mjs";
 import { createRunnerNoteView } from "./note-view.mjs";
+import { awaitingEndText, createRunnerSafetyView } from "./run-safety-view.mjs";
 
 export function createRunnerRunView(documentRef) {
   const find = selector => documentRef.querySelector(selector);
   let activeState = null;
   let latestFix = null;
   const noteView = createRunnerNoteView(documentRef);
+  const safetyView = createRunnerSafetyView(documentRef);
   const setText = (selector, value) => {
     const node = find(selector);
     if (node) node.textContent = String(value);
@@ -19,6 +21,7 @@ export function createRunnerRunView(documentRef) {
     if (state.completionStatus) return;
     const progress = state.progress;
     const checkpoint = progress.checkpoints[progress.currentIndex];
+    safetyView.render(state);
     setText(
       "[data-run-progress]",
       `${Math.min(progress.currentIndex + 1, progress.checkpoints.length)}`
@@ -32,21 +35,16 @@ export function createRunnerRunView(documentRef) {
       progress.phase === "dwelling"
         ? `${progress.dwellRemainingSeconds} s dwell`
         : progress.phase === "awaiting-end"
-          ? "At endpoint · polling continues until you end the session"
+          ? awaitingEndText(progress)
           : "Ready to check in",
     );
     const checkIn = find('[data-action="check-in"]');
-    const stop = find('[data-action="stop"]');
     const endSession = find('[data-action="end-session"]');
     const awaitingEnd = progress.phase === "awaiting-end";
     const noteOpen = Boolean(state.note);
     if (checkIn) {
       checkIn.disabled = progress.phase !== "walking" || noteOpen;
       checkIn.hidden = awaitingEnd;
-    }
-    if (stop) {
-      stop.hidden = awaitingEnd;
-      stop.disabled = noteOpen;
     }
     if (endSession) {
       endSession.hidden = !awaitingEnd;
@@ -77,6 +75,7 @@ export function createRunnerRunView(documentRef) {
   }
 
   function showFinish(status) {
+    safetyView.hide();
     const run = find("[data-run-panel]");
     const finish = find("[data-finish-panel]");
     const setup = find("[data-setup-controls]");
@@ -92,6 +91,7 @@ export function createRunnerRunView(documentRef) {
   }
 
   function resetSession() {
+    safetyView.hide();
     activeState = null;
     latestFix = null;
     const run = find("[data-run-panel]");
@@ -111,9 +111,9 @@ export function createRunnerRunView(documentRef) {
   return Object.freeze({
     bind(handlers) {
       noteView.bind(handlers);
+      safetyView.bind(handlers);
       find('[data-action="check-in"]')?.addEventListener("click", handlers.checkIn);
       find('[data-action="end-session"]')?.addEventListener("click", handlers.endSession);
-      find('[data-action="stop"]')?.addEventListener("click", handlers.stop);
       find('[data-action="download-result"]')?.addEventListener("click", handlers.download);
       find('[data-action="clear-capture"]')?.addEventListener("click", handlers.clearCapture);
       find("[data-result-file]")?.addEventListener("change", handlers.validateFile);

@@ -18,11 +18,36 @@ const result = JSON.parse(await readFile(
 test("access markup stays hidden despite its metadata hint", () => {
   const html = renderMapAccess(result);
   assert.match(html, /data-map-access-panel[^>]*data-access-hint="true" hidden/);
+  assert.match(html, /Optional MazeMap access token/);
   assert.match(html, /type="password"/);
+  assert.match(html, /autocomplete="one-time-code"/);
+  assert.match(html, /data-map-access-status role="status" aria-live="polite"/);
   assert.doesNotMatch(html, /value=|localStorage|sessionStorage|MAP_TOKEN/);
 });
 
-test("only access denial reveals the prompt and generic failure remains prompt-free", () => {
+test("toolbar toggles optional access and keeps expanded state synchronized", () => {
+  const fixture = fakeAccessRoot();
+  const binding = bindMapAccess({
+    root: fixture.root,
+    credentials: memoryCredentials(),
+    surface: { retryAccess: async () => ({ status: "ready" }) },
+  });
+  assert.equal(fixture.panel.hidden, true);
+  assert.equal(fixture.toggleButton.attributes["aria-expanded"], "false");
+  assert.equal(binding.toggle(), true);
+  assert.equal(fixture.panel.hidden, false);
+  assert.equal(fixture.toggleButton.attributes["aria-expanded"], "true");
+  fixture.toggleButton.click();
+  assert.equal(fixture.panel.hidden, true);
+  assert.equal(fixture.toggleButton.attributes["aria-expanded"], "false");
+  binding.open();
+  assert.equal(fixture.panel.hidden, false);
+  binding.close();
+  assert.equal(fixture.panel.hidden, true);
+  assert.equal(fixture.toggleButton.hidden, false);
+});
+
+test("only access denial auto-opens while public and generic outcomes remain prompt-free", () => {
   const fixture = fakeAccessRoot();
   const binding = bindMapAccess({
     root: fixture.root,
@@ -32,13 +57,18 @@ test("only access denial reveals the prompt and generic failure remains prompt-f
   assert.equal(fixture.panel.hidden, true);
   binding.handleLaunch({ status: "access-denied" });
   assert.equal(fixture.panel.hidden, false);
+  assert.equal(fixture.toggleButton.attributes["aria-expanded"], "true");
   assert.match(fixture.status.textContent, /Enter MazeMap access/);
   binding.handleLaunch({
     status: "fallback",
     error: new Error("<script>network unavailable</script>"),
   });
   assert.equal(fixture.panel.hidden, true);
+  assert.equal(fixture.toggleButton.attributes["aria-expanded"], "false");
   assert.doesNotMatch(fixture.status.innerHTML, /<script>/);
+  binding.handleLaunch({ status: "ready" });
+  assert.equal(fixture.panel.hidden, true);
+  assert.equal(fixture.toggleButton.hidden, false);
 });
 
 test("typed access is held in memory, cleared from the input, and retried", async () => {
@@ -61,6 +91,8 @@ test("typed access is held in memory, cleared from the input, and retried", asyn
   assert.equal(credentials.read("mapAccess"), "typed-at-runtime");
   assert.equal(fixture.input.value, "");
   assert.equal(fixture.panel.hidden, true);
+  assert.equal(fixture.toggleButton.attributes["aria-expanded"], "false");
+  assert.equal(fixture.toggleButton.focused, 1);
 });
 
 function memoryCredentials() {
@@ -79,16 +111,31 @@ function fakeAccessRoot() {
   const status = { textContent: "", innerHTML: "" };
   const save = listenerNode();
   const clear = listenerNode();
+  const toggleButton = listenerNode();
   const nodes = new Map([
     ["[data-map-access-panel]", panel],
     ["[data-map-access]", input],
     ["[data-map-access-status]", status],
     ["[data-save-access]", save],
     ["[data-clear-access]", clear],
+    ["[data-toggle-map-access]", toggleButton],
   ]);
-  return { panel, input, status, root: { querySelector: key => nodes.get(key) } };
+  return {
+    panel,
+    input,
+    status,
+    toggleButton,
+    root: { querySelector: key => nodes.get(key) },
+  };
 }
 
 function listenerNode() {
-  return { addEventListener(name, listener) { this[name] = listener; } };
+  return {
+    attributes: {},
+    hidden: false,
+    focused: 0,
+    addEventListener(name, listener) { this[name] = listener; },
+    focus() { this.focused += 1; },
+    setAttribute(name, value) { this.attributes[name] = value; },
+  };
 }

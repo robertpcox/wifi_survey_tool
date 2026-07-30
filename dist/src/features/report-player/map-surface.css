@@ -35,10 +35,28 @@
 .map-fallback span { bottom: 1rem; }
 .map-runtime-status { top: 0.75rem; margin: 0; font-size: 0.78rem; }
 .map-layer-controls {
+  align-items: center;
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 0.8rem;
+}
+
+.map-warning-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #7c2d12;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.map-warning-legend i {
+  width: 0.8rem;
+  height: 0.8rem;
+  border: 2px solid #7c2d12;
+  border-radius: 50%;
+  background: #ea580c;
 }
 
 .report-player-main > .map-access {

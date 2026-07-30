@@ -1,4 +1,5 @@
 @import "./runner-note.css";
+@import "./runner-safety.css";
 [hidden] { display: none !important; }
 
 .poll-status {
@@ -124,7 +125,7 @@ body.runner-running .run-hud .dwell-status { grid-column: 1; }
 
 body.runner-running .checkpoint-stop {
   grid-column: 2;
-  grid-row: 2 / 5;
+  grid-row: 2 / 6;
   align-self: center;
   white-space: nowrap;
 }

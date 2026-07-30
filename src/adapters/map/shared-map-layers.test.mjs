@@ -17,6 +17,21 @@ test("mode switching reuses sources and blocks disabled Player writes", () => {
   layers.drawReportHeat("sticky", [
     { lng: 170.1, lat: -45.1, z: 0, weightSeconds: 2 },
   ]);
+  layers.drawReportHeat("sticky", {
+    heatmaps: { sticky: [] },
+    warnings: {
+      floorMismatch: {
+        points: [{
+          lng: 170.2, lat: -45.2, z: 0, reportedZ: 1,
+          pollId: "poll-floor", weightSeconds: 2,
+        }],
+      },
+    },
+  });
+  assert.equal(
+    harness.sources.get("report-floor-mismatch").data.features[0].properties.reportedZ,
+    1,
+  );
   layers.setViewMode("playback");
   const sourceCount = harness.sources.size;
   const layerCount = harness.layers.size;
@@ -41,6 +56,7 @@ test("mode switching reuses sources and blocks disabled Player writes", () => {
   assert.equal(harness.layers.size, layerCount);
   assert.equal(harness.visibility.get("player-raw-fix-lyr"), "none");
   assert.equal(harness.visibility.get("report-sticky-heat-lyr"), "visible");
+  assert.equal(harness.visibility.get("report-floor-mismatch-lyr"), "visible");
 });
 
 function mapHarness() {

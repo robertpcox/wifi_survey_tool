@@ -11,11 +11,8 @@
 <body data-app="runner">
   <header>
     <strong>Wi-Fi Survey v3</strong>
-    <nav>
-      <a href="../dashboard/">Dashboard</a>
-      <a href="../creator/">Creator</a>
-      <a href="../report-player/">Report Player</a>
-    </nav>
+    <nav><a href="../dashboard/">Dashboard</a><a href="../creator/">Creator</a>
+      <a href="../report-player/">Report Player</a></nav>
   </header>
   <main class="runner-page">
     <p class="eyebrow">Runner</p>
@@ -37,38 +34,37 @@
         <form class="runner-card entry-form" data-runner-entry autocomplete="off">
           <h2>One-time run details</h2>
           <p>Kept for the next run in this tab; never saved to browser storage.</p>
+          <div class="credential-groups">
+            <fieldset class="credential-group" data-credential-group="map-access"><legend>Map access</legend>
+              <p id="map-access-help">Only used to open a private campus map.</p>
+              <label data-credential-row="mapAccess">Private map access token (optional)
+                <input name="mapAccess" type="password" autocomplete="off" autocapitalize="none"
+                  spellcheck="false" aria-describedby="map-access-help" data-1p-ignore data-lpignore="true" data-bwignore></label>
+            </fieldset>
+            <fieldset class="credential-group" data-credential-group="cloud"><legend>MazeMap Cloud positioning</legend>
+              <p id="cloud-credentials-help">Used only for live positioning polls during this run.</p>
+              <div class="credential-grid">
+                <label data-credential-row="appId">Cloud App ID
+                  <input name="appId" type="text" autocomplete="off" autocapitalize="none"
+                    spellcheck="false" aria-describedby="cloud-credentials-help" data-1p-ignore data-lpignore="true" data-bwignore></label>
+                <label data-credential-row="appKey">Cloud App Key
+                  <input name="appKey" type="password" autocomplete="off" autocapitalize="none"
+                    spellcheck="false" aria-describedby="cloud-credentials-help" data-1p-ignore data-lpignore="true" data-bwignore></label>
+              </div>
+            </fieldset>
+          </div>
           <div class="entry-grid">
-            <label data-credential-row="mapAccess">
-              Private map access (only if needed)
-              <input name="mapAccess" type="password" autocomplete="one-time-code">
-            </label>
-            <label data-credential-row="appId">
-              MazeMap Cloud App ID
-              <input name="appId" type="password" autocomplete="one-time-code">
-            </label>
-            <label data-credential-row="appKey">
-              MazeMap Cloud App Key
-              <input name="appKey" type="password" autocomplete="one-time-code">
-            </label>
-            <label>
-              Client IP of device under test
-              <input name="clientIp" inputmode="decimal" autocomplete="off">
-            </label>
-            <label>
-              Device type
+            <label>Client IP of device under test
+              <input name="clientIp" inputmode="decimal" autocomplete="off"></label>
+            <label>Device type
               <select name="deviceType">
                 <option value="">Choose…</option>
                 <option value="mobile">Mobile</option><option value="laptop">Laptop</option>
-                <option value="asset">Asset</option></select>
-            </label>
-            <label>
-              Operating system and version
-              <input name="deviceOs" autocomplete="off" placeholder="ExampleOS 18.2">
-            </label>
-            <label>
-              Device name
-              <input name="deviceName" autocomplete="off" placeholder="Field handset 1">
-            </label>
+                <option value="asset">Asset</option></select></label>
+            <label>Operating system and version
+              <input name="deviceOs" autocomplete="off" placeholder="ExampleOS 18.2"></label>
+            <label>Device name
+              <input name="deviceName" autocomplete="off" placeholder="Field handset 1"></label>
             <label>
               Wireless band
               <select name="band">
@@ -108,9 +104,7 @@
           </div>
         </section>
       </div>
-      <section class="map-card">
-        <div id="runner-map" aria-label="Survey route map"></div>
-      </section>
+      <section class="map-card"><div id="runner-map" aria-label="Survey route map"></div></section>
     </section>
     <section class="runner-card active-run" data-run-panel hidden>
       <div class="run-hud">
@@ -125,6 +119,9 @@
           · <span data-current-floor>—</span></p>
         <h2 data-current-target>—</h2>
         <strong class="dwell-status" data-dwell-countdown>Ready</strong>
+        <div class="checkpoint-navigation" aria-label="Checkpoint navigation">
+          <button type="button" data-action="back-checkpoint">Back one checkpoint</button>
+          <button type="button" data-action="skip-checkpoint">Skip closed area</button></div>
         <button type="button" class="stop-button checkpoint-stop" data-action="stop">Stop survey</button>
       </div>
       <div class="capture-actions">
@@ -132,18 +129,21 @@
         <button class="check-in-button" data-action="end-session" hidden>End session</button>
       </div>
     </section>
+    <dialog class="stop-confirmation" data-stop-dialog aria-labelledby="stop-confirm-title">
+      <form method="dialog"><h2 id="stop-confirm-title">Stop this survey?</h2>
+        <p>Stopping ends polling, marks this run aborted, and cannot be undone or resumed. Captured evidence remains available to download.</p>
+        <div class="button-row"><button type="button" data-action="cancel-stop">Keep recording</button>
+          <button type="button" class="stop-button" data-action="confirm-stop">Stop and save partial run</button></div>
+      </form>
+    </dialog>
     <section class="runner-card finish-panel" data-finish-panel hidden>
       <h2 data-finish-status>Run finished.</h2>
-      <label>Optional operator comment
-        <textarea data-operator-comment rows="3"></textarea>
-      </label>
+      <label>Optional operator comment<textarea data-operator-comment rows="3"></textarea></label>
       <div class="button-row"><button class="primary" type="button" data-action="download-result">Download result JSON</button>
         <button class="stop-button" type="button" data-action="clear-capture">Clear capture</button></div>
-      <details>
-        <summary>Validate a result file</summary>
+      <details><summary>Validate a result file</summary>
         <input data-result-file type="file" accept=".json,application/json">
-        <pre data-validation-result></pre>
-      </details>
+        <pre data-validation-result></pre></details>
     </section>
   </main>
 </body>

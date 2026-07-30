@@ -72,10 +72,7 @@ export function mountSurveyRunner(options = {}) {
     if (!state.preflight || !setup.entryComplete()) return;
     if (!overridden && state.preflight.verdict !== "green") return;
     if (overridden && !formView.readValues().override) return;
-    state.preflight = {
-      ...state.preflight,
-      acknowledged: overridden,
-    };
+    state.preflight = { ...state.preflight, acknowledged: overridden };
     noteController.reset();
     state.activeRun = createActiveRunner({
       definition: state.definition,
@@ -88,6 +85,7 @@ export function mountSurveyRunner(options = {}) {
         return null;
       },
       nowDate,
+      nowMs: options.nowMs,
       setTimer: options.setTimer,
       clearTimer: options.clearTimer,
       onRender: run => runView.renderRun(run),
@@ -121,6 +119,7 @@ export function mountSurveyRunner(options = {}) {
   }
   const actions = {
     addNote: noteController.add,
+    back: () => state.activeRun?.back(),
     cancelNote: noteController.cancel,
     checkIn: () => state.activeRun?.checkIn(),
     clearCapture: () => Boolean(state.activeRun?.state.completionStatus) && setup.clearCapture(),
@@ -134,6 +133,7 @@ export function mountSurveyRunner(options = {}) {
     overrideGo: () => start(true),
     preflight,
     selectSurvey: setup.selectSurvey,
+    skip: () => state.activeRun?.skip(),
     stop: () => state.activeRun?.stop(),
     async validateFile(event) {
       const file = event?.target?.files?.[0];

@@ -28,7 +28,8 @@ test("one map and one loaded context compose the Report and full Player", () => 
     comparison: null,
   });
   for (const module of [
-    "floor-route", "kpi", "heatmap", "timeline", "comparison", "methodology", "playback",
+    "warnings", "floor-route", "kpi", "heatmap", "timeline",
+    "comparison", "methodology", "playback",
   ]) {
     assert.match(html, new RegExp(`data-module="${module}"`));
   }
@@ -45,6 +46,8 @@ test("one map and one loaded context compose the Report and full Player", () => 
   assert.equal(count(html, "data-maze-map"), 1);
   assert.equal(count(html, "data-report-map"), 1);
   assert.equal(count(html, 'data-report-context="analysis"'), 1);
+  assert.match(html, /data-toggle-map-access/);
+  assert.match(html, /data-warning-kind="stale-position"/);
   assert.doesNotMatch(html, /"polls"\s*:|MAP_TOKEN|value="[^"]*access/i);
 });
 

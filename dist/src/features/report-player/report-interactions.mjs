@@ -8,14 +8,22 @@
 import { downloadFile as browserDownload } from "../../adapters/download.mjs";
 import { assertReportResult } from "./result-loader.mjs";
 import { renderComparisonView } from "./comparison-view.mjs";
+import { bindReportFloor } from "./report-floor-controller.mjs";
 import { renderHeatmapView } from "./heatmap-view.mjs";
 import { renderKpiView } from "./kpi-view.mjs";
 import { createAnalysisExports, renderMethodologyView } from "./methodology-view.mjs";
 import { mountPlaybackView } from "./playback-view.mjs";
 import { bindReportModes } from "./report-mode-controller.mjs";
+import {
+  bindReportWarningActions,
+  renderReportWarnings,
+} from "./report-warning-view.mjs";
+
+export { renderPlayerFrame } from "./report-floor-controller.mjs";
 
 export function renderDynamicSections(state, candidates) {
   return {
+    warnings: renderReportWarnings(state.analysis),
     kpi: renderKpiView(state.analysis),
     heatmap: renderHeatmapView(state),
     comparison: renderComparisonView({
@@ -35,14 +43,13 @@ export function bindReportInteractions({
   downloadFile = browserDownload,
 }) {
   const loadedIds = new Set();
-  let floor = store.snapshot().meta.zLevels[0];
   let heatKind = "sticky";
   const status = root.querySelector("[data-report-status]");
   const floorInput = root.querySelector("[data-map-floor]");
-
-  floorInput.addEventListener("change", event => {
-    floor = Number(event.target.value);
-    surface.render({ floor });
+  const floor = bindReportFloor({
+    surface,
+    floorInput,
+    initialFloor: store.snapshot().meta.zLevels[0],
   });
   root.querySelectorAll("[data-map-heat]").forEach(button => {
     button.addEventListener("click", () => {
@@ -57,13 +64,7 @@ export function bindReportInteractions({
     result: store.snapshot().result,
     transportRoot: root.querySelector("[data-player-transport]"),
     onFrame: (frame, options) => {
-      floor = renderPlayerFrame({
-        floor,
-        floorInput,
-        frame,
-        options,
-        surface,
-      });
+      floor.renderFrame(frame, options);
     },
     onEvidenceFocus: (id, trigger) => surface.focusEvidence(id, trigger),
   });
@@ -76,7 +77,7 @@ export function bindReportInteractions({
     for (const [module, markup] of Object.entries(html)) {
       root.querySelector(`[data-module=${module}]`).innerHTML = markup;
     }
-    surface.render({ analysis: state.analysis, floor, heatKind });
+    surface.render({ analysis: state.analysis, heatKind });
     bindDynamic(state, remaining);
   }
 
@@ -97,6 +98,7 @@ export function bindReportInteractions({
         downloadFile(file.filename, file.content, file.mediaType);
       });
     });
+    bindReportWarningActions(root, options => modes.setMode("playback", options));
     const add = root.querySelector("[data-add-comparison]");
     add?.addEventListener("click", async () => {
       const id = root.querySelector("[data-comparison-result]").value;
@@ -119,22 +121,14 @@ export function bindReportInteractions({
   refresh();
   return Object.freeze({
     refresh,
-    destroy: modes.destroy,
+    destroy() {
+      floor.destroy();
+      modes.destroy();
+    },
     focusEvidence: modes.focusEvidence,
     seek: modes.seek,
     setMode: modes.setMode,
     get atMs() { return modes.atMs; },
     get mode() { return modes.mode; },
   });
-}
-
-export function renderPlayerFrame({ floor, floorInput, frame, options, surface }) {
-  let nextFloor = floor;
-  if (options.follow && Number.isFinite(frame.walker?.z)) {
-    nextFloor = frame.walker.z;
-    if (nextFloor !== floor) floorInput.value = String(nextFloor);
-    surface.followWalker(frame.walker);
-  }
-  surface.render({ frame, snap: options.snap, floor: nextFloor });
-  return nextFloor;
 }

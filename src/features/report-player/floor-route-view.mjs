@@ -36,5 +36,8 @@ export function renderFloorRouteView(result) {
       <button type="button" data-map-heat="sticky" class="active">Sticky heat</button>
       <button type="button" data-map-heat="accuracy">Accuracy heat</button>
       <button type="button" data-map-heat="none">Route only</button>
+      <span class="map-warning-legend">
+        <i aria-hidden="true"></i> Floor mismatch at inferred route position
+      </span>
     </div>`;
 }

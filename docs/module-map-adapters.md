@@ -9,14 +9,14 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - features 64/1843 T+ E appendPathFeatures, emptyFC, recentSourceFixes
 - geojson-layer-group 77/2367 T+ E createGeoJsonLayerGroup I features, map-layer-order
 - layer-styles 111/3387 T+ E createLayerStyles I @d/route-contract
-- layers 148/4322 T+ E createMapLayers I @d/route-contract, features, layer-styles, map-layer-order
+- layers 148/4337 T+ E createMapLayers I @d/route-contract, features, layer-styles, map-layer-order
 - map-camera-follow 60/2140 T+ E followMapPoint
 - map-geojson 80/2743 T+ E geoCircle, geoPath, geoPoint, validMapPoint
-- map-layer-order 17/691 T+ E AREA_EXTRUSION_LAYER_ID, addMapLayer
+- map-layer-order 24/988 T+ E AREA_EXTRUSION_LAYER_ID, BUILDING_EXTRUSION_LAYER_IDS, WALLS_EXTRUSION_LAYER_ID, addMapLayer
 - map-resize 16/724 T+ E resizeMapAfterLayout
-- mazemap-3d 56/1914 T+ E createMazeMap3dState
+- mazemap-3d 57/1990 T+ E createMazeMap3dState
 - mazemap-catalog 141/4695 T+ E describePoi, fetchCampusCatalog I mazemap-poi-position, mazemap-runtime
-- mazemap-controls 150/4344 T+ E createMapControls I @d/route-contract, camera-bearing, mazemap-runtime
+- mazemap-controls 149/4557 T+ E createMapControls I @d/route-contract, camera-bearing, mazemap-runtime
 - mazemap-errors 117/4628 T+ E MAP_LAUNCH_CLASSIFICATIONS, MazeMapLaunchError, classifyMazeMapLaunchError
 - mazemap-floor-control 39/1319 T+ E createMazeMapFloorControl
 - mazemap-launch 144/4524 T+ E campusForLaunch, createLoadedMazeMap, launchCenter, resolveLaunchContainer, waitForMazeMapLoad I mazemap-catalog, mazemap-errors
@@ -25,7 +25,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - mazemap-runtime 38/1032 T+ E errorMessage, normalizeCampusId, numericZ, waitForMapLoad
 - mazemap-sdk 78/2763 T+ E MAZEMAP_CSS_URL, MAZEMAP_JS_URL, loadMazemapSdk, resolveMazemapSdk
 - mazemap-shared-boundary 78/2384 T+ E createMazeMapSharedBoundary
-- mazemap 149/6145 T+ E createMazeMapAdapter
+- mazemap 146/6025 T+ E createMazeMapAdapter
   - I @d/route-contract, layers, map-resize, mazemap-3d, mazemap-controls, mazemap-errors, mazemap-floor-control, mazemap-launch, mazemap-queries,
     mazemap-runtime, mazemap-sdk, mazemap-shared-boundary, shared-map-layers
 - note-features 37/1262 T+ E notePointFeatures
@@ -35,8 +35,9 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - player-map-features 150/5779 T+ E buildPlayerFeatureCollections I map-geojson, note-features, player-fix-history, player-live-raw-fix
 - player-map-layers 53/1823 T+ E createPlayerMapLayers I evidence-interactions, geojson-layer-group, player-layer-definitions, player-map-features
 - report-map-layers 135/4162 T+ E createReportMapLayers I geojson-layer-group, map-layer-order, note-features
+- report-warning-map-layer 61/1827 T+ E createReportWarningMapLayer I geojson-layer-group
 - routing 41/1295 T+ E fetchLegGeoJSON, getPoi, getPoiAt
-- shared-map-layers 77/2381 T+ E createSharedMapLayers I map-camera-follow, player-map-layers, report-map-layers
+- shared-map-layers 86/2763 T+ E createSharedMapLayers I map-camera-follow, player-map-layers, report-map-layers, report-warning-map-layer
 ## positioning/
 - cloud 16/528 T+ E fetchCloudPosition
 - lipi 11/300 T+ E fetchLipiPosition

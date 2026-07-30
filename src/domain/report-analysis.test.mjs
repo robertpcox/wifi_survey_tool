@@ -30,6 +30,8 @@ test("sticky heat uses elapsed moving time and excludes planned dwell", () => {
   assert.equal(analysis.metrics.measuredSeconds, 16);
   assert.equal(analysis.metrics.movingSeconds, 12);
   assert.equal(analysis.metrics.stickySeconds, 8);
+  assert.equal(analysis.metrics.floorMismatchSeconds, 2);
+  assert.equal(analysis.metrics.floorMismatchPercent, 12.5);
   assert.equal(analysis.timeline.at(-1).pollId, "poll-8");
   assert.equal(
     analysis.heatmaps.sticky.flatMap(floor => floor.points)

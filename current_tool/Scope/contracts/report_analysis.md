@@ -10,6 +10,8 @@ The page runs in a desktop browser and first launches the actual MazeMap for the
 campus without a view token. Only a runtime access failure reveals the in-memory unlock
 prompt. SDK/network failure or declined access leaves a labelled schematic route fallback.
 Report and Player modes reuse the same map, result, meta block, and analysis context.
+One persistent Map access token control is reachable in both modes. Public launch comes first;
+a typed token stays in memory for the current tab and relaunches the same shared map.
 
 ## Checkpoint identity
 
@@ -63,7 +65,29 @@ and not inferred from the z-levels a run happens to contain.
 Display names come from the definition's z-level mapping, so a floor is never labelled
 by raw z-level alone.
 
+The MazeMap instance's current z-level is the geographic Report source of truth. Native floor
+changes update its selector and re-filter route, heat, notes, and warnings by recorded `z`.
+Fit, resize, thresholds, and mode changes never reset the floor. Only an explicit Report
+choice or Player Follow commands MazeMap; ordinary Report rendering observes it.
+
 Each view exposes threshold control, legend, summary, and location tooltip.
+
+## Observed warnings
+
+The Report places prominent, non-causal warnings above its map and summary.
+
+- **Stale / sticky position** uses the selected sticky threshold. It counts elapsed time
+  after a fix identity remains unchanged beyond that threshold while inferred ground truth
+  is moving. Planned dwell remains excluded.
+- **Floor level disconnect** means only that the reported fix z-level differs from inferred
+  route-ground-truth z-level. It is elapsed-time weighted across all measured intervals and
+  must not be described as a Wi-Fi, AP, RF, or roaming root cause.
+
+Each warning reports affected time, percentage, episode count, worst contiguous episode,
+and one deterministic representative poll/time. Floor mismatch retains the reported z-level
+but maps its warning marker at exact inferred ground-truth `[lng, lat, z]`. The marker and
+heat layers follow the active MazeMap floor. A warning action opens the shared Player at its
+representative moment without changing captured evidence.
 
 ## Comparison
 

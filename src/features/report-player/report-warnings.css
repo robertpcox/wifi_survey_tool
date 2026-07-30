@@ -1,0 +1,86 @@
+/* FEATURE:      Report evidence warnings
+ * SURFACE:      Stale-position and floor-disconnect warning cards
+ * WHY TOGETHER: Warning hierarchy, severity colors, and responsive metrics share one component.
+ * STATE:        Active and clear warning presentation
+ * RULES:        Meaning is carried by text and borders as well as color.
+ * PROVENANCE:   Scope/steps/05b_improve_report.md
+ */
+
+.report-warning-summary {
+  margin-bottom: 1rem;
+  padding: clamp(1rem, 2vw, 1.4rem);
+  border: 2px solid #b42318;
+  border-radius: 1rem;
+  background: #fff7f6;
+  box-shadow: 0 1rem 2.5rem rgb(180 35 24 / 12%);
+}
+
+.report-warning-summary > header h2 {
+  margin: 0;
+  color: #7a271a;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+}
+
+.report-warning-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.85rem;
+  margin-top: 1rem;
+}
+
+.report-warning-card {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem;
+  border: 2px solid #d92d20;
+  border-radius: 0.8rem;
+  background: white;
+}
+
+.report-warning-card.floor-mismatch {
+  border-color: #ea580c;
+  background: #fff8ed;
+}
+
+.report-warning-card > div > strong {
+  color: #b42318;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.report-warning-card.floor-mismatch > div > strong { color: #c2410c; }
+.report-warning-card p { margin: 0.35rem 0 0; }
+.report-warning-card dl {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.45rem;
+  margin: 0;
+}
+
+.report-warning-card dl div {
+  padding: 0.55rem;
+  border-radius: 0.45rem;
+  background: #fef3f2;
+}
+
+.report-warning-card.floor-mismatch dl div { background: #ffead5; }
+.report-warning-card .warning-evidence {
+  margin: 0;
+  color: #52677f;
+  font-size: 0.86rem;
+}
+.report-warning-card button { justify-self: start; }
+
+.report-warning-summary.is-clear {
+  border-color: #84c79a;
+  background: #f0fff4;
+  box-shadow: none;
+}
+
+.report-warning-summary.is-clear strong { color: #176b35; }
+
+@media (max-width: 620px) {
+  .report-warning-card dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .report-warning-card button { width: 100%; }
+}

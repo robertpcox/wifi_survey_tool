@@ -4,7 +4,6 @@
 // STATE:        Fake SDK map, catalog, marker, source, and token calls
 // RULES:        Credentialed behavior is preserved while failures use typed classifications.
 // PROVENANCE:   Scope/steps/05a_recast_player.md Creator/Runner preservation
-
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createMazeMapAdapter } from "./mazemap.mjs";
@@ -102,6 +101,9 @@ test("launch lazily loads the SDK and uses the selected campus catalog", async (
   assert.deepEqual(state.campusCalls, [777]);
   assert.deepEqual(state.floorsCalls, [777]);
   assert.deepEqual(state.buildingsCalls, [777]);
+  state.map.zLevel = 3;
+  const fitted = adapter.fitRoute({ stops: [{ lng: 170.5, lat: -45.8 }] });
+  assert.deepEqual([fitted, adapter.currentZLevel, state.map.zLevel], [true, 2, 3]);
 });
 test("describePoint caches catalogs and a 3D choice survives map relaunch", async () => {
   const state = mazemapHarness();
@@ -141,10 +143,8 @@ test("map errors and timeouts reject instead of leaving Engage hanging", async (
   );
   const stalled = mazemapHarness("stall");
   await assert.rejects(
-    createMazeMapAdapter({
-      Mazemap: stalled.Mazemap,
-      mapLoadTimeoutMs: 5,
-    }).launch("token"),
+    createMazeMapAdapter({ Mazemap: stalled.Mazemap, mapLoadTimeoutMs: 5 })
+      .launch("token"),
     error => error.classification === "timeout",
   );
 });

@@ -16,6 +16,15 @@ export async function exercisePlayerFollow(page) {
       .reduce((sum, source) => sum + source.updates, 0);
     if (!follow.checked) failures.push("Follow did not default on");
     if (!mapState.cameras.length) failures.push("Follow did not initially move camera");
+    const accessToggle = document.querySelector("[data-toggle-map-access]");
+    accessToggle.click();
+    const accessInput = document.querySelector("[data-map-access]");
+    accessInput.value = ["player", "runtime", "value"].join("-");
+    if (document.querySelector("[data-map-access-panel]").hidden || !accessInput.value) {
+      failures.push("Player could not open the shared map access token control");
+    }
+    accessInput.value = "";
+    accessToggle.click();
 
     const truthTimes = session.result.checkIns.map(item => Date.parse(item.at));
     if (truthTimes.length < 2) return [...failures, "Follow fixture lacks two walker moments"];

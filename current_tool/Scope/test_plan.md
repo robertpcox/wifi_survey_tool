@@ -40,8 +40,7 @@ Serving test, run against the real Nginx configuration and not only `http.server
 This catches the classic late failure: modules work locally and fail on the real host.
 
 ## Step 3 — Creator
-- customer and campus must Engage before authoring; optional private access stays memory-only
-  campus and reports SDK errors/timeouts
+- customer and campus must Engage before authoring; private access stays memory-only and reports SDK errors/timeouts
 - the successful campus launch is single-use: setup collapses and no Re-engage action remains
 - desktop layout keeps ordered routes left of a centre map that is larger than the route rail
 - first map choice shows click/POI-centre coordinates, auto-locks the plan, and commits before other metadata
@@ -121,7 +120,10 @@ Field acceptance, which no automated test replaces:
 
 ## Step 5b — smarter mapped Report
 
-- Matching runs stack deterministically; issue-to-map, evidence, export, and Player seek stay linked.
+- Matching runs stack deterministically and stay linked to map, export, and Player evidence.
+- Native floors drive Report z-filters through fit/resize/mode changes; Follow stays unchanged.
+- One memory-only map access-token control is reachable from both Report and Player.
+- Stale/sticky and floor-mismatch warnings use exact z-aware evidence and Player handoff.
 
 ## Risk register
 
@@ -132,8 +134,7 @@ Standing risks, rechecked every step rather than assumed closed.
 - **Manifest determinism.** A non-deterministic build makes every later diff untrustworthy.
 - **Module serving.** The deployed Nginx explicitly maps `.mjs`; the serving test proves it.
 - **Configuration activation.** Keep Nginx's `.mjs` mapping; verify live MIME after reload.
-- **Map runtime and storage.** Player prompts only on access denial. Real-SDK acceptance needs
-  network/WebGL and may create telemetry; reject app credential fields. Creator binds after load.
+- **Map runtime/storage.** Prompt only on denial; real-SDK telemetry must reject app credentials.
 - **Player map evidence.** Follow moves floor/camera; a wrong-floor raw fix remains visible.
 - **Proxy reachability.** Cloud polling needs the proxy CORS allowlist to match the served origin.
 - **Host access control.** Confirm field-device host access before release, not during a run.
@@ -144,7 +145,6 @@ Standing risks, rechecked every step rather than assumed closed.
 - **Definition timezone.** Keep the corrected Dunedin definitions on `Pacific/Auckland`.
 - **Header context debt.** The sorted Step 5 baseline defers legacy files; recover missing metadata and context before removal.
 - **Customer filtering.** Customer manifests and URLs are convenience, not authorization; use host control or separate artifacts.
-- **Sensitive artifact publishing.** `dist/` includes six physical field runs. A default build
-  syncs it to demo after success; use `--no-deploy` unless that publication is authorized.
+- **Sensitive publishing.** `dist/` has six field runs; use `--no-deploy` unless demo is authorized.
 - **Analysis interval semantics.** Fixture tests must cover repeated fixes, preflight, tails, dwell, and exact equality.
 - **Provider expansion.** LiPi and DNA Spaces need real redacted responses and the V3 contract, not legacy-shape reuse.

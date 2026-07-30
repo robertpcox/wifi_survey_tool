@@ -13,6 +13,7 @@ import { renderKpiView } from "./kpi-view.mjs";
 import { renderMapAccess } from "./map-access.mjs";
 import { renderMethodologyView } from "./methodology-view.mjs";
 import { renderPlaybackView } from "./playback-view.mjs";
+import { renderReportWarnings } from "./report-warning-view.mjs";
 import { renderTimelineView } from "./timeline-view.mjs";
 
 export function renderLoadPanel(message = "Choose a generated result or upload a v3 result file.") {
@@ -37,10 +38,17 @@ export function renderReportShell(state, candidates = []) {
         <button type="button" role="tab" aria-selected="false"
           data-report-view="playback">Player</button>
       </div>
-      <p data-report-status>One result · one analysis · one map</p>
+      <div class="report-toolbar-actions">
+        <p data-report-status>One result · one analysis · one map</p>
+        <button type="button" data-toggle-map-access aria-expanded="false"
+          aria-controls="report-map-access">
+          Map access token
+        </button>
+      </div>
     </div>
     <div data-report-context="analysis">
       ${renderIdentityView(result)}
+      <section data-module="warnings">${renderReportWarnings(analysis)}</section>
     </div>
     ${renderMapAccess(result)}
     <div class="shared-map-workspace" data-player-workspace>

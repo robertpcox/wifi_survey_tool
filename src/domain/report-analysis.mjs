@@ -13,7 +13,7 @@ import {
   reportQuantile,
   reportTruthOverlaps,
 } from "./report-samples.mjs";
-
+import { buildReportWarnings } from "./report-warnings.mjs";
 export const REPORT_THRESHOLDS = Object.freeze({
   stickySeconds: 5,
   accuracyM: 10,
@@ -73,6 +73,14 @@ export function analyzeReportResult(result, selected = REPORT_THRESHOLDS) {
   }
   const stickySeconds = heatWeight(sticky);
   const outsideAccuracySeconds = heatWeight(accuracy);
+  const warnings = buildReportWarnings({
+    timeline,
+    truth,
+    stoppedAtMs,
+    thresholds,
+    measuredSeconds,
+    movingSeconds,
+  });
   const errors = timeline.map(item => item.accuracyM).filter(Number.isFinite);
   const rtts = timeline.map(item => item.roundTripMs).filter(Number.isFinite);
   return {
@@ -86,10 +94,13 @@ export function analyzeReportResult(result, selected = REPORT_THRESHOLDS) {
       stickyPercent: percent(stickySeconds, movingSeconds),
       outsideAccuracySeconds: round(outsideAccuracySeconds),
       outsideAccuracyPercent: percent(outsideAccuracySeconds, measuredSeconds),
+      floorMismatchSeconds: warnings.floorMismatch.affectedSeconds,
+      floorMismatchPercent: warnings.floorMismatch.affectedPercent,
       medianAccuracyM: round(reportQuantile(errors, 0.5)),
       p95AccuracyM: round(reportQuantile(errors, 0.95)),
       medianRttMs: round(reportQuantile(rtts, 0.5)),
     },
+    warnings,
     timeline: timeline.map(publicReportSample),
     heatmaps: {
       sticky: [...sticky.values()],

@@ -2,23 +2,21 @@
 
 ## Current state
 
-Step 5a remains complete at `b8702fe`; no Step 5b grouping/ranking work has begun. Adjacent
-Runner notes have distinct frozen-route identity and hold exact Player truth only while shown.
+Step 5a remains complete. The field-correction slice of 5b is delivered; repeat-run
+grouping, ranking, and lineage exports have not begun.
 
-- Stop is isolated in the top checkpoint HUD; the bottom bar is one full-width checkpoint action.
-  Stop still finalizes the run/polling; Download or Clear removes evidence while preserving
-  entered device/band details, consent, and in-memory credentials.
-- A later survey selection stays idle; Preflight makes exactly one request; Go alone restarts continuous polling.
-- Runner alone opts into exact `threeD: { animateWalls: true, show3dAssets: true }`.
-  The safe on-demand toggle is display-only and survives map relaunches.
-- Runner route/active and Report heat sit below `mm-area-extrusion`; guidance and notes remain above.
-  Supported launches get a fresh 400px auto-updating floor bar at `middle-right`; others retain the default.
-- The final release build passed 520/520 tests plus size, header, import, schema, reference,
-  secrets, goldens, and generated module-map gates.
-- All four shells, Creator, two automated mobile Runner profiles, and four Report Player
-  scenarios passed. The mobile profiles do not replace physical Android field acceptance.
-- Manifests contain six surveys and six field results (five completed, one aborted); `dist/`
-  has 214 files. Source `ccfa610` and demo `084a8fe` are pushed; live HTML/CSS return 200.
+- Native MazeMap z-level is authoritative for Report filters and its named selector.
+  Route fitting is camera-only, and resize, threshold, and mode changes preserve the floor.
+- Explicit Report selection and Player Follow still command the map; Follow-off does not.
+- One persistent optional access-token control works from Report and full-screen Player.
+  It submits only in memory, clears its input, announces status, and restores toggle focus.
+- Prominent stale/sticky and floor-disconnect cards expose elapsed time, percentage,
+  episodes, worst duration, representative poll/time, and exact Player handoff.
+- Floor-warning geometry stays at inferred route `[lng, lat, z]` and retains reported z.
+- The 30 July field result is in customer 292's manifest with named z-levels 1–4.
+  It records 4302.905 s stale/sticky and 436.984 s reported-floor mismatch evidence.
+- Final validation passed 552/552 tests and all shell, Creator, two mobile Runner, and four
+  Report Player Chrome scenarios. Physical Android acceptance remains separate.
 - Routes 1a and 1b use different revision IDs but exact hash `69d2c5f11ffe…`, proving why
   survey family, immutable revision, and exact-route cohort are separate identities.
 - The old private field input was removed; its reviewed route-truth golden remains a receipt
@@ -43,15 +41,15 @@ mutate captured evidence, add a second map, or begin Step 6. Stop at the 5b resp
 `src/adapters/map/mazemap.mjs` exports `createMazeMapAdapter(options)`. The returned adapter
 provides:
 
-- `launch`, `resizeMapSoon`, `fitRoute`, and `setMapZLevel`
+- `launch`, `resizeMapSoon`, camera-only `fitRoute`, and observed/commanded floor APIs
 - `drawReportHeat(kind, analysis, floor)` and `drawPlayerFrame(frame, snap)`
 - `setViewMode(mode)`, `disablePlayerLayers()`, and `followWalker(walker)`
 - `onEvidenceSelect(callback)`, `focusEvidence(pollId, trigger)`, `set3dEnabled(enabled)`,
   and read-only `threeDEnabled`
 
 `src/features/report-player/map-surface.mjs` exports `createReportMapSurface(options)`. Its
-single surface provides `start`, `retryAccess`, `render`, `setViewMode`, `settleLayout`,
-`onEvidenceSelect`, and `focusEvidence`.
+single surface provides launch/retry, render/mode/layout, floor subscription, evidence focus,
+cleanup, and the current observed floor.
 
 `mountReportPlayer()` returns one `{result, meta, store, surface, player, mapReady}` session.
 Its `player` facade provides `setMode`, `seek`, `focusEvidence`, `mode`, and `atMs`.
@@ -68,11 +66,13 @@ explicitly defines a non-secret query contract.
 - Only structured map-load 401/403 evidence reveals access UI. SDK, network, timeout, tile,
   generic, and unknown failures stay prompt-free and use the labelled route fallback.
 - Submitted map access is memory-only and retry reuses the same adapter lifecycle.
+- Its toolbar control remains reachable in both modes; public launch still comes first.
 - MazeMap 3D options are omitted unless a caller supplies them; Report/Player therefore
   retains its existing 2D constructor and capture evidence never contains view state.
 - Optional overlay anchors use guarded two-argument `addLayer`; a missing SDK anchor falls
   back to append. Route/active and Report heat use `mm-area-extrusion`; guidance and notes do not.
 - Route, truth, fixes, heat, pair connectors, and snap overlays keep exact `[lng, lat]` and z.
+- Report stale/floor warnings are elapsed, non-causal observations with visible evidence links.
 - Follow tracks walker floor and pans only outside the inner 15% viewport; disabling it stops
   camera writes without stopping the Player clock or frame writes.
 - A wrong-floor raw fix stays visible at exact coordinates beside the walker while preserving
@@ -100,10 +100,10 @@ the maximum reviewed route-truth shift is 0.163 m.
 ## Current ownership
 
 - Truth/playback/snap: `src/domain/report-{ground-truth,playback,snap}.mjs` and focused helpers.
-- Provider map boundary: `src/adapters/map/mazemap.mjs`, `shared-map-layers.mjs`,
-  `report-map-layers.mjs`, `player-map-layers.mjs`, and `evidence-interactions.mjs`.
+- Provider map boundary: `mazemap.mjs`, `shared-map-layers.mjs`, Report warning/map layers,
+  Player map layers, and `evidence-interactions.mjs`.
 - Player composition: `src/features/report-player/report-player.mjs`,
-  `report-interactions.mjs`, `report-mode-controller.mjs`, and `map-surface.mjs`.
+  floor sync/controller, warning view, interactions, mode controller, and map surface.
 - Player UI: `player-{transport,evidence-view,evidence-detail,charts}.mjs` and the three
   focused Player/map stylesheets.
 - Note capture/validation: `src/features/survey-runner/note-{capture,controller,view}.mjs`,
@@ -119,7 +119,7 @@ browser-storage audit.
   It deliberately uploads only the synthetic fixture, not the authorized physical result.
 - The provider SDK may create its own telemetry storage. Acceptance separately rejects app
   credential fields; source, staged output, URLs, results, and app storage remain clean.
-- `dist/` contains six field results already authorized for the configured public demo.
+- `dist/` contains seven field results already authorized for the configured public demo.
   A plain build synchronizes them and the new patch; `--no-deploy` remains validation-only.
 - `surveyFamilyId`, lineage sidecar projection, and reviewed-exception consumption are
   contracted but not implemented. Legacy resolution falls back to `surveyId`.

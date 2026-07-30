@@ -34,27 +34,34 @@ test("public denial retries on one observed adapter then resizes and fits", asyn
         promptForAccess: true,
       });
     }
-  });
+  }, { floor: 1 });
   const elements = mapElements();
   const surface = createReportMapSurface({
     result,
     ...elements,
     createMap: () => { creations += 1; return adapter; },
     ResizeObserverRef: FakeResizeObserver,
-    requestFrame: callback => callback(),
   });
+  const floors = [];
+  const unsubscribe = surface.onFloorChange(value => floors.push(value));
   const denied = await surface.start();
   assert.equal(denied.status, "access-denied");
   assert.deepEqual(calls[0], ["observe", elements.mapElement.parentElement]);
   const ready = await surface.retryAccess("typed-at-runtime");
   assert.equal(ready.status, "ready");
   assert.equal(creations, 1);
-  assert.deepEqual(calls.filter(call => call[0] === "launch").map(call => call[1]), [
-    null,
-    "typed-at-runtime",
-  ]);
-  assert.equal(elements.mapElement.hidden, false);
+  assert.deepEqual(
+    calls.filter(call => call[0] === "launch").map(call => call[1]),
+    [null, "typed-at-runtime"],
+  );
   assert.equal(elements.fallbackElement.hidden, true);
+  assert.equal(surface.floor, 1);
+  assert.deepEqual(floors, [1]);
+  assert.deepEqual(calls.filter(call => call[0] === "floor"), []);
+  const heatBefore = calls.filter(call => call[0] === "heat").length;
+  adapter.changeMapFloor(0);
+  assert.equal(surface.floor, 0);
+  assert.equal(calls.filter(call => call[0] === "heat").length, heatBefore + 1);
   surface.setViewMode("playback");
   surface.followWalker({ lng: 170.5, lat: -45.87, z: 1 });
   assert.ok(calls.some(call => call[0] === "follow" && call[1].z === 1));
@@ -62,8 +69,10 @@ test("public denial retries on one observed adapter then resizes and fits", asyn
   assert.ok(calls.some(call => call[0] === "fit" && call[1] === result.route));
   await observer.callback();
   assert.ok(calls.filter(call => call[0] === "fit").length >= 2);
+  unsubscribe();
   surface.destroy();
   assert.ok(calls.some(call => call[0] === "disconnect"));
+  assert.ok(calls.some(call => call[0] === "stop-floor-watch"));
 });
 
 test("generic launch failure labels and draws the route fallback", async () => {
@@ -76,7 +85,6 @@ test("generic launch failure labels and draws the route fallback", async () => {
       throw new TypeError("SDK unavailable");
     }),
     ResizeObserverRef: null,
-    requestFrame: callback => callback(),
   });
   const outcome = await surface.start();
   assert.equal(outcome.status, "fallback");
@@ -87,9 +95,15 @@ test("generic launch failure labels and draws the route fallback", async () => {
   assert.ok(elements.canvas.contextCalls.includes("clearRect"));
 });
 
-function fakeAdapter(calls, launch) {
-  return {
+function fakeAdapter(calls, launch, { floor = result.meta.zLevels[0] } = {}) {
+  let currentFloor = floor;
+  let floorCallback = null;
+  const adapter = {
     launch,
+    changeMapFloor(value) {
+      currentFloor = value;
+      floorCallback?.(value);
+    },
     drawRoute: value => calls.push(["route", value]),
     drawStops: value => calls.push(["stops", value]),
     drawWaypoints: value => calls.push(["waypoints", value]),
@@ -98,10 +112,24 @@ function fakeAdapter(calls, launch) {
     disablePlayerLayers: () => calls.push(["disable-player"]),
     followWalker: value => calls.push(["follow", value]),
     fitRoute: value => calls.push(["fit", value]),
+    getMapZLevel: () => currentFloor,
     resizeMapSoon: () => calls.push(["resize"]),
-    setMapZLevel: value => calls.push(["floor", value]),
+    setMapZLevel: value => {
+      currentFloor = value;
+      calls.push(["floor", value]);
+    },
     setViewMode: value => calls.push(["mode", value]),
+    startZWatch(callback) {
+      floorCallback = callback;
+      calls.push(["start-floor-watch"]);
+      return () => {
+        floorCallback = null;
+        calls.push(["stop-floor-watch"]);
+      };
+    },
+    get currentZLevel() { return currentFloor; },
   };
+  return adapter;
 }
 
 function mapElements() {

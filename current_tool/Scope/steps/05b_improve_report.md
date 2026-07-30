@@ -23,24 +23,18 @@ and recurrence. Do not claim an RSSI, RF, AP, roaming, or Wi-Fi root cause witho
 
 ## Delivered Step 5a boundary
 
-- `src/adapters/map/mazemap.mjs` exports `createMazeMapAdapter()`. Its returned adapter owns
-  `drawReportHeat`, `drawPlayerFrame`, `setViewMode`, `disablePlayerLayers`,
-  `followWalker`, `onEvidenceSelect`, `focusEvidence`, `resizeMapSoon`, `fitRoute`, floor selection, and optional `set3dEnabled`/`threeDEnabled`.
+- `createMazeMapAdapter()` owns Report/Player drawing, modes, Follow, evidence focus,
+  layout, floor selection, and optional 3D state.
 - `src/features/report-player/map-surface.mjs` exports `createReportMapSurface()`. Its one
-  surface owns `start`, `retryAccess`, `render`, `setViewMode`, `settleLayout`, `followWalker`,
-  and evidence selection.
+  surface owns launch/retry, rendering, modes, layout, Follow, and evidence selection.
 - `mountReportPlayer()` returns one `{result, meta, store, surface, player, mapReady}` session.
-  `session.player` exposes `setMode`, `seek`, `focusEvidence`, `mode`, and `atMs`.
-- Enter with `player.setMode("playback", {atMs, pollId})`; `atMs` is absolute Unix epoch
-  milliseconds and clamps to the run. No URL time/poll link exists; returning preserves time.
+  Enter with `player.setMode("playback", {atMs, pollId})`; absolute `atMs` clamps to the run,
+  no URL time/poll link exists, and returning preserves time.
 - Truth/playback owners are `report-ground-truth.mjs`, `report-playback.mjs`, and
   `report-snap.mjs`; captured fixes remain immutable.
-- Fixtures are `data/fixtures/report-player/result.fixture.v3.json`,
-  `data/fixtures/report-player/route-turns.fixture.v3.json`,
-  `data/fixtures/report-player/route-truth-analysis.golden.json`, and
+- Fixtures live in `data/fixtures/report-player/`, plus
   `data/fixtures/map/mazemap-launch-errors.fixture.json`.
-- Focused checks: `node --test src/domain/report-*.test.mjs`,
-  `node --test src/adapters/map/*.test.mjs`, and
+- Focused checks: `node --test src/domain/report-*.test.mjs src/adapters/map/*.test.mjs` and
   `node --test src/features/report-player/*.test.mjs src/apps/report-player/*.test.mjs tools/report_player*.test.mjs`.
 - Final checks use `node tools/build.mjs --no-deploy`; an authorized `node tools/build.mjs` syncs demo.
 - The networked synthetic-only smoke remains `node tools/report_player_actual_sdk_smoke.mjs dist`.
@@ -74,7 +68,11 @@ Use native MazeMap/Mapbox GeoJSON sources and layers for:
 - selected issue interval and its supporting samples
 
 Heat uses the existing `weightSeconds`, is filtered by z-level, and updates with thresholds.
-Provide a non-map issue list and location details for accessibility.
+Provide a non-map issue list and location details for accessibility. Before recurrence work:
+
+- native MazeMap floors drive Report filters and its named selector; fit/resize never reset it
+- a shared, memory-only MazeMap access-token control remains reachable in Report and Player
+- stale/sticky and floor-disconnect warnings show elapsed severity and open Player evidence
 
 ## Repeat-run stacking
 
@@ -142,9 +140,11 @@ Exports describe analysis; they never alter or re-export captured fixes as corre
 - Public/no-token mode works; access is requested only after a real access failure.
 - JSON/CSV exports are deterministic and reproduce each issue area's inputs.
 - Existing Dashboard, upload, comparison, secret, schema, and build gates remain green.
+- Native floors survive layout settle; both modes expose one memory-only map access control.
+- Stale/sticky and floor-disconnect warnings match elapsed evidence and link to Player.
 - `node tools/build.mjs --no-deploy` passes with zero skips; authorized `node tools/build.mjs` syncs demo.
 
 ## Respawn boundary
 
-On completion, rewrite the handover with the actual Report owners and return to the explicitly
-assigned downstream step. Do not start a Step 6 backlog item without authorization.
+On completion, rewrite the handover with actual Report owners and return to the assigned
+downstream step; do not start Step 6 without authorization.

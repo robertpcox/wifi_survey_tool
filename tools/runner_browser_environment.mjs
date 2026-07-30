@@ -20,12 +20,10 @@ export async function installRunnerBrowserEnvironment(
 }
 
 function installBrowserDoubles() {
-  class Source {
-    setData(data) { this.data = data; }
-  }
+  class Source { setData(data) { this.data = data; } }
   class MapStub {
     constructor(options) {
-      this.layers = new Map();
+      this.layers = new Map([["mm-area-extrusion", { id: "mm-area-extrusion" }]]);
       this.options = options;
       this.sources = new Map();
       this.zLevel = 1;
@@ -41,8 +39,19 @@ function installBrowserDoubles() {
     }
     addSource(id) { this.sources.set(id, new Source()); }
     getSource(id) { return this.sources.get(id); }
-    addLayer(layer) { this.layers.set(layer.id, layer); }
+    addLayer(layer, beforeLayerId) {
+      this.layers.set(layer.id, layer);
+      window.__runnerLayerPlacements = {
+        ...(window.__runnerLayerPlacements || {}),
+        [layer.id]: beforeLayerId ?? null,
+      };
+    }
     getLayer(id) { return this.layers.get(id); }
+    addControl(control, placement) {
+      window.__runnerFloorControls = [...(window.__runnerFloorControls || []), {
+        options: structuredClone(control.options), placement,
+      }];
+    }
     getZLevel() { return this.zLevel; }
     setZLevel(value) {
       this.zLevel = value;
@@ -102,14 +111,14 @@ function installBrowserDoubles() {
       window.__runnerMarkerRemoveCount = (window.__runnerMarkerRemoveCount || 0) + 1;
     }
   }
+  class ZLevelBarControl { constructor(options) { this.options = options; } }
   window.Mazemap = {
-    Config: {
-      setMazemapViewToken(value) {
-        window.__runnerMapAccessUsed = Boolean(value);
-      },
-    },
+    Config: { setMazemapViewToken(value) {
+      window.__runnerMapAccessUsed = Boolean(value);
+    } },
     Map: MapStub,
     MazeMarker: Marker,
+    ZLevelBarControl,
     Data: {
       async getCampus(id) {
         return {

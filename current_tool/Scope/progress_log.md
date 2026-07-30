@@ -1,14 +1,19 @@
 # Progress log — newest entry first
 
-## 2026-07-30 — Runner stop/clear lifecycle and 3D display validated
+## 2026-07-30 — Runner lifecycle, 3D stacking, and floor control validated
 
 - Stop now finalizes the run and continuous polling; Download or destructive Clear resolves the stopped capture.
 - Resolution clears capture/map evidence while preserving entered device/band details, consent, and in-memory credentials.
 - Survey selection remains idle; Preflight makes exactly one request, and Go alone restarts continuous polling.
 - Runner alone opts into exact `threeD: { animateWalls: true, show3dAssets: true }` with a safe display-only toggle.
-- The final build passed 510/510 tests and all size/header/import/schema/reference/secrets/goldens/module-map gates.
+- Route/active lines and Report heat now sit below `mm-area-extrusion`; Runner guidance and
+  Report notes remain above.
+- Every supported Runner launch gets an exact middle-right 400px auto-updating floor bar;
+  unsupported SDKs retain the default control.
+- The final build passed 519/519 tests and all size/header/import/schema/reference/secrets/goldens/module-map gates.
 - Four shells, Creator, two mobile Runner profiles, and four Player scenarios passed; physical Android remains pending.
-- Source `3e63487` and demo `4e89c06` are pushed; the live Runner and new 3D modules return 200.
+- The prior source `3e63487` and demo `4e89c06` are pushed; the current 214-file patch is
+  release-validated and pending publication.
 
 ## 2026-07-29 — Frozen-route notes and replacement field set validated
 

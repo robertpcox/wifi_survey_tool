@@ -1,6 +1,7 @@
 import { MAP_STYLE, MAP_TRAIL_FIX_LIMIT } from "../../domain/route-contract.mjs";
 import { appendPathFeatures, emptyFC, recentSourceFixes } from "./features.mjs";
 import { createLayerStyles } from "./layer-styles.mjs";
+import { addMapLayer, AREA_EXTRUSION_LAYER_ID } from "./map-layer-order.mjs";
 
 export function createMapLayers(map, getCurrentZLevel) {
   const styles = createLayerStyles(getCurrentZLevel);
@@ -11,7 +12,7 @@ export function createMapLayers(map, getCurrentZLevel) {
   function ensureLayers() {
     addLayer("route-lines", "line", {
       ...styles.route,
-    }, { "line-join": "round", "line-cap": "round" });
+    }, { "line-join": "round", "line-cap": "round" }, AREA_EXTRUSION_LAYER_ID);
     addActiveLeg();
     addLayer("cloud-trail", "line", styles.trail(MAP_STYLE.cloud));
     addLayer("lipi-trail", "line", styles.trail(MAP_STYLE.lipi));
@@ -21,25 +22,29 @@ export function createMapLayers(map, getCurrentZLevel) {
     addLayer("stop-pts", "circle", styles.stop);
   }
 
-  function addLayer(id, type, paint, layout = {}) {
+  function addLayer(id, type, paint, layout = {}, beforeLayerId) {
     if (!map.getSource(id)) {
       map.addSource(id, { type: "geojson", data: emptyFC() });
     }
     if (!map.getLayer(`${id}-lyr`)) {
-      map.addLayer({ id: `${id}-lyr`, type, source: id, paint, layout });
+      addMapLayer(
+        map,
+        { id: `${id}-lyr`, type, source: id, paint, layout },
+        beforeLayerId,
+      );
     }
   }
 
   function addActiveLeg() {
     if (map.getLayer("route-active-lyr")) return;
-    map.addLayer({
+    addMapLayer(map, {
       id: "route-active-lyr",
       type: "line",
       source: "route-lines",
       layout: { "line-join": "round", "line-cap": "round" },
       paint: styles.activeRoute,
       filter: ["==", ["get", "legIdx"], -1],
-    });
+    }, AREA_EXTRUSION_LAYER_ID);
   }
 
   function drawRoute(legs) {

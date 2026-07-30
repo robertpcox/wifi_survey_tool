@@ -6,6 +6,7 @@
 // PROVENANCE:   Scope/steps/05a_recast_player.md MazeMap adapter contract
 import { CAMPUS_ID } from "../../domain/route-contract.mjs";
 import { createMazeMap3dState } from "./mazemap-3d.mjs";
+import { createMazeMapFloorControl } from "./mazemap-floor-control.mjs";
 import { createMapLayers } from "./layers.mjs";
 import { createMapControls } from "./mazemap-controls.mjs";
 import { classifyMazeMapLaunchError } from "./mazemap-errors.mjs";
@@ -28,6 +29,7 @@ export function createMazeMapAdapter(options = {}) {
   let activeCatalog = { buildings: [], floors: [] };
   const catalogCaches = { public: new Map(), token: new Map() };
   const threeD = createMazeMap3dState(options.threeD, options.threeDPitch);
+  const floorControl = createMazeMapFloorControl(options.floorControl);
   const controls = createMapControls({
     currentZ: () => currentZLevel,
     focusPitch: () => threeD.pitch,
@@ -79,12 +81,11 @@ export function createMazeMapAdapter(options = {}) {
       layers = null;
       sharedLayers = null;
       phase = "map-load";
-      map = await createLoadedMazeMap(
-        sdk,
-        threeD.mapOptions(container, campusId, activeCatalog.center),
-        options.mapLoadTimeoutMs ?? 10000,
-      );
+      const mapOptions = threeD.mapOptions(container, campusId, activeCatalog.center);
+      map = await createLoadedMazeMap(sdk,
+        floorControl.mapOptions(sdk, mapOptions), options.mapLoadTimeoutMs ?? 10000);
       threeD.apply(map);
+      floorControl.attach(sdk, map);
       currentZLevel = numericZ(controls.getMapZLevel()) ?? 1;
       phase = "layer-init";
       layers = createMapLayers(map, () => currentZLevel);

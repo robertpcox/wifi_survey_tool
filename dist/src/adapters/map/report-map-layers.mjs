@@ -6,6 +6,7 @@
 // PROVENANCE:   Scope/contracts/report_analysis.md shared-map heat contract
 
 import { createGeoJsonLayerGroup } from "./geojson-layer-group.mjs";
+import { AREA_EXTRUSION_LAYER_ID } from "./map-layer-order.mjs";
 import { notePointFeatures } from "./note-features.mjs";
 
 const KINDS = ["sticky", "accuracy"];
@@ -25,6 +26,7 @@ export function createReportMapLayers(map, currentFloor) {
     source: `report-${kind}-heat`,
     type: "heatmap",
     paint: heatPaint(),
+    beforeLayerId: AREA_EXTRUSION_LAYER_ID,
   })).concat([{
     id: "report-notes-lyr",
     source: "report-notes",

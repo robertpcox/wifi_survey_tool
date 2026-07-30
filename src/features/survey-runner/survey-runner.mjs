@@ -16,7 +16,7 @@ export function mountSurveyRunner(options = {}) {
   const credentials = options.credentials ?? createMemoryCredentialStore();
   const formView = options.formView ?? createRunnerFormView(documentRef);
   const runView = options.runView ?? createRunnerRunView(documentRef);
-  const mapAdapter = options.mapAdapter ?? createMazeMapAdapter({ container: "runner-map", threeD: RUNNER_THREE_D });
+  const mapAdapter = options.mapAdapter ?? createMazeMapAdapter({ container: "runner-map", floorControl: true, threeD: RUNNER_THREE_D });
   mountRunnerMap3dToggle(documentRef, mapAdapter);
   const source = options.source ?? createMazeMapCloudSource(options);
   const nowDate = options.nowDate ?? (() => new Date());

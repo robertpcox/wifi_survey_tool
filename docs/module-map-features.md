@@ -116,6 +116,6 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - runner-note.css 61/1467 T-
 - runner.css 149/4528 T+
 - setup 149/4392 T+ E createRunnerSetup I entry, loader, poll-loop, preflight
-- survey-runner 150/5629 T+ E RUNNER_THREE_D, mountSurveyRunner
+- survey-runner 150/5649 T+ E RUNNER_THREE_D, mountSurveyRunner
   - I @a/map/mazemap, @a/memory-credentials, @a/positioning/mazemap-cloud-v3, active-run, form-view, map-3d-toggle, note-controller, preflight,
     result-download, result-upload, run-view, setup

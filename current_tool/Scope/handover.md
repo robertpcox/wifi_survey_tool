@@ -2,10 +2,8 @@
 
 ## Current state
 
-Step 5a remains complete at `b8702fe`; no Step 5b grouping/ranking work has begun.
-The adjacent Runner note correction is complete: a note has distinct evidence identity and
-a typed anchor into the frozen route. Player holds its walker only for the note timestamps
-at exact captured ground truth; it never reroutes or invents a checkpoint.
+Step 5a remains complete at `b8702fe`; no Step 5b grouping/ranking work has begun. Adjacent
+Runner notes have distinct frozen-route identity and hold exact Player truth only while shown.
 
 - The adjacent Runner patch is validated: Stop finalizes the run and polling; Download or
   destructive Clear then removes capture/map evidence while preserving entered device/band
@@ -13,12 +11,14 @@ at exact captured ground truth; it never reroutes or invents a checkpoint.
 - A later survey selection stays idle; Preflight makes exactly one request; Go alone restarts continuous polling.
 - Runner alone opts into exact `threeD: { animateWalls: true, show3dAssets: true }`.
   The safe on-demand toggle is display-only and survives map relaunches.
-- The final release build passed 510/510 tests plus size, header, import, schema, reference,
+- Runner route/active and Report heat sit below `mm-area-extrusion`; guidance and notes remain above.
+  Supported launches get a fresh 400px auto-updating floor bar at `middle-right`; others retain the default.
+- The final release build passed 519/519 tests plus size, header, import, schema, reference,
   secrets, goldens, and generated module-map gates.
 - All four shells, Creator, two automated mobile Runner profiles, and four Report Player
   scenarios passed. The mobile profiles do not replace physical Android field acceptance.
-- Manifests contain six surveys and six field results (five completed, one aborted) for one customer;
-  `dist/` has 212 files. Source `3e63487` and demo `4e89c06` are pushed; live files return 200.
+- Manifests contain six surveys and six field results (five completed, one aborted); `dist/`
+  has 214 files. Prior source `3e63487` and demo `4e89c06` are pushed; this patch awaits publication.
 - Routes 1a and 1b use different revision IDs but exact hash `69d2c5f11ffe…`, proving why
   survey family, immutable revision, and exact-route cohort are separate identities.
 - The old private field input was removed; its reviewed route-truth golden remains a receipt
@@ -70,6 +70,8 @@ explicitly defines a non-secret query contract.
 - Submitted map access is memory-only and retry reuses the same adapter lifecycle.
 - MazeMap 3D options are omitted unless a caller supplies them; Report/Player therefore
   retains its existing 2D constructor and capture evidence never contains view state.
+- Optional overlay anchors use guarded two-argument `addLayer`; a missing SDK anchor falls
+  back to append. Route/active and Report heat use `mm-area-extrusion`; guidance and notes do not.
 - Route, truth, fixes, heat, pair connectors, and snap overlays keep exact `[lng, lat]` and z.
 - Follow tracks walker floor and pans only outside the inner 15% viewport; disabling it stops
   camera writes without stopping the Player clock or frame writes.
@@ -106,8 +108,7 @@ the maximum reviewed route-truth shift is 0.163 m.
   focused Player/map stylesheets.
 - Note capture/validation: `src/features/survey-runner/note-{capture,controller,view}.mjs`,
   `src/domain/capture-note-v3.mjs`, and `src/adapters/map/note-features.mjs`.
-- Browser acceptance: `tools/report_player_browser_*.mjs` and
-  `tools/report_player_actual_sdk_smoke.mjs`.
+- Browser acceptance: `tools/report_player_browser_*.mjs` and `tools/report_player_actual_sdk_smoke.mjs`.
 
 ## Known constraints, remaining defects, and adjacent changes
 
@@ -146,5 +147,4 @@ node tools/report_player_actual_sdk_smoke.mjs dist
 node tools/build.mjs --no-deploy
 ```
 
-The two browser commands and full build need permission to open local test servers. The
-actual-SDK command is separate networked acceptance. An authorized plain build also syncs demo.
+Browser/full-build commands need local servers; actual-SDK is networked. An authorized plain build syncs demo.

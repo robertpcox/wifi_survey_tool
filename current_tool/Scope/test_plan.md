@@ -72,6 +72,9 @@ Runner tests:
 
 - poll starts honor cadence when RTT permits and never overlap overruns; dwell has no default
 - map/selection fit the route; Go is no-scroll; exact `threeD: { animateWalls: true, show3dAssets: true }` toggles as view-only state
+- every supported Runner map launch suppresses the default floor selector and attaches exact
+  `{ autoUpdate: true, maxHeight: 400 }` at `middle-right`; unsupported SDKs retain the default
+- route and active-leg lines sit below `mm-area-extrusion`; checkpoint/stop guidance remains above
 - checkpoint progression keeps the target lit, north-up, named, distance- and floor-labelled
 - Stop ends the run and continuous polling; finish offers Download or destructive Clear and locks survey switching
 - Download/Clear resets evidence but preserves device/band details and credentials; selection stays idle, Preflight polls once, and only Go restarts polling
@@ -109,7 +112,8 @@ Field acceptance, which no automated test replaces:
 
 - Recorded errors distinguish access denial from prompt-free unknown/network failures.
 - One resized map is reused; leaving Player pauses and disables its layers without another fetch.
-- Exact GeoJSON Report heat filters by floor and never leaks into active Player layers.
+- Exact GeoJSON Report heat filters by floor, sits below `mm-area-extrusion`, and never leaks
+  into active Player layers; report notes remain above the extrusion.
 - In-flight rings, red failures, and changed-fix pairs obey the persistent poll-map contract.
 - Shared route truth follows turns/dwell and produces reviewed before/after analysis goldens.
 - Snap accepts/rejects by radius, active interval, and floor without changing raw fix or export.
@@ -133,11 +137,9 @@ Standing risks, rechecked every step rather than assumed closed.
 - **Player map evidence.** Follow moves floor/camera; a wrong-floor raw fix remains visible.
 - **Proxy reachability.** Cloud polling needs the proxy CORS allowlist to match the served origin.
 - **Host access control.** Confirm field-device host access before release, not during a run.
-- **Mobile behavior.** Only field acceptance covers it.
 - **Geolocation permission.** Verify GPS permissions policy on the served host, not only locally.
 - **Preflight honesty.** Each verdict keeps a test so thresholds cannot drift into always-green.
 - **Floor naming.** Confirm the explicit mapping against a real campus; never derive it arithmetically.
-- **Heatmap floor separation.** Heat layers blend floors unless filtered per z-level.
 - **Field-device acceptance.** Chrome proves responsive UI, not radio, map, battery, or proxy; both devices remain required.
 - **Definition timezone.** Keep the corrected Dunedin definitions on `Pacific/Auckland`.
 - **Header context debt.** The sorted Step 5 baseline defers legacy files; recover missing metadata and context before removal.
@@ -146,5 +148,3 @@ Standing risks, rechecked every step rather than assumed closed.
   syncs it to demo after success; use `--no-deploy` unless that publication is authorized.
 - **Analysis interval semantics.** Fixture tests must cover repeated fixes, preflight, tails, dwell, and exact equality.
 - **Provider expansion.** LiPi and DNA Spaces need real redacted responses and the V3 contract, not legacy-shape reuse.
-
-Append newly discovered risks here as they are found.

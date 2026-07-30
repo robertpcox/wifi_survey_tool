@@ -121,6 +121,9 @@ the result. Starting on amber or red requires an explicit acknowledgement and is
 - In-tab device/band details and memory credentials survive; Preflight is the next single request.
 - Continuous polling resumes only on Go; refresh loses credentials; Stop aborts and End completes.
 - Runner map constructor gets exact `threeD: { animateWalls: true, show3dAssets: true }`; its on-demand toggle never mutates route/result evidence.
+- Supported maps replace the default floor selector with a 400px auto-updating bar at `middle-right`.
+- Route and active-leg lines insert below `mm-area-extrusion`; checkpoint, stop, trail, and
+  current-position guidance remain above the building extrusion.
 
 ## Performance
 
@@ -132,7 +135,8 @@ the result. Starting on amber or red requires an explicit acknowledgement and is
 
 ## Gates
 
-- iPhone and Android acceptance completes, stops, clears, selects, preflights, reruns, and toggles 3D.
+- iPhone and Android acceptance completes, stops, clears, selects, preflights, reruns, toggles
+  3D, reaches the middle-right floor control, and sees route lines below the 3D buildings.
 - Aborted and completed exports pass the v3 result validator.
 - Every export carries device type, operating system, name, Client IP, and band.
 - The comment prompt never blocks or delays the export, on either completion path.
@@ -144,7 +148,3 @@ the result. Starting on amber or red requires an explicit acknowledgement and is
 - Raw payload, normalized fix, HTTP status, and round-trip timing are present.
 - No secret appears in exported JSON or browser persistence.
 - Result can be loaded by a minimal validation viewer.
-
-## Downstream addition
-
-Update Step 5 with actual result, fixture, manifest, map, and analysis paths; confirm unchanged meta propagation and mark the field release.

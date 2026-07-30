@@ -71,13 +71,35 @@ test("heat selection toggles stable layers without adding sources again", () => 
   assert.equal(harness.visibility.get("report-accuracy-heat-lyr"), "none");
 });
 
-function mapHarness() {
+test("heat sits below area extrusion while report notes stay above it", () => {
+  const harness = mapHarness(true);
+  createReportMapLayers(harness.map, () => 0).ensure();
+  assert.equal(
+    harness.placements.get("report-sticky-heat-lyr"),
+    "mm-area-extrusion",
+  );
+  assert.equal(
+    harness.placements.get("report-accuracy-heat-lyr"),
+    "mm-area-extrusion",
+  );
+  assert.equal(harness.placements.get("report-notes-lyr"), undefined);
+});
+
+function mapHarness(withAreaExtrusion = false) {
   const harness = {
     addLayerCalls: 0, addSourceCalls: 0,
-    filters: new Map(), layers: new Map(), sources: new Map(), visibility: new Map(),
+    filters: new Map(), layers: new Map(), placements: new Map(),
+    sources: new Map(), visibility: new Map(),
   };
+  if (withAreaExtrusion) {
+    harness.layers.set("mm-area-extrusion", { id: "mm-area-extrusion" });
+  }
   harness.map = {
-    addLayer(value) { harness.addLayerCalls += 1; harness.layers.set(value.id, value); },
+    addLayer(value, beforeLayerId) {
+      harness.addLayerCalls += 1;
+      harness.layers.set(value.id, value);
+      harness.placements.set(value.id, beforeLayerId);
+    },
     addSource(id, value) {
       harness.addSourceCalls += 1;
       harness.sources.set(id, {

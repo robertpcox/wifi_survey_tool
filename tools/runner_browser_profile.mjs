@@ -22,6 +22,9 @@ import {
   installRunnerBrowserEnvironment, RUNNER_BROWSER_POSITION,
 } from "./runner_browser_environment.mjs";
 import {
+  readRunnerMapStack, runnerMapStackFindings,
+} from "./runner_browser_map_stack.mjs";
+import {
   completeRunnerCheckpoints, downloadResetFindings, finishAndDownloadRunner,
   preflightAndStartRunner, stoppedPollingFindings,
 } from "./runner_browser_lifecycle.mjs";
@@ -45,6 +48,7 @@ export async function exerciseRunnerBrowserProfile({
     `${origin}${path}?survey_id=${encodeURIComponent(surveyId)}`,
   );
   await startRunnerCapture(page, profile.name);
+  failures.push(...runnerMapStackFindings(await readRunnerMapStack(page)));
   const first = definition.route.checkpoints[0];
   const floor = definition.meta.zLevelNames[String(first.z)];
   const states3d = await exerciseRunner3dToggle(page);
@@ -65,6 +69,7 @@ export async function exerciseRunnerBrowserProfile({
   failures.push(...await preflightAndStartRunner(page, requestState));
   const relaunched3d = await readRunner3dState(page);
   failures.push(...runner3dRelaunchFindings(relaunched3d));
+  failures.push(...runnerMapStackFindings(await readRunnerMapStack(page), 2));
   failures.push(...await completeRunnerCheckpoints(
     page,
     definition,

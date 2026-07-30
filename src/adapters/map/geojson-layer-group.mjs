@@ -6,6 +6,7 @@
 // PROVENANCE:   Scope/steps/05a_recast_player.md shared-map layer boundary
 
 import { emptyFC } from "./features.mjs";
+import { addMapLayer } from "./map-layer-order.mjs";
 
 export function createGeoJsonLayerGroup(map, definitions, currentFloor) {
   let ensured = false;
@@ -20,13 +21,13 @@ export function createGeoJsonLayerGroup(map, definitions, currentFloor) {
         });
       }
       if (!map.getLayer(definition.id)) {
-        map.addLayer({
+        addMapLayer(map, {
           id: definition.id,
           source: definition.source,
           type: definition.type,
           paint: definition.paint,
           layout: definition.layout ?? {},
-        });
+        }, definition.beforeLayerId);
       }
     }
     ensured = true;

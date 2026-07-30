@@ -13,12 +13,12 @@ at exact captured ground truth; it never reroutes or invents a checkpoint.
 - A later survey selection stays idle; Preflight makes exactly one request; Go alone restarts continuous polling.
 - Runner alone opts into exact `threeD: { animateWalls: true, show3dAssets: true }`.
   The safe on-demand toggle is display-only and survives map relaunches.
-- The no-deploy build passed 510/510 tests plus size, header, import, schema, reference,
+- The final release build passed 510/510 tests plus size, header, import, schema, reference,
   secrets, goldens, and generated module-map gates.
 - All four shells, Creator, two automated mobile Runner profiles, and four Report Player
   scenarios passed. The mobile profiles do not replace physical Android field acceptance.
 - Manifests contain six surveys and six field results (five completed, one aborted) for one customer;
-  `dist/` contains 212 files. This no-deploy validation did not synchronize the patch.
+  `dist/` has 212 files. Source `3e63487` and demo `4e89c06` are pushed; live files return 200.
 - Routes 1a and 1b use different revision IDs but exact hash `69d2c5f11ffe…`, proving why
   survey family, immutable revision, and exact-route cohort are separate identities.
 - The old private field input was removed; its reviewed route-truth golden remains a receipt

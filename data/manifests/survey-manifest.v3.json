@@ -42,6 +42,16 @@
       "path": "data/surveys/8bed4861-476e-417f-943c-0c08c40e7e1c.definition.v3.json"
     },
     {
+      "surveyId": "a9c69528-da66-4121-b597-67e049cb1961",
+      "surveyName": "Dynamic room survey",
+      "customerId": "292",
+      "customerName": "NTT - NDH",
+      "campusId": "566",
+      "routeId": "dynamic-room-20260730051104",
+      "routeHash": "0a9e1303c463554bbb47bc783841fed6c8147e3ad8e5b991768376b5949cddb5",
+      "path": "data/surveys/a9c69528-da66-4121-b597-67e049cb1961.definition.v3.json"
+    },
+    {
       "surveyId": "b714527c-6197-4a08-b4cb-3d33ee022f9c",
       "surveyName": "L00 - K01 Wait To Stairs - Return",
       "customerId": "292",

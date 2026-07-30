@@ -16,7 +16,8 @@ test("valid warning browser state has no findings", () => {
     text: "No position update Floor level disconnect 1970-01-01T00:00:00.010Z poll-1",
     mapAlertText: "",
     mapAlertsInsideMap: true,
-    diagnosticPanels: 4,
+    diagnosticPanels: 5,
+    directionPanels: 1,
     insightText: "Top no-update locations Floor changes lag behind",
     noPrimaryTimeline: true,
     thresholdOptions: {

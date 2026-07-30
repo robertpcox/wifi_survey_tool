@@ -109,18 +109,22 @@ async function changeThreshold(page) {
   const before = await page.evaluate(() => ({
     paths: window.__reportMapState.map.sources
       .get("report-stale-path")?.data?.features?.length ?? 0,
-    text: [...document.querySelectorAll(".kpi-card")]
-      .find(item => item.querySelector("span")?.textContent === "No update while moving")
-      ?.textContent,
+    text: [...document.querySelectorAll(".kpi-lane dl div")]
+      .find(item => (
+        item.querySelector("dt")?.textContent === "No fresh fix while moving"
+      ))?.textContent,
   }));
+  if (!before.text) throw new Error("Freshness lane is missing its no-fresh-fix row");
   await page.$eval('[data-threshold="stickySeconds"]', input => {
     input.value = "20";
     input.dispatchEvent(new Event("change", { bubbles: true }));
   });
   await page.waitForFunction(previous => {
-    const card = [...document.querySelectorAll(".kpi-card")]
-      .find(item => item.querySelector("span")?.textContent === "No update while moving");
-    return card?.textContent !== previous;
+    const row = [...document.querySelectorAll(".kpi-lane dl div")]
+      .find(item => (
+        item.querySelector("dt")?.textContent === "No fresh fix while moving"
+      ));
+    return Boolean(row) && row.textContent !== previous;
   }, {}, before.text);
   const paths = await page.evaluate(() => window.__reportMapState.map.sources
     .get("report-stale-path")?.data?.features?.length ?? 0);

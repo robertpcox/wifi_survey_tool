@@ -1,38 +1,72 @@
 // FEATURE:      Report Player KPI summary
 // SURFACE:      renderKpiView(analysis)
-// WHY TOGETHER: Core run measures form one independently replaceable summary section.
+// WHY TOGETHER: Accuracy, freshness, and availability lanes form one honest summary section.
 // STATE:        None
-// RULES:        Render elapsed-time metrics from the shared analysis without recalculating them.
-// PROVENANCE:   Scope/steps/05_dashboard_report_player.md
+// RULES:        Accuracy quotes unique fixes scored at fix time; delivery lag stays in freshness.
+// PROVENANCE:   NDH 2026-07-30 fix-matched accuracy findings
 
 import { esc } from "../../shared/format.mjs";
 
-const METRICS = Object.freeze([
-  ["sampleCount", "Usable polls", value => value],
-  ["medianRttMs", "Median RTT", value => unit(value, "ms")],
-  ["medianAccuracyM", "Median error", value => unit(value, "m")],
-  ["p95AccuracyM", "P95 error", value => unit(value, "m")],
-  ["stickySeconds", "No update while moving", value => unit(value, "s")],
-  ["floorMismatchSeconds", "Floor mismatch", value => unit(value, "s")],
-  ["outsideAccuracySeconds", "Outside tolerance", value => unit(value, "s")],
-]);
-
 export function renderKpiView(analysis) {
-  const cards = METRICS.map(([key, label, format]) => `
-    <article class="kpi-card">
-      <span>${esc(label)}</span>
-      <strong>${esc(format(analysis.metrics[key]))}</strong>
-    </article>`).join("");
+  const { accuracy, freshness, availability } = analysis.fixes;
   return `
     <div class="section-heading">
       <div><p class="section-kicker">Summary</p><h2>Run at a glance</h2></div>
-      <p>${esc(analysis.metrics.stickyPercent)}% beyond the timeliness threshold ·
-        ${esc(analysis.metrics.floorMismatchPercent)}% floor mismatch ·
-        ${esc(analysis.metrics.outsideAccuracyPercent)}% outside tolerance</p>
+      <p>${esc(confidenceStatement(accuracy))}</p>
     </div>
-    <div class="kpi-grid">${cards}</div>`;
+    <div class="kpi-grid">
+      ${lane("Accuracy", "Radio and AP story · unique fixes scored at their fix time", [
+        ["Unique fixes", `${accuracy.scoredFixCount} of ${accuracy.uniqueFixCount} scored`],
+        ["Median error", unit(accuracy.medianAccuracyM, "m")],
+        ["P95 error", unit(accuracy.p95AccuracyM, "m")],
+        ["Within provider confidence", pct(accuracy.withinConfidencePercent)],
+        [`Beyond ${analysis.thresholds.accuracyM} m`, pct(accuracy.beyondThresholdPercent)],
+      ])}
+      ${lane("Freshness", "Cloud pipeline story · how late and how often fixes arrive", [
+        ["Delivery latency (median)", unit(freshness.medianDeliveryLatencySeconds, "s")],
+        ["Delivery latency (p95)", unit(freshness.p95DeliveryLatencySeconds, "s")],
+        ["New fix every", unit(freshness.medianFixIntervalSeconds, "s")],
+        ["Longest hold", unit(freshness.longestHoldSeconds, "s")],
+        ["No fresh fix while moving", `${unit(freshness.noFreshFixSeconds, "s")}
+          · ${pct(freshness.noFreshFixPercent)}`],
+        ["Lag behind (median / p95)", `${unit(freshness.medianLagBehindM, "m")}
+          / ${unit(freshness.p95LagBehindM, "m")}`],
+      ])}
+      ${lane("Availability", "Network story · did a usable position come back at all", [
+        ["Poll success", pct(availability.successPercent)],
+        ["Median RTT", unit(availability.medianRttMs, "ms")],
+        ["P95 RTT", unit(availability.p95RttMs, "ms")],
+        ["Failed requests", String(availability.failureCount)],
+        [`Effectively no position (> ${availability.noPositionThresholdSeconds} s old)`,
+          `${unit(availability.noPositionSeconds, "s")}
+          · ${pct(availability.noPositionPercent)}`],
+      ])}
+    </div>`;
+}
+
+function confidenceStatement(accuracy) {
+  if (!accuracy.confidenceJudgedCount) {
+    return "The provider reported no confidence radius to judge fixes against.";
+  }
+  return `${accuracy.withinConfidenceCount} of ${accuracy.confidenceJudgedCount} `
+    + `unique fixes (${pct(accuracy.withinConfidencePercent)}) landed within `
+    + "the provider's own confidence radius.";
+}
+
+function lane(title, subtitle, rows) {
+  return `<article class="kpi-lane">
+    <h3>${esc(title)}</h3>
+    <p>${esc(subtitle)}</p>
+    <dl>${rows.map(([label, value]) => `
+      <div><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`).join("")}
+    </dl>
+  </article>`;
 }
 
 function unit(value, suffix) {
   return Number.isFinite(value) ? `${value.toFixed(1)} ${suffix}` : "—";
+}
+
+function pct(value) {
+  return Number.isFinite(value) ? `${value.toFixed(1)}%` : "—";
 }

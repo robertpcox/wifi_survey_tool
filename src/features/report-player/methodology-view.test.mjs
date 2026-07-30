@@ -48,7 +48,8 @@ test("methodology renders fixture floors and explains elapsed-time heat", () => 
   assert.match(html, /ground truth is moving/);
   assert.match(html, /Planned checkpoint dwell is excluded/);
   assert.match(html, /more than\s*<strong>5 metres/);
-  assert.match(html, /ground truth, not at the reported fix/);
+  assert.match(html, /unique provider fix once/);
+  assert.match(html, /includes delivery lag/);
   assert.match(html, /Ground \(z 0\)/);
   assert.match(html, /First \(z 1\)/);
 });

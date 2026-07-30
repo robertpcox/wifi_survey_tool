@@ -22,14 +22,27 @@ test("error and fix-age charts render poll points, move one cursor, and seek one
   const charts = mountPlayerCharts(root, {
     durationMs: 20_000,
     series: [
-      { pollId: "poll-1", elapsedMs: 2_000, distanceM: 1.5, fixAgeSeconds: 0 },
-      { pollId: "poll-2", elapsedMs: 10_000, distanceM: 7.5, fixAgeSeconds: 8 },
+      {
+        pollId: "poll-1", elapsedMs: 2_000, distanceM: 1.5,
+        fixAgeSeconds: 0, identityChanged: true,
+      },
+      {
+        pollId: "poll-2", elapsedMs: 10_000, distanceM: 7.5,
+        fixAgeSeconds: 8, identityChanged: false,
+      },
+      {
+        pollId: "poll-3", elapsedMs: 12_000, distanceM: 2.5,
+        fixAgeSeconds: 0, identityChanged: true,
+      },
     ],
     onSeek: value => seeks.push(value),
   });
   assert.match(root.innerHTML, /Position error/);
   assert.match(root.innerHTML, /Fix age/);
   assert.equal((root.innerHTML.match(/data-chart-seek=/g) ?? []).length, 4);
+  assert.match(root.innerHTML, /poll-1: 1\.5 m, held 10\.0 s/);
+  assert.match(root.innerHTML, /poll-3: 2\.5 m, held 0\.0 s/);
+  assert.doesNotMatch(root.innerHTML, /poll-2: 7\.5 m, held/);
   listeners.click({ target: { dataset: { chartSeek: "10000" } } });
   assert.deepEqual(seeks, [10_000]);
   charts.update(10_000);

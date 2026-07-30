@@ -35,17 +35,24 @@ export function renderReportSeries(insights, thresholds) {
     <div class="diagnostic-stack">
       ${metricPanel(insights, {
         key: "accuracyM",
-        title: "Position error · reported fix versus route truth",
+        title: "Position error at receipt · served fix versus route truth (includes delivery lag)",
         unit: "m",
         threshold: thresholds.accuracyM,
         critical: point => point.outsideAccuracy,
       })}
       ${metricPanel(insights, {
         key: "fixAgeSeconds",
-        title: "Time since last position update",
+        title: "Freshness · time since the served fix changed",
         unit: "s",
         threshold: thresholds.stickySeconds,
         critical: point => point.stale,
+      })}
+      ${metricPanel(insights, {
+        key: "lagBehindM",
+        title: "Lag behind · how far the served dot ran behind the walker (negatives clipped)",
+        unit: "m",
+        threshold: thresholds.accuracyM,
+        critical: point => point.lagBehindM > thresholds.accuracyM,
       })}
       ${metricPanel(insights, {
         key: "roundTripMs",

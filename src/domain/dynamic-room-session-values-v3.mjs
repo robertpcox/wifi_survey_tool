@@ -20,11 +20,13 @@ export function dynamicRoomCheckInRecords(
   sequence,
   atValue,
   dwellSeconds,
+  spacingBasisM = 0,
+  stopIndex = sequence,
 ) {
   const at = dynamicRoomTimestamp(atValue);
   const stop = {
-    id: `stop-${sequence + 1}`,
-    name: point.name || `Checkpoint ${sequence + 1}`,
+    id: `stop-${stopIndex + 1}`,
+    name: point.name || `Checkpoint ${stopIndex + 1}`,
     ...coordinates(point),
     poiId: null,
     poiName: null,
@@ -41,7 +43,7 @@ export function dynamicRoomCheckInRecords(
     ...coordinates(stop),
     stopId: stop.id,
     legId: null,
-    spacingBasisM: 0,
+    spacingBasisM,
     dwellSeconds,
   };
   const checkIn = {

@@ -8,21 +8,23 @@
 
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 0.75rem;
 }
 
-.kpi-card {
-  display: grid;
-  gap: 0.4rem;
+.kpi-lane {
   padding: 1rem;
   border-radius: 0.75rem;
   color: white;
   background: #1c3557;
 }
 
-.kpi-card span { color: #c9d8eb; font-size: 0.78rem; }
-.kpi-card strong { font-size: clamp(1.25rem, 2vw, 1.8rem); }
+.kpi-lane h3 { margin: 0; }
+.kpi-lane > p { margin: 0.25rem 0 0.75rem; color: #c9d8eb; font-size: 0.78rem; }
+.kpi-lane dl { display: grid; gap: 0.45rem; margin: 0; }
+.kpi-lane dl div { display: flex; justify-content: space-between; gap: 0.75rem; }
+.kpi-lane dt { color: #c9d8eb; font-size: 0.82rem; }
+.kpi-lane dd { margin: 0; font-weight: 700; text-align: right; }
 
 .threshold-summary { margin: 0.45rem 0 0; color: #52677f; font-size: 0.9rem; }
 .heat-legend { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; }
@@ -78,6 +80,14 @@
   vertical-align: top;
 }
 .comparison-table-wrap thead th { color: white; background: #1c3557; }
+.comparison-table-wrap .comparison-group th {
+  padding: 0.55rem 0.8rem;
+  color: #263f5c;
+  background: #e8eef6;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
 .comparison-table-wrap th small, .comparison-table-wrap td span {
   display: block;
   margin-top: 0.35rem;

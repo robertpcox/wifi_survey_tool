@@ -5,8 +5,10 @@
 // RULES:        Background geometry stays hidden; runtime map context is not serialized.
 // PROVENANCE:   Step 4 Runner dynamic-room extension
 
-import { dynamicRoomDwellRemainingSeconds }
-  from "../../domain/dynamic-room-session-v3.mjs";
+import {
+  dynamicRoomDwellRemainingSeconds,
+  dynamicRoomMarkState,
+} from "../../domain/dynamic-room-session-v3.mjs";
 
 const PHASE = Object.freeze({
   "awaiting-point": "tap-point",
@@ -25,7 +27,10 @@ export function dynamicRoomViewState(session, state, nowMs) {
       Boolean(session.pendingPoint) || session.history.length > 0
     ),
     canFinish: session.stops.length >= 2,
+    dwellSeconds: session.dwellSeconds,
     dwellRemainingSeconds: dynamicRoomDwellRemainingSeconds(session, nowMs()),
+    marks: dynamicRoomMarkState(session),
+    staged: Boolean(session.stagedPoint),
     error: state.error,
     polling: state.polling !== false,
     retryAvailable: session.phase === "finalising" && Boolean(state.error),
@@ -41,9 +46,19 @@ export function dynamicRoomWaypoints(session) {
     ...checkpoint,
     state: checkpoint.id === dwellingId ? "current" : "done",
   }));
-  if (!session.pendingPoint) return committed;
-  return [...committed, {
-    ...session.pendingPoint,
+  const nextIndex = session.markPlan?.nextIndex ?? 0;
+  const pendingMarks = (session.markPlan?.marks ?? [])
+    .slice(nextIndex)
+    .map((mark, index) => ({
+      ...mark,
+      id: `dynamic-mark-${nextIndex + index + 1}`,
+      kind: "mark",
+      state: index === 0 ? "current" : "pending",
+    }));
+  const target = session.pendingPoint ?? session.stagedPoint;
+  if (!target) return [...committed, ...pendingMarks];
+  return [...committed, ...pendingMarks, {
+    ...target,
     id: "dynamic-pending-point",
     kind: "stop",
     state: "current",
@@ -81,5 +96,12 @@ export function dynamicCaptureSnapshot(options) {
     resultId: options.createId(),
     captureMode: "dynamic-room",
     routeOrigin: "runner-live-authored",
+    extraDevices: (state.extraDevices ?? []).map(device => ({
+      label: device.label,
+      clientIp: device.clientIp,
+      slug: device.slug,
+      polls: device.polls,
+      resultId: options.createId(),
+    })),
   };
 }

@@ -1,5 +1,5 @@
 // FEATURE:      Report Player analysis
-// SURFACE:      buildReportTimeline, publicReportSample, reportQuantile, reportTruthOverlaps
+// SURFACE:      buildReportTimeline, usableReportPolls, reportFixKey, publicReportSample, reportQuantile, reportTruthOverlaps
 // WHY TOGETHER: Fix identity normalization and sample classification share one ordered pass.
 // STATE:        None
 // RULES:        Fix time wins; coordinates and z form the fallback stable signature.
@@ -7,9 +7,7 @@
 
 import { haversine } from "./geometry.mjs";
 
-export function buildReportTimeline(result, truth, thresholds) {
-  let priorKey = null;
-  let signatureSinceMs = null;
+export function usableReportPolls(result) {
   const startMs = Date.parse(result.run.startedAt);
   const endMs = Date.parse(result.run.stoppedAt);
   const preflightId = result.run.preflight.sampleId;
@@ -19,11 +17,23 @@ export function buildReportTimeline(result, truth, thresholds) {
     && Date.parse(poll.receivedAt) >= startMs
     && Date.parse(poll.receivedAt) <= endMs
   ))
-    .sort((left, right) => Date.parse(left.receivedAt) - Date.parse(right.receivedAt))
+    .sort((left, right) => Date.parse(left.receivedAt) - Date.parse(right.receivedAt));
+}
+
+export function reportFixKey(normalized, fixMs) {
+  return Number.isFinite(fixMs)
+    ? `time:${normalized.fixTime}`
+    : `position:${normalized.lat}|${normalized.lng}|${normalized.z}`;
+}
+
+export function buildReportTimeline(result, truth, thresholds) {
+  let priorKey = null;
+  let signatureSinceMs = null;
+  return usableReportPolls(result)
     .map(poll => {
       const receivedMs = Date.parse(poll.receivedAt);
       const fixMs = Date.parse(poll.normalized.fixTime);
-      const key = fixKey(poll.normalized, fixMs);
+      const key = reportFixKey(poll.normalized, fixMs);
       if (key !== priorKey) signatureSinceMs = receivedMs;
       priorKey = key;
       const sample = {
@@ -86,12 +96,6 @@ function validPoll(poll) {
     && Number.isFinite(poll?.normalized?.lng)
     && Number.isFinite(poll?.normalized?.z)
     && Number.isFinite(Date.parse(poll.receivedAt));
-}
-
-function fixKey(normalized, fixMs) {
-  return Number.isFinite(fixMs)
-    ? `time:${normalized.fixTime}`
-    : `position:${normalized.lat}|${normalized.lng}|${normalized.z}`;
 }
 
 function classify(sample, truth, thresholds) {

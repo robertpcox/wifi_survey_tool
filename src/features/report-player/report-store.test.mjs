@@ -50,6 +50,10 @@ test("store applies selected thresholds to accepted comparison runs", () => {
   candidate.run.device.name = "Second handset";
   candidate.run.band = "6";
   const comparison = store.addComparison(candidate);
-  assert.deepEqual(comparison.thresholds, { stickySeconds: 3, accuracyM: 7 });
+  assert.deepEqual(comparison.thresholds, {
+    stickySeconds: 3,
+    accuracyM: 7,
+    noPositionSeconds: 30,
+  });
   assert.equal(comparison.runs[1].device.band, "6");
 });

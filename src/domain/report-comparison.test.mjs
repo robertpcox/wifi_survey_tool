@@ -30,7 +30,10 @@ test("oldest run is baseline and every absolute value and delta has a device lab
   });
   const comparison = compareReportResults([newer, fixture], thresholds);
   assert.equal(comparison.baselineResultId, fixture.run.resultId);
-  assert.deepEqual(comparison.thresholds, thresholds);
+  assert.deepEqual(
+    comparison.thresholds,
+    { ...thresholds, noPositionSeconds: 30 },
+  );
   assert.deepEqual(
     comparison.runs.map(run => run.resultId),
     [fixture.run.resultId, newer.run.resultId],
@@ -45,9 +48,8 @@ test("oldest run is baseline and every absolute value and delta has a device lab
     /laptop · Comparison laptop · FixtureOS 2 · band 6/,
   );
   assert.equal(second.operatorComment, "Second pass after hours.");
-  assert.deepEqual(second.thresholds, thresholds);
   for (const run of comparison.runs) {
-    assert.deepEqual(run.thresholds, thresholds);
+    assert.deepEqual(run.thresholds, { ...thresholds, noPositionSeconds: 30 });
     for (const value of Object.values(run.values)) {
       assert.equal(value.label, run.label);
       assert.ok("absolute" in value);
@@ -55,6 +57,11 @@ test("oldest run is baseline and every absolute value and delta has a device lab
     }
   }
   assert.equal(second.values.stickySeconds.delta, 0);
+  assert.equal(second.values.fixCount.absolute, 3);
+  assert.equal(second.values.fixCount.delta, 0);
+  assert.equal(second.values.withinConfidencePercent.absolute, 33.333);
+  assert.equal(second.values.medianLagBehindM.delta, 0);
+  assert.ok("noPositionPercent" in second.values);
 });
 
 test("different devices and bands are accepted for one survey route", () => {

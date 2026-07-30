@@ -35,6 +35,7 @@ export function playbackPollEvidenceAt(cycles, atMs, truth, bounds) {
       distanceM: cycle.distanceM,
       fixAgeSeconds: cycle.fixAgeSeconds,
       pollId: cycle.poll.id,
+      identityChanged: cycle.identityChanged === true,
     })),
   };
 }
@@ -66,7 +67,6 @@ function failureEvidence(cycle) {
     failureTruth: cycle.receivedTruth,
   };
 }
-
 function outcomeEvidence(cycle) {
   return {
     ...completedEvidence(cycle),

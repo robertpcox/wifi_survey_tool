@@ -13,7 +13,10 @@ import { downloadDynamicRoomFile } from "./dynamic-room-download.mjs";
 import { createDynamicRouteAuthor } from "./dynamic-route-author.mjs";
 
 export function createDynamicRoomRunner(options) {
-  const session = createDynamicRoomSession();
+  const session = createDynamicRoomSession({
+    dwellSeconds: options.dwellSeconds,
+    markSpacingM: options.markSpacingM,
+  });
   const routeAuthor = options.routeAuthor ?? createDynamicRouteAuthor({
     routeBetween: options.routeBetween,
   });
@@ -30,6 +33,7 @@ export function createDynamicRoomRunner(options) {
     entry: options.entry,
     preflight: options.preflight,
     polls: options.polls,
+    extraDevices: options.extraDevices ?? [],
     events: session.events,
     notes: [],
     note: null,
@@ -79,7 +83,9 @@ export function createDynamicRoomRunner(options) {
     extendDwell: capture.extendDwell,
     finish: finaliser.finish,
     handleMapClick: capture.handleMapClick,
+    passMark: capture.passMark,
     retry: finaliser.retry,
+    skipMark: capture.skipMark,
     session,
     start,
     state,

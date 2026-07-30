@@ -23,6 +23,8 @@ export function requestDynamicRoomFinish(session, at, nowMs) {
     session.dwell = null;
   }
   session.captureLocked = true;
+  session.stagedPoint = null;
+  session.markPlan = null;
   session.finishRequestedAt = dynamicRoomTimestamp(at);
   session.events.push({
     type: "finish-requested",

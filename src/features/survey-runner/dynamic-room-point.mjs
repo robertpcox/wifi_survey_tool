@@ -1,9 +1,18 @@
 // FEATURE:      Dynamic room map-point capture
-// SURFACE:      dynamicRoomPointFromMapClick(event, options)
+// SURFACE:      dynamicRoomPointFromMapClick(event, options), dynamicRoomMapPointResolver
 // WHY TOGETHER: Click truth and optional MazeMap context must resolve without coordinate drift.
 // STATE:        None
 // RULES:        Click longitude/latitude and current map z-level are always authoritative.
 // PROVENANCE:   Step 4 Runner dynamic-room extension
+
+export function dynamicRoomMapPointResolver(mapAdapter) {
+  return {
+    currentZLevel: () => mapAdapter.getMapZLevel?.() ?? mapAdapter.currentZLevel,
+    describePoint: mapAdapter.describePoint
+      ? (...args) => mapAdapter.describePoint(...args)
+      : undefined,
+  };
+}
 
 export async function dynamicRoomPointFromMapClick(event, options = {}) {
   const value = event?.lngLat;

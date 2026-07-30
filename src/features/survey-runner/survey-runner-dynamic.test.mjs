@@ -20,6 +20,7 @@ const definition = JSON.parse(await readFile(new URL(
 test("mounted Dynamic room survey reuses setup and starts a route-free session", async () => {
   let actions;
   const running = [];
+  const polled = [];
   const values = {
     deviceType: "mobile",
     deviceOs: "Android 16",
@@ -31,6 +32,8 @@ test("mounted Dynamic room survey reuses setup and starts a route-free session",
     appKey: ["runtime", "key"].join("-"),
     consent: true,
     override: false,
+    extraDevice1Label: "iPhone B",
+    extraDevice1Ip: "192.0.2.9",
   };
   const formView = {
     bind: value => { actions = value; },
@@ -90,7 +93,10 @@ test("mounted Dynamic room survey reuses setup and starts a route-free session",
       clearTargetMarker() {},
       resizeMapSoon() {},
     },
-    source: { id: "mazemap-cloud", poll: async () => sample },
+    source: {
+      id: "mazemap-cloud",
+      poll: async request => (polled.push(request.clientIp), sample),
+    },
     loadManifest: async () => ({
       surveys: [{ surveyId: definition.meta.surveyId, path: "survey.json" }],
     }),
@@ -106,7 +112,14 @@ test("mounted Dynamic room survey reuses setup and starts a route-free session",
   assert.equal(runner.state.preflight.verdict, "green");
   actions.go();
   assert.equal(runner.state.activeRun.session.phase, "awaiting-point");
+  assert.equal(runner.state.activeRun.session.dwellSeconds, 45);
   assert.equal(runner.state.activeRun.state.polls, runner.state.polls);
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.deepEqual(polled.slice(-2).sort(), ["192.0.2.8", "192.0.2.9"]);
+  assert.deepEqual(
+    runner.state.activeRun.state.extraDevices.map(device => device.label),
+    ["iPhone B"],
+  );
   assert.equal(running.at(-1), true);
   assert.equal(actions.stop(), true);
   assert.equal(runner.state.activeRun.state.completionStatus, "aborted");

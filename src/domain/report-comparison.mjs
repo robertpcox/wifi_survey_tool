@@ -2,7 +2,7 @@
 // SURFACE:      compareReportResults(results, thresholds), reportDeviceLabel(result)
 // WHY TOGETHER: Eligibility, baseline choice, labels, and deltas are one comparison contract.
 // STATE:        None
-// RULES:        Completed same-survey same-route runs share thresholds and oldest baseline.
+// RULES:        Legacy blended metrics and fix-lane metrics share one baseline/delta treatment.
 // PROVENANCE:   Step 5 report comparison contract
 
 import { analyzeReportResult } from "./report-analysis.mjs";
@@ -35,7 +35,7 @@ export function compareReportResults(results, thresholds) {
     result,
     analysis: analyzeReportResult(result, thresholds),
   }));
-  const baselineMetrics = analyzed[0].analysis.metrics;
+  const baselineMetrics = comparableMetrics(analyzed[0].analysis);
   return {
     surveyId: baseline.run.surveyId,
     routeHash: baseline.run.routeHash,
@@ -57,12 +57,29 @@ export function compareReportResults(results, thresholds) {
         operatorComment: result.run.operatorComment ?? null,
         thresholds: analysis.thresholds,
         values: metricValues(
-          analysis.metrics,
+          comparableMetrics(analysis),
           baselineMetrics,
           label,
         ),
       };
     }),
+  };
+}
+
+function comparableMetrics(analysis) {
+  const { accuracy, freshness, availability } = analysis.fixes;
+  return {
+    ...analysis.metrics,
+    fixCount: accuracy.uniqueFixCount,
+    fixMedianAccuracyM: accuracy.medianAccuracyM,
+    fixP95AccuracyM: accuracy.p95AccuracyM,
+    withinConfidencePercent: accuracy.withinConfidencePercent,
+    fixIntervalMedianSeconds: freshness.medianFixIntervalSeconds,
+    deliveryLatencyMedianSeconds: freshness.medianDeliveryLatencySeconds,
+    noFreshFixPercent: freshness.noFreshFixPercent,
+    medianLagBehindM: freshness.medianLagBehindM,
+    noPositionSeconds: availability.noPositionSeconds,
+    noPositionPercent: availability.noPositionPercent,
   };
 }
 

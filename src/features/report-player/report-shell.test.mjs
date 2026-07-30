@@ -28,8 +28,8 @@ test("one map and one loaded context compose the Report and full Player", () => 
     comparison: null,
   });
   for (const module of [
-    "warnings", "floor-route", "mapAlerts", "kpi", "insights", "heatmap",
-    "comparison", "methodology", "playback",
+    "warnings", "floor-route", "mapAlerts", "kpi", "noPosition", "insights",
+    "direction", "heatmap", "comparison", "methodology", "playback",
   ]) {
     assert.match(html, new RegExp(`data-module="${module}"`));
   }

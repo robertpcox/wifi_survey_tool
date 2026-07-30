@@ -47,6 +47,9 @@ test("sticky heat uses elapsed moving time and excludes planned dwell", () => {
     false,
   );
   assert.equal(analysis.heatmaps.sticky[1].points.length, 0);
+  assert.equal(analysis.fixes.samples.length, 3);
+  assert.equal(analysis.fixes.accuracy.uniqueFixCount, 3);
+  assert.equal(analysis.fixes.freshness.longestHoldSeconds, 6);
 });
 
 test("confidence changes do not reset a fix and exact thresholds are excluded", () => {
@@ -114,8 +117,22 @@ test("field result retains Wi-Fi floors and reacts to 15/20 second timing", () =
   }
   assert.equal(timeline.length, 2542);
   assert.deepEqual(counts, { 1: 601, 2: 858, 3: 475, 4: 608 });
-  assert.deepEqual(atFifteen.thresholds, { stickySeconds: 15, accuracyM: 10 });
+  assert.deepEqual(atFifteen.thresholds, {
+    stickySeconds: 15,
+    accuracyM: 10,
+    noPositionSeconds: 30,
+  });
   assert.equal(atFifteen.metrics.stickySeconds, 1388.466);
+  assert.equal(atFifteen.fixes.accuracy.uniqueFixCount, 611);
+  assert.equal(atFifteen.fixes.accuracy.medianAccuracyM, 3.055);
+  assert.equal(atFifteen.fixes.accuracy.withinConfidencePercent, 83.224);
+  assert.equal(atFifteen.fixes.freshness.medianDeliveryLatencySeconds, 4.387);
+  assert.equal(atFifteen.fixes.freshness.noFreshFixSeconds, 1388.466);
+  assert.equal(atFifteen.fixes.freshness.medianLagBehindM, 7.77);
+  assert.equal(atFifteen.fixes.freshness.p95LagBehindM, 24.148);
+  assert.equal(atFifteen.fixes.availability.failureCount, 6);
+  assert.equal(atFifteen.fixes.availability.noPositionSeconds, 260.204);
+  assert.equal(atFifteen.fixes.availability.noPositionEpisodeCount, 34);
   assert.deepEqual(
     [...new Set(atFifteen.stalePathSegments.map(segment => segment.z))].sort(),
     [1, 2, 3, 4],

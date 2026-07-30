@@ -40,6 +40,10 @@ export function createReportPlayerStore({
     thresholds = {
       stickySeconds: number(next.stickySeconds, thresholds.stickySeconds),
       accuracyM: number(next.accuracyM, thresholds.accuracyM),
+      noPositionSeconds: number(
+        next.noPositionSeconds,
+        thresholds.noPositionSeconds,
+      ),
     };
     analysis = analyze(result, thresholds);
     comparison = comparisonResults.length

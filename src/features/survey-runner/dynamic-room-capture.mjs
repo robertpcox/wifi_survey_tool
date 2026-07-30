@@ -1,29 +1,33 @@
 // FEATURE:      Dynamic room capture interactions
 // SURFACE:      createDynamicRoomCapture(options)
-// WHY TOGETHER: Tap resolution, check-in, dwell timing, undo, and map rendering mutate one session.
+// WHY TOGETHER: Tap resolution, check-in, dwell timing, marks, and undo mutate one session.
 // STATE:        One point epoch and dwell timer
 // RULES:        Click coordinates stay authoritative and queued route revisions follow committed stops.
 // PROVENANCE:   Step 4 Runner dynamic-room extension
 
 import {
-  cancelDynamicRoomPoint,
   checkInDynamicRoomPoint,
   extendDynamicRoomDwell,
+  passDynamicRoomMark,
   placeDynamicRoomPoint,
   refreshDynamicRoomDwell,
-  undoLastDynamicRoomCheckIn,
+  skipDynamicRoomMark,
 } from "../../domain/dynamic-room-session-v3.mjs";
-import { dynamicRoomPointFromMapClick } from "./dynamic-room-point.mjs";
-import {
-  dynamicRoomViewState,
-  dynamicRoomWaypoints,
-} from "./dynamic-room-run-values.mjs";
+import { dynamicRoomMapPointResolver, dynamicRoomPointFromMapClick }
+  from "./dynamic-room-point.mjs";
+import { createDynamicMarkCapture, dynamicRoomBackAction }
+  from "./dynamic-room-capture-marks.mjs";
+import { dynamicRoomViewState, dynamicRoomWaypoints }
+  from "./dynamic-room-run-values.mjs";
 
 export function createDynamicRoomCapture(options) {
   const { session, state } = options;
   let pointEpoch = 0;
   let dwellTimer = null;
   let disposed = false;
+  const marks = createDynamicMarkCapture({
+    session, routeBetween: options.routeBetween, nowIso: options.nowIso, onRender: () => render(),
+  });
 
   async function handleMapClick(event) {
     if (disposed || !options.view.acceptsMapPoint()
@@ -35,18 +39,12 @@ export function createDynamicRoomCapture(options) {
     state.error = null;
     render();
     try {
-      const point = await dynamicRoomPointFromMapClick(event, {
-        currentZLevel: () => (
-          options.mapAdapter.getMapZLevel?.()
-          ?? options.mapAdapter.currentZLevel
-        ),
-        describePoint: options.mapAdapter.describePoint
-          ? (...args) => options.mapAdapter.describePoint(...args)
-          : undefined,
-      });
+      const point = await dynamicRoomPointFromMapClick(
+        event, dynamicRoomMapPointResolver(options.mapAdapter));
       if (epoch !== pointEpoch || session.captureLocked) return false;
       const placed = placeDynamicRoomPoint(session, point);
       if (!placed.changed) return false;
+      if (placed.staged) marks.handleStaged(placed.point);
       options.mapAdapter.setMapZLevel?.(point.z);
       options.mapAdapter.focusWaypoint?.({ ...point, label: point.name });
       return true;
@@ -61,12 +59,10 @@ export function createDynamicRoomCapture(options) {
 
   function commit(dwell) {
     if (disposed) return false;
-    const result = checkInDynamicRoomPoint(session, {
-      at: options.nowIso(),
-      dwell,
-      nowMs: options.nowMs(),
-    });
+    const result = checkInDynamicRoomPoint(
+      session, { at: options.nowIso(), dwell, nowMs: options.nowMs() });
     if (!result.changed) return false;
+    marks.invalidate();
     options.routeAuthor.commitStop(result.stop);
     state.error = null;
     scheduleDwell();
@@ -85,15 +81,24 @@ export function createDynamicRoomCapture(options) {
 
   function back() {
     if (disposed) return false;
-    const result = session.phase === "pending-point"
-      ? cancelDynamicRoomPoint(session)
-      : undoLastDynamicRoomCheckIn(session);
+    const stopsBefore = session.stops.length;
+    const result = dynamicRoomBackAction(session, marks);
     if (!result.changed) return false;
     pointEpoch++;
-    options.routeAuthor.reviseStops(session.stops);
+    if (session.stops.length !== stopsBefore) {
+      options.routeAuthor.reviseStops(session.stops);
+    }
     scheduleDwell();
     render();
     return true;
+  }
+
+  function markAction(action) {
+    return () => {
+      if (disposed || !action().changed) return false;
+      render();
+      return true;
+    };
   }
 
   function scheduleDwell() {
@@ -109,6 +114,7 @@ export function createDynamicRoomCapture(options) {
 
   function render() {
     if (disposed) return false;
+    marks.maybeArm();
     state.polling = Boolean(options.pollLoop.active);
     options.mapAdapter.drawStops?.(session.stops);
     options.mapAdapter.drawWaypoints?.(dynamicRoomWaypoints(session));
@@ -120,6 +126,7 @@ export function createDynamicRoomCapture(options) {
     if (disposed) return false;
     disposed = true;
     pointEpoch++;
+    marks.invalidate();
     options.clearTimer(dwellTimer);
     dwellTimer = null;
     return true;
@@ -132,6 +139,8 @@ export function createDynamicRoomCapture(options) {
     dwell: () => commit(true),
     extendDwell,
     handleMapClick,
+    passMark: markAction(() => passDynamicRoomMark(session, { at: options.nowIso() })),
     render,
+    skipMark: markAction(() => skipDynamicRoomMark(session)),
   });
 }

@@ -52,7 +52,7 @@ test("injects one accessible panel with stable integration selectors", () => {
   assert.match(state.markup(), /data-dynamic-room-panel/);
   assert.match(state.markup(), /role="status" aria-live="polite" aria-atomic="true"/);
   assert.match(state.markup(), /data-action="dynamic-check-in">Check in &amp; keep walking/);
-  assert.match(state.markup(), /data-action="dynamic-dwell">Dwell here for 5s/);
+  assert.match(state.markup(), /data-action="dynamic-dwell">Dwell here for 45s/);
   assert.match(state.markup(), /data-action="dynamic-extend-dwell" hidden>\+10 seconds/);
   assert.match(state.markup(), /data-action="dynamic-finish" hidden>Finish survey/);
   assert.match(state.markup(), /data-action="dynamic-retry" hidden>Retry route finalisation/);

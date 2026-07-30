@@ -78,6 +78,26 @@
 
 .chart-time { font-weight: 700; }
 
+.chart-fix {
+  fill: #2563eb;
+  stroke: white;
+  stroke-width: 1;
+  opacity: 0.85;
+}
+
+.dir-bar {
+  fill: #94a8c2;
+  opacity: 0.85;
+}
+
+.dir-bar.hot { fill: #dc2626; }
+
+.dir-rf {
+  fill: #b91c1c;
+  stroke: white;
+  stroke-width: 1.2;
+}
+
 .request-summary {
   margin: 0.9rem 0 0;
   padding: 0.8rem 1rem;

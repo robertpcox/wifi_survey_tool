@@ -1,6 +1,6 @@
 import { createRouteLegV3, generateRouteCheckpointsV3 } from "./creator-route-v3.mjs";
-import { authoredCheckpointsV3, checkpointDwellDefaults }
-  from "./checkpoint-dwell-v3.mjs";
+import { authoredCheckpointsV3, checkpointDwellDefaults } from "./checkpoint-dwell-v3.mjs";
+import { capturedCheckpointsV3 } from "./captured-checkpoints-v3.mjs";
 import {
   immutableDefinitionCopy,
   mutableDefinitionCopy as mutableCopy,
@@ -26,14 +26,8 @@ export async function authorSurveyDefinitionV3(input, deps = {}) {
   const spacing = numberAtLeast(input?.checkpointSpacingM, 0, "meta.route.checkpointSpacingM");
   const dwell = numberAtLeast(input?.checkpointDwellSeconds ?? 0, 0, "meta.route.checkpointDwellSeconds");
   const unchanged = previous && input?.routeId === previous.route.routeId
-    && editablePlan(
-      previous,
-      stops,
-      suppliedLegs,
-      suppliedCheckpoints ?? previous.route.checkpoints,
-      spacing,
-      dwell,
-    );
+    && editablePlan(previous, stops, suppliedLegs,
+      suppliedCheckpoints ?? previous.route.checkpoints, spacing, dwell);
   let route, routeSummary, surveyId, createdAt;
   if (unchanged) {
     route = mutableCopy(previous.route);
@@ -44,8 +38,12 @@ export async function authorSurveyDefinitionV3(input, deps = {}) {
     const legs = suppliedLegs.map((leg, index) => createRouteLegV3(
       stops[index], stops[index + 1], leg.geometry ?? leg.coords, index,
     ));
-    const generated = generateRouteCheckpointsV3(stops, legs, spacing);
-    const checkpoints = authoredCheckpointsV3(generated.checkpoints, suppliedCheckpoints);
+    const checkpoints = input?.checkpointOrigin === "captured"
+      ? capturedCheckpointsV3(stops, legs, suppliedCheckpoints, spacing)
+      : authoredCheckpointsV3(
+        generateRouteCheckpointsV3(stops, legs, spacing).checkpoints,
+        suppliedCheckpoints,
+      );
     const distanceM = legs.reduce((total, leg) => total + leg.distanceM, 0);
     const duration = estimateRouteDuration({
       distanceM, checkpoints, dwellSeconds: dwell,

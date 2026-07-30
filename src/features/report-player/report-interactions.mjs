@@ -7,12 +7,14 @@
 import { downloadFile as browserDownload } from "../../adapters/download.mjs";
 import { assertReportResult } from "./result-loader.mjs";
 import { renderComparisonView } from "./comparison-view.mjs";
+import { renderDirectionView } from "./direction-view.mjs";
 import { bindReportFloor } from "./report-floor-controller.mjs";
 import { renderHeatmapView } from "./heatmap-view.mjs";
 import { renderKpiView } from "./kpi-view.mjs";
 import { bindMapHighlight } from "./map-highlight-controller.mjs";
 import { renderPlayerMapAlerts } from "./map-alert-view.mjs";
 import { createAnalysisExports, renderMethodologyView } from "./methodology-view.mjs";
+import { renderNoPositionView } from "./no-position-view.mjs";
 import { mountPlaybackView } from "./playback-view.mjs";
 import { renderReportInsights } from "./report-insights-view.mjs";
 import { bindReportModes } from "./report-mode-controller.mjs";
@@ -24,7 +26,9 @@ export function renderDynamicSections(state, candidates) {
     mapAlerts: "",
     warnings: renderReportWarnings(state.analysis),
     kpi: renderKpiView(state.analysis),
+    noPosition: renderNoPositionView(state),
     insights: renderReportInsights(state),
+    direction: renderDirectionView(state),
     heatmap: renderHeatmapView(state),
     comparison: renderComparisonView({
       entries: candidates,
@@ -47,11 +51,9 @@ export function bindReportInteractions({
   const status = root.querySelector("[data-report-status]");
   const floorInput = root.querySelector("[data-map-floor]");
   const alertRoot = root.querySelector("[data-module=mapAlerts]");
-  const floor = bindReportFloor({
-    surface,
-    floorInput,
-    initialFloor: store.snapshot().meta.zLevels[0],
-  });
+  const floor = bindReportFloor(
+    { surface, floorInput, initialFloor: store.snapshot().meta.zLevels[0] },
+  );
   const player = mountPlaybackView(root.querySelector("[data-module=playback]"), {
     result: store.snapshot().result,
     transportRoot: root.querySelector("[data-player-transport]"),
@@ -94,12 +96,10 @@ export function bindReportInteractions({
     for (const [module, markup] of Object.entries(html)) {
       root.querySelector(`[data-module=${module}]`).innerHTML = markup;
     }
-    root.querySelector("[data-threshold=stickySeconds]").value = String(
-      state.thresholds.stickySeconds,
-    );
-    root.querySelector("[data-threshold=accuracyM]").value = String(
-      state.thresholds.accuracyM,
-    );
+    for (const [key, value] of Object.entries(state.thresholds)) {
+      const input = root.querySelector(`[data-threshold=${key}]`);
+      if (input) input.value = String(value);
+    }
     surface.render({ analysis: state.analysis, heatKind: highlight.kind });
     bindDynamic(state, remaining);
     if (modes.mode === "playback") player.seek(player.atMs);

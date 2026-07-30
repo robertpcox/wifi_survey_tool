@@ -44,7 +44,22 @@ test("entry requires device, band, consent, and flagged credentials", () => {
     deviceName: "Field handset",
     clientIp: "192.0.2.8",
     band: "5",
+    proxyBase: "",
+    dynamicDwellSeconds: "",
+    dynamicMarkSpacingM: "",
+    extraDevice1Label: "",
+    extraDevice1Ip: "",
+    extraDevice2Label: "",
+    extraDevice2Ip: "",
   });
+  assert.deepEqual(
+    runnerEntryIssues(
+      { ...values, extraDevice1Label: "iPhone B" },
+      credentials,
+      requirements,
+    ),
+    ["extraDevice1Ip is required"],
+  );
 });
 
 test("position request reads safe config and memory values at the boundary", () => {
@@ -69,6 +84,14 @@ test("position request reads safe config and memory values at the boundary", () 
     },
   );
   assert.equal(JSON.stringify(normalizeRunnerEntry(values)).includes("in-memory"), false);
+  const overridden = normalizeRunnerEntry({
+    ...values,
+    proxyBase: " http://192.168.1.10:8788/mm-positioning-proxy ",
+  });
+  assert.equal(
+    runnerPositionRequest(definition, overridden, credentials).proxyBase,
+    "http://192.168.1.10:8788/mm-positioning-proxy",
+  );
 });
 
 test("definition values never supply device identity or band", () => {

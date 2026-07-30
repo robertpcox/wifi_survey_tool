@@ -1,17 +1,35 @@
 // FEATURE:      Same-survey result comparison
 // SURFACE:      renderComparisonView(options)
-// WHY TOGETHER: Candidate selection, device labels, absolute metrics, deltas, and notes are one view.
+// WHY TOGETHER: Candidate selection, device labels, lane metrics, deltas, and notes are one view.
 // STATE:        None
 // RULES:        Render only manifest-provided candidates and labels from domain comparison output.
 // PROVENANCE:   Scope/steps/05_dashboard_report_player.md
 
 import { esc } from "../../shared/format.mjs";
 
-const DISPLAY_METRICS = Object.freeze([
-  ["stickySeconds", "No-update seconds"],
-  ["outsideAccuracySeconds", "Outside tolerance seconds"],
-  ["medianAccuracyM", "Median error (m)"],
-  ["medianRttMs", "Median RTT (ms)"],
+const METRIC_GROUPS = Object.freeze([
+  ["Accuracy · unique fixes at fix time", [
+    ["fixCount", "Unique fixes"],
+    ["fixMedianAccuracyM", "Median error (m)"],
+    ["fixP95AccuracyM", "P95 error (m)"],
+    ["withinConfidencePercent", "Within provider confidence (%)"],
+  ]],
+  ["Freshness · cloud pipeline", [
+    ["fixIntervalMedianSeconds", "New fix every (s)"],
+    ["deliveryLatencyMedianSeconds", "Delivery latency median (s)"],
+    ["noFreshFixPercent", "No fresh fix while moving (%)"],
+    ["medianLagBehindM", "Lag behind median (m)"],
+  ]],
+  ["Availability · network and coverage", [
+    ["medianRttMs", "Median RTT (ms)"],
+    ["noPositionPercent", "Effective no position (%)"],
+    ["noPositionSeconds", "Effective no position (s)"],
+  ]],
+  ["Legacy blended · per poll at receipt", [
+    ["stickySeconds", "No-update seconds"],
+    ["outsideAccuracySeconds", "Outside tolerance seconds"],
+    ["medianAccuracyM", "Median error at receipt (m)"],
+  ]],
 ]);
 
 export function renderComparisonView({ entries = [], comparison = null }) {
@@ -40,8 +58,11 @@ function comparisonTable(comparison) {
         <thead><tr><th>Measure</th>${comparison.runs.map(run => `
           <th>${esc(run.label)}${run.baseline ? "<small>Oldest · baseline</small>" : ""}</th>`).join("")}
         </tr></thead>
-        <tbody>${DISPLAY_METRICS.map(([key, label]) => `
-          <tr><th>${esc(label)}</th>${comparison.runs.map(run => valueCell(run.values[key])).join("")}</tr>`
+        <tbody>${METRIC_GROUPS.map(([group, metrics]) => `
+          <tr class="comparison-group"><th colspan="${comparison.runs.length + 1}">
+            ${esc(group)}</th></tr>
+          ${metrics.map(([key, label]) => `
+          <tr><th>${esc(label)}</th>${comparison.runs.map(run => valueCell(run.values[key])).join("")}</tr>`).join("")}`
         ).join("")}</tbody>
       </table>
       <div class="run-notes">${comparison.runs.map(run => `

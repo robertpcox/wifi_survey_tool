@@ -5,14 +5,19 @@ import {
   preflightReasonText,
 } from "./form-view-format.mjs";
 import { DYNAMIC_SURVEY_ID } from "./runner-mode.mjs";
+import {
+  DYNAMIC_OPTION_NAMES,
+  ensureDynamicOptionsMarkup,
+} from "./form-view-dynamic-options.mjs";
 
 export { preflightMetrics } from "./form-view-format.mjs";
 
 const VALUE_NAMES = ["deviceType", "deviceOs", "deviceName", "clientIp", "band", "mapAccess",
-  "appId", "appKey"];
+  "appId", "appKey", ...DYNAMIC_OPTION_NAMES];
 export function createRunnerFormView(documentRef) {
   const find = selector => documentRef.querySelector(selector);
   const form = find("[data-runner-entry]");
+  ensureDynamicOptionsMarkup(form);
 
   function readValues() {
     const values = Object.fromEntries(VALUE_NAMES.map(name => [
@@ -38,25 +43,14 @@ export function createRunnerFormView(documentRef) {
 
   function showDefinition(definition, { dynamic = false } = {}) {
     const requirements = definition.meta.credentialRequirements;
-    setText(
-      "[data-survey-name]",
-      dynamic ? "Dynamic room survey" : definition.meta.surveyName,
-    );
+    setText("[data-survey-name]", dynamic ? "Dynamic room survey" : definition.meta.surveyName);
     setText("[data-campus-name]", definition.meta.campusName);
-    setText(
-      "[data-route-distance]",
-      dynamic ? "Built live" : `${Math.round(definition.meta.route.distanceM)} m`,
-    );
-    setText(
-      "[data-route-duration]",
-      dynamic
-        ? "Built live"
-        : formatDuration(definition.meta.route.estimatedDurationSeconds),
-    );
-    setText(
-      "[data-checkpoint-count]",
-      dynamic ? 0 : definition.route.checkpoints.length,
-    );
+    setText("[data-route-distance]",
+      dynamic ? "Built live" : `${Math.round(definition.meta.route.distanceM)} m`);
+    setText("[data-route-duration]",
+      dynamic ? "Built live" : formatDuration(definition.meta.route.estimatedDurationSeconds));
+    setText("[data-checkpoint-count]", dynamic ? 0 : definition.route.checkpoints.length);
+    setHidden("[data-dynamic-options]", !dynamic);
     for (const name of ["mapAccess", "appId", "appKey"]) {
       const row = find(`[data-credential-row="${name}"]`);
       if (row) row.hidden = !requirements[name];

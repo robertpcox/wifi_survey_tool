@@ -4,7 +4,10 @@
 // STATE:        None
 // RULES:        Failure is strictly beyond threshold; heat is elapsed time at ground truth.
 // PROVENANCE:   Step 5 report analysis contract
+import { buildFixLanes } from "./report-fix-metrics.mjs";
+import { buildUniqueFixSamples, publicFixSample } from "./report-fix-samples.mjs";
 import { buildReportGroundTruth } from "./report-ground-truth.mjs";
+import { addHeatPoint, floorHeatBuckets, totalHeatSeconds } from "./report-heat.mjs";
 import {
   buildReportTimeline,
   publicReportSample,
@@ -17,11 +20,16 @@ import { buildReportWarnings } from "./report-warnings.mjs";
 export const REPORT_THRESHOLDS = Object.freeze({
   stickySeconds: 15,
   accuracyM: 10,
+  noPositionSeconds: 30,
 });
 export function analyzeReportResult(result, selected = REPORT_THRESHOLDS) {
   const thresholds = {
     stickySeconds: threshold(selected.stickySeconds, "stickySeconds"),
     accuracyM: threshold(selected.accuracyM, "accuracyM"),
+    noPositionSeconds: threshold(
+      selected.noPositionSeconds ?? REPORT_THRESHOLDS.noPositionSeconds,
+      "noPositionSeconds",
+    ),
   };
   const floors = (result?.meta?.zLevels ?? []).map(z => {
     const name = result.meta.zLevelNames?.[String(z)];
@@ -34,8 +42,8 @@ export function analyzeReportResult(result, selected = REPORT_THRESHOLDS) {
   const truth = buildReportGroundTruth(result);
   const timeline = buildReportTimeline(result, truth, thresholds);
   const stoppedAtMs = Date.parse(result.run.stoppedAt);
-  const sticky = floorBuckets(floors);
-  const accuracy = floorBuckets(floors);
+  const sticky = floorHeatBuckets(floors);
+  const accuracy = floorHeatBuckets(floors);
   const stalePathSegments = [];
   let movingSeconds = 0;
   let measuredSeconds = 0;
@@ -53,7 +61,7 @@ export function analyzeReportResult(result, selected = REPORT_THRESHOLDS) {
       const groundTruth = interval.groundTruth;
       measuredSeconds += elapsed;
       if (interval.distanceM > thresholds.accuracyM) {
-        addHeat(accuracy, groundTruth, elapsed, {
+        addHeatPoint(accuracy, groundTruth, elapsed, {
           pollId: sample.pollId,
           distanceM: interval.distanceM,
         });
@@ -70,7 +78,7 @@ export function analyzeReportResult(result, selected = REPORT_THRESHOLDS) {
       const startMs = Math.max(segment.startMs, stickyStartMs);
       if (startMs >= segment.endMs) continue;
       const stickyTruth = truth.at((startMs + segment.endMs) / 2);
-      addHeat(sticky, stickyTruth, (segment.endMs - startMs) / 1000, {
+      addHeatPoint(sticky, stickyTruth, (segment.endMs - startMs) / 1000, {
         pollId: sample.pollId,
         fixAgeSeconds: (segment.endMs - sample.heldSinceMs) / 1000,
         routeDistanceM: stickyTruth?.routeDistanceM,
@@ -78,8 +86,18 @@ export function analyzeReportResult(result, selected = REPORT_THRESHOLDS) {
       });
     }
   }
-  const stickySeconds = heatWeight(sticky);
-  const outsideAccuracySeconds = heatWeight(accuracy);
+  const stickySeconds = totalHeatSeconds(sticky);
+  const outsideAccuracySeconds = totalHeatSeconds(accuracy);
+  const fixSamples = buildUniqueFixSamples(result, truth);
+  const lanes = buildFixLanes({
+    result,
+    samples: fixSamples,
+    thresholds,
+    movingSeconds,
+    stickySeconds,
+    timeline,
+    truth,
+  });
   const warnings = buildReportWarnings({
     timeline,
     truth,
@@ -110,33 +128,12 @@ export function analyzeReportResult(result, selected = REPORT_THRESHOLDS) {
     warnings,
     stalePathSegments,
     timeline: timeline.map(publicReportSample),
+    fixes: { samples: fixSamples.map(publicFixSample), ...lanes },
     heatmaps: {
       sticky: [...sticky.values()],
       accuracy: [...accuracy.values()],
     },
   };
-}
-function floorBuckets(floors) {
-  return new Map(floors.map(floor => [
-    String(floor.z),
-    { ...floor, points: [] },
-  ]));
-}
-function addHeat(buckets, groundTruth, weightSeconds, details) {
-  const floor = buckets.get(String(groundTruth?.z));
-  if (!floor || !(weightSeconds > 0)) return;
-  floor.points.push({
-    at: groundTruth.at,
-    lat: groundTruth.lat,
-    lng: groundTruth.lng,
-    z: groundTruth.z,
-    weightSeconds: round(weightSeconds),
-    ...details,
-  });
-}
-function heatWeight(buckets) {
-  return [...buckets.values()].flatMap(floor => floor.points)
-    .reduce((total, point) => total + point.weightSeconds, 0);
 }
 function percent(part, whole) {
   return whole > 0 ? round(part / whole * 100) : 0;

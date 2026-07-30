@@ -39,6 +39,13 @@ test("paired evidence labels both route positions as estimates and keeps returne
   assert.equal((html.match(/route estimate/g) ?? []).length, 2);
   assert.match(html, /170\.5003, -45\.87 · z 0/);
   assert.match(html, /Same position/);
+  assert.match(html, /Provider confidence[\s\S]*?Not reported/);
+  const withConfidence = pairMarkup({
+    poll: { ...poll, normalized: { ...poll.normalized, confidence: 4.8768 } },
+    identityChanged: false,
+    coordinatesMoved: false,
+  });
+  assert.match(withConfidence, /± 4\.9 m/);
 });
 
 test("poll picker and status labels distinguish failures, freshness, floor, and snap outcome", () => {

@@ -6,12 +6,14 @@
 // PROVENANCE:   Scope/steps/05a_recast_player.md
 
 import { renderComparisonView } from "./comparison-view.mjs";
+import { renderDirectionView } from "./direction-view.mjs";
 import { renderFloorRouteView } from "./floor-route-view.mjs";
 import { renderHeatmapView } from "./heatmap-view.mjs";
 import { renderIdentityView } from "./identity-view.mjs";
 import { renderKpiView } from "./kpi-view.mjs";
 import { renderMapAccess } from "./map-access.mjs";
 import { renderMethodologyView } from "./methodology-view.mjs";
+import { renderNoPositionView } from "./no-position-view.mjs";
 import { renderPlaybackView } from "./playback-view.mjs";
 import { renderReportInsights } from "./report-insights-view.mjs";
 import { renderReportWarnings } from "./report-warning-view.mjs";
@@ -61,8 +63,14 @@ export function renderReportShell(state, candidates = []) {
     </div>
     <div data-report-pane="analysis" class="analysis-pane">
       <section class="report-section" data-module="kpi">${renderKpiView(analysis)}</section>
+      <section class="report-section" data-module="noPosition">
+        ${renderNoPositionView(state)}
+      </section>
       <section class="report-section" data-module="insights">
         ${renderReportInsights(state)}
+      </section>
+      <section class="report-section" data-module="direction">
+        ${renderDirectionView(state)}
       </section>
       <section class="report-section" data-module="heatmap">
         ${renderHeatmapView({ analysis, thresholds })}

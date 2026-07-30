@@ -73,12 +73,8 @@ export function createDynamicRoomFinaliser(options) {
         options.definition,
         state.startedAt,
       ),
-      dwellSecondsByStopId: Object.fromEntries(
-        session.checkpoints.map(checkpoint => [
-          checkpoint.stopId,
-          checkpoint.dwellSeconds,
-        ]),
-      ),
+      checkpoints: structuredClone(session.checkpoints),
+      markSpacingM: session.markSpacingM,
       captureAfterRoute: captureAfterRoute,
     }, {
       now: options.nowDate,

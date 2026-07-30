@@ -19,6 +19,10 @@ import {
   validateSurveyResultV3,
 } from "../../domain/survey-result-v3.mjs";
 import { dynamicDefinitionInput } from "./dynamic-survey-definition.mjs";
+import {
+  dynamicDeviceResultFiles,
+  dynamicJsonFile,
+} from "./dynamic-device-results.mjs";
 
 export async function finaliseDynamicSurvey(options, deps = {}) {
   if (typeof options?.routeAuthor?.finalise !== "function") {
@@ -49,15 +53,20 @@ export async function finaliseDynamicSurvey(options, deps = {}) {
   });
   assertValid("Dynamic result", validateSurveyResultV3(result));
   assertDynamicExportIdentity(definition, result);
+  const deviceResults = dynamicDeviceResultFiles(capture, definition);
+  for (const device of deviceResults) {
+    assertDynamicExportIdentity(definition, device.result);
+  }
   return {
     definition,
     result,
+    deviceResults,
     files: {
-      definition: jsonFile(
+      definition: dynamicJsonFile(
         `${safeName(definition.meta.surveyId)}.definition.v3.json`,
         definition,
       ),
-      result: jsonFile(resultFilename(result), result),
+      result: dynamicJsonFile(resultFilename(result), result),
     },
   };
 }
@@ -86,14 +95,6 @@ function assertValid(label, validation) {
   if (!validation.valid) {
     throw new Error(`${label} is invalid:\n${validation.errors.join("\n")}`);
   }
-}
-
-function jsonFile(filename, value) {
-  return Object.freeze({
-    filename,
-    content: `${JSON.stringify(value, null, 2)}\n`,
-    type: "application/json",
-  });
 }
 
 function safeName(value) {

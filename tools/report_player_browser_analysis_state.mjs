@@ -49,7 +49,10 @@ export function readReportAnalysisState(page) {
       text: document.querySelector("[data-module=warnings]")?.textContent ?? "",
       mapAlertText: mapAlerts?.textContent ?? "",
       mapAlertsInsideMap: Boolean(mapAlerts?.closest(".map-stage")),
-      diagnosticPanels: document.querySelectorAll(".diagnostic-panel").length,
+      diagnosticPanels: document
+        .querySelectorAll("[data-module=insights] .diagnostic-panel").length,
+      directionPanels: document
+        .querySelectorAll("[data-module=direction] .direction-panel").length,
       insightText: document.querySelector("[data-module=insights]")?.textContent ?? "",
       noPrimaryTimeline: !document.querySelector("[data-module=timeline]"),
       thresholdOptions: {
@@ -102,16 +105,13 @@ export function reportAnalysisFindings(state) {
   for (const kind of ["stale-position", "floor-mismatch"]) {
     if (!state.kinds?.includes(kind)) findings.push(`Report warning missing ${kind}`);
   }
-  if (!/No position update/i.test(state.text)) {
-    findings.push("Report no-position-update warning copy is missing");
-  }
-  if (!/Floor level disconnect/i.test(state.text)) {
-    findings.push("Report floor-disconnect warning copy is missing");
-  }
+  if (!/No position update/i.test(state.text)) findings.push("Report no-position-update warning copy is missing");
+  if (!/Floor level disconnect/i.test(state.text)) findings.push("Report floor-disconnect warning copy is missing");
   if (!state.mapAlertsInsideMap) findings.push("Shared Player warning slot left the map");
   if ((state.mapAlertText ?? "").trim()) findings.push("Report still shows large map warning banners");
   if (!state.noPrimaryTimeline) findings.push("Report still exposes the primary timeline log");
-  if (state.diagnosticPanels !== 4) findings.push("Report does not show all four diagnostic panels");
+  if (state.diagnosticPanels !== 5) findings.push("Report does not show all five diagnostic panels");
+  if (!state.directionPanels) findings.push("Report direction overlay panel is missing");
   if (!/Top no-update locations/i.test(state.insightText)
       || !/Floor changes lag behind/i.test(state.insightText)) {
     findings.push("Report location or floor-lag data is missing");

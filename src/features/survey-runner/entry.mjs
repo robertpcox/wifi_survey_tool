@@ -1,3 +1,5 @@
+import { dynamicEntryIssues } from "./dynamic-room-devices.mjs";
+
 export const RUNNER_ENTRY_FIELDS = Object.freeze([
   "deviceType",
   "deviceOs",
@@ -5,15 +7,21 @@ export const RUNNER_ENTRY_FIELDS = Object.freeze([
   "clientIp",
   "band",
 ]);
+export const RUNNER_OPTIONAL_FIELDS = Object.freeze([
+  "proxyBase",
+  "dynamicDwellSeconds",
+  "dynamicMarkSpacingM",
+  "extraDevice1Label",
+  "extraDevice1Ip",
+  "extraDevice2Label",
+  "extraDevice2Ip",
+]);
 
 export function normalizeRunnerEntry(values) {
-  return {
-    deviceType: clean(values.deviceType),
-    deviceOs: clean(values.deviceOs),
-    deviceName: clean(values.deviceName),
-    clientIp: clean(values.clientIp),
-    band: clean(values.band),
-  };
+  return Object.fromEntries(
+    [...RUNNER_ENTRY_FIELDS, ...RUNNER_OPTIONAL_FIELDS]
+      .map(name => [name, clean(values[name])]),
+  );
 }
 
 export function runnerEntryIssues(values, credentials, requirements = {}) {
@@ -28,6 +36,7 @@ export function runnerEntryIssues(values, credentials, requirements = {}) {
     issues.push("band is unsupported");
   }
   if (!values.consent) issues.push("position recording acknowledgement is required");
+  issues.push(...dynamicEntryIssues(entry));
   const requiredCredentials = { ...requirements, mapAccess: false };
   for (const name of credentials.missing(requiredCredentials)) {
     issues.push(`${name} is required`);
@@ -43,7 +52,7 @@ export function syncRunnerCredentials(values, credentials) {
 
 export function runnerPositionRequest(definition, entry, credentials) {
   return {
-    proxyBase: definition.meta.sourceConfig.proxyBase,
+    proxyBase: entry.proxyBase || definition.meta.sourceConfig.proxyBase,
     configId: definition.meta.sourceConfig.configId,
     clientIp: entry.clientIp,
     appId: credentials.read("appId"),

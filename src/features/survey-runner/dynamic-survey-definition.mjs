@@ -19,21 +19,25 @@ export function dynamicDefinitionInput(options, plan) {
     index,
   ));
   const coverage = dynamicCoverage(options.definitionInput.meta, stops, legs);
-  const checkpoints = generateRouteCheckpointsV3(stops, legs, 0).checkpoints
-    .map(checkpoint => ({
-      ...checkpoint,
-      dwellSeconds: dwellFor(
-        options.dwellSecondsByStopId,
-        checkpoint.stopId,
-      ),
-    }));
+  const captured = Array.isArray(options.checkpoints);
+  const checkpoints = captured
+    ? structuredClone(options.checkpoints)
+    : generateRouteCheckpointsV3(stops, legs, 0).checkpoints
+      .map(checkpoint => ({
+        ...checkpoint,
+        dwellSeconds: dwellFor(
+          options.dwellSecondsByStopId,
+          checkpoint.stopId,
+        ),
+      }));
   return {
     ...options.definitionInput,
     meta: { ...options.definitionInput.meta, ...coverage },
     stops,
     legs,
     checkpoints,
-    checkpointSpacingM: 0,
+    ...(captured ? { checkpointOrigin: "captured" } : {}),
+    checkpointSpacingM: captured ? Number(options.markSpacingM) || 0 : 0,
     checkpointDwellSeconds: 0,
   };
 }

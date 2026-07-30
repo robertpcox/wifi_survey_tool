@@ -13,6 +13,10 @@ import {
 } from "./runner_browser_assertions.mjs";
 import { installRunnerBrowserEnvironment }
   from "./runner_browser_environment.mjs";
+import {
+  exerciseDynamicMarkWalk,
+  resolveRunnerRoute,
+} from "./runner_browser_dynamic_marks.mjs";
 import { stoppedPollingFindings } from "./runner_browser_lifecycle.mjs";
 
 export async function exerciseDynamicRoomBrowser(options) {
@@ -35,20 +39,14 @@ export async function exerciseDynamicRoomBrowser(options) {
   );
   await page.select("[data-survey-select]", DYNAMIC_SURVEY_ID);
   await setRunnerEntry(page, "Dynamic Android");
+  await page.select('[name="dynamicDwellSeconds"]', "5");
   await page.click('[data-action="preflight"]');
   await page.waitForFunction(() => (
     document.querySelector("[data-preflight-light]").textContent === "GREEN"
   ));
   await page.click('[data-action="go"]');
   await page.waitForSelector("[data-dynamic-room-panel]:not([hidden])");
-  const points = definition.route.stops.slice(0, 2);
-  for (const point of points) {
-    await page.evaluate(value => window.__runnerMapClick({
-      lngLat: { lng: value.lng, lat: value.lat },
-    }), point);
-    await page.waitForSelector('[data-action="dynamic-check-in"]:not([hidden])');
-    await page.click('[data-action="dynamic-check-in"]');
-  }
+  await exerciseDynamicMarkWalk(page, definition);
   try {
     await page.waitForFunction(
       () => typeof window.__resolveRunnerRoute === "function",
@@ -58,12 +56,8 @@ export async function exerciseDynamicRoomBrowser(options) {
     const diagnostic = await page.evaluate(() => ({
       phase: document.querySelector("[data-dynamic-room-panel]")?.dataset.phase,
       status: document.querySelector("[data-dynamic-room-status]")?.textContent,
-      checkInHidden: document.querySelector(
-        '[data-action="dynamic-check-in"]',
-      )?.hidden,
-      finishDisabled: document.querySelector(
-        '[data-action="dynamic-finish"]',
-      )?.disabled,
+      checkInHidden: document.querySelector('[data-action="dynamic-check-in"]')?.hidden,
+      finishDisabled: document.querySelector('[data-action="dynamic-finish"]')?.disabled,
     }));
     throw new Error(`Dynamic route did not start: ${JSON.stringify({
       ...diagnostic,
@@ -80,7 +74,7 @@ export async function exerciseDynamicRoomBrowser(options) {
   await page.waitForFunction(before => Number(
     document.querySelector("[data-poll-count]").textContent,
   ) > before, {}, count);
-  await page.evaluate(() => window.__resolveRunnerRoute());
+  await resolveRunnerRoute(page, "committed route leg");
   await page.waitForSelector('[data-dynamic-room-panel][data-phase="completed"]');
   failures.push(...await stoppedPollingFindings(page, requests));
   const definitionFile = await download(page, "dynamic-download-definition");
@@ -111,8 +105,15 @@ export function dynamicRoomBrowserFindings(value) {
     findings.push("dynamic definition name missing");
   }
   if (value.definition?.route?.stops?.length !== 2
-      || value.result?.checkIns?.length !== 2) {
-    findings.push("two exact dynamic checkpoints were not exported");
+      || value.result?.checkIns?.length !== 4) {
+    findings.push("two stops with two passed marks were not exported");
+  }
+  const checkpoints = value.definition?.route?.checkpoints ?? [];
+  if (checkpoints.map(checkpoint => checkpoint.type).join()
+      !== "stop,intermediate,intermediate,stop"
+      || checkpoints.some(checkpoint => checkpoint.spacingBasisM !== 5)
+      || value.definition?.meta?.route?.checkpointSpacingM !== 5) {
+    findings.push("5 m marks did not export with planned conventions");
   }
   if (value.result?.run?.captureMode !== "dynamic-room") {
     findings.push("dynamic capture provenance missing");

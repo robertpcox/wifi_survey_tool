@@ -10,6 +10,8 @@ export function buildReportCaptureSeries(result, analysis) {
   const stoppedMs = Date.parse(result.run.stoppedAt);
   const preflightId = result.run.preflight.sampleId;
   const samples = new Map(analysis.timeline.map(sample => [sample.pollId, sample]));
+  const lagByPoll = new Map((analysis.fixes?.lagSeries ?? [])
+    .map(item => [item.pollId, item.lagBehindM]));
   const polls = result.polls.filter(poll => {
     const receivedMs = Date.parse(poll.receivedAt);
     return poll.id !== preflightId
@@ -17,7 +19,12 @@ export function buildReportCaptureSeries(result, analysis) {
       && receivedMs >= startedMs
       && receivedMs <= stoppedMs;
   }).sort((left, right) => Date.parse(left.receivedAt) - Date.parse(right.receivedAt));
-  const timeline = polls.map(poll => capturePoint(poll, samples.get(poll.id), startedMs));
+  const timeline = polls.map(poll => capturePoint(
+    poll,
+    samples.get(poll.id),
+    startedMs,
+    lagByPoll,
+  ));
   return {
     timeline,
     requestFailures: timeline.filter(point => point.requestFailed),
@@ -25,12 +32,13 @@ export function buildReportCaptureSeries(result, analysis) {
   };
 }
 
-function capturePoint(poll, sample, startedMs) {
+function capturePoint(poll, sample, startedMs, lagByPoll) {
   return {
     pollId: poll.id,
     elapsedSeconds: round((Date.parse(poll.receivedAt) - startedMs) / 1000),
     accuracyM: finite(sample?.accuracyM),
     fixAgeSeconds: finite(sample?.fixAgeSeconds),
+    lagBehindM: finite(lagByPoll.get(poll.id)),
     roundTripMs: finite(poll.roundTripMs),
     reportedZ: sample?.fix?.z ?? null,
     actualZ: sample?.groundTruth?.z ?? null,

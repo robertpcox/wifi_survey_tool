@@ -32,4 +32,11 @@ test("comparison view labels baseline, values, deltas, device bands, and comment
   assert.match(html, /Second handset · FixtureOS 1 · band 6/);
   assert.match(html, /Second run note/);
   assert.match(html, /Δ 0 · mobile · Second handset/);
+  assert.match(html, /Accuracy · unique fixes at fix time/);
+  assert.match(html, /Within provider confidence \(%\)/);
+  assert.match(html, /Freshness · cloud pipeline/);
+  assert.match(html, /Lag behind median \(m\)/);
+  assert.match(html, /Effective no position \(%\)/);
+  assert.match(html, /Legacy blended · per poll at receipt/);
+  assert.equal((html.match(/class="comparison-group"/g) ?? []).length, 4);
 });

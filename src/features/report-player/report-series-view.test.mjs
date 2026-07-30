@@ -10,7 +10,7 @@ import test from "node:test";
 
 import { renderReportSeries } from "./report-series-view.mjs";
 
-test("diagnostic view renders four panels and the retained request outage", () => {
+test("diagnostic view renders five panels and the retained request outage", () => {
   const timeline = [
     point(0, 2, 1, 900, 1, 1),
     point(10, 14, 20, 12099, 2, 1, true),
@@ -30,9 +30,11 @@ test("diagnostic view renders four panels and the retained request outage", () =
       error: "Timed out",
     }],
   }, { stickySeconds: 15, accuracyM: 10 });
-  assert.equal((html.match(/class="diagnostic-panel/g) ?? []).length, 4);
-  assert.match(html, /Position error/);
-  assert.match(html, /Time since last position update/);
+  assert.equal((html.match(/class="diagnostic-panel/g) ?? []).length, 5);
+  assert.match(html, /Position error at receipt/);
+  assert.match(html, /includes delivery lag/);
+  assert.match(html, /Freshness · time since the served fix changed/);
+  assert.match(html, /Lag behind · how far the served dot ran behind the walker/);
   assert.match(html, /12\.1 s/);
   assert.match(html, /Timed out/);
 });
@@ -42,6 +44,7 @@ function point(elapsedSeconds, accuracyM, fixAgeSeconds, roundTripMs, reportedZ,
     elapsedSeconds,
     accuracyM,
     fixAgeSeconds,
+    lagBehindM: accuracyM,
     roundTripMs,
     reportedZ,
     actualZ,

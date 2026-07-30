@@ -46,6 +46,9 @@ export function pairMarkup(item) {
     ["HTTP / RTT", `${poll.httpStatus ?? "—"} / ${poll.roundTripMs ?? "—"} ms`],
     ["Returned fix", fix ? `${fix.lng}, ${fix.lat} · z ${fix.z}` : "No usable fix"],
     ["Fix time", fix?.fixTime ?? "Unavailable"],
+    ["Provider confidence", Number.isFinite(fix?.confidence)
+      ? `± ${fix.confidence.toFixed(1)} m`
+      : "Not reported"],
     ["Identity", item.identityChanged === false ? "Unchanged" : "Changed"],
     ["Coordinates", item.coordinatesMoved === false ? "Same position" : "Moved"],
   ];

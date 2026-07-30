@@ -60,7 +60,7 @@ export function mountSurveyRunner(options = {}) {
     }, overridden)) return false;
     const startOptions = {
       ...options, state, setup, formView, runView, dynamicView, mapAdapter,
-      nowDate,
+      source, credentials, nowDate,
       createId: options.createId ?? (() => globalThis.crypto.randomUUID()),
       cryptoRef: options.cryptoRef ?? globalThis.crypto,
       documentRef,
@@ -116,10 +116,12 @@ export function mountSurveyRunner(options = {}) {
     noteState: noteController.noteState,
     overrideChanged: setup.updateActions,
     overrideGo: () => start(true),
+    passMark: () => state.activeRun?.passMark?.(),
     preflight,
     retry: () => state.activeRun?.retry?.(),
     selectSurvey: setup.selectSurvey,
     skip: () => state.activeRun?.skip(),
+    skipMark: () => state.activeRun?.skipMark?.(),
     stop: () => state.activeRun?.stop(),
     async validateFile(event) {
       const file = event?.target?.files?.[0];

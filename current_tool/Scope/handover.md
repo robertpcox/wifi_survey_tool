@@ -18,7 +18,7 @@ Runner notes have distinct frozen-route identity and hold exact Player truth onl
 - All four shells, Creator, two automated mobile Runner profiles, and four Report Player
   scenarios passed. The mobile profiles do not replace physical Android field acceptance.
 - Manifests contain six surveys and six field results (five completed, one aborted); `dist/`
-  has 214 files. Prior source `f0f6570` and demo `c9cefad` are pushed; this UI patch awaits publication.
+  has 214 files. Source `ccfa610` and demo `084a8fe` are pushed; the live host awaits its server pull.
 - Routes 1a and 1b use different revision IDs but exact hash `69d2c5f11ffe…`, proving why
   survey family, immutable revision, and exact-route cohort are separate identities.
 - The old private field input was removed; its reviewed route-truth golden remains a receipt

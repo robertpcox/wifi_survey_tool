@@ -12,8 +12,8 @@
   unsupported SDKs retain the default control.
 - The final build passed 520/520 tests and all size/header/import/schema/reference/secrets/goldens/module-map gates.
 - Four shells, Creator, two mobile Runner profiles, and four Player scenarios passed; physical Android remains pending.
-- Prior source `f0f6570` and demo `c9cefad` are pushed; the current Stop-control UI patch
-  is release-validated and awaits publication.
+- Source `ccfa610` and byte-identical demo `084a8fe` are pushed; the public host still
+  awaited its server-side pull at the final probe.
 
 ## 2026-07-29 — Frozen-route notes and replacement field set validated
 

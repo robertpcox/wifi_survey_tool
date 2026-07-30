@@ -38,11 +38,16 @@ export async function exercisePublicReportPlayer({
     { waitUntil: "networkidle0" },
   );
   await page.waitForSelector(".dashboard-launch");
+  await page.waitForSelector("[data-capture-convert]");
   const dashboard = await page.evaluate(() => ({
     launches: document.querySelectorAll(".dashboard-launch").length,
+    spineChoices: document.querySelectorAll("[data-capture-spine] option").length,
+    spineUpload: Boolean(document.querySelector("[data-capture-spine-file]")),
     text: document.body.textContent,
   }));
   if (dashboard.launches !== completedCount) failures.push("completed dashboard count differs");
+  if (!dashboard.spineChoices) failures.push("capture converter offers no completed spine runs");
+  if (!dashboard.spineUpload) failures.push("capture converter lacks the spine upload input");
   if (!dashboard.text.includes(fixture.meta.customerName)) failures.push("customer name missing");
   await Promise.all([
     page.waitForNavigation({ waitUntil: "networkidle0" }),

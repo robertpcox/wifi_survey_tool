@@ -40,6 +40,18 @@ test("map frame composes embedded route and ground-truth heat by meta floor", ()
           [170.50015, -45.87],
         ],
       }],
+      concernSegments: [
+        {
+          kind: "centre",
+          z: 0,
+          coordinates: [[170.5001, -45.87], [170.50015, -45.87]],
+        },
+        {
+          kind: "approach-forward",
+          z: 1,
+          coordinates: [[170.5002, -45.87], [170.5003, -45.87]],
+        },
+      ],
       sticky: {
         heatByZ: {
           0: [{ lng: 170.5001, lat: -45.87, z: 0, weightSeconds: 2 }],
@@ -62,6 +74,9 @@ test("map frame composes embedded route and ground-truth heat by meta floor", ()
     ],
   );
   assert.equal(mapFrame.pollTrail.length, 1);
+  assert.equal(mapFrame.concernLines.length, 1);
+  assert.equal(mapFrame.concernLines[0].kind, "centre");
+  assert.equal(mapFrame.concernLines[0].points.length, 2);
   assert.ok(mapFrame.routeLines.length);
   assert.ok(mapFrame.routeLines[0].at(-1).x - mapFrame.routeLines[0][0].x > 0.5);
   assert.ok(mapFrame.walker);

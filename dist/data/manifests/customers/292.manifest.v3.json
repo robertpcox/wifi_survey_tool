@@ -1,0 +1,207 @@
+{
+  "schemaVersion": 3,
+  "customerId": "292",
+  "customerName": "NTT - NDH",
+  "surveys": [
+    {
+      "surveyId": "4a9ba424-a96f-466d-a000-d0ba5d62571e",
+      "surveyName": "All Floors",
+      "customerId": "292",
+      "customerName": "NTT - NDH",
+      "campusId": "566",
+      "routeId": "5",
+      "routeHash": "c2ea69731cbc592211e76bcefcb00957ae0eb37f84167596142bbb86131d165f",
+      "path": "data/surveys/4a9ba424-a96f-466d-a000-d0ba5d62571e.definition.v3.json"
+    },
+    {
+      "surveyId": "701fc3a3-aba8-48f7-b22b-d0d26d780e8c",
+      "surveyName": "L00 - K01 Wait Straight Line - No Dwell",
+      "customerId": "292",
+      "customerName": "NTT - NDH",
+      "campusId": "566",
+      "routeId": "1a",
+      "routeHash": "69d2c5f11ffe448946ec822a3d7ef1b76f68493d56edf5687d711112847348eb",
+      "path": "data/surveys/701fc3a3-aba8-48f7-b22b-d0d26d780e8c.definition.v3.json"
+    },
+    {
+      "surveyId": "87bca6ff-38c9-4a3a-8602-90bc6278a3b5",
+      "surveyName": "Star Test - 20 Dwell in Lifts",
+      "customerId": "292",
+      "customerName": "NTT - NDH",
+      "campusId": "566",
+      "routeId": "5",
+      "routeHash": "a1cfc5237fba4569b58ed91a5946d51f765df5cdf0ec931d1c0fd7644190850c",
+      "path": "data/surveys/87bca6ff-38c9-4a3a-8602-90bc6278a3b5.definition.v3.json"
+    },
+    {
+      "surveyId": "8bed4861-476e-417f-943c-0c08c40e7e1c",
+      "surveyName": "L00 - Information to L01 K11 Clinical Room",
+      "customerId": "292",
+      "customerName": "NTT - NDH",
+      "campusId": "566",
+      "routeId": "3",
+      "routeHash": "28b9e451f9a3a3a5eb1430d7383612ea9e8b0bd33976736de4267177c543fbe5",
+      "path": "data/surveys/8bed4861-476e-417f-943c-0c08c40e7e1c.definition.v3.json"
+    },
+    {
+      "surveyId": "a9c69528-da66-4121-b597-67e049cb1961",
+      "surveyName": "Dynamic room survey",
+      "customerId": "292",
+      "customerName": "NTT - NDH",
+      "campusId": "566",
+      "routeId": "dynamic-room-20260730051104",
+      "routeHash": "0a9e1303c463554bbb47bc783841fed6c8147e3ad8e5b991768376b5949cddb5",
+      "path": "data/surveys/a9c69528-da66-4121-b597-67e049cb1961.definition.v3.json"
+    },
+    {
+      "surveyId": "b714527c-6197-4a08-b4cb-3d33ee022f9c",
+      "surveyName": "L00 - K01 Wait To Stairs - Return",
+      "customerId": "292",
+      "customerName": "NTT - NDH",
+      "campusId": "566",
+      "routeId": "2",
+      "routeHash": "3a2ee3e146f75113c5861c521a404e8aa4e2b4eb59f01debca5b6da1ee1092e4",
+      "path": "data/surveys/b714527c-6197-4a08-b4cb-3d33ee022f9c.definition.v3.json"
+    },
+    {
+      "surveyId": "ff3e7307-a71c-4708-9ce9-6dd7fc182a89",
+      "surveyName": "L00 - K01 Wait Straight Line - 5sec Dwell",
+      "customerId": "292",
+      "customerName": "NTT - NDH",
+      "campusId": "566",
+      "routeId": "1b",
+      "routeHash": "69d2c5f11ffe448946ec822a3d7ef1b76f68493d56edf5687d711112847348eb",
+      "path": "data/surveys/ff3e7307-a71c-4708-9ce9-6dd7fc182a89.definition.v3.json"
+    }
+  ],
+  "results": [
+    {
+      "resultId": "b029e89e-f4e9-46c7-a2df-fbf1731770ec",
+      "surveyId": "4a9ba424-a96f-466d-a000-d0ba5d62571e",
+      "customerId": "292",
+      "campusId": "566",
+      "routeHash": "c2ea69731cbc592211e76bcefcb00957ae0eb37f84167596142bbb86131d165f",
+      "device": {
+        "type": "mobile",
+        "os": "iPhone",
+        "name": "iPhone"
+      },
+      "band": "5",
+      "completionStatus": "completed",
+      "exportedAt": "2026-07-30T02:36:21.861Z",
+      "path": "results/292__566__4a9ba424-a96f-466d-a000-d0ba5d62571e__2026-07-30T02-36-21Z.result.v3.json"
+    },
+    {
+      "resultId": "d61fb99c-2079-42a3-93a5-a18399ff6854",
+      "surveyId": "701fc3a3-aba8-48f7-b22b-d0d26d780e8c",
+      "customerId": "292",
+      "campusId": "566",
+      "routeHash": "69d2c5f11ffe448946ec822a3d7ef1b76f68493d56edf5687d711112847348eb",
+      "device": {
+        "type": "mobile",
+        "os": "iOS 26",
+        "name": "Rob’s iPhone"
+      },
+      "band": "6",
+      "completionStatus": "completed",
+      "exportedAt": "2026-07-29T01:35:07.700Z",
+      "path": "results/292__566__701fc3a3-aba8-48f7-b22b-d0d26d780e8c__2026-07-29T01-35-07Z.result.v3.json"
+    },
+    {
+      "resultId": "bac9a4da-3bdd-406b-b36c-002bb68cdb79",
+      "surveyId": "76468764-17fb-41f2-b48a-e591cbd4783c",
+      "customerId": "292",
+      "campusId": "566",
+      "routeHash": "4e7cd1c6dadcc123ba31bda0008314831ea5eb13a694e92651f1752f3234c6dc",
+      "device": {
+        "type": "mobile",
+        "os": "iOS",
+        "name": "iPhone"
+      },
+      "band": "5",
+      "completionStatus": "aborted",
+      "exportedAt": "2026-07-29T09:47:35.031Z",
+      "path": "results/292__566__76468764-17fb-41f2-b48a-e591cbd4783c__2026-07-29T09-47-35Z.result.v3.json"
+    },
+    {
+      "resultId": "70912396-77e3-4a0a-a580-1cf2056c867a",
+      "surveyId": "8bed4861-476e-417f-943c-0c08c40e7e1c",
+      "customerId": "292",
+      "campusId": "566",
+      "routeHash": "28b9e451f9a3a3a5eb1430d7383612ea9e8b0bd33976736de4267177c543fbe5",
+      "device": {
+        "type": "mobile",
+        "os": "iOS 26",
+        "name": "Rob’s iPhone"
+      },
+      "band": "5",
+      "completionStatus": "completed",
+      "exportedAt": "2026-07-29T02:08:18.470Z",
+      "path": "results/292__566__8bed4861-476e-417f-943c-0c08c40e7e1c__2026-07-29T02-08-18Z.result.v3.json"
+    },
+    {
+      "resultId": "0d79f17a-3ca6-4228-b7c3-a7f7cc84fd8f",
+      "surveyId": "a9c69528-da66-4121-b597-67e049cb1961",
+      "customerId": "292",
+      "campusId": "566",
+      "routeHash": "0a9e1303c463554bbb47bc783841fed6c8147e3ad8e5b991768376b5949cddb5",
+      "device": {
+        "type": "mobile",
+        "os": "iPhone",
+        "name": "iPhone"
+      },
+      "band": "5",
+      "completionStatus": "completed",
+      "exportedAt": "2026-07-30T05:21:06.790Z",
+      "path": "results/292__566__a9c69528-da66-4121-b597-67e049cb1961__2026-07-30T05-21-06Z.result.v3.json"
+    },
+    {
+      "resultId": "0871865c-f653-425d-9e78-c0c013bdb7b5",
+      "surveyId": "b714527c-6197-4a08-b4cb-3d33ee022f9c",
+      "customerId": "292",
+      "campusId": "566",
+      "routeHash": "3a2ee3e146f75113c5861c521a404e8aa4e2b4eb59f01debca5b6da1ee1092e4",
+      "device": {
+        "type": "mobile",
+        "os": "iOS 26",
+        "name": "Rob’s iPhone"
+      },
+      "band": "5",
+      "completionStatus": "completed",
+      "exportedAt": "2026-07-29T02:02:55.562Z",
+      "path": "results/292__566__b714527c-6197-4a08-b4cb-3d33ee022f9c__2026-07-29T02-02-55Z.result.v3.json"
+    },
+    {
+      "resultId": "6a226d13-5e8c-411e-897b-39fe4c767aee",
+      "surveyId": "ff3e7307-a71c-4708-9ce9-6dd7fc182a89",
+      "customerId": "292",
+      "campusId": "566",
+      "routeHash": "69d2c5f11ffe448946ec822a3d7ef1b76f68493d56edf5687d711112847348eb",
+      "device": {
+        "type": "mobile",
+        "os": "Ios26",
+        "name": "Rob’s iPhone"
+      },
+      "band": "5",
+      "completionStatus": "completed",
+      "exportedAt": "2026-07-29T01:41:28.663Z",
+      "path": "results/292__566__ff3e7307-a71c-4708-9ce9-6dd7fc182a89__2026-07-29T01-41-28Z.result.v3.json"
+    },
+    {
+      "resultId": "8ecb4401-0686-4241-a396-2a8b5bc97802",
+      "surveyId": "ff3e7307-a71c-4708-9ce9-6dd7fc182a89",
+      "customerId": "292",
+      "campusId": "566",
+      "routeHash": "69d2c5f11ffe448946ec822a3d7ef1b76f68493d56edf5687d711112847348eb",
+      "device": {
+        "type": "mobile",
+        "os": "Spectrlink",
+        "name": "Test"
+      },
+      "band": "5",
+      "completionStatus": "completed",
+      "exportedAt": "2026-07-29T02:17:04.387Z",
+      "path": "results/292__566__ff3e7307-a71c-4708-9ce9-6dd7fc182a89__2026-07-29T02-17-04Z.result.v3.json"
+    }
+  ]
+}

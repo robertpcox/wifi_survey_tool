@@ -13,10 +13,8 @@ import {
 } from "./runner_browser_assertions.mjs";
 import { installRunnerBrowserEnvironment }
   from "./runner_browser_environment.mjs";
-import {
-  exerciseDynamicMarkWalk,
-  resolveRunnerRoute,
-} from "./runner_browser_dynamic_marks.mjs";
+import { exerciseDefinitionUploadRerun, exerciseDynamicMarkWalk, resolveRunnerRoute }
+  from "./runner_browser_dynamic_marks.mjs";
 import { stoppedPollingFindings } from "./runner_browser_lifecycle.mjs";
 
 export async function exerciseDynamicRoomBrowser(options) {
@@ -93,6 +91,7 @@ export async function exerciseDynamicRoomBrowser(options) {
   }));
   await page.click('[data-action="dynamic-clear"]');
   await page.waitForFunction(() => !document.body.classList.contains("runner-running"));
+  await exerciseDefinitionUploadRerun(page, definitionFile.value);
   await page.close();
   if (failures.length) throw new Error(`Dynamic Android: ${failures.join("\n")}`);
   return { definition: definitionFile.filename, result: resultFile.filename };

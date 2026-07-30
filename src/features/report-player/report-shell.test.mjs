@@ -28,11 +28,19 @@ test("one map and one loaded context compose the Report and full Player", () => 
     comparison: null,
   });
   for (const module of [
-    "warnings", "floor-route", "mapAlerts", "kpi", "noPosition", "insights",
-    "direction", "heatmap", "comparison", "methodology", "playback",
+    "warnings", "floor-route", "mapAlerts", "kpi", "insights", "direction",
+    "heatmap", "noPosition", "comparison", "methodology", "playback",
   ]) {
     assert.match(html, new RegExp(`data-module="${module}"`));
   }
+  assert.ok(
+    html.indexOf('data-module="noPosition"') > html.indexOf('data-module="heatmap"'),
+    "no-position section renders after the chart diagnostics",
+  );
+  assert.ok(
+    html.indexOf('data-module="noPosition"') < html.indexOf('data-module="comparison"'),
+    "no-position section renders before comparison",
+  );
   for (const playerPart of [
     "data-player-workspace",
     'data-report-pane="playback"',

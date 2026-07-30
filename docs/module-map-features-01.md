@@ -14,7 +14,12 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - route-library 138/3647 T+ E createRouteLibrary I @d/route-model
 - stop-input 69/1986 T+ E createStopInput I @a/map/routing, @d/stop-targets
 ## dashboard/
-- dashboard.css 102/2293 T+
+- capture-convert-bind 147/5292 T+ E bindCaptureConvertPanel I @a/download, @a/positioning/source-contract, @s/format, capture-convert, capture-spine
+- capture-convert 132/5274 T+
+  - E CAPTURE_DEVICE_BANDS, CAPTURE_DEVICE_TYPES, captureConversionPlan, collectDeviceOverrides, renderCaptureConvertPanel, renderCaptureSummary
+  - I @d/capture-conversion-v3, @s/format
+- capture-spine 56/1871 T+ E captureSpineChoices, parseCaptureRecords, parseSpineResult, spineRunLabel I @d/survey-result-v3
+- dashboard.css 140/3029 T+
 - dashboard 87/2903 T+ E mountDashboard, renderDashboard I @d/dashboard-selection, @s/format
 ## definition-creator/
 - checkpoint-dwell 88/2818 T+ E applyCreatorCheckpointDwells, replaceCreatorCheckpointDwell
@@ -51,21 +56,22 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - workflow 92/2694 T+ E createCreatorWorkflow, shortLegWarning
   - I @d/creator-route-v3, @d/definition-authoring-v3, @d/route-duration-v3, workflow-route, workflow-routing
 ## report-player/
+- all-runs 104/4101 T+ E allRunsRow, createAllRunsLoader, renderAllRunsSection I @d/report-analysis, @d/report-comparison, @s/format
 - analysis-export 119/4173 T+ E buildAnalysisCsv, createAnalysisExports, createAnalysisSummary, downloadAnalysisExports
-- comparison-view 86/3578 T+ E renderComparisonView I @s/format
-- direction-view 129/5510 T+ E renderDirectionView I @d/report-direction-overlay, @s/format, report-chart-svg
-- floor-route-view 108/4313 T+ E renderFloorRouteView I @s/format
+- comparison-view 88/3731 T+ E renderComparisonView I @s/format, all-runs
+- direction-view 129/5536 T+ E renderDirectionView I @d/report-direction-overlay, @s/format, report-chart-svg
+- floor-route-view 116/4771 T+ E renderFloorRouteView I @s/format
 - heatmap-view 65/2314 T+ E renderHeatmapView I @s/format
 - identity-view 75/2867 T+ E renderIdentityView I @s/format
 - kpi-view 72/3306 T+ E renderKpiView I @s/format
 - map-access 112/3797 T+ E bindMapAccess, renderMapAccess I @s/format
-- map-alert-view 89/2958 T+ E renderAnalysisMapAlerts, renderPlayerMapAlerts I @d/geometry, @s/format
-- map-fallback 73/2806 T+ E drawRouteFallback
+- map-alert-view 109/3771 T+ E renderAnalysisMapAlerts, renderConcernDetail, renderPlayerMapAlerts I @d/geometry, @s/format
+- map-fallback 88/3144 T+ E drawRouteFallback
 - map-floor-sync 90/2423 T+ E createMapFloorSync
 - map-highlight-controller 41/1332 T+ E bindMapHighlight
-- map-model 94/3614 T+ E createMapFrame
+- map-model 109/4132 T+ E createMapFrame
 - map-surface-layout 47/1445 T+ E createMapSurfaceLayout, routeCenter, safelyCreateMap
-- map-surface.css 144/3079 T+
+- map-surface.css 149/3422 T+
 - map-surface 150/5616 T+ E createReportMapSurface I @a/map/mazemap-errors, map-fallback, map-floor-sync, map-model, map-surface-layout
 - methodology-view 72/2866 T+ E buildAnalysisCsv, createAnalysisExports, createAnalysisSummary, downloadAnalysisExports, renderMethodologyView
   - I @s/format, analysis-export
@@ -84,23 +90,25 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - report-floor-controller 61/1882 T+ E bindReportFloor, renderPlayerFrame
 - report-insights-view 19/853 T+ E renderReportInsights I @d/report-insights, report-series-view, report-summary-view
 - report-insights.css 120/2108 T+
-- report-interactions 150/6076 T+ E bindReportInteractions, renderDynamicSections, renderPlayerFrame
-  - I @a/download, comparison-view, direction-view, heatmap-view, kpi-view, map-alert-view, map-highlight-controller, methodology-view, no-position-view,
-    playback-view, report-floor-controller, report-insights-view, report-mode-controller, report-warning-view, result-loader
+- report-interactions 147/6360 T+ E bindReportInteractions, renderDynamicSections, renderPlayerFrame
+  - I @a/download, all-runs, map-alert-view, map-highlight-controller, methodology-view, playback-view, report-floor-controller, report-mode-controller,
+    report-sections, report-warning-view, result-loader
 - report-mode-controller 89/2905 T+ E bindReportModes
 - report-player.css 148/3552 T+
 - report-player 95/3339 T+ E mountReportPlayer I map-access, map-surface, report-interactions, report-shell, report-store, result-loader
+- report-sections 33/1397 T+ E renderDynamicSections
+  - I comparison-view, direction-view, heatmap-view, kpi-view, methodology-view, no-position-view, report-insights-view, report-warning-view
 - report-series-view 129/5499 T+ E renderReportSeries I @s/format, report-chart-svg
 - report-shell 85/3881 T+ E renderLoadPanel, renderReportShell
   - I comparison-view, direction-view, floor-route-view, heatmap-view, identity-view, kpi-view, map-access, methodology-view, no-position-view, playback-view,
     report-insights-view, report-warning-view
-- report-store 120/3269 T+ E createReportPlayerStore I @d/report-analysis, @d/report-comparison
+- report-store 126/3471 T+ E createReportPlayerStore I @d/report-analysis, @d/report-comparison, @d/report-concern-segments
 - report-summary-view 122/4513 T+ E renderReportSummary I @s/format
 - report-summary.css 81/1927 T+
 - report-visuals.css 121/4691 T+
 - report-warning-view 113/4467 T+ E bindReportWarningActions, renderReportWarnings I @s/format
 - report-warnings.css 138/3398 T-
-- result-loader 81/3165 T+ E assertReportResult, comparisonEntries, loadSelectedResult, readUploadedResult, resultSelectionFromUrl
+- result-loader 89/3503 T+ E assertReportResult, campusRunEntries, comparisonEntries, loadSelectedResult, readUploadedResult, resultSelectionFromUrl
   - I @a/files, @d/survey-result-v3
 - timeline-view 129/4181 T+ E renderTimelineView, reportTimelineItems I @s/format
 ## runner/
@@ -108,13 +116,3 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - playback-frame 49/1515 T+ E buildPlaybackFrame, playbackTimes
 - playback 126/3076 T+ E createPlaybackController I playback-frame
 - polling 122/3422 T+ E createPollingController I @a/positioning/source-contract, @a/positioning/sources
-- runner.css 118/2619 T+
-- runner 150/4378 T+ E createRunner I @a/files, @d/survey-state, @s/format, @s/time, capture-view, playback, polling, session, walk-view, walk
-- session 90/2915 T+ E buildSession, buildSessionCsv I @d/route-contract, @d/route-model, @s/format
-- walk-events 30/724 T+ E appendWalkEvent, checkinEvent, removeLatestWalkAction
-- walk-progress 142/3855 T+ E createWalkProgress I walk-events
-- walk-view 124/4511 T+ E createWalkView I @d/geometry, @d/stop-targets
-- walk 74/2077 T+ E createWalkController I walk-events, walk-progress
-## survey-runner/
-- active-run 149/4367 T+ E createActiveRunner I @d/runner-progress-v3, note-capture, run-navigation
-- dynamic-device-polling 72/2104 T+ E combineDynamicPollLoops, createDynamicDevicePolling I entry, poll-loop

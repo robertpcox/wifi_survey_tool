@@ -1,0 +1,57 @@
+/* FEATURE:      Runner incident-note interface
+ * SURFACE:      Active-run note action, held-position panel, and map-placement state
+ * WHY TOGETHER: One responsive overlay keeps the map usable while the operator is stopped
+ * STATE:        Hidden, editing, or placing on map
+ * RULES:        The warning and Add/Cancel actions remain inside the mobile viewport
+ * PROVENANCE:   Runner offline field feedback
+ */
+
+body.runner-running .note-panel {
+  position: absolute;
+  z-index: 20;
+  right: .75rem;
+  bottom: calc(6.7rem + env(safe-area-inset-bottom));
+  left: .75rem;
+  max-height: min(65vh, 34rem);
+  overflow: auto;
+  padding: 1rem;
+  border: 1px solid #cbd8e6;
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 98%);
+  box-shadow: 0 .6rem 2rem rgb(20 33 61 / 28%);
+  pointer-events: auto;
+}
+
+.note-panel p { margin: .45rem 0; }
+
+.note-warning {
+  color: #8a3b00;
+  font-weight: 700;
+}
+
+.note-panel textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+.note-position {
+  color: #17304c;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.note-placement-help {
+  min-height: 1.3rem;
+  color: #2457a6;
+  font-weight: 700;
+}
+
+.note-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .5rem;
+}
+
+.note-panel[data-placing="true"] {
+  opacity: .88;
+  transform: translateY(calc(100% - 5.8rem));
+}

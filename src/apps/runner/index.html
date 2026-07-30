@@ -11,18 +11,18 @@
 <body data-app="runner">
   <header>
     <strong>Wi-Fi Survey v3</strong>
-    <nav><a href="../dashboard/">Dashboard</a><a href="../creator/">Creator</a>
-      <a href="../report-player/">Report Player</a></nav>
+    <nav><a href="../dashboard/">Dashboard</a><a href="../creator/">Creator</a><a href="../report-player/">Report Player</a></nav>
   </header>
   <main class="runner-page">
-    <p class="eyebrow">Runner</p>
-    <h1>Capture a survey run</h1>
+    <p class="eyebrow">Runner</p><h1>Capture a survey run</h1>
     <p data-shell-status>Starting Runner shell…</p>
     <p class="runner-status" data-runner-status aria-live="polite">Loading surveys…</p>
     <section class="runner-grid" data-setup-panel>
       <div class="runner-controls" data-setup-controls>
         <section class="runner-card">
           <label>Customer survey<select data-survey-select></select></label>
+          <label class="definition-upload">Or run an exported survey definition file
+            <input type="file" data-definition-upload accept=".json,application/json"></label>
           <div class="survey-summary">
             <div><span>Survey</span><strong data-survey-name>—</strong></div>
             <div><span>Campus</span><strong data-campus-name>—</strong></div>

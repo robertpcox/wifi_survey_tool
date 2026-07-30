@@ -1,6 +1,6 @@
 // FEATURE:      Dynamic room browser mark-walk steps
-// SURFACE:      exerciseDynamicMarkWalk(page, definition), resolveRunnerRoute(page, label)
-// WHY TOGETHER: Dwell staging, mark taps, and deferred route release form one walk script.
+// SURFACE:      exerciseDynamicMarkWalk, exerciseDefinitionUploadRerun, resolveRunnerRoute
+// WHY TOGETHER: Dwell staging, mark taps, route release, and re-run upload form one walk script.
 // STATE:        Drives one prepared Runner page through the staged corridor
 // RULES:        The staged leg resolves during dwell and marks are tapped before arrival.
 // PROVENANCE:   Structured dynamic capture browser acceptance
@@ -22,6 +22,26 @@ export async function exerciseDynamicMarkWalk(page, definition) {
   await passMark(page, "Passed mark 2 of 2");
   await page.waitForSelector('[data-action="dynamic-check-in"]:not([hidden])');
   await page.click('[data-action="dynamic-check-in"]');
+}
+
+export async function exerciseDefinitionUploadRerun(page, definition) {
+  await page.evaluate(json => {
+    const input = document.querySelector("[data-definition-upload]");
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(new File(
+      [json],
+      "rerun.definition.v3.json",
+      { type: "application/json" },
+    ));
+    input.files = dataTransfer.files;
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }, JSON.stringify(definition));
+  await page.waitForFunction(() => document
+    .querySelector("[data-runner-status]").textContent.includes("Loaded"));
+  await page.click('[data-action="preflight"]');
+  await page.waitForFunction(() => (
+    document.querySelector("[data-preflight-light]").textContent === "GREEN"
+  ));
 }
 
 export async function resolveRunnerRoute(page, label) {

@@ -1,0 +1,150 @@
+<!doctype html><html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Survey Runner</title>
+  <link rel="stylesheet" href="../src/shared/app-shell.css">
+  <link rel="stylesheet" href="../src/features/survey-runner/runner.css">
+  <link rel="stylesheet" href="../src/features/survey-runner/runner-active.css">
+  <script type="module" src="../src/apps/runner/main.mjs"></script>
+</head>
+<body data-app="runner">
+  <header>
+    <strong>Wi-Fi Survey v3</strong>
+    <nav><a href="../dashboard/">Dashboard</a><a href="../creator/">Creator</a><a href="../report-player/">Report Player</a></nav>
+  </header>
+  <main class="runner-page">
+    <p class="eyebrow">Runner</p><h1>Capture a survey run</h1>
+    <p data-shell-status>Starting Runner shell…</p>
+    <p class="runner-status" data-runner-status aria-live="polite">Loading surveys…</p>
+    <section class="runner-grid" data-setup-panel>
+      <div class="runner-controls" data-setup-controls>
+        <section class="runner-card">
+          <label>Customer survey<select data-survey-select></select></label>
+          <label class="definition-upload">Or run an exported survey definition file
+            <input type="file" data-definition-upload accept=".json,application/json"></label>
+          <div class="survey-summary">
+            <div><span>Survey</span><strong data-survey-name>—</strong></div>
+            <div><span>Campus</span><strong data-campus-name>—</strong></div>
+            <div><span>Distance</span><strong data-route-distance>—</strong></div>
+            <div><span>Estimate</span><strong data-route-duration>—</strong></div>
+            <div><span>Checkpoints</span><strong data-checkpoint-count>—</strong></div>
+          </div>
+        </section>
+        <form class="runner-card entry-form" data-runner-entry autocomplete="off">
+          <h2>One-time run details</h2>
+          <p>Kept for the next run in this tab; never saved to browser storage.</p>
+          <div class="credential-groups">
+            <fieldset class="credential-group" data-credential-group="map-access"><legend>Map access</legend>
+              <p id="map-access-help">Only used to open a private campus map.</p>
+              <label data-credential-row="mapAccess">Private map access token (optional)
+                <input name="mapAccess" type="password" autocomplete="off" autocapitalize="none"
+                  spellcheck="false" aria-describedby="map-access-help" data-1p-ignore data-lpignore="true" data-bwignore></label>
+            </fieldset>
+            <fieldset class="credential-group" data-credential-group="cloud"><legend>MazeMap Cloud positioning</legend>
+              <p id="cloud-credentials-help">Used only for live positioning polls during this run.</p>
+              <div class="credential-grid">
+                <label data-credential-row="appId">Cloud App ID
+                  <input name="appId" type="text" autocomplete="off" autocapitalize="none"
+                    spellcheck="false" aria-describedby="cloud-credentials-help" data-1p-ignore data-lpignore="true" data-bwignore></label>
+                <label data-credential-row="appKey">Cloud App Key
+                  <input name="appKey" type="password" autocomplete="off" autocapitalize="none"
+                    spellcheck="false" aria-describedby="cloud-credentials-help" data-1p-ignore data-lpignore="true" data-bwignore></label>
+              </div>
+            </fieldset>
+          </div>
+          <div class="entry-grid">
+            <label>Client IP of device under test
+              <input name="clientIp" inputmode="decimal" autocomplete="off"></label>
+            <label>Device type
+              <select name="deviceType">
+                <option value="">Choose…</option>
+                <option value="mobile">Mobile</option><option value="laptop">Laptop</option>
+                <option value="asset">Asset</option></select></label>
+            <label>Operating system and version
+              <input name="deviceOs" autocomplete="off" placeholder="ExampleOS 18.2"></label>
+            <label>Device name
+              <input name="deviceName" autocomplete="off" placeholder="Field handset 1"></label>
+            <label>
+              Wireless band
+              <select name="band">
+                <option value="">Choose…</option>
+                <option value="2.4">2.4 GHz</option><option value="5">5 GHz</option>
+                <option value="6">6 GHz</option><option value="mixed">Mixed / roaming</option>
+              </select>
+            </label>
+          </div>
+          <label class="acknowledgement">
+            <input name="consent" type="checkbox">
+            I acknowledge this test records the position of the device under test.
+            For an asset run, it records the carried asset—not this Runner device.
+          </label>
+        </form>
+        <section class="runner-card preflight-card">
+          <div class="button-row">
+            <button class="primary" type="button" data-action="preflight" disabled>Run preflight</button>
+            <button class="go-button" type="button" data-action="go" disabled>Go</button>
+          </div>
+          <div class="preflight-result" data-preflight-result hidden>
+            <strong class="preflight-light" data-preflight-light>—</strong>
+            <p data-preflight-reasons></p>
+            <dl>
+              <div><dt>Position</dt><dd data-preflight-position>—</dd></div>
+              <div><dt>Floor</dt><dd data-preflight-floor>—</dd></div>
+              <div><dt>Fix age</dt><dd data-preflight-age>—</dd></div>
+              <div><dt>Round trip</dt><dd data-preflight-rtt>—</dd></div>
+            </dl>
+          </div>
+          <div class="override-row" data-preflight-override hidden>
+            <label>
+              <input name="override" type="checkbox">
+              I understand the named preflight warning and want to continue.
+            </label>
+            <button type="button" data-action="override-go" disabled>Start anyway</button>
+          </div>
+        </section>
+      </div>
+      <section class="map-card"><div id="runner-map" aria-label="Survey route map"></div></section>
+    </section>
+    <section class="runner-card active-run" data-run-panel hidden>
+      <div class="run-hud">
+        <div class="run-vitals">
+          <span class="poll-status"><i class="poll-dot" data-poll-indicator></i>
+            <strong data-poll-state>Starting</strong></span>
+          <span><strong data-poll-count>0</strong> polls</span>
+          <span><strong data-target-distance>Waiting for fix</strong> to checkpoint</span>
+          <span data-source-health>—</span>
+        </div>
+        <p class="target-label">Next checkpoint · <span data-run-progress>—</span>
+          · <span data-current-floor>—</span></p>
+        <h2 data-current-target>—</h2>
+        <strong class="dwell-status" data-dwell-countdown>Ready</strong>
+        <div class="checkpoint-navigation" aria-label="Checkpoint navigation">
+          <button type="button" data-action="back-checkpoint">Back one checkpoint</button>
+          <button type="button" data-action="skip-checkpoint">Skip closed area</button></div>
+        <button type="button" class="stop-button checkpoint-stop" data-action="stop">Stop survey</button>
+      </div>
+      <div class="capture-actions">
+        <button class="check-in-button" data-action="check-in">I’m at the checkpoint</button>
+        <button class="check-in-button" data-action="end-session" hidden>End session</button>
+      </div>
+    </section>
+    <dialog class="stop-confirmation" data-stop-dialog aria-labelledby="stop-confirm-title">
+      <form method="dialog"><h2 id="stop-confirm-title">Stop this survey?</h2>
+        <p>Stopping ends polling, marks this run aborted, and cannot be undone or resumed. Captured evidence remains available to download.</p>
+        <div class="button-row"><button type="button" data-action="cancel-stop">Keep recording</button>
+          <button type="button" class="stop-button" data-action="confirm-stop">Stop and save partial run</button></div>
+      </form>
+    </dialog>
+    <section class="runner-card finish-panel" data-finish-panel hidden>
+      <h2 data-finish-status>Run finished.</h2>
+      <label>Optional operator comment<textarea data-operator-comment rows="3"></textarea></label>
+      <div class="button-row"><button class="primary" type="button" data-action="download-result">Download result JSON</button>
+        <button class="stop-button" type="button" data-action="clear-capture">Clear capture</button></div>
+      <details><summary>Validate a result file</summary>
+        <input data-result-file type="file" accept=".json,application/json">
+        <pre data-validation-result></pre></details>
+    </section>
+  </main>
+</body>
+</html>

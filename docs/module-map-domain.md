@@ -4,6 +4,7 @@
 E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 
 ## ./
+- capture-conversion-v3 117/3983 T+ E captureDeviceGroups, convertPositionCapture I runner-result-v3, survey-result-v3
 - capture-note-v3 149/5823 T+ E validateCaptureNotes I validation
 - captured-checkpoints-v3 88/3042 T+ E capturedCheckpointsV3
 - checkpoint-dwell-v3 89/2670 T+ E authoredCheckpointsV3, checkpointDwellDefaults, checkpointDwellSeconds, totalCheckpointDwellSeconds
@@ -35,6 +36,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
   - I report-fix-metrics, report-fix-samples, report-ground-truth, report-heat, report-samples, report-stale-path, report-warnings
 - report-check-in-route 124/4567 T+ E projectReportCheckIns I checkpoint-dwell-v3
 - report-comparison 111/3738 T+ E compareReportResults, reportDeviceLabel I report-analysis
+- report-concern-segments 78/2740 T+ E buildConcernSegments I report-direction-overlay, report-ground-truth
 - report-direction-bins 59/2288 T+ E directionOverlaySummary, publicDirectionBin I report-samples
 - report-direction-overlay 106/3635 T+ E buildDirectionOverlay I report-direction-bins, report-ground-truth, report-route-axis
 - report-fix-metrics 123/4801 T+ E buildFixLanes I report-lag-behind, report-no-position, report-samples

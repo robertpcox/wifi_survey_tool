@@ -22,7 +22,7 @@ const analysis = analyzeReportResult(result, { stickySeconds: 2, accuracyM: 5 })
 
 test("direction overlay draws mirrored lock bars and flags both-way spots", () => {
   const html = renderDirectionView({ result, analysis });
-  assert.match(html, /Same spot, both walking directions/);
+  assert.match(html, /Where the corridor is problematic from both entry directions/);
   assert.match(html, /3 spots lock both ways/);
   assert.match(html, /1 spots off by &gt; 5 m both ways/);
   assert.match(html, /1 one-direction \(latency\) spots/);

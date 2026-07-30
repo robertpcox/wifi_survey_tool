@@ -40,3 +40,14 @@ test("comparison view labels baseline, values, deltas, device bands, and comment
   assert.match(html, /Legacy blended · per poll at receipt/);
   assert.equal((html.match(/class="comparison-group"/g) ?? []).length, 4);
 });
+
+test("without siblings the all-runs section becomes the default comparison", () => {
+  const html = renderComparisonView({
+    entries: [],
+    comparison: null,
+    allRuns: { entryCount: 2, loaded: false, rows: [] },
+  });
+  assert.match(html, /No same-route sibling runs — compare across all campus runs/);
+  assert.match(html, /data-load-all-runs/);
+  assert.doesNotMatch(html, /Choose another completed result/);
+});

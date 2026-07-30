@@ -1,0 +1,34 @@
+<!-- FEATURE:      Customer-filtered survey dashboard
+     SURFACE:      / and /dashboard/
+     WHY TOGETHER: This document is the semantic entry shell for customer result discovery.
+     STATE:        Dashboard mount target
+     RULES:        Customer identity comes from the URL; no result data is embedded.
+     PROVENANCE:   Scope/steps/05_dashboard_report_player.md
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Survey Dashboard</title>
+  <link rel="stylesheet" href="./src/shared/app-shell.css">
+  <link rel="stylesheet" href="./src/features/dashboard/dashboard.css">
+  <script type="module" src="./src/apps/dashboard/main.mjs"></script>
+</head>
+<body data-app="dashboard">
+  <header>
+    <strong>Wi-Fi Survey v3</strong>
+    <nav>
+      <a href="./creator/">Creator</a>
+      <a href="./runner/">Runner</a>
+      <a href="./report-player/">Report Player</a>
+    </nav>
+  </header>
+  <main class="dashboard-main" data-dashboard-root aria-live="polite">
+    <section class="shell-card">
+      <p data-shell-status>Loading customer dashboard…</p>
+    </section>
+  </main>
+  <aside class="dashboard-main" data-capture-convert-root hidden></aside>
+</body>
+</html>

@@ -3,7 +3,18 @@
 `.mjs` omitted; L/B=lines/bytes; T+=adjacent `.test.mjs`; T-=none.
 E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 
+## runner/
+- runner.css 118/2619 T+
+- runner 150/4378 T+ E createRunner I @a/files, @d/survey-state, @s/format, @s/time, capture-view, playback, polling, session, walk-view, walk
+- session 90/2915 T+ E buildSession, buildSessionCsv I @d/route-contract, @d/route-model, @s/format
+- walk-events 30/724 T+ E appendWalkEvent, checkinEvent, removeLatestWalkAction
+- walk-progress 142/3855 T+ E createWalkProgress I walk-events
+- walk-view 124/4511 T+ E createWalkView I @d/geometry, @d/stop-targets
+- walk 74/2077 T+ E createWalkController I walk-events, walk-progress
 ## survey-runner/
+- active-run 149/4367 T+ E createActiveRunner I @d/runner-progress-v3, note-capture, run-navigation
+- definition-upload 36/1257 T+ E readRunnerDefinitionFile I @a/files, @d/survey-definition-v3
+- dynamic-device-polling 72/2104 T+ E combineDynamicPollLoops, createDynamicDevicePolling I entry, poll-loop
 - dynamic-device-results 53/1766 T+ E deviceResultFilename, dynamicDeviceResultFiles, dynamicJsonFile I @d/runner-result-v3, dynamic-room-devices
 - dynamic-room-capture-marks 82/2700 T+ E createDynamicMarkCapture, dynamicRoomBackAction I @d/dynamic-room-session-v3, dynamic-room-marks
 - dynamic-room-capture 146/4496 T- E createDynamicRoomCapture
@@ -24,7 +35,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - dynamic-room-view-actions 80/3045 T- E renderDynamicRoomActions, renderDynamicRoomDwell I dynamic-room-view-markup
 - dynamic-room-view-markup 91/4512 T- E DYNAMIC_ROOM_SELECTORS, dynamicRoomDwellLabel, dynamicRoomMarkLabel, dynamicRoomStatusText, ensureDynamicRoomMarkup
 - dynamic-room-view 87/3614 T+ E DYNAMIC_ROOM_SELECTORS, createDynamicRoomView, dynamicRoomAcceptsPoint I dynamic-room-view-actions, dynamic-room-view-markup
-- dynamic-room.css 129/3198 T+
+- dynamic-room.css 138/3388 T+
 - dynamic-route-author-values 71/2213 T+ E dynamicRouteFinaliseError, newDynamicRouteJob, sameDynamicRoutePair, validatedDynamicGeometry, validatedDynamicStops
 - dynamic-route-author 150/4220 T+ E createDynamicRouteAuthor I dynamic-route-author-values
 - dynamic-survey-definition 94/3035 T+ E dynamicDefinitionInput I @d/creator-route-v3
@@ -35,7 +46,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - feature-flags 8/416 T- E RUNNER_NOTES_ENABLED
 - form-view-dynamic-options 56/2776 T+ E DYNAMIC_OPTION_NAMES, ensureDynamicOptionsMarkup
 - form-view-format 37/1242 T+ E formatDuration, preflightMetrics, preflightReasonText
-- form-view 143/6075 T+ E createRunnerFormView, preflightMetrics I @s/format, form-view-dynamic-options, form-view-format, runner-mode
+- form-view 150/6407 T+ E createRunnerFormView, preflightMetrics I @s/format, form-view-dynamic-options, form-view-format, runner-mode
 - loader 41/1668 T+ E loadRunnerDefinition, loadRunnerManifest, surveyIdFromUrl I @d/survey-definition-v3
 - map-3d-toggle 71/2418 T+ E mountRunnerMap3dToggle
 - note-capture 120/3881 T+ E createRunnerNoteCapture
@@ -57,8 +68,10 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - runner-safety.css 73/1602 T+
 - runner-start-gate 16/830 T- E prepareRunnerStart
 - runner.css 150/4605 T+ I dynamic-room.css, runner-entry.css
+- setup-clear 25/910 T- E clearRunnerCaptureState
+- setup-init 28/1289 T- E initializeRunnerSetup I loader
 - setup-map 22/998 T+ E drawRunnerSelection
-- setup 150/4380 T+ E createRunnerSetup I entry, loader, poll-loop, preflight, runner-mode, setup-map
-- survey-runner 139/5582 T+ E RUNNER_THREE_D, mountSurveyRunner
+- setup 143/4133 T+ E createRunnerSetup I definition-upload, entry, loader, poll-loop, preflight, runner-mode, setup-clear, setup-init, setup-map
+- survey-runner 145/5822 T+ E RUNNER_THREE_D, mountSurveyRunner
   - I @a/map/mazemap, @a/memory-credentials, @a/positioning/mazemap-cloud-v3, dynamic-room-start, dynamic-room-view, form-view, map-3d-toggle,
     note-controller, planned-run-start, result-download, result-upload, run-view, runner-preflight-action, runner-start-gate, setup

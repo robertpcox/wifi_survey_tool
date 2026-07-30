@@ -11,6 +11,7 @@ import test from "node:test";
 
 import {
   assertReportResult,
+  campusRunEntries,
   comparisonEntries,
   loadSelectedResult,
   resultSelectionFromUrl,
@@ -61,4 +62,31 @@ test("comparison discovery uses completed matching manifest entries", () => {
     ],
   }, result);
   assert.deepEqual(entries.map(item => item.resultId), ["result-report-2"]);
+});
+
+test("campus discovery keeps every completed campus run, newest first", () => {
+  const campus = {
+    ...entry,
+    campusId: result.run.campusId,
+    exportedAt: "2026-07-29T01:00:00.000Z",
+  };
+  const entries = campusRunEntries({
+    results: [
+      campus,
+      {
+        ...campus,
+        resultId: "other-route",
+        routeHash: "different",
+        surveyId: "different-survey",
+        exportedAt: "2026-07-30T01:00:00.000Z",
+      },
+      { ...campus, resultId: "aborted", completionStatus: "aborted" },
+      { ...campus, resultId: "other-campus", campusId: "999" },
+    ],
+  }, { ...result, run: { ...result.run, resultId: "someone-else" } });
+  assert.deepEqual(
+    entries.map(item => item.resultId),
+    ["other-route", result.run.resultId],
+  );
+  assert.deepEqual(campusRunEntries(null, result), []);
 });

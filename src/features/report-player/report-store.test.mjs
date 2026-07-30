@@ -28,6 +28,7 @@ test("store keeps one result/meta/analysis context across analysis and playback"
   assert.equal(loaded.result, result);
   assert.equal(loaded.meta, result.meta);
   assert.equal(analysisCalls, 1);
+  assert.ok(Array.isArray(loaded.analysis.concernSegments));
   const firstAnalysis = loaded.analysis;
   store.setView("playback");
   store.setView("analysis");

@@ -9,8 +9,8 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - main 60/2245 T+ E bootCreator
   - I @a/files, @a/geolocation, @a/map/mazemap-sdk, @a/map/mazemap, @a/memory-credentials, @f/definition-creator/definition-creator, @s/shell-boot
 ## dashboard/
-- index.html 33/1181 T+ I @f/dashboard/dashboard.css, @s/app-shell.css, main
-- main 28/1083 T+ E bootDashboard I @a/manifest-source, @d/dashboard-selection, @f/dashboard/dashboard
+- index.html 34/1255 T+ I @f/dashboard/dashboard.css, @s/app-shell.css, main
+- main 35/1340 T+ E bootDashboard I @a/manifest-source, @d/dashboard-selection, @f/dashboard/capture-convert-bind, @f/dashboard/dashboard
 ## report-player/
 - index.html 38/1725 T+
   - I @f/report-player/map-surface.css, @f/report-player/player-components.css, @f/report-player/player-workspace.css, @f/report-player/report-insights.css,
@@ -28,5 +28,5 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - main 118/3674 T+ E bootRouteSurvey I @a/map/mazemap, @a/preferences, @a/route-storage, @d/survey-state, @f/creator/creator, @f/runner/runner, app-ui
 - shell.css 106/2568 T+
 ## runner/
-- index.html 150/8713 T+ I @f/survey-runner/runner-active.css, @f/survey-runner/runner.css, @s/app-shell.css, main
+- index.html 150/8881 T+ I @f/survey-runner/runner-active.css, @f/survey-runner/runner.css, @s/app-shell.css, main
 - main 22/736 T+ E bootRunner I @a/memory-credentials, @f/survey-runner/survey-runner, @s/shell-boot

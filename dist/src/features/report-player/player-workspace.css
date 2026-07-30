@@ -1,0 +1,129 @@
+/* FEATURE:      Full-screen Report Player
+ * SURFACE:      Viewport workspace, shared map, rail, and transport layout
+ * WHY TOGETHER: Player mode changes page scrolling and the one map/rail spatial relationship.
+ * STATE:        .player-active body and .is-player report root
+ * RULES:        Body never scrolls in Player; only evidence rail scrolls; Report flow is restored on exit.
+ * PROVENANCE:   Scope/steps/05a_recast_player.md
+ */
+
+body[data-app="report-player"].player-active {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  width: 100%;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.report-player-main.is-player {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.report-player-main.is-player > .map-access:not([hidden]) {
+  position: fixed;
+  z-index: 50;
+  inset: 5rem 1rem auto;
+  max-width: 760px;
+  margin-inline: auto;
+  box-shadow: 0 1rem 3rem rgb(0 0 0 / 25%);
+}
+
+.is-player .report-toolbar {
+  position: relative;
+  top: auto;
+  z-index: 20;
+  margin: 0;
+  border-width: 0 0 1px;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.is-player .shared-map-workspace {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 420px);
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: #101b2a;
+}
+
+.is-player .map-section {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0.75rem;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: #f8fafc;
+}
+
+.is-player .map-heading {
+  align-items: center;
+  flex-direction: row;
+  justify-content: flex-end;
+  margin: 0 0 0.5rem;
+}
+
+.is-player .map-heading > div:first-child { display: none; }
+.is-player .map-threshold-controls { padding: 0.25rem; }
+.is-player .map-threshold-controls [data-map-highlight] { max-width: 10rem; }
+.is-player .map-stage,
+.is-player .maze-map,
+.is-player .map-fallback {
+  min-height: 0;
+  height: 100%;
+}
+
+.is-player .map-fallback canvas { height: 100%; }
+.is-player .map-layer-controls { display: none; }
+.is-player .map-alert-stack { bottom: 6.5rem; }
+.is-player .player-pane {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.is-player [data-module="playback"],
+.is-player .player-module-shell {
+  height: 100%;
+  min-height: 0;
+}
+
+.player-transport-slot {
+  position: absolute;
+  z-index: 8;
+  right: 1rem;
+  bottom: 1rem;
+  left: 1rem;
+}
+
+@media (max-width: 760px) {
+  body[data-app="report-player"].player-active > header {
+    padding-block: 0.55rem;
+  }
+
+  .is-player .report-toolbar p { display: none; }
+  .is-player .shared-map-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(240px, 48%) minmax(0, 52%);
+  }
+
+  .is-player .map-section { padding: 0.45rem; }
+  .is-player .map-heading label { font-size: 0.75rem; }
+  .is-player .map-heading-actions { flex-wrap: nowrap; }
+  .is-player .map-threshold-controls { display: flex; width: auto; }
+  .is-player .map-heading-actions select { min-height: 2rem; padding: 0.2rem; }
+  .is-player .map-alert-stack { right: 0.5rem; bottom: 5.5rem; left: 0.5rem; }
+  .player-transport-slot { right: 0.5rem; bottom: 0.5rem; left: 0.5rem; }
+}

@@ -14,7 +14,11 @@ test("Dashboard app loads only the customer named in its URL", async () => {
   const root = fakeRoot();
   let requested;
   const model = await bootDashboard({
-    documentRef: { querySelector: () => root },
+    documentRef: {
+      querySelector: selector => (
+        selector === "[data-dashboard-root]" ? root : null
+      ),
+    },
     locationRef: { href: "https://survey.test/dashboard/?customer_id=customer-a" },
     manifestSource: {
       customer: async customerId => {

@@ -12,6 +12,10 @@ import {
 } from "./report_player_browser_analysis_state.mjs";
 
 const FLOOR_LAYER_IDS = [
+  "report-concern-fwd-lyr",
+  "report-concern-rev-lyr",
+  "report-concern-rf-lyr",
+  "report-concern-dead-lyr",
   "report-sticky-heat-lyr",
   "report-accuracy-heat-lyr",
   "report-stale-path-lyr",

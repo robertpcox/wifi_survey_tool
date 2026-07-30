@@ -62,7 +62,7 @@ Follow `Scope/step_standard.md`.
 8. Follow the embedded checkpoint sequence and configured dwell.
 9. Reach the endpoint, keep recording, then explicitly End session or stop early.
 10. Add an optional comment about the run.
-11. Download the prompted result.
+11. Download the result, or deliberately Clear the stopped capture without downloading it.
 
 ## Entry form
 
@@ -116,11 +116,11 @@ the result. Starting on amber or red requires an explicit acknowledgement and is
 - The initial v3 Runner uses MazeMap Cloud through the provider-neutral poller contract.
 - Show current target, progress, source health, polling state, and dwell countdown.
 - Preserve normalized and raw responses with request and response timing.
-- Successful download clears route/run evidence but retains entry and memory credentials in-tab.
-- Refresh or tab close still loses credentials and the active run.
-- No resume workflow is provided.
-- Stop produces `completionStatus: "aborted"` and prompts download.
-- Only explicit End session after the endpoint produces completed status and download.
+- Stop ends the run and continuous polling; finish offers Download or destructive Clear and locks switching.
+- Download or Clear removes capture/map evidence and the definition; later selection never polls.
+- In-tab device/band details and memory credentials survive; Preflight is the next single request.
+- Continuous polling resumes only on Go; refresh loses credentials; Stop aborts and End completes.
+- Runner map constructor gets exact `threeD: { animateWalls: true, show3dAssets: true }`; its on-demand toggle never mutates route/result evidence.
 
 ## Performance
 
@@ -132,7 +132,7 @@ the result. Starting on amber or red requires an explicit acknowledgement and is
 
 ## Gates
 
-- A full validated survey completes on iPhone and Android.
+- iPhone and Android acceptance completes, stops, clears, selects, preflights, reruns, and toggles 3D.
 - Aborted and completed exports pass the v3 result validator.
 - Every export carries device type, operating system, name, Client IP, and band.
 - The comment prompt never blocks or delays the export, on either completion path.

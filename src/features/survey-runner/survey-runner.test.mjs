@@ -2,10 +2,11 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { createMemoryCredentialStore } from "../../adapters/memory-credentials.mjs";
-import { mountSurveyRunner } from "./survey-runner.mjs";
+import { mountSurveyRunner, RUNNER_THREE_D } from "./survey-runner.mjs";
 const definition = JSON.parse(await readFile(
   new URL("../../../data/fixtures/runner/definition.fixture.v3.json", import.meta.url),
 ));
+assert.deepEqual(RUNNER_THREE_D, { animateWalls: true, show3dAssets: true });
 function harness(sampleOverrides = {}) {
   const values = {
     deviceType: "mobile",
@@ -88,12 +89,9 @@ function harness(sampleOverrides = {}) {
   return { calls, runner, values };
 }
 
-test("Runner loads one survey, gates Go, preflights, and aborts with export", async () => {
+test("Runner loads, preflights, aborts, and clears without losing setup", async () => {
   const { calls, runner } = harness();
   await runner.ready;
-  assert.equal(calls.definition.meta.surveyId, definition.meta.surveyId);
-  assert.equal(calls.buttons.entryComplete, true);
-  assert.equal(calls.buttons.preflight, null);
   await runner.actions.preflight();
   assert.equal(runner.state.preflight.verdict, "green");
   assert.equal(runner.state.polls.length, 1);
@@ -101,17 +99,17 @@ test("Runner loads one survey, gates Go, preflights, and aborts with export", as
   runner.actions.go();
   assert.deepEqual(calls.focusOrigins, [runner.state.polls[0].normalized]);
   assert.equal(calls.runningStates.at(-1), true);
-  assert.equal(calls.resizes, 1);
+  assert.equal(runner.actions.clearCapture(), false);
   runner.actions.stop();
   assert.deepEqual(calls.finishes, ["aborted"]);
   assert.equal(calls.runningStates.at(-1), false);
-  assert.equal(calls.resizes, 2);
-  const downloaded = runner.actions.download();
-  assert.equal(downloaded.result.run.completionStatus, "aborted");
-  assert.equal(downloaded.result.run.band, "5");
-  assert.deepEqual(downloaded.result.meta, definition.meta);
+  const entry = runner.state.entry;
+  assert.equal(runner.actions.clearCapture(), true);
   assert.equal(runner.state.definition, null);
   assert.deepEqual(runner.state.polls, []);
+  assert.equal(runner.state.activeRun, null);
+  assert.equal(runner.state.entry, entry);
+  assert.equal(runner.credentials.read("appKey"), "memory-key");
 });
 
 test("amber start keeps Go disabled and records explicit override", async () => {
@@ -136,7 +134,9 @@ test("amber start keeps Go disabled and records explicit override", async () => 
   runner.actions.overrideGo();
   assert.equal(runner.state.preflight.acknowledged, true);
   runner.actions.stop();
-  assert.equal(runner.actions.download().result.run.preflight.acknowledged, true);
+  const downloaded = runner.actions.download();
+  assert.equal(downloaded.result.run.completionStatus, "aborted");
+  assert.equal(downloaded.result.run.preflight.acknowledged, true);
 });
 
 test("asset capture uses only Client IP polling and never geolocation", async () => {

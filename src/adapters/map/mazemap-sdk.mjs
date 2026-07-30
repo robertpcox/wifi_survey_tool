@@ -21,6 +21,16 @@ export function loadMazemapSdk(options = {}) {
   return load;
 }
 
+export async function resolveMazemapSdk(current, options = {}) {
+  const sdk = current ?? await (options.loadMazemap
+    ? options.loadMazemap()
+    : loadMazemapSdk({ timeoutMs: options.sdkTimeoutMs }));
+  if (typeof sdk?.Map !== "function") {
+    throw new Error("MazeMap SDK is missing its Map API.");
+  }
+  return sdk;
+}
+
 function ensureStylesheet(documentRef) {
   if (documentRef.querySelector?.(`link[href="${MAZEMAP_CSS_URL}"]`)) return;
   const link = documentRef.createElement("link");

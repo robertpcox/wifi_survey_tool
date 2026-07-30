@@ -31,8 +31,8 @@ fold it into its caller. Behavior does not change and the goldens stay green.
 - Deterministic Report tests use `data/fixtures/report-player/result.fixture.v3.json`;
   production-result replacement must not break the build.
 - Result discovery is `data/manifests/result-manifest.v3.json`; customer discovery is
-  under `data/manifests/customers/`. The current build emits five surveys/results and one customer.
-- All five current definitions use `Pacific/Auckland`. The recorded Level 00 provider body
+  under `data/manifests/customers/`. The current build emits six surveys/results and one customer.
+- All six current definitions use `Pacific/Auckland`. The recorded Level 00 provider body
   under `data/positioning/` remains normalization/preflight evidence only, not a run result.
 - The analysis source remains `data/reference/report_player/analyze-survey.js`;
   Step 4 added no analysis module.

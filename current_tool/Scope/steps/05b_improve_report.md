@@ -25,7 +25,7 @@ and recurrence. Do not claim an RSSI, RF, AP, roaming, or Wi-Fi root cause witho
 
 - `src/adapters/map/mazemap.mjs` exports `createMazeMapAdapter()`. Its returned adapter owns
   `drawReportHeat`, `drawPlayerFrame`, `setViewMode`, `disablePlayerLayers`,
-  `followWalker`, `onEvidenceSelect`, `focusEvidence`, `resizeMapSoon`, `fitRoute`, and floor selection.
+  `followWalker`, `onEvidenceSelect`, `focusEvidence`, `resizeMapSoon`, `fitRoute`, floor selection, and optional `set3dEnabled`/`threeDEnabled`.
 - `src/features/report-player/map-surface.mjs` exports `createReportMapSurface()`. Its one
   surface owns `start`, `retryAccess`, `render`, `setViewMode`, `settleLayout`, `followWalker`,
   and evidence selection.
@@ -45,9 +45,9 @@ and recurrence. Do not claim an RSSI, RF, AP, roaming, or Wi-Fi root cause witho
 - Final checks use `node tools/build.mjs --no-deploy`; an authorized `node tools/build.mjs` syncs demo.
 - The networked synthetic-only smoke remains `node tools/report_player_actual_sdk_smoke.mjs dist`.
 
-Reuse this public-first lifecycle without reconstructing the map, result, or analysis.
-Report uses exact GeoJSON; the schematic is failure-only. The actual SDK may create provider
-telemetry storage, so scan specifically for app credential fields as well as repository data.
+Reuse this lifecycle; Runner alone passes exact `threeD: { animateWalls: true, show3dAssets: true }`.
+Report/Player stays 2D, never derives view state from results, and uses exact GeoJSON; the schematic is failure-only.
+Scan provider telemetry storage for app credential fields as well as repository data.
 
 ## Report questions
 

@@ -41,7 +41,7 @@ test("Runner active-view findings enforce map-first capture geometry", () => {
     actions: { top: 700, bottom: 844, left: 0, right: 390 },
     active: true,
     bodyOverflow: "hidden",
-    camera: { bearing: 0, pitch: 0 },
+    camera: { bearing: 0, pitch: 45 },
     checkIn: { top: 710, bottom: 830, left: 10, right: 280 },
     distance: "≈ 9 m",
     fitBounds: { bounds: [] },

@@ -92,7 +92,7 @@ export function createMapControls(state) {
       center: [waypoint.lng, waypoint.lat],
       zoom: Math.max(safeZoom(map), 19),
       bearing: bearingTo(view.origin, waypoint),
-      pitch: 0,
+      pitch: state.focusPitch?.() ?? 0,
       padding: { ...WAYPOINT_PADDING },
       duration: 350,
     };

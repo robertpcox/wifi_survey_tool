@@ -9,6 +9,7 @@ import {
 
 function harness() {
   const selectors = [
+    "[data-setup-controls]",
     "[data-run-panel]", "[data-run-progress]", "[data-current-target]",
     "[data-current-floor]", "[data-dwell-countdown]",
     '[data-action="check-in"]', "[data-poll-count]", "[data-poll-state]",
@@ -20,10 +21,12 @@ function harness() {
     "[data-note-panel]", "[data-note-text]", "[data-note-reason]",
     "[data-note-position]", "[data-note-placement-help]",
     '[data-action="download-result"]',
+    '[data-action="clear-capture"]',
     "[data-result-file]", "[data-operator-comment]", "[data-validation-result]",
   ];
   const nodes = new Map(selectors.map(selector => [selector, {
-    addEventListener() {},
+    listeners: {},
+    addEventListener(type, handler) { this.listeners[type] = handler; },
     dataset: {},
     disabled: false,
     hidden: true,
@@ -89,8 +92,10 @@ test("run view shows target, progress, dwell, source health, and finish paths", 
   assert.equal(nodes.get("[data-poll-indicator]").dataset.state, "error");
   view.showFinish("aborted");
   assert.match(nodes.get("[data-finish-status]").textContent, /stopped early/);
+  assert.equal(nodes.get("[data-setup-controls]").hidden, true);
   view.resetSession();
   assert.equal(nodes.get("[data-finish-panel]").hidden, true);
+  assert.equal(nodes.get("[data-setup-controls]").hidden, false);
   assert.equal(nodes.get("[data-poll-count]").textContent, "0");
 });
 
@@ -109,4 +114,15 @@ test("comment and validation viewer stay optional", () => {
     ),
     "Change to Level 1",
   );
+});
+
+test("finish actions bind the post-stop Clear capture control", () => {
+  const { nodes, view } = harness();
+  let clears = 0;
+  view.bind({
+    checkIn() {}, clearCapture: () => clears++, download() {}, endSession() {},
+    stop() {}, validateFile() {},
+  });
+  nodes.get('[data-action="clear-capture"]').listeners.click();
+  assert.equal(clears, 1);
 });

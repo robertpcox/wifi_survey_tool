@@ -16,6 +16,7 @@ export async function installRunnerBrowserEnvironment(
   page.on("request", request => {
     void respondRunnerBrowserRequest(request, origin, definition, responseState);
   });
+  return responseState;
 }
 
 function installBrowserDoubles() {
@@ -29,6 +30,10 @@ function installBrowserDoubles() {
       this.sources = new Map();
       this.zLevel = 1;
       window.__runnerMap = this;
+      window.__runner3dLaunchConfigs = [
+        ...(window.__runner3dLaunchConfigs || []),
+        options.threeD ? structuredClone(options.threeD) : null,
+      ];
     }
     on(name, callback) {
       if (name === "load") setTimeout(callback, 0);
@@ -44,15 +49,31 @@ function installBrowserDoubles() {
       window.__runnerZHistory = [...(window.__runnerZHistory || []), value];
     }
     getZoom() { return 18; }
-    easeTo(camera) { window.__runnerCamera = structuredClone(camera); }
-    flyTo(camera) { window.__runnerCamera = structuredClone(camera); }
+    easeTo(camera) {
+      window.__runnerCamera = {
+        ...(window.__runnerCamera || {}),
+        ...structuredClone(camera),
+      };
+    }
+    flyTo(camera) {
+      window.__runnerCamera = {
+        ...(window.__runnerCamera || {}),
+        ...structuredClone(camera),
+      };
+    }
+    enable3d() {
+      window.__runner3dHistory = [...(window.__runner3dHistory || []), true];
+    }
+    disable3d() {
+      window.__runner3dHistory = [...(window.__runner3dHistory || []), false];
+    }
     fitBounds(bounds, options) {
       window.__runnerFitBounds = {
         bounds: structuredClone(bounds),
         options: structuredClone(options),
       };
     }
-    remove() {}
+    remove() { window.__runnerMapRemoveCount = (window.__runnerMapRemoveCount || 0) + 1; }
     resize() { window.__runnerResizeCount = (window.__runnerResizeCount || 0) + 1; }
     setFilter(id, filter) {
       window.__runnerFilters = {
@@ -77,7 +98,9 @@ function installBrowserDoubles() {
       return this;
     }
     addTo() { return this; }
-    remove() {}
+    remove() {
+      window.__runnerMarkerRemoveCount = (window.__runnerMarkerRemoveCount || 0) + 1;
+    }
   }
   window.Mazemap = {
     Config: {

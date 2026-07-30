@@ -134,11 +134,11 @@
     </section>
     <section class="runner-card finish-panel" data-finish-panel hidden>
       <h2 data-finish-status>Run finished.</h2>
-      <label>
-        Optional operator comment
+      <label>Optional operator comment
         <textarea data-operator-comment rows="3"></textarea>
       </label>
-      <button class="primary" type="button" data-action="download-result">Download result JSON</button>
+      <div class="button-row"><button class="primary" type="button" data-action="download-result">Download result JSON</button>
+        <button class="stop-button" type="button" data-action="clear-capture">Clear capture</button></div>
       <details>
         <summary>Validate a result file</summary>
         <input data-result-file type="file" accept=".json,application/json">

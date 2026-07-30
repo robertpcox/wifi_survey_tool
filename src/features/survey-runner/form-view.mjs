@@ -15,10 +15,8 @@ export function createRunnerFormView(documentRef) {
       form?.elements?.namedItem(name)?.value ?? "",
     ]));
     values.consent = Boolean(form?.elements?.namedItem("consent")?.checked);
-    values.override = Boolean(
-      find('[name="override"]')?.checked
-      ?? form?.elements?.namedItem("override")?.checked,
-    );
+    values.override = Boolean(find('[name="override"]')?.checked
+      ?? form?.elements?.namedItem("override")?.checked);
     return values;
   }
 
@@ -51,6 +49,9 @@ export function createRunnerFormView(documentRef) {
     const go = find('[data-action="go"]');
     const override = find("[data-preflight-override]");
     const overrideGo = find('[data-action="override-go"]');
+    const survey = find("[data-survey-select]");
+    if (survey) survey.disabled = busy;
+    if (form) form.inert = busy;
     if (check) check.disabled = !entryComplete || busy;
     if (go) go.disabled = !entryComplete || busy || preflight?.verdict !== "green";
     if (override) override.hidden = !preflight || preflight.verdict === "green";

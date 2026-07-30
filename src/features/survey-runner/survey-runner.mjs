@@ -9,13 +9,15 @@ import { validateRunnerResultFile } from "./result-upload.mjs";
 import { createRunnerRunView } from "./run-view.mjs";
 import { createRunnerSetup } from "./setup.mjs";
 import { createRunnerNoteController } from "./note-controller.mjs";
+import { mountRunnerMap3dToggle } from "./map-3d-toggle.mjs";
+export const RUNNER_THREE_D = Object.freeze({ animateWalls: true, show3dAssets: true });
 export function mountSurveyRunner(options = {}) {
   const documentRef = options.documentRef ?? globalThis.document;
   const credentials = options.credentials ?? createMemoryCredentialStore();
   const formView = options.formView ?? createRunnerFormView(documentRef);
   const runView = options.runView ?? createRunnerRunView(documentRef);
-  const mapAdapter = options.mapAdapter
-    ?? createMazeMapAdapter({ container: "runner-map" });
+  const mapAdapter = options.mapAdapter ?? createMazeMapAdapter({ container: "runner-map", threeD: RUNNER_THREE_D });
+  mountRunnerMap3dToggle(documentRef, mapAdapter);
   const source = options.source ?? createMazeMapCloudSource(options);
   const nowDate = options.nowDate ?? (() => new Date());
   const state = {
@@ -114,13 +116,14 @@ export function mountSurveyRunner(options = {}) {
       documentRef,
     });
     const downloaded = state.lastResult;
-    setup.resetAfterDownload();
+    setup.clearCapture("Result downloaded. Choose the next survey.");
     return downloaded;
   }
   const actions = {
     addNote: noteController.add,
     cancelNote: noteController.cancel,
     checkIn: () => state.activeRun?.checkIn(),
+    clearCapture: () => Boolean(state.activeRun?.state.completionStatus) && setup.clearCapture(),
     download,
     endSession: () => state.activeRun?.endSession(),
     entryChanged: setup.entryChanged,

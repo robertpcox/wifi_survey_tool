@@ -7,10 +7,18 @@ The adjacent Runner note correction is complete: a note has distinct evidence id
 a typed anchor into the frozen route. Player holds its walker only for the note timestamps
 at exact captured ground truth; it never reroutes or invents a checkpoint.
 
-- The no-deploy build passed 492 tests with zero skips, four shells, Creator, both mobile
-  Runner profiles, and four Report Player map scenarios.
-- Manifests contain five surveys, five completed private field results, and one customer;
-  `dist/` contains 204 files and was not synchronized to the demo.
+- The adjacent Runner patch is validated: Stop finalizes the run and polling; Download or
+  destructive Clear then removes capture/map evidence while preserving entered device/band
+  details, consent, and in-memory credentials.
+- A later survey selection stays idle; Preflight makes exactly one request; Go alone restarts continuous polling.
+- Runner alone opts into exact `threeD: { animateWalls: true, show3dAssets: true }`.
+  The safe on-demand toggle is display-only and survives map relaunches.
+- The no-deploy build passed 510/510 tests plus size, header, import, schema, reference,
+  secrets, goldens, and generated module-map gates.
+- All four shells, Creator, two automated mobile Runner profiles, and four Report Player
+  scenarios passed. The mobile profiles do not replace physical Android field acceptance.
+- Manifests contain six surveys and six field results (five completed, one aborted) for one customer;
+  `dist/` contains 212 files. This no-deploy validation did not synchronize the patch.
 - Routes 1a and 1b use different revision IDs but exact hash `69d2c5f11ffe…`, proving why
   survey family, immutable revision, and exact-route cohort are separate identities.
 - The old private field input was removed; its reviewed route-truth golden remains a receipt
@@ -38,23 +46,15 @@ provides:
 - `launch`, `resizeMapSoon`, `fitRoute`, and `setMapZLevel`
 - `drawReportHeat(kind, analysis, floor)` and `drawPlayerFrame(frame, snap)`
 - `setViewMode(mode)`, `disablePlayerLayers()`, and `followWalker(walker)`
-- `onEvidenceSelect(callback)` and `focusEvidence(pollId, trigger)`
+- `onEvidenceSelect(callback)`, `focusEvidence(pollId, trigger)`, `set3dEnabled(enabled)`,
+  and read-only `threeDEnabled`
 
 `src/features/report-player/map-surface.mjs` exports `createReportMapSurface(options)`. Its
 single surface provides `start`, `retryAccess`, `render`, `setViewMode`, `settleLayout`,
 `onEvidenceSelect`, and `focusEvidence`.
 
 `mountReportPlayer()` returns one `{result, meta, store, surface, player, mapReady}` session.
-The `player` facade provides:
-
-```js
-player.setMode("playback", { atMs, pollId });
-player.seek(atMs);
-player.focusEvidence(pollId);
-player.setMode("analysis");
-player.mode;
-player.atMs;
-```
+Its `player` facade provides `setMode`, `seek`, `focusEvidence`, `mode`, and `atMs`.
 
 `seek()` and `focusEvidence()` enter Player when necessary. Leaving Player pauses it,
 preserves `atMs`, restores Report scroll, disables Player layers, and prevents hidden writes.
@@ -68,6 +68,8 @@ explicitly defines a non-secret query contract.
 - Only structured map-load 401/403 evidence reveals access UI. SDK, network, timeout, tile,
   generic, and unknown failures stay prompt-free and use the labelled route fallback.
 - Submitted map access is memory-only and retry reuses the same adapter lifecycle.
+- MazeMap 3D options are omitted unless a caller supplies them; Report/Player therefore
+  retains its existing 2D constructor and capture evidence never contains view state.
 - Route, truth, fixes, heat, pair connectors, and snap overlays keep exact `[lng, lat]` and z.
 - Follow tracks walker floor and pans only outside the inner 15% viewport; disabling it stops
   camera writes without stopping the Player clock or frame writes.
@@ -116,8 +118,8 @@ browser-storage audit.
   It deliberately uploads only the synthetic fixture, not the authorized physical result.
 - The provider SDK may create its own telemetry storage. Acceptance separately rejects app
   credential fields; source, staged output, URLs, results, and app storage remain clean.
-- `dist/` contains five private field results. Default builds sync it to the local demo;
-  keep using `--no-deploy` until their publication is explicitly authorized.
+- `dist/` contains six field results already authorized for the configured public demo.
+  A plain build synchronizes them and the new patch; `--no-deploy` remains validation-only.
 - `surveyFamilyId`, lineage sidecar projection, and reviewed-exception consumption are
   contracted but not implemented. Legacy resolution falls back to `surveyId`.
 - Physical Android Runner acceptance remains a project risk, not Step 5b scope.

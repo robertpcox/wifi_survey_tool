@@ -24,6 +24,7 @@ export function createRunnerSetup(options) {
   let pollLoop = null;
 
   function entryChanged() {
+    if (state.busy || state.activeRun) return;
     const values = formView.readValues();
     syncRunnerCredentials(values, credentials);
     state.entry = normalizeRunnerEntry(values);
@@ -32,6 +33,7 @@ export function createRunnerSetup(options) {
   }
 
   async function selectSurvey(event) {
+    if (state.busy || state.activeRun) return;
     const id = event?.target?.value || formView.selectedSurveyId();
     const entry = state.surveys.find(survey => survey.surveyId === id);
     if (!entry) return;
@@ -85,7 +87,7 @@ export function createRunnerSetup(options) {
     ).length === 0;
   }
 
-  function resetAfterDownload() {
+  function clearCapture(message = "Capture cleared. Choose the next survey.") {
     pollLoop?.stop();
     pollLoop = null;
     state.definition = null;
@@ -104,7 +106,8 @@ export function createRunnerSetup(options) {
     formView.resetRouteSelection?.();
     runView.resetSession?.();
     updateActions();
-    formView.setStatus("Result downloaded. Choose the next survey.", "ok");
+    formView.setStatus(message, "ok");
+    return true;
   }
 
   function updateActions() {
@@ -139,7 +142,7 @@ export function createRunnerSetup(options) {
     entryComplete,
     initialize,
     get pollLoop() { return pollLoop; },
-    resetAfterDownload,
+    clearCapture,
     selectSurvey,
     updateActions,
   });

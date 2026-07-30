@@ -20,6 +20,7 @@ test("Runner HTML exposes mobile entry, preflight, capture, and validation", () 
   assert.match(html, /data-target-distance/);
   assert.match(html, /data-action="stop"/);
   assert.match(html, /type="button" data-action="download-result"/);
+  assert.match(html, /type="button" data-action="clear-capture">Clear capture/);
   assert.match(html, /data-result-file/);
   assert.doesNotMatch(html, /localStorage|sessionStorage|indexedDB/);
 });

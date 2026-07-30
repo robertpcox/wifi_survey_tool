@@ -2,6 +2,24 @@
 
 Continues `Scope/progress_log.md`.
 
+## 2026-07-28 — Step 3 Creator Engage correction built and deployed
+
+- Replaced user-entered survey IDs with Creator-generated RFC 4122 UUIDs; unchanged
+  re-exports preserve the UUID and changed routes/plans generate a new one.
+- Removed manual Buildings/Floors entry. Committed MazeMap points now resolve and
+  deduplicate building IDs/names, z-levels, and floor display names.
+- Replaced the separate access-save/map-launch controls with customer, campus, and
+  memory-only access token followed by one Engage action.
+- Added lazy loading for the exact MazeMap v3.0.6 SDK, runtime campus catalogs/centering,
+  map load error/timeout handling, and click metadata resolution.
+- Confirmed the reported `runtime.lastError` text is not emitted by repository code;
+  clean headless Chrome completes the path without a console error.
+- Passed the complete build: 255 tests, all gates, 94 staged files, four-shell Chrome
+  smoke, and the SDK-backed Creator Engage/map-click/UUID export smoke.
+- Replaced `/Users/robert/Git/demo.mazemap_nginx/html/wifi-survey-v3` with the 94-file
+  build, confirmed byte identity with `dist`, and repeated both deployed-directory
+  Chrome smokes successfully.
+
 ## 2026-07-28 — Step 3 Creator complete
 
 - Closed Step 2 serving acceptance: live `.mjs` MIME is JavaScript and all four shells

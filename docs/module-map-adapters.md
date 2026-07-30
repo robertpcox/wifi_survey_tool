@@ -13,17 +13,18 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - map-camera-follow 60/2140 T+ E followMapPoint
 - map-geojson 80/2743 T+ E geoCircle, geoPath, geoPoint, validMapPoint
 - map-resize 16/724 T+ E resizeMapAfterLayout
+- mazemap-3d 56/1914 T+ E createMazeMap3dState
 - mazemap-catalog 141/4695 T+ E describePoi, fetchCampusCatalog I mazemap-poi-position, mazemap-runtime
-- mazemap-controls 150/4320 T+ E createMapControls I @d/route-contract, camera-bearing, mazemap-runtime
+- mazemap-controls 150/4344 T+ E createMapControls I @d/route-contract, camera-bearing, mazemap-runtime
 - mazemap-errors 117/4628 T+ E MAP_LAUNCH_CLASSIFICATIONS, MazeMapLaunchError, classifyMazeMapLaunchError
 - mazemap-launch 144/4524 T+ E campusForLaunch, createLoadedMazeMap, launchCenter, resolveLaunchContainer, waitForMazeMapLoad I mazemap-catalog, mazemap-errors
 - mazemap-poi-position 38/1187 T+ E poiCenter
 - mazemap-queries 32/1203 T+ E createMazeMapQueries I mazemap-catalog
 - mazemap-runtime 38/1032 T+ E errorMessage, normalizeCampusId, numericZ, waitForMapLoad
-- mazemap-sdk 68/2437 T+ E MAZEMAP_CSS_URL, MAZEMAP_JS_URL, loadMazemapSdk
+- mazemap-sdk 78/2763 T+ E MAZEMAP_CSS_URL, MAZEMAP_JS_URL, loadMazemapSdk, resolveMazemapSdk
 - mazemap-shared-boundary 78/2384 T+ E createMazeMapSharedBoundary
-- mazemap 150/5858 T+ E createMazeMapAdapter
-  - I @d/route-contract, layers, map-resize, mazemap-controls, mazemap-errors, mazemap-launch, mazemap-queries, mazemap-runtime, mazemap-sdk,
+- mazemap 148/5921 T+ E createMazeMapAdapter
+  - I @d/route-contract, layers, map-resize, mazemap-3d, mazemap-controls, mazemap-errors, mazemap-launch, mazemap-queries, mazemap-runtime, mazemap-sdk,
     mazemap-shared-boundary, shared-map-layers
 - note-features 37/1262 T+ E notePointFeatures
 - player-fix-history 41/1490 T+ E playerChangedFixHistory I map-geojson

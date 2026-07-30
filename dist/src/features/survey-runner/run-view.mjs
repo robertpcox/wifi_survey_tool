@@ -79,8 +79,10 @@ export function createRunnerRunView(documentRef) {
   function showFinish(status) {
     const run = find("[data-run-panel]");
     const finish = find("[data-finish-panel]");
+    const setup = find("[data-setup-controls]");
     if (run) run.hidden = true;
     if (finish) finish.hidden = false;
+    if (setup) setup.hidden = true;
     setText(
       "[data-finish-status]",
       status === "completed"
@@ -94,8 +96,10 @@ export function createRunnerRunView(documentRef) {
     latestFix = null;
     const run = find("[data-run-panel]");
     const finish = find("[data-finish-panel]");
+    const setup = find("[data-setup-controls]");
     if (run) run.hidden = true;
     if (finish) finish.hidden = true;
+    if (setup) setup.hidden = false;
     const comment = find("[data-operator-comment]");
     if (comment) comment.value = "";
     setText("[data-poll-count]", 0);
@@ -111,6 +115,7 @@ export function createRunnerRunView(documentRef) {
       find('[data-action="end-session"]')?.addEventListener("click", handlers.endSession);
       find('[data-action="stop"]')?.addEventListener("click", handlers.stop);
       find('[data-action="download-result"]')?.addEventListener("click", handlers.download);
+      find('[data-action="clear-capture"]')?.addEventListener("click", handlers.clearCapture);
       find("[data-result-file]")?.addEventListener("change", handlers.validateFile);
     },
     comment: () => find("[data-operator-comment]")?.value ?? "",

@@ -38,6 +38,8 @@ function mazemapHarness(mode = "load") {
     stop() { this.stopped = true; }
     easeTo(camera) { this.easyCamera = camera; }
     flyTo(camera) { this.flyCamera = camera; }
+    enable3d() { state.threeD = "enabled"; }
+    disable3d() { state.threeD = "disabled"; }
     remove() { this.removed = true; }
     setPaintProperty() {}
   }
@@ -79,6 +81,7 @@ test("launch lazily loads the SDK and uses the selected campus catalog", async (
   let loads = 0;
   const adapter = createMazeMapAdapter({
     loadMazemap: async () => { loads += 1; return state.Mazemap; },
+    threeD: { animateWalls: true, show3dAssets: true },
   });
   assert.equal(adapter.Mazemap, null);
   const onClick = () => {};
@@ -90,16 +93,22 @@ test("launch lazily loads the SDK and uses the selected campus catalog", async (
   assert.deepEqual(state.tokens, ["runtime-secret"]);
   assert.deepEqual(state.map.options, {
     container: "map", campuses: 777, zoom: 18, center: [12, 22],
+    threeD: { animateWalls: true, show3dAssets: true },
   });
+  adapter.focusWaypoint({ lng: 170.5, lat: -45.8, z: 2 });
+  assert.deepEqual([state.threeD, state.map.easyCamera.pitch], ["enabled", 45]);
   assert.equal(state.map.events.click, onClick);
   assert.equal(adapter.ready, true);
   assert.deepEqual(state.campusCalls, [777]);
   assert.deepEqual(state.floorsCalls, [777]);
   assert.deepEqual(state.buildingsCalls, [777]);
 });
-test("describePoint safely resolves POI metadata through cached catalogs", async () => {
+test("describePoint caches catalogs and a 3D choice survives map relaunch", async () => {
   const state = mazemapHarness();
-  const adapter = createMazeMapAdapter({ Mazemap: state.Mazemap });
+  const adapter = createMazeMapAdapter({
+    Mazemap: state.Mazemap,
+    threeD: { animateWalls: true, show3dAssets: true },
+  });
   await adapter.launch("memory-only", undefined, { campusId: 777 });
   assert.deepEqual(await adapter.describePoint(170.5, -45.8, 3), {
     building: { id: "51", name: "Library" },
@@ -108,7 +117,10 @@ test("describePoint safely resolves POI metadata through cached catalogs", async
   });
   assert.deepEqual(state.poiAtCalls, [[{ lng: 170.5, lat: -45.8 }, 3]]);
   assert.deepEqual(await adapter.lookupPoi(91), { id: 91 });
+  assert.equal(adapter.set3dEnabled(false), true);
+  assert.equal(state.map.easyCamera.pitch, 0);
   await adapter.launch("new-memory-only", undefined, { campusId: 777 });
+  assert.deepEqual([state.threeD, adapter.threeDEnabled], ["disabled", false]);
   assert.deepEqual(state.campusCalls, [777]);
 });
 test("describePoint gives actionable errors for unmapped clicks", async () => {

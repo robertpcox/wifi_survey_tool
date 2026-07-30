@@ -1,9 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-
 import { createMemoryCredentialStore } from "../../adapters/memory-credentials.mjs";
 import { createRunnerSetup } from "./setup.mjs";
-
 test("setup selects definitions, reads entry state, and records poll samples", async () => {
   const values = {
     deviceType: "asset",
@@ -116,10 +114,20 @@ test("setup selects definitions, reads entry state, and records poll samples", a
   assert.equal(calls.source[0].id, "poll-1");
   assert.deepEqual(calls.hooks, [["poll-1", "preflight"]]);
   assert.equal(calls.buttons.at(-1).entryComplete, true);
+  const captureLoop = setup.pollLoop;
+  captureLoop.start();
+  await Promise.resolve();
+  assert.equal(captureLoop.active, true);
   state.activeRun = {};
   state.lastResult = {};
   state.preflight = { verdict: "green" };
-  setup.resetAfterDownload();
+  await setup.selectSurvey({ target: { value: "survey-0" } });
+  assert.equal(calls.loadedId, "survey-1");
+  state.activeRun = null; state.busy = true;
+  await setup.selectSurvey({ target: { value: "survey-0" } }); assert.equal(calls.loadedId, "survey-1");
+  state.busy = false; state.activeRun = {};
+  assert.equal(setup.clearCapture(), true);
+  assert.equal(captureLoop.active, false);
   assert.equal(state.definition, null);
   assert.equal(state.activeRun, null);
   assert.equal(state.lastResult, null);
@@ -131,5 +139,12 @@ test("setup selects definitions, reads entry state, and records poll samples", a
   assert.deepEqual(calls.resets, ["target", "form", "run"]);
   assert.equal(calls.activeLeg, null);
   assert.equal(state.entry.deviceName, "Tag 4");
-  assert.equal(credentials.read("appKey"), values.appKey);
+  assert.deepEqual(
+    ["mapAccess", "appId", "appKey"].map(name => credentials.read(name)),
+    [values.mapAccess, values.appId, values.appKey],
+  );
+  await setup.selectSurvey({ target: { value: "survey-0" } });
+  assert.equal(calls.loadedId, "survey-0");
+  assert.equal(setup.pollLoop.active, false);
+  assert.equal(state.entry.deviceName, "Tag 4");
 });

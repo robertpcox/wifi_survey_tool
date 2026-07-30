@@ -71,10 +71,10 @@ Adapter tests from recorded responses only:
 Runner tests:
 
 - poll starts honor cadence when RTT permits and never overlap overruns; dwell has no default
-- map launch and later survey selection fit the route; Go opens a no-scroll viewport map
+- map/selection fit the route; Go is no-scroll; exact `threeD: { animateWalls: true, show3dAssets: true }` toggles as view-only state
 - checkpoint progression keeps the target lit, north-up, named, distance- and floor-labelled
-- stopping early exports `completionStatus: "aborted"` and prompts download
-- completion downloads, clears route/run state, and keeps in-tab settings ready for the next test
+- Stop ends the run and continuous polling; finish offers Download or destructive Clear and locks survey switching
+- Download/Clear resets evidence but preserves device/band details and credentials; selection stays idle, Preflight polls once, and only Go restarts polling
 - the meta block in the result is identical to the definition's
 - device type, operating system, name, Client IP, and band are present in every export
 - band is required at load and the entered value reaches the export
@@ -97,7 +97,7 @@ Preflight, one test per verdict from recorded responses:
 
 Field acceptance, which no automated test replaces:
 
-- one complete survey on current iPhone and Android (Rob's iPhone smoke passed; Android remains)
+- current iPhone and Android complete, stop-clear-select-preflight-rerun, and exercise 3D (Rob's iPhone smoke passed; Android remains)
 - private campus access entered by hand and map rendering (passed in Rob's iPhone smoke)
 - a full-length run without memory or battery collapse
 
@@ -142,7 +142,7 @@ Standing risks, rechecked every step rather than assumed closed.
 - **Definition timezone.** Keep the corrected Dunedin definitions on `Pacific/Auckland`.
 - **Header context debt.** The sorted Step 5 baseline defers legacy files; recover missing metadata and context before removal.
 - **Customer filtering.** Customer manifests and URLs are convenience, not authorization; use host control or separate artifacts.
-- **Sensitive artifact publishing.** `dist/` includes five physical field runs. A default build
+- **Sensitive artifact publishing.** `dist/` includes six physical field runs. A default build
   syncs it to demo after success; use `--no-deploy` unless that publication is authorized.
 - **Analysis interval semantics.** Fixture tests must cover repeated fixes, preflight, tails, dwell, and exact equality.
 - **Provider expansion.** LiPi and DNA Spaces need real redacted responses and the V3 contract, not legacy-shape reuse.

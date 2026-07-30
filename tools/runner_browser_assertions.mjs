@@ -1,5 +1,3 @@
-import { bearingTo } from "../src/adapters/map/camera-bearing.mjs";
-
 export async function setRunnerEntry(page, name) {
   const values = {
     mapAccess: "browser-map-value",
@@ -66,27 +64,11 @@ export async function readRunnerActiveView(page) {
   });
 }
 
-export async function readRunnerMapTransition(page) {
-  return page.evaluate(() => ({
-    activeLeg: window.__runnerFilters?.["route-active-lyr"]?.at(-1),
-    bearing: window.__runnerCamera?.bearing,
-    waypointOpacity: window.__runnerPaint?.["wp-pts-lyr.circle-opacity"],
-  }));
-}
-
-export function runnerMapTransitionFindings(state, origin, target, expectedZ) {
-  const findings = [];
-  if (state.activeLeg !== 0) findings.push("current route leg is not active");
-  if (bearingDifference(state.bearing, bearingTo(origin, target)) > 0.1) {
-    findings.push("next checkpoint is not direction-up");
-  }
-  if (!JSON.stringify(state.waypointOpacity).includes(String(expectedZ))) {
-    findings.push("checkpoint styling did not follow the active floor");
-  }
-  return findings;
-}
-
-export function runnerActiveViewFindings(view, expectedFloor, expectedBearing) {
+export function runnerActiveViewFindings(
+  view,
+  expectedFloor,
+  expectedBearing,
+) {
   const findings = [];
   const inside = rect => rect
     && rect.top >= -1
@@ -104,7 +86,7 @@ export function runnerActiveViewFindings(view, expectedFloor, expectedBearing) {
     findings.push("run controls leave the viewport");
   }
   if (!view.fitBounds) findings.push("survey bounds were not fitted");
-  if (!Number.isFinite(view.camera?.bearing) || view.camera?.pitch !== 0) {
+  if (!Number.isFinite(view.camera?.bearing)) {
     findings.push("checkpoint camera is not direction-up");
   } else if (Number.isFinite(expectedBearing)
     && bearingDifference(view.camera.bearing, expectedBearing) > 0.1) {

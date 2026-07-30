@@ -94,12 +94,13 @@ recorded in the result so a questionable run is explainable rather than mysterio
 Before starting, Runner requires acknowledgement that the test records device position.
 
 Stopping a run is final; a capture note only pauses polling inside the active run.
-Stopping before explicit endpoint finish exports `completionStatus: "aborted"`.
-At the terminal checkpoint, polling continues until explicit finish exports `"completed"`.
-Both paths visibly prompt download.
-After a successful download, Runner clears the selected survey, route, preflight, polls,
-comment, and capture UI. Entry fields and memory credentials remain for the next run in
-that tab; refresh or tab close still clears those runtime-only values.
+An early stop exports `"aborted"`; explicit endpoint finish exports `"completed"`.
+Both finish paths offer Download or destructive Clear. Survey switching remains locked
+until one resolves the capture, so an undownloaded result cannot be orphaned.
+Stop has ended continuous polling. Download or Clear removes survey, route, preflight, polls,
+comment, UI, and map evidence; in-tab device/band details and memory credentials remain.
+Selecting another survey stays idle; Preflight is the next permitted single source request.
+Continuous polling resumes only on Go; refresh or tab close clears runtime credentials.
 
 Only completed runs are eligible for comparison.
 
@@ -107,12 +108,11 @@ Only completed runs are eligible for comparison.
 
 A result contains:
 
-- the definition meta block copied verbatim, including customer, campus, timezone,
-  immutable revision, buildings, floors; a missing family ID resolves to the survey ID
+- copied meta: customer, campus, timezone, revision, buildings, floors, and survey-ID fallback when family ID is missing
 - the device under test: type, operating system, name, and identifying Client IP
 - the wireless band the run was made on
 - an optional operator comment captured at the end of the run
-- definition identity and route snapshot required for playback
+- immutable definition/route evidence; Runner 3D constructor/toggle state is never serialized
 - survey, route, customer, campus, and source IDs
 - started, stopped, and exported timestamps
 - completion status

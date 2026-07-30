@@ -5,6 +5,7 @@
 // RULES:        Configure access only when supplied; Report and Player reuse the loaded map.
 // PROVENANCE:   Scope/steps/05a_recast_player.md MazeMap adapter contract
 import { CAMPUS_ID } from "../../domain/route-contract.mjs";
+import { createMazeMap3dState } from "./mazemap-3d.mjs";
 import { createMapLayers } from "./layers.mjs";
 import { createMapControls } from "./mazemap-controls.mjs";
 import { classifyMazeMapLaunchError } from "./mazemap-errors.mjs";
@@ -12,7 +13,7 @@ import {
   campusForLaunch, createLoadedMazeMap, launchCenter, resolveLaunchContainer,
 } from "./mazemap-launch.mjs";
 import { normalizeCampusId, numericZ } from "./mazemap-runtime.mjs";
-import { loadMazemapSdk } from "./mazemap-sdk.mjs";
+import { resolveMazemapSdk } from "./mazemap-sdk.mjs";
 import { createMazeMapQueries } from "./mazemap-queries.mjs";
 import { createMazeMapSharedBoundary } from "./mazemap-shared-boundary.mjs";
 import { resizeMapAfterLayout } from "./map-resize.mjs";
@@ -26,8 +27,10 @@ export function createMazeMapAdapter(options = {}) {
   let resolvedContainer = null, sharedLayers = null;
   let activeCatalog = { buildings: [], floors: [] };
   const catalogCaches = { public: new Map(), token: new Map() };
+  const threeD = createMazeMap3dState(options.threeD, options.threeDPitch);
   const controls = createMapControls({
     currentZ: () => currentZLevel,
+    focusPitch: () => threeD.pitch,
     layers: () => ({ applyZStyling }),
     map: () => map,
     sdk: () => Mazemap,
@@ -36,14 +39,7 @@ export function createMazeMapAdapter(options = {}) {
   const shared = createMazeMapSharedBoundary({ setFloor });
   const queries = createMazeMapQueries(resolveSdk, () => activeCatalog);
   async function resolveSdk() {
-    if (!Mazemap) {
-      Mazemap = await (options.loadMazemap
-        ? options.loadMazemap()
-        : loadMazemapSdk({ timeoutMs: options.sdkTimeoutMs }));
-    }
-    if (typeof Mazemap?.Map !== "function") {
-      throw new Error("MazeMap SDK is missing its Map API.");
-    }
+    Mazemap = await resolveMazemapSdk(Mazemap, options);
     return Mazemap;
   }
   async function launch(viewToken, onMapClick, runtime = {}) {
@@ -83,12 +79,12 @@ export function createMazeMapAdapter(options = {}) {
       layers = null;
       sharedLayers = null;
       phase = "map-load";
-      map = await createLoadedMazeMap(sdk, {
-        container,
-        campuses: campusId,
-        zoom: 18,
-        center: activeCatalog.center,
-      }, options.mapLoadTimeoutMs ?? 10000);
+      map = await createLoadedMazeMap(
+        sdk,
+        threeD.mapOptions(container, campusId, activeCatalog.center),
+        options.mapLoadTimeoutMs ?? 10000,
+      );
+      threeD.apply(map);
       currentZLevel = numericZ(controls.getMapZLevel()) ?? 1;
       phase = "layer-init";
       layers = createMapLayers(map, () => currentZLevel);
@@ -140,11 +136,13 @@ export function createMazeMapAdapter(options = {}) {
     launch,
     resizeMapSoon: () => resizeMapAfterLayout(map, options.requestAnimationFrame),
     setActiveLeg: index => layers?.setActiveLeg(index),
+    set3dEnabled: enabled => threeD.set(map, enabled),
     setMapZLevel: setFloor,
     get campusId() { return campusId; },
     get campusName() { return campusName; },
     get currentZLevel() { return currentZLevel; },
     get Mazemap() { return Mazemap; },
     get ready() { return Boolean(map && layers && sharedLayers); },
+    get threeDEnabled() { return threeD.enabled; },
   };
 }

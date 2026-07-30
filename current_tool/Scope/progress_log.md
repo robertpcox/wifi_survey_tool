@@ -1,5 +1,14 @@
 # Progress log — newest entry first
 
+## 2026-07-30 — Runner stop/clear lifecycle and 3D display validated
+
+- Stop now finalizes the run and continuous polling; Download or destructive Clear resolves the stopped capture.
+- Resolution clears capture/map evidence while preserving entered device/band details, consent, and in-memory credentials.
+- Survey selection remains idle; Preflight makes exactly one request, and Go alone restarts continuous polling.
+- Runner alone opts into exact `threeD: { animateWalls: true, show3dAssets: true }` with a safe display-only toggle.
+- The no-deploy build passed 510/510 tests and all size/header/import/schema/reference/secrets/goldens/module-map gates.
+- Four shells, Creator, two mobile Runner profiles, and four Player scenarios passed; physical Android remains pending.
+
 ## 2026-07-29 — Frozen-route notes and replacement field set validated
 
 - Replaced pseudo-checkpoint notes with distinct evidence IDs and typed anchors scoped to
@@ -117,24 +126,6 @@
   credential requirements on. Optional device geolocation is separately labelled.
 - Final build passed 262 tests, all gates, 96 files, and both staged Chrome smokes.
 - Demo commit `4d2743f` contains the byte-identical two-module map-choice fix.
-
-## 2026-07-28 — Step 3 Creator Engage correction built and deployed
-
-- Replaced user-entered survey IDs with Creator-generated RFC 4122 UUIDs; unchanged
-  re-exports preserve the UUID and changed routes/plans generate a new one.
-- Removed manual Buildings/Floors entry. Committed MazeMap points now resolve and
-  deduplicate building IDs/names, z-levels, and floor display names.
-- Replaced the separate access-save/map-launch controls with customer, campus, and
-  memory-only access token followed by one Engage action.
-- Added lazy loading for the exact MazeMap v3.0.6 SDK, runtime campus catalogs/centering,
-  map load error/timeout handling, and click metadata resolution.
-- Confirmed the reported `runtime.lastError` text is not emitted by repository code;
-  clean headless Chrome completes the path without a console error.
-- Passed the complete build: 255 tests, all gates, 94 staged files, four-shell Chrome
-  smoke, and the SDK-backed Creator Engage/map-click/UUID export smoke.
-- Replaced `/Users/robert/Git/demo.mazemap_nginx/html/wifi-survey-v3` with the 94-file
-  build, confirmed byte identity with `dist`, and repeated both deployed-directory
-  Chrome smokes successfully.
 
 Older entries: `Scope/progress_log_archive.md`
 Current handover: `Scope/handover.md`

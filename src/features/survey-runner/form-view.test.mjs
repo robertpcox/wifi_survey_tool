@@ -72,6 +72,9 @@ test("form view reads operator values and keeps Go gated by green", () => {
   values.override.checked = true;
   view.setActions({ entryComplete: true, preflight: { verdict: "amber" } });
   assert.equal(nodes.get('[data-action="override-go"]').disabled, false);
+  view.setActions({ entryComplete: true, preflight: { verdict: "green" }, busy: true });
+  assert.deepEqual([nodes.get("[data-survey-select]").disabled,
+    nodes.get("[data-runner-entry]").inert], [true, true]);
   view.setActions({ entryComplete: true, preflight: { verdict: "green" } });
   assert.equal(nodes.get('[data-action="go"]').disabled, false);
   let changes = 0, overrides = 0;
@@ -132,10 +135,8 @@ test("definition summary and preflight evidence render without secrets", () => {
   assert.equal(nodes.get("[data-preflight-result]").hidden, true);
 });
 test("preflight metrics expose empty and usable samples", () => {
-  assert.deepEqual(
-    preflightMetrics(null, 1000),
-    { position: "No position", floor: "—", age: "—", rtt: "—" },
-  );
+  assert.deepEqual(preflightMetrics(null, 1000),
+    { position: "No position", floor: "—", age: "—", rtt: "—" });
   const metrics = preflightMetrics({
     normalized: {
       lat: -45.87,
@@ -145,6 +146,5 @@ test("preflight metrics expose empty and usable samples", () => {
     },
     roundTripMs: 10,
   }, 5000);
-  assert.equal(metrics.position, "-45.870000, 170.500000");
-  assert.equal(metrics.age, "5 s");
+  assert.equal(metrics.position, "-45.870000, 170.500000"); assert.equal(metrics.age, "5 s");
 });

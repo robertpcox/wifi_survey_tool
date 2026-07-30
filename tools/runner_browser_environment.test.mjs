@@ -16,7 +16,12 @@ test("Runner browser environment installs interception on a page", async () => {
       calls.push(["on", name, typeof handler]);
     },
   };
-  await installRunnerBrowserEnvironment(page, "https://runner.example", {});
+  const state = await installRunnerBrowserEnvironment(
+    page,
+    "https://runner.example",
+    {},
+  );
+  assert.deepEqual(state, {});
   assert.deepEqual(calls, [
     ["install", "function"],
     ["intercept", true],

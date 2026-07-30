@@ -62,6 +62,33 @@ test("map controls retain marker, floor, camera, and SDK fallbacks", () => {
   assert.equal(controls.focusWaypoint({ lng: "bad", lat: 2 }), false);
 });
 
+test("waypoint focus accepts a dynamic perspective pitch", () => {
+  let pitch = 45;
+  const cameras = [];
+  const map = {
+    easeTo(camera) { cameras.push(camera); },
+    getZoom: () => 18,
+    setZLevel() {},
+  };
+  class MazeMarker {
+    setLngLat() { return this; }
+    addTo() { return this; }
+    remove() {}
+  }
+  const controls = createMapControls({
+    currentZ: () => 0,
+    focusPitch: () => pitch,
+    layers: () => null,
+    map: () => map,
+    sdk: () => ({ MazeMarker }),
+    setCurrentZ() {},
+  });
+  controls.focusWaypoint({ lng: 170.5, lat: -45.8, z: 1 });
+  pitch = 0;
+  controls.focusWaypoint({ lng: 170.6, lat: -45.9, z: 1 });
+  assert.deepEqual(cameras.map(camera => camera.pitch), [45, 0]);
+});
+
 test("fitRoute bounds all finite route points north-up and centers one point", () => {
   const map = {
     fitBounds(bounds, options) { this.bounds = bounds; this.fit = options; },

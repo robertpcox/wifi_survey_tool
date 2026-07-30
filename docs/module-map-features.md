@@ -101,8 +101,9 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - active-run 150/4396 T+ E createActiveRunner I @d/runner-progress-v3, note-capture
 - entry 56/1655 T+ E RUNNER_ENTRY_FIELDS, normalizeRunnerEntry, runnerEntryIssues, runnerPositionRequest, syncRunnerCredentials
 - feature-flags 8/416 T- E RUNNER_NOTES_ENABLED
-- form-view 149/5855 T+ E createRunnerFormView, preflightMetrics I @s/format
+- form-view 150/5964 T+ E createRunnerFormView, preflightMetrics I @s/format
 - loader 41/1668 T+ E loadRunnerDefinition, loadRunnerManifest, surveyIdFromUrl I @d/survey-definition-v3
+- map-3d-toggle 71/2418 T+ E mountRunnerMap3dToggle
 - note-capture 120/3881 T+ E createRunnerNoteCapture
 - note-controller 47/1934 T+ E createRunnerNoteController I feature-flags
 - note-view 116/4245 T- E createRunnerNoteView I feature-flags
@@ -110,11 +111,11 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - preflight 53/1595 T+ E createPreflightPollLoopOptions, runRunnerPreflight I @d/runner-preflight-v3, entry
 - result-download 30/1068 T+ E downloadRunnerResult I @a/files, @d/runner-result-v3
 - result-upload 16/553 T+ E validateRunnerResultFile I @a/files, @d/survey-result-v3
-- run-view 144/5164 T+ E checkpointDistanceText, createRunnerRunView, targetName I @d/geometry, note-view
+- run-view 149/5430 T+ E checkpointDistanceText, createRunnerRunView, targetName I @d/geometry, note-view
 - runner-active.css 141/2749 T+ I runner-note.css
 - runner-note.css 61/1467 T-
-- runner.css 125/3932 T+
-- setup 146/4278 T+ E createRunnerSetup I entry, loader, poll-loop, preflight
-- survey-runner 147/5271 T+ E mountSurveyRunner
-  - I @a/map/mazemap, @a/memory-credentials, @a/positioning/mazemap-cloud-v3, active-run, form-view, note-controller, preflight, result-download,
-    result-upload, run-view, setup
+- runner.css 149/4528 T+
+- setup 149/4392 T+ E createRunnerSetup I entry, loader, poll-loop, preflight
+- survey-runner 150/5629 T+ E RUNNER_THREE_D, mountSurveyRunner
+  - I @a/map/mazemap, @a/memory-credentials, @a/positioning/mazemap-cloud-v3, active-run, form-view, map-3d-toggle, note-controller, preflight,
+    result-download, result-upload, run-view, setup

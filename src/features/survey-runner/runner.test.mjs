@@ -10,4 +10,7 @@ test("Runner CSS keeps the map responsive and mobile capture controls usable", (
   assert.match(css, /@media \(max-width: 760px\)/);
   assert.match(css, /#runner-map\s*\{\s*min-height:\s*44vh/);
   assert.match(css, /\.capture-actions button\s*\{\s*min-height:\s*4rem/);
+  assert.match(css, /\.map-3d-toggle\s*\{[^}]*min-height:\s*2\.75rem/s);
+  assert.match(css, /@media \(max-width: 760px\)[\s\S]*\.map-card\s*\{[^}]*position:\s*relative/);
+  assert.match(css, /body\.runner-running \.map-display-controls\s*\{[^}]*bottom:/s);
 });

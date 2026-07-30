@@ -36,6 +36,7 @@ const analysis = {
 test("active evidence renders prominent stale and named-floor warnings", () => {
   const html = renderReportWarnings(analysis);
   assert.match(html, /data-warning-kind="stale-position"/);
+  assert.match(html, /No position update/);
   assert.match(html, /beyond 5 s while the tester was moving/);
   assert.match(html, /data-warning-kind="floor-mismatch"/);
   assert.match(html, /Reported Ground while route ground truth was First/);

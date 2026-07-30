@@ -43,6 +43,7 @@ const analysis = {
 
 test("methodology renders fixture floors and explains elapsed-time heat", () => {
   const html = renderMethodologyView({ result, analysis });
+  assert.match(html, /No position update/);
   assert.match(html, /more than\s*<strong>4 seconds/);
   assert.match(html, /ground truth is moving/);
   assert.match(html, /Planned checkpoint dwell is excluded/);

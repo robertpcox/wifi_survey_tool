@@ -19,6 +19,16 @@ test("mode switching reuses sources and blocks disabled Player writes", () => {
   ]);
   layers.drawReportHeat("sticky", {
     heatmaps: { sticky: [] },
+    stalePathSegments: [{
+      z: 0,
+      coordinates: [
+        [170.2, -45.2],
+        [170.21, -45.21],
+        [170.22, -45.2],
+      ],
+      pollId: "poll-stale",
+      durationSeconds: 7,
+    }],
     timeline: [{
       pollId: "poll-wifi",
       receivedAt: "2026-07-30T01:08:53.826Z",
@@ -41,12 +51,28 @@ test("mode switching reuses sources and blocks disabled Player writes", () => {
   const wifi = harness.sources.get("report-wifi-fixes").data.features[0];
   assert.deepEqual(wifi.geometry.coordinates, [170.25, -45.25]);
   assert.equal(wifi.properties.z, 1);
+  const stalePath = harness.sources.get("report-stale-path").data.features[0];
+  assert.deepEqual(stalePath.geometry.coordinates, [
+    [170.2, -45.2],
+    [170.21, -45.21],
+    [170.22, -45.2],
+  ]);
+  assert.equal(stalePath.properties.pollId, "poll-stale");
   const layerOrder = [...harness.layers.keys()];
+  assert.ok(
+    layerOrder.indexOf("report-sticky-heat-lyr")
+      < layerOrder.indexOf("report-stale-path-lyr"),
+  );
+  assert.ok(
+    layerOrder.indexOf("report-stale-path-lyr")
+      < layerOrder.indexOf("report-wifi-fixes-lyr"),
+  );
   assert.ok(
     layerOrder.indexOf("report-wifi-fixes-lyr")
       < layerOrder.indexOf("report-floor-mismatch-lyr"),
   );
   layers.setViewMode("playback");
+  assert.equal(harness.visibility.get("report-stale-path-lyr"), "visible");
   const sourceCount = harness.sources.size;
   const layerCount = harness.layers.size;
   assert.equal(layers.followWalker({ lng: 170.1, lat: -45.1, z: 0 }), true);
@@ -72,6 +98,8 @@ test("mode switching reuses sources and blocks disabled Player writes", () => {
   assert.equal(harness.visibility.get("report-sticky-heat-lyr"), "visible");
   assert.equal(harness.visibility.get("report-floor-mismatch-lyr"), "visible");
   assert.equal(harness.visibility.get("report-wifi-fixes-lyr"), "visible");
+  assert.equal(harness.visibility.get("report-stale-path-lyr"), "visible");
+  assert.ok(layers.sourceIds.includes("report-stale-path"));
 });
 
 function mapHarness() {

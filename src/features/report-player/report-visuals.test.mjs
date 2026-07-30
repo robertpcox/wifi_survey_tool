@@ -2,7 +2,7 @@
 // SURFACE:      node --test src/features/report-player/report-visuals.test.mjs
 // WHY TOGETHER: Component-style assertions guard evidence layouts and responsive behavior.
 // STATE:        Loaded report visuals CSS
-// RULES:        KPI, heat, timeline, comparison, playback, and methodology retain named hooks.
+// RULES:        KPI, heat, comparison, playback, and methodology retain named hooks.
 // PROVENANCE:   Scope/test_plan.md Step 5
 
 import assert from "node:assert/strict";
@@ -15,7 +15,7 @@ test("Report Player visuals style every independent evidence module responsively
   for (const selector of [
     ".kpi-grid",
     ".heat-floor-grid",
-    ".report-timeline",
+    ".threshold-summary",
     ".comparison-table-wrap",
     ".playback-controls",
     ".report-methodology",

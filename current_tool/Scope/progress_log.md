@@ -1,12 +1,12 @@
 # Progress log — newest entry first
 
-## 2026-07-30 — Report field-correction slice validated
+## 2026-07-30 — Report where-it-gets-stuck slice validated
 
-- Native MazeMap z-level now drives Report filters and survives fit, resize, and mode changes.
-- One memory-only access-token control works from Report and full-screen Player.
-- Prominent stale/sticky and floor-disconnect warnings show elapsed evidence and open Player.
-- The new field result resolves all four named floors and is present in customer 292's manifest.
-- Full validation passed 552/552 tests and every shell/Creator/Runner/Report Chrome gate.
+- Exact red walked-path sections begin at the selected timeliness limit and exclude planned dwell.
+- Large map warnings summarize Analysis and follow the current Player moment.
+- Map controls expose 15/20-second timeliness and 5–25-metre accuracy choices; the log is removed.
+- The field result proves 1388.466 s at 15 s and 822.716 s at 20 s across all four floors.
+- Isolated validation passed 563/563 tests and every shell/Creator/Runner/Report Chrome gate.
 - Repeat-run stacking remains the unstarted portion of Step 5b.
 
 ## 2026-07-30 — Runner field-safety patch prepared

@@ -104,8 +104,9 @@ test("accuracy heat is weighted at ground truth and grouped by meta floors", () 
   );
 });
 
-test("field result retains each reported Wi-Fi floor through analysis", () => {
-  const timeline = analyzeReportResult(fieldResult).timeline;
+test("field result retains Wi-Fi floors and reacts to 15/20 second timing", () => {
+  const atFifteen = analyzeReportResult(fieldResult);
+  const timeline = atFifteen.timeline;
   const counts = Object.fromEntries(fieldResult.meta.zLevels.map(z => [z, 0]));
   for (const sample of timeline) {
     assert.ok(fieldResult.meta.zLevels.includes(sample.fix.z));
@@ -113,4 +114,19 @@ test("field result retains each reported Wi-Fi floor through analysis", () => {
   }
   assert.equal(timeline.length, 2542);
   assert.deepEqual(counts, { 1: 601, 2: 858, 3: 475, 4: 608 });
+  assert.deepEqual(atFifteen.thresholds, { stickySeconds: 15, accuracyM: 10 });
+  assert.equal(atFifteen.metrics.stickySeconds, 1388.466);
+  assert.deepEqual(
+    [...new Set(atFifteen.stalePathSegments.map(segment => segment.z))].sort(),
+    [1, 2, 3, 4],
+  );
+
+  const atTwenty = analyzeReportResult(fieldResult, {
+    stickySeconds: 20,
+    accuracyM: 10,
+  });
+  assert.equal(atTwenty.metrics.stickySeconds, 822.716);
+  assert.ok(
+    atTwenty.stalePathSegments.length < atFifteen.stalePathSegments.length,
+  );
 });

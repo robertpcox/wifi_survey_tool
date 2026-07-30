@@ -106,17 +106,27 @@ export async function exercisePublicReportPlayer({
 }
 
 async function changeThreshold(page) {
-  const before = await page.$$eval(".kpi-card", cards => cards
-    .find(item => item.querySelector("span")?.textContent === "Sticky while moving")?.textContent);
+  const before = await page.evaluate(() => ({
+    paths: window.__reportMapState.map.sources
+      .get("report-stale-path")?.data?.features?.length ?? 0,
+    text: [...document.querySelectorAll(".kpi-card")]
+      .find(item => item.querySelector("span")?.textContent === "No update while moving")
+      ?.textContent,
+  }));
   await page.$eval('[data-threshold="stickySeconds"]', input => {
-    input.value = "0";
+    input.value = "20";
     input.dispatchEvent(new Event("change", { bubbles: true }));
   });
   await page.waitForFunction(previous => {
     const card = [...document.querySelectorAll(".kpi-card")]
-      .find(item => item.querySelector("span")?.textContent === "Sticky while moving");
+      .find(item => item.querySelector("span")?.textContent === "No update while moving");
     return card?.textContent !== previous;
-  }, {}, before);
+  }, {}, before.text);
+  const paths = await page.evaluate(() => window.__reportMapState.map.sources
+    .get("report-stale-path")?.data?.features?.length ?? 0);
+  if (!(paths < before.paths)) {
+    throw new Error("Timeliness threshold did not update the red stuck-path sections");
+  }
 }
 
 function delay(milliseconds) {

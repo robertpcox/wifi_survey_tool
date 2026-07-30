@@ -13,7 +13,7 @@ export function renderReportWarnings(analysis) {
   const cards = [
     stale?.active && warningCard({
       kind: "stale-position",
-      title: "Stale / sticky position",
+      title: "No position update",
       summary: `The reported fix stayed unchanged beyond ${analysis.thresholds.stickySeconds} s while the tester was moving.`,
       warning: stale,
     }),
@@ -27,7 +27,7 @@ export function renderReportWarnings(analysis) {
   if (!cards.length) {
     return `<section class="report-warning-summary is-clear" data-warning-state="clear">
       <p class="section-kicker">Observed warnings</p>
-      <strong>No stale-position or floor-level mismatch warning was detected.</strong>
+      <strong>No position-update or floor-level mismatch warning was detected.</strong>
     </section>`;
   }
   return `<section class="report-warning-summary" data-warning-state="active"

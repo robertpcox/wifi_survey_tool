@@ -32,6 +32,14 @@ test("map frame composes embedded route and ground-truth heat by meta floor", ()
     floor: 0,
     heatKind: "sticky",
     analysis: {
+      stalePathSegments: [{
+        z: 0,
+        coordinates: [
+          [170.50005, -45.87],
+          [170.5001, -45.86998],
+          [170.50015, -45.87],
+        ],
+      }],
       sticky: {
         heatByZ: {
           0: [{ lng: 170.5001, lat: -45.87, z: 0, weightSeconds: 2 }],
@@ -45,10 +53,19 @@ test("map frame composes embedded route and ground-truth heat by meta floor", ()
   });
   assert.equal(mapFrame.floorName, "Ground");
   assert.equal(mapFrame.heat[0].weightSeconds, 2);
+  assert.deepEqual(
+    mapFrame.stalePathLines[0].map(({ lng, lat, z }) => ({ lng, lat, z })),
+    [
+      { lng: 170.50005, lat: -45.87, z: 0 },
+      { lng: 170.5001, lat: -45.86998, z: 0 },
+      { lng: 170.50015, lat: -45.87, z: 0 },
+    ],
+  );
   assert.equal(mapFrame.pollTrail.length, 1);
   assert.ok(mapFrame.routeLines.length);
   assert.ok(mapFrame.routeLines[0].at(-1).x - mapFrame.routeLines[0][0].x > 0.5);
   assert.ok(mapFrame.walker);
   assert.equal(mapFrame.notes[0].routeAnchor.toCheckpointId, "checkpoint-b");
   assert.equal(createMapFrame(result, { floor: 1 }).floorName, "First");
+  assert.deepEqual(createMapFrame(result, { floor: 1 }).stalePathLines, []);
 });

@@ -2,20 +2,20 @@
 
 ## Current state
 
-Step 5a remains complete. The field-correction slice of 5b is delivered; repeat-run
-grouping, ranking, and lineage exports have not begun.
+Step 5a remains complete. The field and where-it-gets-stuck slices of 5b are delivered;
+repeat-run grouping, ranking, and lineage exports have not begun.
 
 - Native MazeMap z-level is authoritative for Report filters and its named selector.
   Route fitting is camera-only, and resize, threshold, and mode changes preserve the floor.
 - Explicit Report selection and Player Follow still command the map; Follow-off does not.
 - One persistent optional access-token control works from Report and full-screen Player.
   It submits only in memory, clears its input, announces status, and restores toggle focus.
-- Warning cards expose time, percentage, episodes, worst duration, poll/time, and Player handoff.
-- Reported Wi-Fi fixes retain timeline `[lng, lat, z]`; floor mismatches pair exact
-  truth/reported endpoints on their own native-filtered floors.
-- The 30 July field result is in customer 292's manifest with named z-levels 1–4.
-  It records 4302.905 s stale/sticky and 436.984 s reported-floor mismatch evidence.
-- Final validation passed 556/556 tests and all shell, Creator, two mobile Runner, and four
+- Large red/orange warnings stay on the map; detailed cards retain metrics and Player handoff.
+- Red paths follow exact truth geometry after the timeliness limit and exclude planned dwell;
+  Wi-Fi fixes and mismatch endpoints retain captured coordinates and floors.
+- At 15 s, the field result has 1388.466 s across 169 episodes and all four floors; at
+  20 s it has 822.716 s. Floor mismatch remains 436.984 s across eight episodes.
+- Final isolated validation passed 563/563 tests and all shell, Creator, two mobile Runner, and four
   Report Player Chrome scenarios. Physical Android acceptance remains separate.
 - Routes 1a and 1b use different revision IDs but exact hash `69d2c5f11ffe…`, proving why
   survey family, immutable revision, and exact-route cohort are separate identities.

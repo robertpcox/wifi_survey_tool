@@ -20,17 +20,16 @@ Map markers, `checkIns`, and `checkpoint-reached` events join only by `checkpoin
 never by array position, display label, or coordinates. A checkpoint's `stopId` or
 `legId` supplies authored context after the checkpoint match.
 
-Capture notes have distinct evidence IDs and typed anchors scoped by `route.hash`.
-Their `capture-note` events repeat the note ID and anchor; every authored checkpoint or leg
-reference resolves through the embedded route. Player and Report render the note at its
-exact held ground truth without inserting a checkpoint or shifting authored geometry.
-`meta.authorNotes` remains survey-wide and `run.operatorComment` remains run-wide.
-Dangling, duplicate, or mismatched references are validation errors.
+Capture notes have distinct evidence IDs and typed anchors scoped by `route.hash`. Their
+`capture-note` events repeat the note ID and anchor; every authored checkpoint or leg reference
+resolves through the embedded route. Player and Report render the note at its exact held ground
+truth without shifting geometry. Dangling, duplicate, or mismatched references are validation errors.
 
 ## Interactive thresholds
 
-Sticky and accuracy thresholds are Report controls, not survey-definition settings.
-Changing a threshold immediately recalculates selected metrics and heatmaps.
+Position-update timeliness and accuracy thresholds are Report controls, not definition settings.
+The map offers 10, 15, 20, and 30 seconds (15 by default) and 5, 10, 15, 20, and 25 metres.
+Either change immediately recalculates metrics, heatmaps, warnings, and walked-path problems.
 
 Capture interval is observation cadence, not a failure threshold.
 Counts normalize to elapsed time so runs with different polling rates remain meaningful.
@@ -47,6 +46,11 @@ Weight is elapsed seconds beyond the selected threshold, not number of polls.
 
 An unchanged fix during planned dwell is not sticky by itself.
 
+The Report draws the exact route walked after the timeliness threshold as a thick red path.
+Each path starts at the threshold crossing, follows authored bends, and splits by truth z-level.
+It derives from internal fix-identity/truth intervals, never heat midpoints or public chronology.
+It never moves, recolours, or snaps the Wi-Fi fix from its captured coordinates and reported z.
+
 ## Outside-accuracy heatmap
 
 For every sample with valid ground truth, calculate reported-to-ground-truth distance.
@@ -59,35 +63,29 @@ A fix during planned dwell may fail accuracy even though it is not classified as
 
 ## Floor behavior
 
-Both heatmaps are separated by z-level.
-Available floors and names come from the meta block, not hard-coded report markup
-and not inferred from the z-levels a run happens to contain.
-Display names come from the definition's z-level mapping, so a floor is never labelled
-by raw z-level alone.
+Both heatmaps are separated by z-level. Floors and names come from meta, not hard-coded markup
+or run contents. Display names use the definition's mapping, never a raw z-level alone.
 
-The MazeMap instance's current z-level is the geographic Report source of truth. Native floor
-changes update its selector and re-filter route, heat, notes, and warnings by recorded `z`.
-Fit, resize, thresholds, and mode changes never reset the floor. Only an explicit Report
-choice or Player Follow commands MazeMap; ordinary Report rendering observes it.
+The MazeMap current z-level is the Report source of truth. Native changes update its selector
+and filter route, heat, notes, and warnings by recorded `z`. Fit, resize, threshold, and mode
+changes never reset it; only an explicit Report choice or Player Follow commands MazeMap.
 
-Each view exposes threshold control, legend, summary, and location tooltip.
+Threshold controls and legends sit beside the map so their meaning stays visible.
 
 ## Observed warnings
 
-The Report places prominent, non-causal warnings above its map and summary.
+Large, non-causal warnings stay inside the map. Analysis summarizes the run; Player updates
+the current moment. Detailed cards retain metrics and the exact Player handoff.
 
-- **Stale / sticky position** uses the selected sticky threshold. It counts elapsed time
-  after a fix identity remains unchanged beyond that threshold while inferred ground truth
-  is moving. Planned dwell remains excluded.
-- **Floor level disconnect** means only that the reported fix z-level differs from inferred
-  route-ground-truth z-level. It is elapsed-time weighted across all measured intervals and
-  must not be described as a Wi-Fi, AP, RF, or roaming root cause.
+- **No position update** counts time after fix identity exceeds the selected threshold while
+  truth moves; planned dwell is excluded.
+- **Floor level disconnect** means reported z differs from route-truth z. It is elapsed-time
+  weighted and must not be described as a Wi-Fi, AP, RF, or roaming root cause.
 
-Every in-run timeline fix appears in `report-wifi-fixes` at exact normalized `[lng, lat, z]`,
-filtered by native MazeMap floor. Each warning reports time, percentage, episodes, worst
-duration, and representative poll/time. Floor-mismatch truth and reported-fix endpoints keep
-exact coordinates and their own z-levels; native filtering shows each only on its floor.
-The warning action opens that exact Player evidence without changing captured data.
+Every timeline fix appears in `report-wifi-fixes` at exact normalized `[lng, lat, z]`, filtered
+by native floor. Warnings report time, percentage, episodes, worst duration, and poll/time.
+Mismatch truth/reported endpoints retain exact coordinates and their own z; their action opens
+that Player evidence without changing data. Chronology remains in Player and deterministic exports.
 
 ## Comparison
 

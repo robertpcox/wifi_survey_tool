@@ -22,7 +22,7 @@ test("KPI section renders one shared fixture analysis", () => {
     accuracyM: 5,
   }));
   assert.match(html, /Run at a glance/);
-  assert.match(html, /Sticky while moving/);
+  assert.match(html, /No update while moving/);
   assert.match(html, /Outside tolerance/);
   assert.match(html, /Floor mismatch/);
   assert.match(html, /Median RTT/);

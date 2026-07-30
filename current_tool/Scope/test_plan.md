@@ -121,9 +121,9 @@ Field acceptance, which no automated test replaces:
 ## Step 5b — smarter mapped Report
 
 - Matching runs stack deterministically and stay linked to map, export, and Player evidence.
-- Native floors drive Report z-filters through fit/resize/mode changes; Follow stays unchanged.
-- One memory-only map access-token control is reachable from both Report and Player.
-- Warnings link to Player; exact Wi-Fi fixes and mismatch endpoints stay on their own floors.
+- Native floors drive filters; one memory-only access-token control reaches Report and Player.
+- Exact Wi-Fi/mismatch points retain floors; red paths start at the limit and follow truth bends/floors.
+- Large map warnings follow Report/Player; 15/20s controls update heat, KPIs, warnings, and paths.
 
 ## Risk register
 

@@ -1,5 +1,5 @@
 /* FEATURE:      Report Player analysis visuals
- * SURFACE:      KPI, heat, timeline, comparison, playback, and methodology components
+ * SURFACE:      KPI, heat, comparison, playback, and methodology components
  * WHY TOGETHER: Evidence-focused component styles share typography, density, and semantic colors.
  * STATE:        Visual component layout only
  * RULES:        Preserve readable evidence tables and touch-sized controls across viewport widths.
@@ -24,14 +24,7 @@
 .kpi-card span { color: #c9d8eb; font-size: 0.78rem; }
 .kpi-card strong { font-size: clamp(1.25rem, 2vw, 1.8rem); }
 
-.threshold-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.threshold-controls label { display: grid; gap: 0.3rem; color: #52677f; font-size: 0.8rem; }
-.threshold-controls input { width: 6rem; min-height: 2.3rem; }
+.threshold-summary { margin: 0.45rem 0 0; color: #52677f; font-size: 0.9rem; }
 .heat-legend { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; }
 .heat-dot {
   display: inline-block;

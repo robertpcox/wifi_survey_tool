@@ -22,10 +22,12 @@ test("heatmap view renders live thresholds and every meta floor", () => {
     accuracyM: 5,
   });
   const html = renderHeatmapView({ analysis, thresholds: analysis.thresholds });
-  assert.match(html, /data-threshold="stickySeconds"/);
-  assert.match(html, /data-threshold="accuracyM"/);
+  assert.doesNotMatch(html, /data-threshold=/);
   assert.match(html, />Ground</);
   assert.match(html, />First</);
-  assert.match(html, /Sticky heat/);
-  assert.match(html, /Accuracy heat/);
+  assert.match(html, /Where it gets stuck/);
+  assert.match(html, /No position update beyond 2 s/);
+  assert.match(html, /Accuracy error beyond 5 m/);
+  assert.match(html, /No-update heat \(&gt; 2 s\)/);
+  assert.match(html, /Accuracy heat \(&gt; 5 m\)/);
 });

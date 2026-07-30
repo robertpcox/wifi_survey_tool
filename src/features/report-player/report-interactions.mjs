@@ -11,18 +11,17 @@ import { renderComparisonView } from "./comparison-view.mjs";
 import { bindReportFloor } from "./report-floor-controller.mjs";
 import { renderHeatmapView } from "./heatmap-view.mjs";
 import { renderKpiView } from "./kpi-view.mjs";
+import { renderAnalysisMapAlerts, renderPlayerMapAlerts } from "./map-alert-view.mjs";
 import { createAnalysisExports, renderMethodologyView } from "./methodology-view.mjs";
 import { mountPlaybackView } from "./playback-view.mjs";
 import { bindReportModes } from "./report-mode-controller.mjs";
-import {
-  bindReportWarningActions,
-  renderReportWarnings,
-} from "./report-warning-view.mjs";
+import { bindReportWarningActions, renderReportWarnings } from "./report-warning-view.mjs";
 
 export { renderPlayerFrame } from "./report-floor-controller.mjs";
 
 export function renderDynamicSections(state, candidates) {
   return {
+    mapAlerts: renderAnalysisMapAlerts(state.analysis),
     warnings: renderReportWarnings(state.analysis),
     kpi: renderKpiView(state.analysis),
     heatmap: renderHeatmapView(state),
@@ -44,8 +43,10 @@ export function bindReportInteractions({
 }) {
   const loadedIds = new Set();
   let heatKind = "sticky";
+  let currentAnalysis = store.snapshot().analysis;
   const status = root.querySelector("[data-report-status]");
   const floorInput = root.querySelector("[data-map-floor]");
+  const alertRoot = root.querySelector("[data-module=mapAlerts]");
   const floor = bindReportFloor({
     surface,
     floorInput,
@@ -65,32 +66,47 @@ export function bindReportInteractions({
     transportRoot: root.querySelector("[data-player-transport]"),
     onFrame: (frame, options) => {
       floor.renderFrame(frame, options);
+      alertRoot.innerHTML = renderPlayerMapAlerts(frame, {
+        thresholds: currentAnalysis.thresholds,
+        floors: currentAnalysis.floors,
+      });
+    },
+    onInactive: () => {
+      alertRoot.innerHTML = renderAnalysisMapAlerts(currentAnalysis);
     },
     onEvidenceFocus: (id, trigger) => surface.focusEvidence(id, trigger),
   });
   const modes = bindReportModes({ root, store, surface, player });
+  root.querySelectorAll("[data-threshold]").forEach(input => {
+    input.addEventListener("change", () => {
+      store.setThresholds({
+        stickySeconds: Number(root.querySelector("[data-threshold=stickySeconds]").value),
+        accuracyM: Number(root.querySelector("[data-threshold=accuracyM]").value),
+      });
+      refresh();
+    });
+  });
 
   function refresh() {
     const state = store.snapshot();
+    currentAnalysis = state.analysis;
     const remaining = candidates.filter(entry => !loadedIds.has(entry.resultId));
     const html = renderDynamicSections(state, remaining);
     for (const [module, markup] of Object.entries(html)) {
       root.querySelector(`[data-module=${module}]`).innerHTML = markup;
     }
+    root.querySelector("[data-threshold=stickySeconds]").value = String(
+      state.thresholds.stickySeconds,
+    );
+    root.querySelector("[data-threshold=accuracyM]").value = String(
+      state.thresholds.accuracyM,
+    );
     surface.render({ analysis: state.analysis, heatKind });
     bindDynamic(state, remaining);
+    if (modes.mode === "playback") player.seek(player.atMs);
   }
 
   function bindDynamic(state, remaining) {
-    root.querySelectorAll("[data-threshold]").forEach(input => {
-      input.addEventListener("change", () => {
-        store.setThresholds({
-          stickySeconds: Number(root.querySelector("[data-threshold=stickySeconds]").value),
-          accuracyM: Number(root.querySelector("[data-threshold=accuracyM]").value),
-        });
-        refresh();
-      });
-    });
     root.querySelectorAll("[data-action^=export-analysis]").forEach(button => {
       button.addEventListener("click", () => {
         const kind = button.dataset.action.endsWith("csv") ? "csv" : "json";

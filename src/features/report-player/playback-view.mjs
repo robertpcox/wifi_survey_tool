@@ -26,6 +26,7 @@ export function mountPlaybackView(root, {
   result,
   transportRoot,
   onFrame = () => {},
+  onInactive = () => {},
   onFollow = () => {},
   onEvidenceFocus = () => {},
 }) {
@@ -102,6 +103,7 @@ export function mountPlaybackView(root, {
   function setActive(value) {
     transportRoot.hidden = !value;
     controller.setActive(value);
+    if (!value) onInactive(currentFrame);
     return controller.active;
   }
 

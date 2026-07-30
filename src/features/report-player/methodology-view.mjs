@@ -19,9 +19,9 @@ export function renderMethodologyView({ result, analysis }) {
         <h2 id="methodology-title">Methodology and export</h2>
       </header>
       <article>
-        <h3>Sticky position</h3>
+        <h3>No position update</h3>
         <p>
-          Sticky time is elapsed time after a fix remains unchanged for more than
+          No-update time is elapsed time after a fix remains unchanged for more than
           <strong>${esc(sticky)} seconds</strong> while ground truth is moving.
           Planned checkpoint dwell is excluded. Endpoint recording is stationary
           evidence, not route movement. Heat uses interpolated ground truth.

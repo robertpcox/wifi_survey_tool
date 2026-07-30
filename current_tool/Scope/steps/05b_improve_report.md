@@ -65,14 +65,14 @@ Use native MazeMap/Mapbox GeoJSON sources and layers for:
 - elapsed-time-weighted sticky heat
 - elapsed-time-weighted outside-accuracy heat
 - paired wrong-floor truth/fix endpoints on their own z, plus wedge/exception markers
-- selected issue interval and its supporting samples
+- exact red truth-route sections walked after the selected no-update threshold
 
-Heat uses the existing `weightSeconds`, is filtered by z-level, and updates with thresholds.
+Heat and red paths exclude planned dwell, filter by truth z-level, and update with thresholds.
 Provide a non-map issue list and location details for accessibility. Before recurrence work:
 
 - native MazeMap floors drive Report filters and its named selector; fit/resize never reset it
 - a shared, memory-only MazeMap access-token control remains reachable in Report and Player
-- stale/sticky and floor-disconnect warnings show elapsed severity and open Player evidence
+- large in-map no-update/floor warnings show elapsed severity and open Player evidence
 
 ## Repeat-run stacking
 
@@ -133,15 +133,15 @@ Exports describe analysis; they never alter or re-export captured fixes as corre
   family/hash mismatches, aborted runs, and reviewed exclusions reject numerical comparison.
 - Grouping is reproducible and separated by floor and metric; recurring and single-run issues retain lineage.
 - Every visible run is labelled, toggleable, and compared against the oldest baseline.
-- Threshold changes update KPIs, issue areas, heat layers, and selected runs without refetching.
+- Threshold changes update KPIs, heat, warnings, and exact red path sections without refetching.
 - Report and Player reuse one map/result; mode changes preserve Player time and Report selection.
 - Selecting an issue synchronizes map, accessible details, evidence, and Player seek.
-- GeoJSON keeps exact fix/mismatch coordinates and z; captured evidence stays immutable.
+- GeoJSON keeps exact fix/mismatch coordinates, route bends, and z; dwell creates no stale path.
 - Public/no-token mode works; access is requested only after a real access failure.
 - JSON/CSV exports are deterministic and reproduce each issue area's inputs.
 - Existing Dashboard, upload, comparison, secret, schema, and build gates remain green.
 - Native floors filter heat, mismatch, and Wi-Fi layers; both modes expose one access control.
-- Stale/sticky and floor-disconnect warnings match elapsed evidence and link to Player.
+- Large no-update/floor warnings match elapsed evidence and link to Player; no main log remains.
 - `node tools/build.mjs --no-deploy` passes with zero skips; authorized `node tools/build.mjs` syncs demo.
 
 ## Respawn boundary

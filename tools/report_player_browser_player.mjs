@@ -66,7 +66,9 @@ export async function inspectPlayerLayout(page, expectedFloors) {
     if (JSON.stringify(actualFloors) !== JSON.stringify(floors)) failures.push("meta floors differ");
     if (document.documentElement.scrollHeight > innerHeight + 1) failures.push("Player body scrolls");
     if (transport.bottom > innerHeight || transport.left < 0) failures.push("transport unreachable");
-    if (map.height < 150 || map.width < 200) failures.push("map has no remaining viewport");
+    if (map.height < 150 || map.width < 200) {
+      failures.push(`map has no remaining viewport (${Math.round(map.width)}×${Math.round(map.height)})`);
+    }
     if (getComputedStyle(rail).overflowY !== "auto") failures.push("rail does not scroll independently");
     if (!document.querySelector("[data-map-access-panel]").hidden) failures.push("public map prompted");
     if (!document.querySelector("[data-map-fallback]").hidden) failures.push("fallback shown on success");

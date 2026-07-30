@@ -80,7 +80,57 @@
 
 .report-warning-summary.is-clear strong { color: #176b35; }
 
+.map-alert-stack {
+  position: absolute;
+  z-index: 10;
+  right: 1rem;
+  bottom: 1rem;
+  left: 1rem;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 0.45rem;
+  pointer-events: none;
+}
+
+.map-alert-banner {
+  width: fit-content;
+  max-width: min(100%, 960px);
+  padding: 0.65rem clamp(0.8rem, 2vw, 1.25rem);
+  border: 2px solid rgb(255 255 255 / 75%);
+  border-radius: 0.75rem;
+  color: white;
+  box-shadow: 0 0.8rem 2rem rgb(0 0 0 / 28%);
+  font-size: clamp(1rem, 2.2vw, 1.65rem);
+  font-weight: 900;
+  letter-spacing: 0.025em;
+  line-height: 1.1;
+  text-align: center;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.map-alert-banner.stale-position {
+  background: #dc2626;
+  animation: map-alert-pulse 1.6s ease-in-out infinite;
+}
+
+.map-alert-banner.floor-mismatch { background: #ea580c; }
+
+@keyframes map-alert-pulse {
+  50% { box-shadow: 0 0 0 0.45rem rgb(220 38 38 / 20%), 0 0.8rem 2rem rgb(0 0 0 / 28%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-alert-banner.stale-position { animation: none; }
+}
+
 @media (max-width: 620px) {
   .report-warning-card dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .report-warning-card button { width: 100%; }
+}
+
+@media (max-width: 520px) {
+  .map-alert-stack { right: 0.45rem; bottom: 0.45rem; left: 0.45rem; }
+  .map-alert-banner { width: 100%; font-size: 0.9rem; }
 }

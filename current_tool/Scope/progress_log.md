@@ -12,8 +12,8 @@
   unsupported SDKs retain the default control.
 - The final build passed 519/519 tests and all size/header/import/schema/reference/secrets/goldens/module-map gates.
 - Four shells, Creator, two mobile Runner profiles, and four Player scenarios passed; physical Android remains pending.
-- The prior source `3e63487` and demo `4e89c06` are pushed; the current 214-file patch is
-  release-validated and pending publication.
+- Source `f0f6570` and byte-identical demo `c9cefad` are pushed; the public host still
+  awaited its server-side pull at the final probe.
 
 ## 2026-07-29 — Frozen-route notes and replacement field set validated
 

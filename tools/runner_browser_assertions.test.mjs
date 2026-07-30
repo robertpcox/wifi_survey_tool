@@ -38,11 +38,11 @@ test("Runner browser findings cover capture, storage, and credential leaks", () 
 
 test("Runner active-view findings enforce map-first capture geometry", () => {
   const valid = {
-    actions: { top: 700, bottom: 844, left: 0, right: 390 },
+    actions: { top: 700, bottom: 844, left: 0, right: 390, width: 390 },
     active: true,
     bodyOverflow: "hidden",
     camera: { bearing: 0, pitch: 45 },
-    checkIn: { top: 710, bottom: 830, left: 10, right: 280 },
+    checkIn: { top: 710, bottom: 830, left: 10, right: 380, width: 370 },
     distance: "≈ 9 m",
     fitBounds: { bounds: [] },
     floor: "Level 0",
@@ -52,7 +52,13 @@ test("Runner active-view findings enforce map-first capture geometry", () => {
     pollCount: 2,
     pollState: "ok",
     setupHidden: true,
+    stop: { top: 90, bottom: 140, left: 280, right: 380 },
+    stopCount: 1,
+    stopDisabled: false,
+    stopInActions: false,
+    stopInHud: true,
     target: "Room A",
+    targetBox: { top: 80, bottom: 130, left: 10, right: 260 },
     viewport: { width: 390, height: 844 },
   };
   assert.deepEqual(runnerActiveViewFindings(valid, "Level 0"), []);
@@ -65,6 +71,11 @@ test("Runner active-view findings enforce map-first capture geometry", () => {
   ]);
   assert.deepEqual(runnerActiveViewFindings(valid, "Level 0", 90), [
     "checkpoint camera bearing does not face the target",
+  ]);
+  assert.deepEqual(runnerActiveViewFindings({
+    ...valid, stopInActions: true, stopInHud: false,
+  }, "Level 0"), [
+    "Stop survey is not isolated in the top checkpoint panel",
   ]);
 });
 

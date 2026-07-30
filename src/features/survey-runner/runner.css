@@ -106,7 +106,8 @@ body.runner-running .map-display-controls {
 }
 
 .button-row, .capture-actions { display: flex; gap: .75rem; }
-.button-row button, .capture-actions button, .finish-panel button {
+.button-row button, .capture-actions button, .finish-panel button,
+.checkpoint-stop {
   min-height: 3.2rem;
   padding: .75rem 1rem;
   border: 1px solid #7891ac;

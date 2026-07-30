@@ -5,20 +5,20 @@
 Step 5a remains complete at `b8702fe`; no Step 5b grouping/ranking work has begun. Adjacent
 Runner notes have distinct frozen-route identity and hold exact Player truth only while shown.
 
-- The adjacent Runner patch is validated: Stop finalizes the run and polling; Download or
-  destructive Clear then removes capture/map evidence while preserving entered device/band
-  details, consent, and in-memory credentials.
+- Stop is isolated in the top checkpoint HUD; the bottom bar is one full-width checkpoint action.
+  Stop still finalizes the run/polling; Download or Clear removes evidence while preserving
+  entered device/band details, consent, and in-memory credentials.
 - A later survey selection stays idle; Preflight makes exactly one request; Go alone restarts continuous polling.
 - Runner alone opts into exact `threeD: { animateWalls: true, show3dAssets: true }`.
   The safe on-demand toggle is display-only and survives map relaunches.
 - Runner route/active and Report heat sit below `mm-area-extrusion`; guidance and notes remain above.
   Supported launches get a fresh 400px auto-updating floor bar at `middle-right`; others retain the default.
-- The final release build passed 519/519 tests plus size, header, import, schema, reference,
+- The final release build passed 520/520 tests plus size, header, import, schema, reference,
   secrets, goldens, and generated module-map gates.
 - All four shells, Creator, two automated mobile Runner profiles, and four Report Player
   scenarios passed. The mobile profiles do not replace physical Android field acceptance.
 - Manifests contain six surveys and six field results (five completed, one aborted); `dist/`
-  has 214 files. Source `f0f6570` and demo `c9cefad` are pushed; the live host awaits its server pull.
+  has 214 files. Prior source `f0f6570` and demo `c9cefad` are pushed; this UI patch awaits publication.
 - Routes 1a and 1b use different revision IDs but exact hash `69d2c5f11ffe…`, proving why
   survey family, immutable revision, and exact-route cohort are separate identities.
 - The old private field input was removed; its reviewed route-truth golden remains a receipt

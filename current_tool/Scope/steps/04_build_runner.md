@@ -116,7 +116,7 @@ the result. Starting on amber or red requires an explicit acknowledgement and is
 - The initial v3 Runner uses MazeMap Cloud through the provider-neutral poller contract.
 - Show current target, progress, source health, polling state, and dwell countdown.
 - Preserve normalized and raw responses with request and response timing.
-- Stop ends the run and continuous polling; finish offers Download or destructive Clear and locks switching.
+- Stop sits in the top checkpoint HUD, away from the full-width check-in; it ends run/polling.
 - Download or Clear removes capture/map evidence and the definition; later selection never polls.
 - In-tab device/band details and memory credentials survive; Preflight is the next single request.
 - Continuous polling resumes only on Go; refresh loses credentials; Stop aborts and End completes.

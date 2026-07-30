@@ -58,21 +58,21 @@ export async function readRunnerActiveView(page) {
       pollCount: Number(document.querySelector("[data-poll-count]")?.textContent),
       pollState: document.querySelector("[data-poll-indicator]")?.dataset.state,
       setupHidden: document.querySelector("[data-setup-controls]")?.hidden,
+      stop: rect('[data-action="stop"]'),
+      stopCount: document.querySelectorAll('[data-action="stop"]').length,
+      stopDisabled: Boolean(document.querySelector('[data-action="stop"]')?.disabled),
+      stopInActions: Boolean(document.querySelector('.capture-actions [data-action="stop"]')),
+      stopInHud: Boolean(document.querySelector('.run-hud [data-action="stop"]')),
       target: document.querySelector("[data-current-target]")?.textContent,
+      targetBox: rect("[data-current-target]"),
       viewport: { height: innerHeight, width: innerWidth },
     };
   });
 }
 
-export function runnerActiveViewFindings(
-  view,
-  expectedFloor,
-  expectedBearing,
-) {
+export function runnerActiveViewFindings(view, expectedFloor, expectedBearing) {
   const findings = [];
-  const inside = rect => rect
-    && rect.top >= -1
-    && rect.left >= -1
+  const inside = rect => rect && rect.top >= -1 && rect.left >= -1
     && rect.bottom <= view.viewport.height + 1
     && rect.right <= view.viewport.width + 1;
   if (!view.active || view.bodyOverflow !== "hidden") findings.push("run is not viewport locked");
@@ -84,6 +84,17 @@ export function runnerActiveViewFindings(
   }
   if (!inside(view.hud) || !inside(view.actions) || !inside(view.checkIn)) {
     findings.push("run controls leave the viewport");
+  }
+  if (!inside(view.stop) || view.stopCount !== 1 || view.stopDisabled
+      || !view.stopInHud || view.stopInActions) {
+    findings.push("Stop survey is not isolated in the top checkpoint panel");
+  }
+  if (!contains(view.hud, view.stop) || overlaps(view.stop, view.targetBox)
+      || view.stop?.bottom >= view.actions?.top) {
+    findings.push("Stop survey overlaps the checkpoint or bottom actions");
+  }
+  if (view.checkIn?.width < view.actions?.width * .85) {
+    findings.push("bottom checkpoint action is not full width");
   }
   if (!view.fitBounds) findings.push("survey bounds were not fitted");
   if (!Number.isFinite(view.camera?.bearing)) {
@@ -102,8 +113,16 @@ export function runnerActiveViewFindings(
   return findings;
 }
 
-function bearingDifference(left, right) {
-  return Math.abs((left - right + 540) % 360 - 180);
+function bearingDifference(left, right) { return Math.abs((left - right + 540) % 360 - 180); }
+
+function contains(outer, inner) {
+  return outer && inner && inner.top >= outer.top && inner.right <= outer.right
+    && inner.bottom <= outer.bottom && inner.left >= outer.left;
+}
+
+function overlaps(left, right) {
+  return left && right && left.left < right.right && left.right > right.left
+    && left.top < right.bottom && left.bottom > right.top;
 }
 
 export function runnerDownloadFindings(download, checkpointCount) {

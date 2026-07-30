@@ -6,10 +6,6 @@
  * PROVENANCE:   Runner offline field feedback
  */
 
-body.runner-running .capture-actions {
-  grid-template-columns: minmax(0, 3fr) minmax(5rem, 1fr) minmax(5rem, 1fr);
-}
-
 body.runner-running .note-panel {
   position: absolute;
   z-index: 20;

@@ -2,7 +2,7 @@
 
 ## 2026-07-30 — Runner lifecycle, 3D stacking, and floor control validated
 
-- Stop now finalizes the run and continuous polling; Download or destructive Clear resolves the stopped capture.
+- Stop is now isolated in the top checkpoint HUD; the bottom bar is one full-width checkpoint action.
 - Resolution clears capture/map evidence while preserving entered device/band details, consent, and in-memory credentials.
 - Survey selection remains idle; Preflight makes exactly one request, and Go alone restarts continuous polling.
 - Runner alone opts into exact `threeD: { animateWalls: true, show3dAssets: true }` with a safe display-only toggle.
@@ -10,10 +10,10 @@
   Report notes remain above.
 - Every supported Runner launch gets an exact middle-right 400px auto-updating floor bar;
   unsupported SDKs retain the default control.
-- The final build passed 519/519 tests and all size/header/import/schema/reference/secrets/goldens/module-map gates.
+- The final build passed 520/520 tests and all size/header/import/schema/reference/secrets/goldens/module-map gates.
 - Four shells, Creator, two mobile Runner profiles, and four Player scenarios passed; physical Android remains pending.
-- Source `f0f6570` and byte-identical demo `c9cefad` are pushed; the public host still
-  awaited its server-side pull at the final probe.
+- Prior source `f0f6570` and demo `c9cefad` are pushed; the current Stop-control UI patch
+  is release-validated and awaits publication.
 
 ## 2026-07-29 — Frozen-route notes and replacement field set validated
 

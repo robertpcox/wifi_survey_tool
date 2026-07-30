@@ -112,9 +112,9 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - result-download 30/1068 T+ E downloadRunnerResult I @a/files, @d/runner-result-v3
 - result-upload 16/553 T+ E validateRunnerResultFile I @a/files, @d/survey-result-v3
 - run-view 149/5430 T+ E checkpointDistanceText, createRunnerRunView, targetName I @d/geometry, note-view
-- runner-active.css 141/2749 T+ I runner-note.css
-- runner-note.css 61/1467 T-
-- runner.css 149/4528 T+
+- runner-active.css 149/3109 T+ I runner-note.css
+- runner-note.css 57/1348 T-
+- runner.css 150/4546 T+
 - setup 149/4392 T+ E createRunnerSetup I entry, loader, poll-loop, preflight
 - survey-runner 150/5649 T+ E RUNNER_THREE_D, mountSurveyRunner
   - I @a/map/mazemap, @a/memory-credentials, @a/positioning/mazemap-cloud-v3, active-run, form-view, map-3d-toggle, note-controller, preflight,

@@ -76,7 +76,7 @@ Runner tests:
   `{ autoUpdate: true, maxHeight: 400 }` at `middle-right`; unsupported SDKs retain the default
 - route and active-leg lines sit below `mm-area-extrusion`; checkpoint/stop guidance remains above
 - checkpoint progression keeps the target lit, north-up, named, distance- and floor-labelled
-- Stop ends the run and continuous polling; finish offers Download or destructive Clear and locks survey switching
+- Stop is in the top checkpoint HUD, never the full-width bottom check-in bar, and ends polling
 - Download/Clear resets evidence but preserves device/band details and credentials; selection stays idle, Preflight polls once, and only Go restarts polling
 - the meta block in the result is identical to the definition's
 - device type, operating system, name, Client IP, and band are present in every export

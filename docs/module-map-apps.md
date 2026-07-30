@@ -27,5 +27,5 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - main 118/3674 T+ E bootRouteSurvey I @a/map/mazemap, @a/preferences, @a/route-storage, @d/survey-state, @f/creator/creator, @f/runner/runner, app-ui
 - shell.css 106/2568 T+
 ## runner/
-- index.html 150/7104 T+ I @f/survey-runner/runner-active.css, @f/survey-runner/runner.css, @s/app-shell.css, main
+- index.html 150/7137 T+ I @f/survey-runner/runner-active.css, @f/survey-runner/runner.css, @s/app-shell.css, main
 - main 22/736 T+ E bootRunner I @a/memory-credentials, @f/survey-runner/survey-runner, @s/shell-boot

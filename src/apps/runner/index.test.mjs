@@ -24,3 +24,10 @@ test("Runner HTML exposes mobile entry, preflight, capture, and validation", () 
   assert.match(html, /data-result-file/);
   assert.doesNotMatch(html, /localStorage|sessionStorage|indexedDB/);
 });
+
+test("Stop survey is isolated in the top checkpoint HUD", () => {
+  const stop = html.indexOf('data-action="stop"');
+  assert.ok(stop > html.indexOf('<div class="run-hud">'));
+  assert.ok(stop < html.indexOf('<div class="capture-actions">'));
+  assert.match(html, /data-action="stop">Stop survey/);
+});

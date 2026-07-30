@@ -2,18 +2,24 @@
 // SURFACE:      createMapLayers(map).ensureLayers()
 // WHY TOGETHER: One map harness proves line-under-building and point-over-building order.
 // STATE:        Recorded addLayer definitions and optional before ids
-// RULES:        Route lines sit below area extrusion; trail and checkpoint points stay above it.
-// PROVENANCE:   Runner field feedback for 3D area-extrusion stacking
+// RULES:        Route lines sit below wall extrusion; trail and checkpoint points stay above it.
+// PROVENANCE:   Runner field feedback for 3D building stacking
 
 import assert from "node:assert/strict";
 import test from "node:test";
 
 import { createMapLayers } from "./layers.mjs";
-import { AREA_EXTRUSION_LAYER_ID } from "./map-layer-order.mjs";
+import {
+  AREA_EXTRUSION_LAYER_ID,
+  WALLS_EXTRUSION_LAYER_ID,
+} from "./map-layer-order.mjs";
 
-test("route layers use area extrusion anchor while evidence layers append above it", () => {
+test("route layers use wall anchor while evidence layers append above buildings", () => {
   const placements = new Map();
-  const layers = new Map([[AREA_EXTRUSION_LAYER_ID, { id: AREA_EXTRUSION_LAYER_ID }]]);
+  const layers = new Map([
+    [WALLS_EXTRUSION_LAYER_ID, { id: WALLS_EXTRUSION_LAYER_ID }],
+    [AREA_EXTRUSION_LAYER_ID, { id: AREA_EXTRUSION_LAYER_ID }],
+  ]);
   const sources = new Map();
   const map = {
     addLayer(definition, beforeLayerId) {
@@ -29,8 +35,8 @@ test("route layers use area extrusion anchor while evidence layers append above 
     setPaintProperty() {},
   };
   createMapLayers(map, () => 0).ensureLayers();
-  assert.equal(placements.get("route-lines-lyr"), AREA_EXTRUSION_LAYER_ID);
-  assert.equal(placements.get("route-active-lyr"), AREA_EXTRUSION_LAYER_ID);
+  assert.equal(placements.get("route-lines-lyr"), WALLS_EXTRUSION_LAYER_ID);
+  assert.equal(placements.get("route-active-lyr"), WALLS_EXTRUSION_LAYER_ID);
   for (const id of [
     "cloud-trail-lyr", "lipi-trail-lyr", "cloud-pts-lyr", "lipi-pts-lyr",
     "wp-pts-lyr", "stop-pts-lyr",

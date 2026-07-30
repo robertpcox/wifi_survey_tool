@@ -1,5 +1,16 @@
 # Progress log — newest entry first
 
+## 2026-07-30 — Runner field-safety patch prepared
+
+- Added Back and closed-area Skip with a 650 ms same-action debounce.
+- Skip remains `checkpoint-skipped` exception evidence and never fabricates check-in truth.
+- Stop now requires explicit confirmation while polling continues behind the warning.
+- Split map access from positioning credentials and hardened mobile autofill hints.
+- Runner route/active lines now anchor below `mm-walls-extrusion`, with area fallback.
+- Full isolated release validation passes:
+  - 539/539 unit tests with zero skips.
+  - All four shells, Creator, two mobile Runner profiles, and four Report Player map scenarios.
+
 ## 2026-07-30 — Runner lifecycle, 3D stacking, and floor control validated
 
 - Stop is now isolated in the top checkpoint HUD; the bottom bar is one full-width checkpoint action.
@@ -119,19 +130,6 @@
   as demo commit `d47ec1d`; live headers and all four Chrome shells pass.
 - Real private access, live proxy, battery, and physical iPhone/Android acceptance remain
   required before marking the New Zealand field release.
-
-## 2026-07-28 — Step 3 map-first Creator correction and choice fix
-
-- Rebuilt desktop authoring with routes left, a dominant centre map, and controls right.
-- Restored the reference click workflow: exact clicked and POI-centre coordinate choices
-  appear on the map and commit immediately with distinct provenance and targets.
-- First map choice now auto-locks visible spacing/dwell and commits before later metadata.
-- Made the successful campus Engage single-use and collapsed setup instead of presenting
-  Re-engage.
-- Relabelled MazeMap Cloud as Runner's positioning provider and fixed all four runtime
-  credential requirements on. Optional device geolocation is separately labelled.
-- Final build passed 262 tests, all gates, 96 files, and both staged Chrome smokes.
-- Demo commit `4d2743f` contains the byte-identical two-module map-choice fix.
 
 Older entries: `Scope/progress_log_archive.md`
 Current handover: `Scope/handover.md`

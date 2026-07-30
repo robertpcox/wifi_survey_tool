@@ -5,8 +5,10 @@ import {
   checkInCurrent,
   createRunnerProgress,
   finishRunnerProgress,
+  skipCurrentCheckpoint,
   startRunnerProgress,
   tickRunnerDwell,
+  undoLastCheckpointAction,
 } from "./runner-progress-v3.mjs";
 
 function definition(dwellSeconds = 2) {
@@ -74,6 +76,41 @@ test("zero configured dwell advances without a Runner default", () => {
   );
   assert.equal(progress.phase, "awaiting-end");
   assert.equal(tickRunnerDwell(progress).changed, false);
+});
+
+test("skip is not ground truth and Back reopens the latest outcome", () => {
+  const value = definition(0);
+  value.route.checkpoints.push({
+    id: "c", sequence: 2, lng: 7, lat: 8, z: 6,
+  });
+  const progress = startRunnerProgress(createRunnerProgress(value));
+  skipCurrentCheckpoint(progress, "2026-07-28T01:00:00.000Z");
+  assert.equal(progress.checkpoints[0].state, "skipped");
+  assert.equal(progress.currentIndex, 1);
+  assert.deepEqual(progress.checkIns, []);
+  const reopened = undoLastCheckpointAction(progress);
+  assert.equal(reopened.action.outcome, "skipped");
+  assert.equal(progress.currentIndex, 0);
+  assert.equal(progress.checkpoints[0].state, "current");
+  checkInCurrent(progress, "2026-07-28T01:00:01.000Z");
+  skipCurrentCheckpoint(progress, "2026-07-28T01:00:02.000Z");
+  checkInCurrent(progress, "2026-07-28T01:00:03.000Z");
+  assert.deepEqual(
+    progress.checkIns.map(item => item.checkpointId),
+    ["a", "c"],
+  );
+  assert.deepEqual(
+    progress.history.map(item => item.outcome),
+    ["reached", "skipped", "reached"],
+  );
+  assert.equal(progress.phase, "awaiting-end");
+});
+
+test("a completed run cannot skip every checkpoint", () => {
+  const progress = startRunnerProgress(createRunnerProgress(definition(0)));
+  assert.equal(skipCurrentCheckpoint(progress, "2026-07-28T01:00:00.000Z").changed, true);
+  assert.equal(skipCurrentCheckpoint(progress, "2026-07-28T01:00:01.000Z").changed, false);
+  assert.equal(progress.phase, "walking");
 });
 
 test("Runner obeys each checkpoint dwell and falls back for legacy surveys", () => {

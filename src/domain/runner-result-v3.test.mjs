@@ -15,11 +15,7 @@ test("completed result preserves meta, route, device, band, sample, and filename
   const checkIns = definition.route.checkpoints.map((checkpoint, index) => ({
     checkpointId: checkpoint.id,
     at: `2026-07-28T01:00:0${index + 1}.000Z`,
-    groundTruth: {
-      lng: checkpoint.lng,
-      lat: checkpoint.lat,
-      z: checkpoint.z,
-    },
+    groundTruth: { lng: checkpoint.lng, lat: checkpoint.lat, z: checkpoint.z },
   }));
   const result = buildSurveyResultV3(
     options("completed", checkIns, " clear walk "),
@@ -50,6 +46,24 @@ test("aborted result validates with zero check-ins and an omitted comment", () =
   assert.equal(result.run.completionStatus, "aborted");
   assert.equal(result.run.operatorComment, null);
   assert.deepEqual(result.checkIns, []);
+});
+
+test("completed result preserves closed-area skips as events, not check-ins", () => {
+  const checkpoints = definition.route.checkpoints;
+  const checkIns = checkpoints.slice(1).map((checkpoint, index) => ({
+    checkpointId: checkpoint.id,
+    at: `2026-07-28T01:00:0${index + 2}.000Z`,
+    groundTruth: { lng: checkpoint.lng, lat: checkpoint.lat, z: checkpoint.z },
+  }));
+  const input = options("completed", checkIns, null);
+  input.events.splice(1, 0, { type: "checkpoint-skipped",
+    checkpointId: checkpoints[0].id, at: "2026-07-28T01:00:01.000Z",
+    reason: "area-closed" }, ...checkIns.map(item => (
+    { type: "checkpoint-reached", checkpointId: item.checkpointId, at: item.at }
+  )));
+  const result = buildSurveyResultV3(input);
+  assert.equal(result.checkIns.some(item => item.checkpointId === checkpoints[0].id), false);
+  assert.equal(result.events.some(event => event.type === "checkpoint-skipped"), true);
 });
 
 test("capture note preserves distinct identity, route anchor, and held position", () => {

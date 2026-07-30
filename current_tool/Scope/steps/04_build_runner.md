@@ -116,14 +116,14 @@ the result. Starting on amber or red requires an explicit acknowledgement and is
 - The initial v3 Runner uses MazeMap Cloud through the provider-neutral poller contract.
 - Show current target, progress, source health, polling state, and dwell countdown.
 - Preserve normalized and raw responses with request and response timing.
-- Stop sits in the top checkpoint HUD, away from the full-width check-in; it ends run/polling.
+- Stop confirms before ending run/polling; same-action taps are debounced against double advance.
+- Back reopens the latest outcome; Skip closed area records exception evidence, not ground truth.
 - Download or Clear removes capture/map evidence and the definition; later selection never polls.
 - In-tab device/band details and memory credentials survive; Preflight is the next single request.
 - Continuous polling resumes only on Go; refresh loses credentials; Stop aborts and End completes.
 - Runner map constructor gets exact `threeD: { animateWalls: true, show3dAssets: true }`; its on-demand toggle never mutates route/result evidence.
 - Supported maps replace the default floor selector with a 400px auto-updating bar at `middle-right`.
-- Route and active-leg lines insert below `mm-area-extrusion`; checkpoint, stop, trail, and
-  current-position guidance remain above the building extrusion.
+- Route lines sit below `mm-walls-extrusion` (area fallback); guidance stays above buildings.
 
 ## Performance
 

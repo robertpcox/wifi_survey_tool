@@ -1,7 +1,7 @@
 import { MAP_STYLE, MAP_TRAIL_FIX_LIMIT } from "../../domain/route-contract.mjs";
 import { appendPathFeatures, emptyFC, recentSourceFixes } from "./features.mjs";
 import { createLayerStyles } from "./layer-styles.mjs";
-import { addMapLayer, AREA_EXTRUSION_LAYER_ID } from "./map-layer-order.mjs";
+import { addMapLayer, BUILDING_EXTRUSION_LAYER_IDS } from "./map-layer-order.mjs";
 
 export function createMapLayers(map, getCurrentZLevel) {
   const styles = createLayerStyles(getCurrentZLevel);
@@ -12,7 +12,7 @@ export function createMapLayers(map, getCurrentZLevel) {
   function ensureLayers() {
     addLayer("route-lines", "line", {
       ...styles.route,
-    }, { "line-join": "round", "line-cap": "round" }, AREA_EXTRUSION_LAYER_ID);
+    }, { "line-join": "round", "line-cap": "round" }, BUILDING_EXTRUSION_LAYER_IDS);
     addActiveLeg();
     addLayer("cloud-trail", "line", styles.trail(MAP_STYLE.cloud));
     addLayer("lipi-trail", "line", styles.trail(MAP_STYLE.lipi));
@@ -44,7 +44,7 @@ export function createMapLayers(map, getCurrentZLevel) {
       layout: { "line-join": "round", "line-cap": "round" },
       paint: styles.activeRoute,
       filter: ["==", ["get", "legIdx"], -1],
-    }, AREA_EXTRUSION_LAYER_ID);
+    }, BUILDING_EXTRUSION_LAYER_IDS);
   }
 
   function drawRoute(legs) {

@@ -17,8 +17,8 @@ function state() {
       placement: "middle-right",
     }],
     layerPlacements: {
-      "route-active-lyr": "mm-area-extrusion",
-      "route-lines-lyr": "mm-area-extrusion",
+      "route-active-lyr": "mm-walls-extrusion",
+      "route-lines-lyr": "mm-walls-extrusion",
       "stop-pts-lyr": null,
       "wp-pts-lyr": null,
     },
@@ -39,6 +39,6 @@ test("Runner map findings expose bad control and overlay placement", () => {
   invalid.layerPlacements["route-lines-lyr"] = null;
   assert.deepEqual(runnerMapStackFindings(invalid), [
     "Runner floor bar does not match the middle-right contract",
-    "route-lines-lyr is not below the area extrusion",
+    "route-lines-lyr is not below the wall extrusion",
   ]);
 });

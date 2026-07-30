@@ -23,7 +23,8 @@ function installBrowserDoubles() {
   class Source { setData(data) { this.data = data; } }
   class MapStub {
     constructor(options) {
-      this.layers = new Map([["mm-area-extrusion", { id: "mm-area-extrusion" }]]);
+      this.layers = new Map(["mm-walls-extrusion", "mm-area-extrusion"]
+        .map(id => [id, { id }]));
       this.options = options;
       this.sources = new Map();
       this.zLevel = 1;

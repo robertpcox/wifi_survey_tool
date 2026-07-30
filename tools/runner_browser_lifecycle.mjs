@@ -5,10 +5,12 @@
 // RULES:        Stop/Clear/selection stay quiet; Preflight samples once; Go resumes continuous polling.
 // PROVENANCE:   Runner post-stop lifecycle clarification
 
+import { NAVIGATION_DEBOUNCE_MS } from "../src/features/survey-runner/run-navigation.mjs";
 import {
   readRunnerMapTransition, runner3dPerspectiveFindings,
   runnerMapTransitionFindings,
 } from "./runner_browser_3d.mjs";
+import { exerciseRunnerNavigation } from "./runner_browser_navigation.mjs";
 
 export async function stoppedPollingFindings(page, requestState, waitMs = 140) {
   const beforeRequests = requestState.positionRequests ?? 0;
@@ -60,11 +62,12 @@ export async function completeRunnerCheckpoints(
   definition,
   threeDState,
 ) {
-  const findings = [];
+  const findings = await exerciseRunnerNavigation(page, definition);
   for (let index = 0; index < definition.route.checkpoints.length; index++) {
     await page.waitForFunction(() => (
       !document.querySelector('[data-action="check-in"]').disabled
     ));
+    await delay(NAVIGATION_DEBOUNCE_MS + 100);
     await page.click('[data-action="check-in"]');
     if (index !== 0 || definition.route.checkpoints.length < 2) continue;
     await page.waitForFunction(() => window.__runnerMarker?.glyph === "2");
@@ -79,6 +82,7 @@ export async function completeRunnerCheckpoints(
     ));
     findings.push(...runner3dPerspectiveFindings(transition.pitch, threeDState));
   }
+  await page.waitForSelector('[data-action="end-session"]:not([hidden])');
   return findings;
 }
 

@@ -93,8 +93,8 @@ recorded in the result so a questionable run is explainable rather than mysterio
 
 Before starting, Runner requires acknowledgement that the test records device position.
 
-Stopping a run is final; a capture note only pauses polling inside the active run.
-An early stop exports `"aborted"`; explicit endpoint finish exports `"completed"`.
+Stopping a run is final, so Stop first warns while polling continues; only confirmation ends it.
+An early confirmed stop exports `"aborted"`; explicit sequence finish exports `"completed"`.
 Both finish paths offer Download or destructive Clear. Survey switching remains locked
 until one resolves the capture, so an undownloaded result cannot be orphaned.
 Stop has ended continuous polling. Download or Clear removes survey, route, preflight, polls,
@@ -114,21 +114,22 @@ A result contains:
 - an optional operator comment captured at the end of the run
 - immutable definition/route evidence; Runner 3D constructor/toggle state is never serialized
 - survey, route, customer, campus, and source IDs
-- started, stopped, and exported timestamps
-- completion status
+- started, stopped, and exported timestamps plus completion status
 - definition polling interval and per-checkpoint dwell (legacy global fallback)
-- ordered check-ins and Runner events
+- ordered reached check-ins and Runner events, including explicit closed-area skips
 - capture notes with held ground truth, dwell, distinct evidence IDs, and typed route anchors
 - `endpoint-hold-started` when final-checkpoint polling begins
-- every normalized poll and complete raw response
-- HTTP status, request timing, round-trip timing, and errors
-- no access or positioning secrets
+- every normalized/raw poll with HTTP status, timing, errors, and no access or positioning secrets
 
 ## Checkpoint identity
 
 `route.checkpoints[].id` is canonical within its exact route hash. Player and Report build
-one authored index; `checkIns` and checkpoint events join through `checkpointId`, never
-sequence, label, array position, or coordinates. `stopId` supplies context after that match.
+one authored index; check-ins and events join through `checkpointId`, never sequence, label,
+array position, or coordinates. `stopId` supplies context after that match.
+A check-in means actually reached ground truth. Skip records `checkpoint-skipped` with
+`reason: "area-closed"` and never fabricates a check-in or edits the immutable route.
+Back removes the latest active reached/skip evidence before export. Completed exceptional
+runs account for every checkpoint in authored order and retain at least one real check-in.
 A capture note has its own `note.id` and a typed `routeAnchor` containing the exact route
 hash and authored checkpoint or leg IDs. Its event repeats the note ID and anchor. Notes
 never enter the checkpoint index; Player and Report use their exact held ground truth.
@@ -142,8 +143,7 @@ customerId__campusId__surveyId__YYYY-MM-DDTHH-MM-SSZ.result.v3.json
 
 The Node build generates:
 
-- survey manifest
-- result manifest
+- survey and result manifests
 - per-customer dashboard manifest
 - validation summary
 

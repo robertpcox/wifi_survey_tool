@@ -11,7 +11,7 @@ export function createMazeMap3dState(configuration, perspectivePitch = 45) {
   let enabled = Boolean(threeD);
   return Object.freeze({
     apply(map) {
-      return threeD ? invoke(map, enabled) : false;
+      return threeD ? invoke(map, enabled, threeD) : false;
     },
     mapOptions(container, campuses, center) {
       const options = { container, campuses, zoom: 18, center };
@@ -20,7 +20,7 @@ export function createMazeMap3dState(configuration, perspectivePitch = 45) {
     },
     set(map, value) {
       const next = Boolean(value);
-      if (!invoke(map, next)) return false;
+      if (!invoke(map, next, threeD)) return false;
       enabled = next;
       movePitch(map, enabled ? targetPitch : 0);
       return true;
@@ -30,11 +30,12 @@ export function createMazeMap3dState(configuration, perspectivePitch = 45) {
   });
 }
 
-function invoke(map, enabled) {
+function invoke(map, enabled, options) {
   const method = enabled ? "enable3d" : "disable3d";
   if (typeof map?.[method] !== "function") return false;
   try {
-    map[method]();
+    if (enabled) map[method]({ ...options });
+    else map[method]();
     return true;
   } catch {
     return false;

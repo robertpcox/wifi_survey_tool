@@ -1,10 +1,6 @@
 import { esc } from "../../shared/format.mjs";
-
-const VALUE_NAMES = [
-  "deviceType", "deviceOs", "deviceName", "clientIp", "band",
-  "mapAccess", "appId", "appKey",
-];
-
+const VALUE_NAMES = ["deviceType", "deviceOs", "deviceName", "clientIp", "band", "mapAccess",
+  "appId", "appKey"];
 export function createRunnerFormView(documentRef) {
   const find = selector => documentRef.querySelector(selector);
   const form = find("[data-runner-entry]");
@@ -30,6 +26,7 @@ export function createRunnerFormView(documentRef) {
   }
 
   function showDefinition(definition) {
+    const requirements = definition.meta.credentialRequirements;
     setText("[data-survey-name]", definition.meta.surveyName);
     setText("[data-campus-name]", definition.meta.campusName);
     setText("[data-route-distance]", `${Math.round(definition.meta.route.distanceM)} m`);
@@ -40,8 +37,10 @@ export function createRunnerFormView(documentRef) {
     setText("[data-checkpoint-count]", definition.route.checkpoints.length);
     for (const name of ["mapAccess", "appId", "appKey"]) {
       const row = find(`[data-credential-row="${name}"]`);
-      if (row) row.hidden = !definition.meta.credentialRequirements[name];
+      if (row) row.hidden = !requirements[name];
     }
+    setHidden('[data-credential-group="map-access"]', !requirements.mapAccess);
+    setHidden('[data-credential-group="cloud"]', !requirements.appId && !requirements.appKey);
   }
 
   function setActions({ entryComplete, preflight, busy = false }) {
@@ -78,6 +77,7 @@ export function createRunnerFormView(documentRef) {
     const node = find(selector);
     if (node) node.textContent = String(text);
   }
+  function setHidden(selector, hidden) { const node = find(selector); if (node) node.hidden = hidden; }
 
   function resetRouteSelection() {
     const select = find("[data-survey-select]");

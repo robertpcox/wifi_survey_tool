@@ -20,6 +20,7 @@ export function createRunnerProgress(definition) {
     dwellRemainingSeconds: 0,
     dwellSeconds: definition.meta.route.checkpointDwellSeconds,
     checkIns: [],
+    history: [],
   };
 }
 
@@ -37,12 +38,9 @@ export function checkInCurrent(progress, at) {
   progress.checkIns.push({
     checkpointId: checkpoint.id,
     at,
-    groundTruth: {
-      lng: checkpoint.lng,
-      lat: checkpoint.lat,
-      z: checkpoint.z,
-    },
+    groundTruth: { lng: checkpoint.lng, lat: checkpoint.lat, z: checkpoint.z },
   });
+  progress.history.push(checkpointAction(checkpoint, progress.currentIndex, "reached", at));
   if (progress.currentIndex >= progress.checkpoints.length - 1) {
     progress.dwellRemainingSeconds = 0;
     progress.phase = "awaiting-end";
@@ -57,6 +55,37 @@ export function checkInCurrent(progress, at) {
     return { completed: false, changed: true };
   }
   return advance(progress);
+}
+
+export function skipCurrentCheckpoint(progress, at) {
+  if (progress.phase !== "walking") return { completed: false, changed: false };
+  const last = progress.currentIndex >= progress.checkpoints.length - 1;
+  if (last && progress.checkIns.length === 0) {
+    return { completed: false, changed: false };
+  }
+  const checkpoint = progress.checkpoints[progress.currentIndex];
+  checkpoint.state = "skipped";
+  progress.history.push(checkpointAction(checkpoint, progress.currentIndex, "skipped", at));
+  if (last) {
+    progress.dwellRemainingSeconds = 0;
+    progress.phase = "awaiting-end";
+    return { completed: false, changed: true };
+  }
+  return advance(progress);
+}
+
+export function undoLastCheckpointAction(progress) {
+  if (progress.phase === "ready" || progress.phase === "completed") {
+    return { completed: false, changed: false };
+  }
+  const action = progress.history.pop();
+  if (!action) return { completed: false, changed: false };
+  if (action.outcome === "reached") progress.checkIns.pop();
+  progress.currentIndex = action.checkpointIndex;
+  progress.phase = "walking";
+  progress.dwellRemainingSeconds = 0;
+  restoreCheckpointStates(progress);
+  return { completed: false, changed: true, action };
 }
 
 export function finishRunnerProgress(progress) {
@@ -92,8 +121,27 @@ function advance(progress) {
 
 function markCurrent(progress) {
   progress.checkpoints.forEach((checkpoint, index) => {
-    if (checkpoint.state !== "done") {
+    if (!["done", "skipped"].includes(checkpoint.state)) {
       checkpoint.state = index === progress.currentIndex ? "current" : "pending";
     }
   });
+}
+
+function restoreCheckpointStates(progress) {
+  const outcomes = new Map(progress.history.map(action => [
+    action.checkpointIndex,
+    action.outcome,
+  ]));
+  progress.checkpoints.forEach((checkpoint, index) => {
+    const outcome = outcomes.get(index);
+    checkpoint.state = outcome === "reached"
+      ? "done"
+      : outcome === "skipped"
+        ? "skipped"
+        : index === progress.currentIndex ? "current" : "pending";
+  });
+}
+
+function checkpointAction(checkpoint, checkpointIndex, outcome, at) {
+  return { checkpointId: checkpoint.id, checkpointIndex, outcome, at };
 }

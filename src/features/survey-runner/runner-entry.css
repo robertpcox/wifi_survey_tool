@@ -1,0 +1,39 @@
+/* FEATURE:      Runner credential entry
+ * SURFACE:      Map-access and MazeMap Cloud fieldsets in the Runner launcher
+ * WHY TOGETHER: Credential grouping and help text form one autofill-resistant entry layout.
+ * STATE:        Hidden fieldset state supplied by the Runner form view
+ * RULES:        Map access stays visually separate from positioning identity and key.
+ * PROVENANCE:   Android launcher autofill field feedback
+ */
+
+.credential-groups {
+  display: grid;
+  gap: .8rem;
+  margin-bottom: .8rem;
+}
+
+.credential-group {
+  min-width: 0;
+  margin: 0;
+  padding: .8rem;
+  border: 1px solid #c9d7e8;
+  border-radius: .65rem;
+  background: #f6f9fd;
+}
+
+.credential-group legend {
+  padding: 0 .35rem;
+  color: #17304c;
+  font-weight: 800;
+}
+
+.credential-group > p {
+  margin: 0 0 .7rem;
+  color: #5c7088;
+  font-size: .88rem;
+}
+
+.credential-grid {
+  display: grid;
+  gap: .8rem;
+}

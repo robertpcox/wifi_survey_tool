@@ -115,7 +115,24 @@ async function stopAndClear(
   await page.waitForFunction(() => Number(
     document.querySelector("[data-poll-count]").textContent,
   ) > 1);
+  const beforeWarning = await page.$eval(
+    "[data-poll-count]",
+    node => Number(node.textContent),
+  );
   await page.click('[data-action="stop"]');
+  await page.waitForSelector("[data-stop-dialog][open]");
+  await page.waitForFunction(value => Number(
+    document.querySelector("[data-poll-count]").textContent,
+  ) > value, {}, beforeWarning);
+  const protectedRun = await page.evaluate(() => (
+    document.querySelector("[data-finish-panel]").hidden
+    && document.body.classList.contains("runner-running")
+  ));
+  if (!protectedRun) failures.push("initial Stop click ended the run before confirmation");
+  await page.click('[data-action="cancel-stop"]');
+  await page.waitForFunction(() => !document.querySelector("[data-stop-dialog]").open);
+  await page.click('[data-action="stop"]');
+  await page.click('[data-action="confirm-stop"]');
   await page.waitForSelector("[data-finish-panel]:not([hidden])");
   failures.push(...await stoppedPollingFindings(page, requestState));
   await page.click('[data-action="clear-capture"]');

@@ -36,8 +36,9 @@ function harness() {
   for (const selector of [
     "[data-survey-select]", "[data-survey-name]", "[data-campus-name]",
     "[data-route-distance]", "[data-route-duration]", "[data-checkpoint-count]",
-    '[data-credential-row="mapAccess"]', '[data-credential-row="appId"]',
-    '[data-credential-row="appKey"]', '[data-action="preflight"]',
+    '[data-credential-row="mapAccess"]', '[data-credential-row="appId"]', '[data-credential-row="appKey"]',
+    '[data-credential-group="map-access"]',
+    '[data-credential-group="cloud"]', '[data-action="preflight"]',
     '[data-action="go"]', "[data-preflight-override]",
     '[data-action="override-go"]', "[data-preflight-result]",
     "[data-preflight-light]", "[data-preflight-reasons]",
@@ -53,10 +54,7 @@ function harness() {
     view: createRunnerFormView({
       body: {
         classList: {
-          toggle(name, enabled) {
-            if (enabled) classes.add(name);
-            else classes.delete(name);
-          },
+          toggle(name, enabled) { if (enabled) classes.add(name); else classes.delete(name); },
         },
       },
       querySelector: selector => nodes.get(selector) ?? null,
@@ -112,13 +110,15 @@ test("definition summary and preflight evidence render without secrets", () => {
       surveyName: "Route",
       campusName: "Campus",
       route: { distanceM: 23.8, estimatedDurationSeconds: 75 },
-      credentialRequirements: { mapAccess: true, appId: true, appKey: false },
+      credentialRequirements: { mapAccess: false, appId: true, appKey: false },
     },
     route: { checkpoints: [{}, {}, {}] },
   });
   assert.equal(nodes.get("[data-route-distance]").textContent, "24 m");
   assert.equal(nodes.get("[data-route-duration]").textContent, "1 min 15 s");
   assert.equal(nodes.get('[data-credential-row="appKey"]').hidden, true);
+  assert.deepEqual([nodes.get('[data-credential-group="map-access"]').hidden,
+    nodes.get('[data-credential-group="cloud"]').hidden], [true, false]);
   view.renderPreflight({ verdict: "green", reasons: [] }, {
     normalized: {
       lat: -45.87,

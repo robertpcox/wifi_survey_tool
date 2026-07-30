@@ -2,6 +2,19 @@
 
 Continues `Scope/progress_log.md`.
 
+## 2026-07-28 — Step 3 map-first Creator correction and choice fix
+
+- Rebuilt desktop authoring with routes left, a dominant centre map, and controls right.
+- Restored the reference click workflow: exact clicked and POI-centre coordinate choices
+  appear on the map and commit immediately with distinct provenance and targets.
+- First map choice now auto-locks visible spacing/dwell and commits before later metadata.
+- Made the successful campus Engage single-use and collapsed setup instead of presenting
+  Re-engage.
+- Relabelled MazeMap Cloud as Runner's positioning provider and fixed all four runtime
+  credential requirements on. Optional device geolocation is separately labelled.
+- Final build passed 262 tests, all gates, 96 files, and both staged Chrome smokes.
+- Demo commit `4d2743f` contains the byte-identical two-module map-choice fix.
+
 ## 2026-07-28 — Step 3 Creator Engage correction built and deployed
 
 - Replaced user-entered survey IDs with Creator-generated RFC 4122 UUIDs; unchanged

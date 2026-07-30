@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { createActiveRunner } from "./active-run.mjs";
-
 function definition(dwell = 0) {
   return {
     meta: { route: { checkpointDwellSeconds: dwell } },
@@ -21,7 +20,6 @@ function definition(dwell = 0) {
     },
   };
 }
-
 function harness(dwell = 0, definitionInput = definition(dwell)) {
   const calls = {
     finishes: [],
@@ -40,6 +38,7 @@ function harness(dwell = 0, definitionInput = definition(dwell)) {
     definition: definitionInput,
     currentPosition: () => ({ id: "live", lng: 0, lat: 0 }),
     nowDate: () => new Date(Date.UTC(2026, 6, 28, 1, 0, time++)),
+    nowMs: () => time * 1000,
     pollLoop: { start: () => calls.starts++, stop: () => calls.stops++ },
     mapAdapter: {
       drawWaypoints: () => calls.draws++,
@@ -60,7 +59,6 @@ function harness(dwell = 0, definitionInput = definition(dwell)) {
   });
   return { calls, runner, timers };
 }
-
 test("active run records at the endpoint until the operator ends the session", () => {
   const { calls, runner } = harness();
   runner.start();
@@ -87,7 +85,6 @@ test("active run records at the endpoint until the operator ends the session", (
       "endpoint-hold-started", "run-completed"],
   );
 });
-
 test("stop before the first checkpoint produces an aborted run", () => {
   const { calls, runner } = harness();
   runner.start();
@@ -97,20 +94,23 @@ test("stop before the first checkpoint produces an aborted run", () => {
   assert.deepEqual(calls.finishes, ["aborted"]);
 });
 
-test("configured dwell disables progression without refocusing the target", async () => {
+test("Back cancels a stale dwell callback and progression resumes", async () => {
   const { calls, runner, timers } = harness(2);
   runner.start();
   runner.checkIn();
   assert.equal(runner.state.progress.phase, "dwelling");
-  assert.deepEqual(calls.focuses, ["a"]);
   assert.equal(timers[0].delay, 1000);
+  runner.back();
   await timers[0].callback();
-  assert.equal(runner.state.progress.dwellRemainingSeconds, 1);
-  assert.deepEqual(calls.focuses, ["a"]);
+  assert.equal(runner.state.progress.phase, "walking");
+  assert.equal(runner.state.progress.dwellRemainingSeconds, 0);
+  runner.checkIn();
   await timers[1].callback();
+  assert.equal(runner.state.progress.dwellRemainingSeconds, 1);
+  await timers[2].callback();
   assert.equal(runner.state.progress.currentIndex, 1);
   assert.equal(runner.state.progress.phase, "walking");
-  assert.deepEqual(calls.focuses, ["a", "b"]);
+  assert.deepEqual(calls.focuses, ["a", "a", "b"]);
 });
 
 test("active route advances to the leg attached to the next checkpoint", () => {

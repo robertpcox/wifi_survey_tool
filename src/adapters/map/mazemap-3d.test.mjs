@@ -21,10 +21,11 @@ test("optional config is absent for non-Runner maps", () => {
 
 test("requested mode persists when the caller replaces the map", () => {
   const calls = [];
-  const state = createMazeMap3dState({
+  const configuration = {
     animateWalls: true,
     show3dAssets: true,
-  });
+  };
+  const state = createMazeMap3dState(configuration);
   assert.deepEqual(state.mapOptions("map", 566, [1, 2]).threeD, {
     animateWalls: true,
     show3dAssets: true,
@@ -36,10 +37,34 @@ test("requested mode persists when the caller replaces the map", () => {
   assert.equal(state.pitch, 0);
   assert.equal(state.apply(fakeMap(calls, "replacement")), true);
   assert.deepEqual(calls, [
-    ["first", "enable"],
+    ["first", "enable", configuration],
     ["first", "disable"],
     ["replacement", "disable"],
   ]);
+});
+
+test("every enable preserves a fresh copy of the configured SDK options", () => {
+  const received = [], snapshots = [];
+  const state = createMazeMap3dState({
+    animateWalls: true,
+    show3dAssets: true,
+  });
+  const map = {
+    disable3d() {},
+    enable3d(options) {
+      received.push(options);
+      snapshots.push({ ...options });
+      options.show3dAssets = false;
+    },
+  };
+  assert.equal(state.apply(map), true);
+  assert.equal(state.set(map, false), true);
+  assert.equal(state.set(map, true), true);
+  assert.deepEqual(snapshots, [
+    { animateWalls: true, show3dAssets: true },
+    { animateWalls: true, show3dAssets: true },
+  ]);
+  assert.notEqual(received[0], received[1]);
 });
 
 test("missing and throwing methods are safe and preserve requested state", () => {
@@ -74,7 +99,7 @@ test("toggle moves to the configured perspective and normalizes invalid pitch", 
 
 function fakeMap(calls, name) {
   return {
-    enable3d: () => calls.push([name, "enable"]),
+    enable3d: options => calls.push([name, "enable", options]),
     disable3d: () => calls.push([name, "disable"]),
   };
 }

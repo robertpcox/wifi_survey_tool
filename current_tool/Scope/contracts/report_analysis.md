@@ -83,11 +83,11 @@ The Report places prominent, non-causal warnings above its map and summary.
   route-ground-truth z-level. It is elapsed-time weighted across all measured intervals and
   must not be described as a Wi-Fi, AP, RF, or roaming root cause.
 
-Each warning reports affected time, percentage, episode count, worst contiguous episode,
-and one deterministic representative poll/time. Floor mismatch retains the reported z-level
-but maps its warning marker at exact inferred ground-truth `[lng, lat, z]`. The marker and
-heat layers follow the active MazeMap floor. A warning action opens the shared Player at its
-representative moment without changing captured evidence.
+Every in-run timeline fix appears in `report-wifi-fixes` at exact normalized `[lng, lat, z]`,
+filtered by native MazeMap floor. Each warning reports time, percentage, episodes, worst
+duration, and representative poll/time. Floor-mismatch truth and reported-fix endpoints keep
+exact coordinates and their own z-levels; native filtering shows each only on its floor.
+The warning action opens that exact Player evidence without changing captured data.
 
 ## Comparison
 

@@ -10,12 +10,12 @@ grouping, ranking, and lineage exports have not begun.
 - Explicit Report selection and Player Follow still command the map; Follow-off does not.
 - One persistent optional access-token control works from Report and full-screen Player.
   It submits only in memory, clears its input, announces status, and restores toggle focus.
-- Prominent stale/sticky and floor-disconnect cards expose elapsed time, percentage,
-  episodes, worst duration, representative poll/time, and exact Player handoff.
-- Floor-warning geometry stays at inferred route `[lng, lat, z]` and retains reported z.
+- Warning cards expose time, percentage, episodes, worst duration, poll/time, and Player handoff.
+- Reported Wi-Fi fixes retain timeline `[lng, lat, z]`; floor mismatches pair exact
+  truth/reported endpoints on their own native-filtered floors.
 - The 30 July field result is in customer 292's manifest with named z-levels 1–4.
   It records 4302.905 s stale/sticky and 436.984 s reported-floor mismatch evidence.
-- Final validation passed 552/552 tests and all shell, Creator, two mobile Runner, and four
+- Final validation passed 556/556 tests and all shell, Creator, two mobile Runner, and four
   Report Player Chrome scenarios. Physical Android acceptance remains separate.
 - Routes 1a and 1b use different revision IDs but exact hash `69d2c5f11ffe…`, proving why
   survey family, immutable revision, and exact-route cohort are separate identities.

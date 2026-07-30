@@ -74,17 +74,15 @@ export async function exercisePublicReportPlayer({
   await delay(100);
   const narrow = await inspectPlayerLayout(page, expectedFloors);
   failures.push(...narrow.failures.map(value => `narrow: ${value}`));
-  const beforeLeave = await page.evaluate(() => {
-    const sources = [...window.__reportMapState.map.sources.values()];
-    return { atMs: null, writes: sources.reduce((sum, source) => sum + source.updates, 0) };
-  });
   await page.evaluate(async () => {
     const moduleUrl = document.querySelector('script[type="module"]').src;
     const session = await (await import(moduleUrl)).reportPlayerReady;
     window.__playerAtLeave = session.player.atMs;
     session.player.setMode("analysis");
   });
-  await delay(250);
+  await delay(50);
+  const writesAfterLeave = await sourceWrites(page);
+  await delay(200);
   const afterLeave = await page.evaluate(async () => {
     const databases = await indexedDB.databases();
     return {
@@ -101,10 +99,7 @@ export async function exercisePublicReportPlayer({
   if (!afterLeave.bodyScrollable) failures.push("Report scrolling was not restored");
   if (afterLeave.instances !== 1) failures.push(`map constructed ${afterLeave.instances} times`);
   if (afterLeave.storage) failures.push("browser storage was written");
-  if (afterLeave.writes !== beforeLeave.writes + 1
-      && afterLeave.writes !== beforeLeave.writes + 2) {
-    failures.push("hidden Player or unexpected source writes continued");
-  }
+  if (afterLeave.writes !== writesAfterLeave) failures.push("hidden Player writes continued");
   if (resultRequests !== 1) failures.push(`result loaded ${resultRequests} times`);
   await page.close();
   return { failures, reportUrl, resultRequests };
@@ -126,4 +121,9 @@ async function changeThreshold(page) {
 
 function delay(milliseconds) {
   return new Promise(resolve => setTimeout(resolve, milliseconds));
+}
+
+async function sourceWrites(page) {
+  return page.evaluate(() => [...window.__reportMapState.map.sources.values()]
+    .reduce((sum, source) => sum + source.updates, 0));
 }

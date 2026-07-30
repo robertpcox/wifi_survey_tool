@@ -23,7 +23,10 @@ test("floor route view uses only ordered meta floor names and one map surface", 
   assert.match(html, /Route fallback/);
   assert.match(html, /Loading public campus map/);
   assert.match(html, /data-player-transport hidden/);
-  assert.match(html, /Floor mismatch at inferred route position/);
+  assert.match(html, />No heat</);
+  assert.match(html, /Wi-Fi result position on its reported floor/);
+  assert.match(html, /Route endpoint/);
+  assert.match(html, /Wi-Fi endpoint \(floor mismatch\)/);
   assert.equal((html.match(/data-report-map/g) ?? []).length, 1);
   assert.equal((html.match(/data-maze-map/g) ?? []).length, 1);
 });

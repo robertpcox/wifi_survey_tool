@@ -15,6 +15,13 @@ import { buildGroundTruthModel } from "./report-ground-truth.mjs";
 const result = JSON.parse(await readFile(
   new URL("../../data/fixtures/report-player/result.fixture.v3.json", import.meta.url),
 ));
+const fieldResult = JSON.parse(await readFile(
+  new URL(
+    "../../results/292__566__4a9ba424-a96f-466d-a000-d0ba5d62571e"
+      + "__2026-07-30T02-36-21Z.result.v3.json",
+    import.meta.url,
+  ),
+));
 
 test("sticky heat uses elapsed moving time and excludes planned dwell", () => {
   const analysis = analyzeReportResult(result, {
@@ -95,4 +102,15 @@ test("accuracy heat is weighted at ground truth and grouped by meta floors", () 
     single.heatmaps.sticky.map(floor => floor.name),
     ["Only floor"],
   );
+});
+
+test("field result retains each reported Wi-Fi floor through analysis", () => {
+  const timeline = analyzeReportResult(fieldResult).timeline;
+  const counts = Object.fromEntries(fieldResult.meta.zLevels.map(z => [z, 0]));
+  for (const sample of timeline) {
+    assert.ok(fieldResult.meta.zLevels.includes(sample.fix.z));
+    counts[sample.fix.z] += 1;
+  }
+  assert.equal(timeline.length, 2542);
+  assert.deepEqual(counts, { 1: 601, 2: 858, 3: 475, 4: 608 });
 });

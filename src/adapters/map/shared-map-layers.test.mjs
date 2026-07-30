@@ -19,6 +19,12 @@ test("mode switching reuses sources and blocks disabled Player writes", () => {
   ]);
   layers.drawReportHeat("sticky", {
     heatmaps: { sticky: [] },
+    timeline: [{
+      pollId: "poll-wifi",
+      receivedAt: "2026-07-30T01:08:53.826Z",
+      fix: { lng: 170.25, lat: -45.25, z: 1 },
+      groundTruth: { lng: 170.2, lat: -45.2, z: 0 },
+    }],
     warnings: {
       floorMismatch: {
         points: [{
@@ -31,6 +37,14 @@ test("mode switching reuses sources and blocks disabled Player writes", () => {
   assert.equal(
     harness.sources.get("report-floor-mismatch").data.features[0].properties.reportedZ,
     1,
+  );
+  const wifi = harness.sources.get("report-wifi-fixes").data.features[0];
+  assert.deepEqual(wifi.geometry.coordinates, [170.25, -45.25]);
+  assert.equal(wifi.properties.z, 1);
+  const layerOrder = [...harness.layers.keys()];
+  assert.ok(
+    layerOrder.indexOf("report-wifi-fixes-lyr")
+      < layerOrder.indexOf("report-floor-mismatch-lyr"),
   );
   layers.setViewMode("playback");
   const sourceCount = harness.sources.size;
@@ -57,6 +71,7 @@ test("mode switching reuses sources and blocks disabled Player writes", () => {
   assert.equal(harness.visibility.get("player-raw-fix-lyr"), "none");
   assert.equal(harness.visibility.get("report-sticky-heat-lyr"), "visible");
   assert.equal(harness.visibility.get("report-floor-mismatch-lyr"), "visible");
+  assert.equal(harness.visibility.get("report-wifi-fixes-lyr"), "visible");
 });
 
 function mapHarness() {

@@ -35,9 +35,11 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - player-map-features 150/5779 T+ E buildPlayerFeatureCollections I map-geojson, note-features, player-fix-history, player-live-raw-fix
 - player-map-layers 53/1823 T+ E createPlayerMapLayers I evidence-interactions, geojson-layer-group, player-layer-definitions, player-map-features
 - report-map-layers 135/4162 T+ E createReportMapLayers I geojson-layer-group, map-layer-order, note-features
-- report-warning-map-layer 61/1827 T+ E createReportWarningMapLayer I geojson-layer-group
+- report-warning-map-layer 118/3224 T+ E createReportWarningMapLayer I geojson-layer-group
+- report-wifi-map-layer 59/1880 T+ E createReportWifiMapLayer I geojson-layer-group
 - routing 41/1295 T+ E fetchLegGeoJSON, getPoi, getPoiAt
-- shared-map-layers 86/2763 T+ E createSharedMapLayers I map-camera-follow, player-map-layers, report-map-layers, report-warning-map-layer
+- shared-map-layers 98/3114 T+ E createSharedMapLayers
+  - I map-camera-follow, player-map-layers, report-map-layers, report-warning-map-layer, report-wifi-map-layer
 ## positioning/
 - cloud 16/528 T+ E fetchCloudPosition
 - lipi 11/300 T+ E fetchLipiPosition

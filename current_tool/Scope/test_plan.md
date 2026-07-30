@@ -123,7 +123,7 @@ Field acceptance, which no automated test replaces:
 - Matching runs stack deterministically and stay linked to map, export, and Player evidence.
 - Native floors drive Report z-filters through fit/resize/mode changes; Follow stays unchanged.
 - One memory-only map access-token control is reachable from both Report and Player.
-- Stale/sticky and floor-mismatch warnings use exact z-aware evidence and Player handoff.
+- Warnings link to Player; exact Wi-Fi fixes and mismatch endpoints stay on their own floors.
 
 ## Risk register
 

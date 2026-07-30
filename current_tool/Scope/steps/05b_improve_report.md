@@ -61,10 +61,10 @@ A chronological event list is supporting evidence, not the main report structure
 Use native MazeMap/Mapbox GeoJSON sources and layers for:
 
 - authored route and floor
-- selected run trails and ground truth
+- selected-run ground truth and exact reported Wi-Fi fixes, separated by captured z
 - elapsed-time-weighted sticky heat
 - elapsed-time-weighted outside-accuracy heat
-- wrong-floor, route-wedge, and reviewed-exception markers at captured ground truth
+- paired wrong-floor truth/fix endpoints on their own z, plus wedge/exception markers
 - selected issue interval and its supporting samples
 
 Heat uses the existing `weightSeconds`, is filtered by z-level, and updates with thresholds.
@@ -136,11 +136,11 @@ Exports describe analysis; they never alter or re-export captured fixes as corre
 - Threshold changes update KPIs, issue areas, heat layers, and selected runs without refetching.
 - Report and Player reuse one map/result; mode changes preserve Player time and Report selection.
 - Selecting an issue synchronizes map, accessible details, evidence, and Player seek.
-- GeoJSON keeps exact `[lng, lat]`; no view mutates raw or normalized captured evidence.
+- GeoJSON keeps exact fix/mismatch coordinates and z; captured evidence stays immutable.
 - Public/no-token mode works; access is requested only after a real access failure.
 - JSON/CSV exports are deterministic and reproduce each issue area's inputs.
 - Existing Dashboard, upload, comparison, secret, schema, and build gates remain green.
-- Native floors survive layout settle; both modes expose one memory-only map access control.
+- Native floors filter heat, mismatch, and Wi-Fi layers; both modes expose one access control.
 - Stale/sticky and floor-disconnect warnings match elapsed evidence and link to Player.
 - `node tools/build.mjs --no-deploy` passes with zero skips; authorized `node tools/build.mjs` syncs demo.
 

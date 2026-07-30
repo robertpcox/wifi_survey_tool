@@ -56,6 +56,10 @@ export function publicWarningPoint(point) {
     weightSeconds: round(point.weightSeconds),
   };
   if (Number.isFinite(point.reportedZ)) value.reportedZ = point.reportedZ;
+  if ([point.reportedLng, point.reportedLat].every(Number.isFinite)) {
+    value.reportedLng = point.reportedLng;
+    value.reportedLat = point.reportedLat;
+  }
   return value;
 }
 

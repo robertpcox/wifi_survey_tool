@@ -42,21 +42,38 @@
   margin-top: 0.8rem;
 }
 
+.map-result-legend,
 .map-warning-legend {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  color: #7c2d12;
   font-size: 0.82rem;
   font-weight: 700;
 }
 
+.map-result-legend { color: #1e3a8a; }
+.map-warning-legend { color: #7c2d12; }
+
+.map-result-legend i,
 .map-warning-legend i {
   width: 0.8rem;
   height: 0.8rem;
-  border: 2px solid #7c2d12;
   border-radius: 50%;
+}
+
+.map-result-legend i {
+  border: 2px solid #1e3a8a;
+  background: #2563eb;
+}
+
+.map-warning-legend i {
+  border: 2px solid #7c2d12;
   background: #ea580c;
+}
+
+.map-warning-legend i.reported {
+  border-width: 3px;
+  background: #fff7ed;
 }
 
 .report-player-main > .map-access {

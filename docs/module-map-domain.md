@@ -27,8 +27,8 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - report-route 90/2763 T+ E buildReportRoute I geometry, report-route-geometry
 - report-samples 115/3627 T+ E buildReportTimeline, publicReportSample, reportAccuracyAt, reportQuantile, reportTruthOverlaps I geometry
 - report-snap 78/2610 T+ E snapFixToActiveRoute I geometry, report-route-geometry
-- report-warning-summary 115/3532 T- E publicWarningPoint, summarizeFloorPairs, summarizeWarning
-- report-warnings 103/2729 T+ E buildReportWarnings I report-samples, report-warning-summary
+- report-warning-summary 119/3693 T- E publicWarningPoint, summarizeFloorPairs, summarizeWarning
+- report-warnings 108/2883 T+ E buildReportWarnings I report-samples, report-warning-summary
 - route-contract 23/582 T+
   - E CAMPUS_ID, CHECKPOINT_RULES, MAP_STYLE, MAP_TRAIL_FIX_LIMIT, ROUTE_BUILD_CONCURRENCY, ROUTE_FORMAT_VERSION, ROUTE_TOOL, SUPPORTED_SPACINGS_M
 - route-duration-v3 36/1109 T+ E WALKING_SPEED_MPS, estimateRouteDuration I checkpoint-dwell-v3

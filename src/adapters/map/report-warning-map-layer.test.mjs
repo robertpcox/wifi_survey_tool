@@ -10,7 +10,7 @@ import test from "node:test";
 
 import { createReportWarningMapLayer } from "./report-warning-map-layer.mjs";
 
-test("floor warning retains exact ground truth and reported z separately", () => {
+test("floor warning pairs exact truth and reported endpoints on their own floors", () => {
   const harness = mapHarness();
   let floor = 1;
   const layer = createReportWarningMapLayer(harness.map, () => floor);
@@ -20,17 +20,32 @@ test("floor warning retains exact ground truth and reported z separately", () =>
       lat: -45.8701,
       lng: 170.5001,
       z: 1,
+      reportedLat: -45.8703,
+      reportedLng: 170.5004,
       reportedZ: 2,
       pollId: "poll-floor",
       weightSeconds: 2,
     }],
   }), 1);
-  const feature = harness.sources.get("report-floor-mismatch").data.features[0];
-  assert.deepEqual(feature.geometry.coordinates, [170.5001, -45.8701]);
-  assert.equal(feature.properties.z, 1);
-  assert.equal(feature.properties.reportedZ, 2);
-  assert.equal(feature.properties.pollId, "poll-floor");
+  const [truth] = harness.sources.get("report-floor-mismatch").data.features;
+  const [reported] = harness.sources
+    .get("report-floor-mismatch-reported").data.features;
+  assert.deepEqual(truth.geometry.coordinates, [170.5001, -45.8701]);
+  assert.deepEqual(reported.geometry.coordinates, [170.5004, -45.8703]);
+  assert.equal(truth.properties.endpoint, "ground-truth");
+  assert.equal(reported.properties.endpoint, "reported-fix");
+  assert.equal(truth.properties.z, 1);
+  assert.equal(reported.properties.z, 2);
+  assert.equal(truth.properties.truthZ, 1);
+  assert.equal(reported.properties.truthZ, 1);
+  assert.equal(truth.properties.reportedZ, 2);
+  assert.equal(reported.properties.reportedZ, 2);
+  assert.equal(truth.properties.pairId, reported.properties.pairId);
+  assert.equal(truth.properties.pollId, "poll-floor");
   assert.deepEqual(harness.filters.get("report-floor-mismatch-lyr"), [
+    "==", ["get", "z"], 1,
+  ]);
+  assert.deepEqual(harness.filters.get("report-floor-mismatch-reported-lyr"), [
     "==", ["get", "z"], 1,
   ]);
   floor = 2;
@@ -38,6 +53,43 @@ test("floor warning retains exact ground truth and reported z separately", () =>
   assert.deepEqual(harness.filters.get("report-floor-mismatch-lyr"), [
     "==", ["get", "z"], 2,
   ]);
+  assert.deepEqual(
+    harness.filters.get("report-floor-mismatch-reported-lyr"),
+    ["==", ["get", "z"], 2],
+  );
+  const truthPaint = harness.layers.get("report-floor-mismatch-lyr").paint;
+  const reportedPaint = harness.layers
+    .get("report-floor-mismatch-reported-lyr").paint;
+  assert.notEqual(truthPaint["circle-color"], reportedPaint["circle-color"]);
+  assert.notEqual(
+    truthPaint["circle-stroke-width"],
+    reportedPaint["circle-stroke-width"],
+  );
+  assert.deepEqual(layer.sourceIds, [
+    "report-floor-mismatch",
+    "report-floor-mismatch-reported",
+  ]);
+});
+
+test("legacy warning evidence draws truth without inventing a reported endpoint", () => {
+  const harness = mapHarness();
+  const layer = createReportWarningMapLayer(harness.map, () => 1);
+  assert.equal(layer.draw({
+    points: [{
+      lat: -45.8701,
+      lng: 170.5001,
+      z: 1,
+      reportedZ: 2,
+      pollId: "poll-floor",
+      weightSeconds: 2,
+    }],
+  }), 1);
+  const truth = harness.sources.get("report-floor-mismatch").data.features;
+  const reported = harness.sources
+    .get("report-floor-mismatch-reported").data.features;
+  assert.equal(truth.length, 1);
+  assert.equal(truth[0].properties.endpoint, "ground-truth");
+  assert.deepEqual(reported, []);
 });
 
 function mapHarness() {

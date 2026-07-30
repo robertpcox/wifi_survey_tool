@@ -8,11 +8,13 @@
 import { createPlayerMapLayers } from "./player-map-layers.mjs";
 import { createReportMapLayers } from "./report-map-layers.mjs";
 import { createReportWarningMapLayer } from "./report-warning-map-layer.mjs";
+import { createReportWifiMapLayer } from "./report-wifi-map-layer.mjs";
 import { followMapPoint } from "./map-camera-follow.mjs";
 
 export function createSharedMapLayers(map, currentFloor) {
   const report = createReportMapLayers(map, currentFloor);
   const warnings = createReportWarningMapLayer(map, currentFloor);
+  const wifi = createReportWifiMapLayer(map, currentFloor);
   const player = createPlayerMapLayers(map, currentFloor);
   let mode = "analysis";
   let playerEnabled = false;
@@ -24,19 +26,23 @@ export function createSharedMapLayers(map, currentFloor) {
     mode = nextMode;
     playerEnabled = mode === "playback";
     report.ensure();
+    wifi.ensure();
     warnings.ensure();
     player.ensure();
     report.setVisible(mode === "analysis");
     warnings.setVisible(mode === "analysis");
+    wifi.setVisible(mode === "analysis");
     player.setVisible(playerEnabled);
     return mode;
   }
 
   function drawReportHeat(kind, pointsOrAnalysis) {
     const count = report.draw(kind, pointsOrAnalysis);
+    wifi.draw(pointsOrAnalysis);
     warnings.draw(pointsOrAnalysis?.warnings?.floorMismatch);
     report.setVisible(mode === "analysis");
     warnings.setVisible(mode === "analysis");
+    wifi.setVisible(mode === "analysis");
     return count;
   }
 
@@ -64,6 +70,7 @@ export function createSharedMapLayers(map, currentFloor) {
   function applyFloor() {
     report.applyFloor();
     warnings.applyFloor();
+    wifi.applyFloor();
     player.applyFloor();
   }
 
@@ -80,7 +87,12 @@ export function createSharedMapLayers(map, currentFloor) {
     get mode() { return mode; },
     get playerEnabled() { return playerEnabled; },
     get sourceIds() {
-      return [...report.sourceIds, ...warnings.sourceIds, ...player.sourceIds];
+      return [
+        ...report.sourceIds,
+        ...warnings.sourceIds,
+        ...wifi.sourceIds,
+        ...player.sourceIds,
+      ];
     },
   });
 }

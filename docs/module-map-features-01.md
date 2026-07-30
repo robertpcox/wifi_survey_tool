@@ -52,7 +52,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
   - I @d/creator-route-v3, @d/definition-authoring-v3, @d/route-duration-v3, workflow-route, workflow-routing
 ## report-player/
 - comparison-view 65/2650 T+ E renderComparisonView I @s/format
-- floor-route-view 43/1953 T+ E renderFloorRouteView I @s/format
+- floor-route-view 47/2153 T+ E renderFloorRouteView I @s/format
 - heatmap-view 56/2172 T+ E renderHeatmapView I @s/format
 - identity-view 75/2867 T+ E renderIdentityView I @s/format
 - kpi-view 38/1646 T+ E renderKpiView I @s/format
@@ -61,7 +61,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - map-floor-sync 90/2423 T+ E createMapFloorSync
 - map-model 85/3205 T+ E createMapFrame
 - map-surface-layout 47/1445 T+ E createMapSurfaceLayout, routeCenter, safelyCreateMap
-- map-surface.css 79/1824 T+
+- map-surface.css 96/2113 T+
 - map-surface 150/5449 T+ E createReportMapSurface I @a/map/mazemap-errors, map-fallback, map-floor-sync, map-model, map-surface-layout
 - methodology-view 148/5327 T+ E buildAnalysisCsv, createAnalysisExports, createAnalysisSummary, downloadAnalysisExports, renderMethodologyView I @s/format
 - playback-controller 122/3105 T+ E createPlaybackController I @d/report-playback

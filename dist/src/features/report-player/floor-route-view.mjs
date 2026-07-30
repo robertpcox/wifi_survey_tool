@@ -35,9 +35,13 @@ export function renderFloorRouteView(result) {
     <div class="map-layer-controls" role="group" aria-label="Map overlay">
       <button type="button" data-map-heat="sticky" class="active">Sticky heat</button>
       <button type="button" data-map-heat="accuracy">Accuracy heat</button>
-      <button type="button" data-map-heat="none">Route only</button>
+      <button type="button" data-map-heat="none">No heat</button>
+      <span class="map-result-legend">
+        <i aria-hidden="true"></i> Wi-Fi result position on its reported floor
+      </span>
       <span class="map-warning-legend">
-        <i aria-hidden="true"></i> Floor mismatch at inferred route position
+        <i class="truth" aria-hidden="true"></i> Route endpoint
+        <i class="reported" aria-hidden="true"></i> Wi-Fi endpoint (floor mismatch)
       </span>
     </div>`;
 }

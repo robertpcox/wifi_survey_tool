@@ -58,6 +58,8 @@ test("warnings summarize elapsed fixture episodes without mutating evidence", ()
       z: 0,
       pollId: "poll-8",
       weightSeconds: 2,
+      reportedLng: 170.5004,
+      reportedLat: -45.87,
       reportedZ: 1,
     },
     points: [{
@@ -68,6 +70,8 @@ test("warnings summarize elapsed fixture episodes without mutating evidence", ()
       z: 0,
       pollId: "poll-8",
       weightSeconds: 2,
+      reportedLng: 170.5004,
+      reportedLat: -45.87,
       reportedZ: 1,
     }],
     floorPairs: [{

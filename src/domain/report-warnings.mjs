@@ -40,7 +40,7 @@ export function buildReportWarnings({
           groundTruth,
           startMs: segment.startMs,
           endMs: segment.endMs,
-          reportedZ: sample.fix.z,
+          reportedFix: sample.fix,
         }));
       }
       if (!segment.moving) continue;
@@ -85,10 +85,10 @@ function evidencePoint({
   groundTruth,
   startMs,
   endMs,
-  reportedZ,
+  reportedFix,
 }) {
   const atMs = Math.round((startMs + endMs) / 2);
-  return {
+  const point = {
     startMs,
     endMs,
     atMs,
@@ -96,8 +96,13 @@ function evidencePoint({
     lng: groundTruth.lng,
     lat: groundTruth.lat,
     z: groundTruth.z,
-    reportedZ,
     pollId: sample.pollId,
     weightSeconds: (endMs - startMs) / 1000,
   };
+  if (reportedFix) {
+    point.reportedLng = reportedFix.lng;
+    point.reportedLat = reportedFix.lat;
+    point.reportedZ = reportedFix.z;
+  }
+  return point;
 }

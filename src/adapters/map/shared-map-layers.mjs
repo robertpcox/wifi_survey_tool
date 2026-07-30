@@ -19,7 +19,18 @@ export function createSharedMapLayers(map, currentFloor) {
   const wifi = createReportWifiMapLayer(map, currentFloor);
   const player = createPlayerMapLayers(map, currentFloor);
   let mode = "analysis";
+  let highlightKind = "sticky";
   let playerEnabled = false;
+
+  function applyVisibility() {
+    const analysisVisible = mode === "analysis";
+    report.setHeatVisible(highlightKind !== "none");
+    report.setNotesVisible(analysisVisible);
+    stalePath.setVisible(highlightKind === "sticky");
+    warnings.setVisible(analysisVisible);
+    wifi.setVisible(analysisVisible);
+    player.setVisible(playerEnabled);
+  }
 
   function setViewMode(nextMode) {
     if (!["analysis", "playback"].includes(nextMode)) {
@@ -32,29 +43,23 @@ export function createSharedMapLayers(map, currentFloor) {
     wifi.ensure();
     warnings.ensure();
     player.ensure();
-    report.setVisible(mode === "analysis");
-    stalePath.setVisible(true);
-    warnings.setVisible(mode === "analysis");
-    wifi.setVisible(mode === "analysis");
-    player.setVisible(playerEnabled);
+    applyVisibility();
     return mode;
   }
 
   function drawReportHeat(kind, pointsOrAnalysis) {
     const count = report.draw(kind, pointsOrAnalysis);
+    highlightKind = kind;
     stalePath.draw(pointsOrAnalysis);
     wifi.draw(pointsOrAnalysis);
     warnings.draw(pointsOrAnalysis?.warnings?.floorMismatch);
-    report.setVisible(mode === "analysis");
-    stalePath.setVisible(true);
-    warnings.setVisible(mode === "analysis");
-    wifi.setVisible(mode === "analysis");
+    applyVisibility();
     return count;
   }
 
   function drawReportNotes(notes) {
     report.drawNotes(notes);
-    report.setVisible(mode === "analysis");
+    applyVisibility();
   }
 
   function drawPlayerFrame(frame, snap) {
@@ -91,6 +96,7 @@ export function createSharedMapLayers(map, currentFloor) {
     focusEvidence: player.focusEvidence,
     onEvidenceSelect: player.onEvidenceSelect,
     setViewMode,
+    get highlightKind() { return highlightKind; },
     get mode() { return mode; },
     get playerEnabled() { return playerEnabled; },
     get sourceIds() {

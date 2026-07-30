@@ -9,7 +9,10 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import { renderPlayerEvidenceRail } from "./player-evidence-view.mjs";
+import {
+  renderPlayerEvidenceRail,
+  updatePlayerEvidence,
+} from "./player-evidence-view.mjs";
 
 const result = JSON.parse(await readFile(
   new URL("../../../data/fixtures/report-player/result.fixture.v3.json", import.meta.url),
@@ -34,4 +37,27 @@ test("evidence rail exposes linked moment, poll, snap, chart, and capture region
   }
   assert.match(html, />Ground</);
   assert.match(html, /raw blue fix is never changed or exported/i);
+});
+
+test("default distance readout uses the current walker-to-fix error", () => {
+  const nodes = new Map();
+  const root = {
+    querySelector(selector) {
+      if (!nodes.has(selector)) nodes.set(selector, { innerHTML: "", textContent: "" });
+      return nodes.get(selector);
+    },
+  };
+  updatePlayerEvidence(root, {
+    currentPositionErrorM: 30.969,
+    latestFixAgeSeconds: 20,
+    pollEvidence: {},
+    polls: [],
+    checkIns: [],
+    events: [],
+    walker: { z: 0, moving: false },
+  });
+  assert.equal(
+    nodes.get('[data-player-metric="distance"]').textContent,
+    "31.0 m",
+  );
 });

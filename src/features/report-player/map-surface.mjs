@@ -10,9 +10,7 @@ import { createMapFloorSync } from "./map-floor-sync.mjs";
 import { createMapFrame } from "./map-model.mjs";
 import { createMapSurfaceLayout, routeCenter, safelyCreateMap } from "./map-surface-layout.mjs";
 export function createReportMapSurface({
-  result,
-  canvas,
-  mapElement,
+  result, canvas, mapElement,
   fallbackElement,
   statusElement,
   createMap, createPrivateMap,
@@ -78,19 +76,21 @@ export function createReportMapSurface({
     adapter.setViewMode(viewMode);
   }
   function render(next = {}) {
+    const reportChanged = Object.hasOwn(next, "analysis") || Object.hasOwn(next, "heatKind");
     if (Object.hasOwn(next, "floor"))
       floorSync.command(next.floor, mapMode === "mazemap");
     if (Object.hasOwn(next, "analysis")) analysis = next.analysis;
     if (Object.hasOwn(next, "heatKind")) heatKind = next.heatKind;
     if (Object.hasOwn(next, "frame")) playerFrame = next.frame;
     if (Object.hasOwn(next, "snap")) snap = next.snap;
-    renderActive();
+    renderActive(reportChanged);
     return fallbackModel();
   }
-  function renderActive() {
+  function renderActive(forceReport = false) {
     if (mapMode === "mazemap") {
-      if (viewMode === "analysis") adapter.drawReportHeat(heatKind, analysis);
-      else if (playerFrame) adapter.drawPlayerFrame(playerFrame, snap);
+      if (forceReport || viewMode === "analysis") adapter.drawReportHeat(heatKind, analysis);
+      if (viewMode === "playback" && playerFrame)
+        adapter.drawPlayerFrame(playerFrame, snap);
     } else if (mapMode === "fallback") drawRouteFallback(canvas, fallbackModel());
   }
   function setViewMode(mode) {

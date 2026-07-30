@@ -6,7 +6,6 @@
 // PROVENANCE:   Scope/steps/05a_recast_player.md
 
 import { esc } from "../../shared/format.mjs";
-import { renderAnalysisMapAlerts } from "./map-alert-view.mjs";
 
 const TIMELINESS_PRESETS = Object.freeze([10, 15, 20, 30]);
 const ACCURACY_PRESETS = Object.freeze([5, 10, 15, 20, 25]);
@@ -29,20 +28,29 @@ export function renderFloorRouteView(result, {
               <option value="${esc(floor.z)}">${esc(floor.name)}</option>`).join("")}
           </select>
         </label>
-        <div class="map-threshold-controls" role="group" aria-label="Heat thresholds">
+        <div class="map-threshold-controls" role="group" aria-label="Map highlight">
+          <label>Highlight
+            <select data-map-highlight aria-label="Map highlight">
+              <option value="sticky" selected>Time since last update</option>
+              <option value="accuracy">Distance off route</option>
+            </select>
+          </label>
           ${thresholdSelect({
-            label: "Timeliness",
+            label: "Limit",
             name: "stickySeconds",
             value: thresholds.stickySeconds,
             presets: TIMELINESS_PRESETS,
             unit: "s",
+            kind: "sticky",
           })}
           ${thresholdSelect({
-            label: "Accuracy",
+            label: "Limit",
             name: "accuracyM",
             value: thresholds.accuracyM,
             presets: ACCURACY_PRESETS,
             unit: "m",
+            kind: "accuracy",
+            hidden: true,
           })}
         </div>
       </div>
@@ -56,17 +64,15 @@ export function renderFloorRouteView(result, {
       </div>
       <p class="map-runtime-status" data-map-runtime-status>Loading public campus map…</p>
       <div class="map-alert-stack" data-module="mapAlerts" role="status"
-        aria-live="polite" aria-atomic="true">
-        ${renderAnalysisMapAlerts(analysis)}
-      </div>
+        aria-live="polite" aria-atomic="true"></div>
       <div class="player-transport-slot" data-player-transport hidden></div>
     </div>
     <div class="map-layer-controls" role="group" aria-label="Map overlay">
-      <button type="button" data-map-heat="sticky" class="active">No-position-update heat</button>
-      <button type="button" data-map-heat="accuracy">Accuracy heat</button>
-      <button type="button" data-map-heat="none">No heat</button>
-      <span class="map-stale-legend">
+      <span class="map-stale-legend" data-highlight-legend="sticky">
         <i aria-hidden="true"></i> No-position-update route segment
+      </span>
+      <span class="map-accuracy-legend" data-highlight-legend="accuracy" hidden>
+        <i aria-hidden="true"></i> Position error beyond the selected distance
       </span>
       <span class="map-result-legend">
         <i aria-hidden="true"></i> Wi-Fi result position on its reported floor
@@ -78,11 +84,22 @@ export function renderFloorRouteView(result, {
     </div>`;
 }
 
-function thresholdSelect({ label, name, value, presets, unit }) {
+function thresholdSelect({
+  label,
+  name,
+  value,
+  presets,
+  unit,
+  kind,
+  hidden = false,
+}) {
   const selected = Number.isFinite(Number(value)) ? Number(value) : presets[0];
   const options = presets.includes(selected) ? presets : [selected, ...presets];
-  return `<label>${esc(label)}
-    <select data-threshold="${esc(name)}" aria-label="${esc(label)} threshold">
+  const thresholdName = kind === "accuracy"
+    ? "Distance off route"
+    : "Time since last update";
+  return `<label data-highlight-threshold="${esc(kind)}"${hidden ? " hidden" : ""}>${esc(label)}
+    <select data-threshold="${esc(name)}" aria-label="${esc(thresholdName)} threshold">
       ${options.map(option => `<option value="${esc(option)}"${option === selected ? " selected" : ""}>
         ${esc(option)} ${esc(unit)}
       </option>`).join("")}

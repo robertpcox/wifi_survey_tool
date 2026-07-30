@@ -13,6 +13,7 @@ import {
 
 const FLOOR_LAYER_IDS = [
   "report-sticky-heat-lyr",
+  "report-accuracy-heat-lyr",
   "report-stale-path-lyr",
   "report-floor-mismatch-lyr",
   "report-floor-mismatch-reported-lyr",

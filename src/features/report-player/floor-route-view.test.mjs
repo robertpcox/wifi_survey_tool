@@ -33,8 +33,13 @@ test("floor route view uses only ordered meta floor names and one map surface", 
   assert.match(html, /data-player-transport hidden/);
   assert.match(html, /data-module="mapAlerts"/);
   assert.match(html, /aria-live="polite"/);
+  assert.match(html, /data-module="mapAlerts"[^>]*><\/div>/s);
+  assert.match(html, /data-map-highlight/);
+  assert.match(html, />Time since last update</);
+  assert.match(html, />Distance off route</);
   assert.match(html, /data-threshold="stickySeconds"/);
   assert.match(html, /data-threshold="accuracyM"/);
+  assert.match(html, /data-highlight-threshold="accuracy" hidden/);
   for (const seconds of [10, 15, 20, 30]) {
     assert.match(html, new RegExp(`value="${seconds}"`));
   }
@@ -42,9 +47,10 @@ test("floor route view uses only ordered meta floor names and one map surface", 
     assert.match(html, new RegExp(`value="${metres}"`));
   }
   assert.match(html, /value="15" selected/);
-  assert.match(html, />No-position-update heat</);
-  assert.match(html, />No heat</);
+  assert.doesNotMatch(html, /data-map-heat=/);
+  assert.doesNotMatch(html, />No heat</);
   assert.match(html, /No-position-update route segment/);
+  assert.match(html, /Position error beyond the selected distance/);
   assert.match(html, /Wi-Fi result position on its reported floor/);
   assert.match(html, /Route endpoint/);
   assert.match(html, /Wi-Fi endpoint \(floor mismatch\)/);

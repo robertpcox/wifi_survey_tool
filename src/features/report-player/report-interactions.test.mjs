@@ -31,11 +31,12 @@ test("dynamic analysis sections independently render one shared fixture snapshot
   }, []);
   assert.deepEqual(
     Object.keys(sections),
-    ["mapAlerts", "warnings", "kpi", "heatmap", "comparison", "methodology"],
+    ["mapAlerts", "warnings", "kpi", "insights", "heatmap", "comparison", "methodology"],
   );
-  assert.match(sections.mapAlerts, /NO POSITION UPDATE/i);
+  assert.equal(sections.mapAlerts, "");
   assert.match(sections.warnings, /Observed warnings/);
   assert.match(sections.kpi, /Run at a glance/);
+  assert.match(sections.insights, /The walk, second by second/);
   assert.match(sections.heatmap, /Where it gets stuck/);
   assert.match(sections.comparison, /Same route, different device/);
   assert.match(sections.methodology, /Methodology and export/);

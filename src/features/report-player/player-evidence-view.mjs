@@ -83,7 +83,9 @@ export function updatePlayerEvidence(root, frame, {
   const context = selected ?? latest ?? poll;
   const truth = context?.receivedTruth ?? context?.routeReceive ?? frame.walker;
   const fix = poll?.normalized ?? context?.rawFix ?? latest?.fix ?? latest?.normalized ?? latest;
-  const distance = finite(context?.distanceM ?? context?.distanceAtReceiptM);
+  const distance = finite(selectedPollId
+    ? context?.distanceM ?? context?.distanceAtReceiptM
+    : frame.currentPositionErrorM ?? context?.distanceM ?? context?.distanceAtReceiptM);
   const fixAge = finite(context?.fixAgeSeconds ?? frame.latestFixAgeSeconds);
   const floorMatch = context?.floorMatch ?? (
     Number.isFinite(fix?.z) && Number.isFinite(truth?.z) ? fix.z === truth.z : null

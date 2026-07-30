@@ -110,7 +110,8 @@
   text-wrap: balance;
 }
 
-.map-alert-banner.stale-position {
+.map-alert-banner.stale-position,
+.map-alert-banner.position-error {
   background: #dc2626;
   animation: map-alert-pulse 1.6s ease-in-out infinite;
 }
@@ -122,7 +123,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .map-alert-banner.stale-position { animation: none; }
+  .map-alert-banner.stale-position,
+  .map-alert-banner.position-error { animation: none; }
 }
 
 @media (max-width: 620px) {

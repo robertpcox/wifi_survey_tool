@@ -71,8 +71,16 @@ test("mode switching reuses sources and blocks disabled Player writes", () => {
     layerOrder.indexOf("report-wifi-fixes-lyr")
       < layerOrder.indexOf("report-floor-mismatch-lyr"),
   );
+  layers.drawReportNotes([{
+    id: "note-1",
+    groundTruth: { lng: 170.23, lat: -45.23, z: 0 },
+  }]);
   layers.setViewMode("playback");
   assert.equal(harness.visibility.get("report-stale-path-lyr"), "visible");
+  assert.equal(harness.visibility.get("report-sticky-heat-lyr"), "visible");
+  assert.equal(harness.visibility.get("report-notes-lyr"), "none");
+  assert.equal(harness.visibility.get("report-floor-mismatch-lyr"), "none");
+  assert.equal(harness.visibility.get("report-wifi-fixes-lyr"), "none");
   const sourceCount = harness.sources.size;
   const layerCount = harness.layers.size;
   assert.equal(layers.followWalker({ lng: 170.1, lat: -45.1, z: 0 }), true);

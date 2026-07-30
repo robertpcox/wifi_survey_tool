@@ -10,11 +10,9 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import { createReportMapSurface } from "./map-surface.mjs";
-
 const result = JSON.parse(await readFile(
   new URL("../../../data/fixtures/report-player/result.fixture.v3.json", import.meta.url),
 ));
-
 test("public denial retries on one observed adapter then resizes and fits", async () => {
   const calls = [];
   let creations = 0;
@@ -63,6 +61,8 @@ test("public denial retries on one observed adapter then resizes and fits", asyn
   assert.equal(surface.floor, 0);
   assert.equal(calls.filter(call => call[0] === "heat").length, heatBefore + 1);
   surface.setViewMode("playback");
+  surface.render({ heatKind: "accuracy", analysis: {} });
+  assert.equal(calls.filter(call => call[0] === "heat").length, heatBefore + 2);
   surface.followWalker({ lng: 170.5, lat: -45.87, z: 1 });
   assert.ok(calls.some(call => call[0] === "follow" && call[1].z === 1));
   assert.ok(calls.some(call => call[0] === "resize"));

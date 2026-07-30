@@ -2,7 +2,7 @@
 // SURFACE:      Node tests for reportAnalysisFindings(state)
 // WHY TOGETHER: Valid and missing snapshots prove every browser finding fails loudly.
 // STATE:        Minimal browser inspection snapshots
-// RULES:        Exact path/fix geometry, large warnings, controls, and handoff are mandatory.
+// RULES:        Exact geometry, empty Report banners, diagnostics, controls, and handoff are mandatory.
 // PROVENANCE:   Scope/steps/05b_improve_report.md
 
 import assert from "node:assert/strict";
@@ -14,8 +14,10 @@ test("valid warning browser state has no findings", () => {
   assert.deepEqual(reportAnalysisFindings({
     kinds: ["stale-position", "floor-mismatch"],
     text: "No position update Floor level disconnect 1970-01-01T00:00:00.010Z poll-1",
-    mapAlertText: "No position update Floor level disconnect",
+    mapAlertText: "",
     mapAlertsInsideMap: true,
+    diagnosticPanels: 4,
+    insightText: "Top no-update locations Floor changes lag behind",
     noPrimaryTimeline: true,
     thresholdOptions: {
       accuracy: [5, 10, 15, 20, 25],

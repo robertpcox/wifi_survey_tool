@@ -1,6 +1,6 @@
 // FEATURE:      Report Player on-map positioning warnings
 // SURFACE:      node --test src/features/report-player/map-alert-view.test.mjs
-// WHY TOGETHER: Aggregate and current-time warnings must use the same prominent language.
+// WHY TOGETHER: Report silence and current-time Player warnings share one map alert slot.
 // STATE:        Pure warning fixtures
 // RULES:        Player warnings appear only while their condition is active at the current time.
 // PROVENANCE:   Scope/steps/05b_improve_report.md
@@ -18,30 +18,21 @@ const floors = [
   { z: 1, name: "First" },
 ];
 
-test("analysis map alerts summarize where the route gets stuck", () => {
-  const html = renderAnalysisMapAlerts({
-    thresholds: { stickySeconds: 15 },
+test("Report map never renders the large warning banners", () => {
+  assert.equal(renderAnalysisMapAlerts({
     warnings: {
-      stalePosition: {
-        active: true,
-        episodeCount: 169,
-        worstSeconds: 42.854,
-      },
-      floorMismatch: {
-        active: true,
-        episodeCount: 8,
-        worstSeconds: 81.524,
-      },
+      stalePosition: { active: true },
+      floorMismatch: { active: true },
     },
-  });
-  assert.match(html, /NO POSITION UPDATE &gt; 15 S · 169 EPISODES · WORST 43 S/i);
-  assert.match(html, /FLOOR LEVEL DISCONNECT · 8 EPISODES · WORST 82 S/i);
-  assert.match(html, /data-map-alert-kind="stale-position"/);
-  assert.match(html, /data-map-alert-kind="floor-mismatch"/);
+  }), "");
 });
 
-test("Player map alerts show only current stale and wrong-floor conditions", () => {
-  const context = { thresholds: { stickySeconds: 15 }, floors };
+test("Player time mode shows only current moving stale and wrong-floor conditions", () => {
+  const context = {
+    thresholds: { stickySeconds: 15, accuracyM: 10 },
+    floors,
+    highlightKind: "sticky",
+  };
   const active = renderPlayerMapAlerts({
     latestFixAgeSeconds: 20.4,
     latestFix: { z: 1 },
@@ -60,4 +51,27 @@ test("Player map alerts show only current stale and wrong-floor conditions", () 
     latestFix: { z: 0 },
     walker: { z: 0, moving: false },
   }, context), /NO POSITION UPDATE/i);
+});
+
+test("Player distance mode compares the held fix with current route truth", () => {
+  const context = {
+    thresholds: { stickySeconds: 15, accuracyM: 10 },
+    floors,
+    highlightKind: "accuracy",
+  };
+  const active = renderPlayerMapAlerts({
+    latestFixAgeSeconds: 50,
+    latestFix: { lng: 0.0002, lat: 0, z: 1 },
+    walker: { lng: 0, lat: 0, z: 0, moving: false },
+  }, context);
+  assert.match(active, /DISTANCE OFF ROUTE · 22 M/i);
+  assert.match(active, /WRONG FLOOR · SHOWS FIRST — ON GROUND/i);
+  assert.match(active, /data-map-alert-kind="position-error"/);
+  assert.doesNotMatch(active, /NO POSITION UPDATE/i);
+
+  assert.equal(renderPlayerMapAlerts({
+    latestFixAgeSeconds: 50,
+    latestFix: { lng: 0.00005, lat: 0, z: 0 },
+    walker: { lng: 0, lat: 0, z: 0, moving: true },
+  }, context), "");
 });

@@ -1,0 +1,81 @@
+/* FEATURE:      Report issue summaries
+ * SURFACE:      Ranked floor/location bars and floor-lag table
+ * WHY TOGETHER: Location rankings and floor transitions use one compact issue-summary layout.
+ * STATE:        Responsive summary cards and scrollable evidence table
+ * RULES:        Keep route locations distinct and exact summary values readable.
+ * PROVENANCE:   Scope/steps/05b_improve_report.md
+ */
+
+.insight-divider {
+  height: 1px;
+  margin: 2rem 0;
+  background: #d8e2ee;
+}
+
+.issue-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.issue-summary-card {
+  padding: 1rem;
+  border: 1px solid #d8e2ee;
+  border-radius: 0.8rem;
+  background: #f8fafc;
+}
+
+.issue-summary-card h3 { margin: 0; }
+.issue-summary-card > p { color: #52677f; }
+.issue-bars { display: grid; gap: 0.75rem; margin-top: 1rem; }
+
+.issue-bar-row {
+  display: grid;
+  grid-template-columns: minmax(7rem, 1.4fr) minmax(5rem, 2fr) auto;
+  align-items: center;
+  gap: 0.45rem 0.7rem;
+}
+
+.issue-bar-row > span {
+  overflow: hidden;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.issue-bar-row > i {
+  width: var(--issue-width);
+  min-width: 0.3rem;
+  height: 0.8rem;
+  border-radius: 1rem;
+  background: linear-gradient(90deg, #2563eb, #60a5fa);
+}
+
+.issue-bar-row > strong { color: #163b70; }
+.issue-bar-row > small { grid-column: 1 / -1; color: #61758b; }
+.floor-lag { margin-top: 2rem; }
+.report-table-scroll { overflow-x: auto; }
+
+.report-table-scroll table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.report-table-scroll th,
+.report-table-scroll td {
+  padding: 0.7rem 0.6rem;
+  border-bottom: 1px solid #d8e2ee;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.report-table-scroll th {
+  color: #52677f;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 760px) {
+  .issue-summary-grid { grid-template-columns: 1fr; }
+}

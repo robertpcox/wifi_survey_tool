@@ -4,7 +4,6 @@
 // STATE:        None
 // RULES:        Failure is strictly beyond threshold; heat is elapsed time at ground truth.
 // PROVENANCE:   Step 5 report analysis contract
-
 import { buildReportGroundTruth } from "./report-ground-truth.mjs";
 import {
   buildReportTimeline,
@@ -19,7 +18,6 @@ export const REPORT_THRESHOLDS = Object.freeze({
   stickySeconds: 15,
   accuracyM: 10,
 });
-
 export function analyzeReportResult(result, selected = REPORT_THRESHOLDS) {
   const thresholds = {
     stickySeconds: threshold(selected.stickySeconds, "stickySeconds"),
@@ -75,6 +73,8 @@ export function analyzeReportResult(result, selected = REPORT_THRESHOLDS) {
       addHeat(sticky, stickyTruth, (segment.endMs - startMs) / 1000, {
         pollId: sample.pollId,
         fixAgeSeconds: (segment.endMs - sample.heldSinceMs) / 1000,
+        routeDistanceM: stickyTruth?.routeDistanceM,
+        activeLegId: stickyTruth?.activeLegId,
       });
     }
   }

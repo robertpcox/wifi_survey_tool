@@ -72,7 +72,7 @@ Provide a non-map issue list and location details for accessibility. Before recu
 
 - native MazeMap floors drive Report filters and its named selector; fit/resize never reset it
 - a shared, memory-only MazeMap access-token control remains reachable in Report and Player
-- large in-map no-update/floor warnings show elapsed severity and open Player evidence
+- detailed Report warnings show elapsed severity and open Player; large banners are Player-only
 
 ## Repeat-run stacking
 
@@ -141,7 +141,7 @@ Exports describe analysis; they never alter or re-export captured fixes as corre
 - JSON/CSV exports are deterministic and reproduce each issue area's inputs.
 - Existing Dashboard, upload, comparison, secret, schema, and build gates remain green.
 - Native floors filter heat, mismatch, and Wi-Fi layers; both modes expose one access control.
-- Large no-update/floor warnings match elapsed evidence and link to Player; no main log remains.
+- Player-only large warnings match current evidence; Report cards link to Player and no main log remains.
 - `node tools/build.mjs --no-deploy` passes with zero skips; authorized `node tools/build.mjs` syncs demo.
 
 ## Respawn boundary

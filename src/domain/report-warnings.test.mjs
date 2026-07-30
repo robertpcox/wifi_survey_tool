@@ -23,7 +23,9 @@ test("warnings summarize elapsed fixture episodes without mutating evidence", ()
     accuracyM: 5,
   });
 
-  assert.deepEqual(analysis.warnings.stalePosition, {
+  const { episodes: staleEpisodes, ...staleSummary } = analysis.warnings.stalePosition;
+  assert.deepEqual(staleEpisodes.map(episode => episode.affectedSeconds), [4, 4]);
+  assert.deepEqual(staleSummary, {
     kind: "stale-position",
     active: true,
     affectedSeconds: 8,
@@ -37,12 +39,16 @@ test("warnings summarize elapsed fixture episodes without mutating evidence", ()
       lng: 170.50003333333333,
       lat: -45.87,
       z: 0,
+      routeDistanceM: 2.580792405711057,
+      activeLegId: "leg-a-c",
       pollId: "poll-2",
       weightSeconds: 2,
     },
     thresholdSeconds: 2,
   });
-  assert.deepEqual(analysis.warnings.floorMismatch, {
+  const { episodes: floorEpisodes, ...floorSummary } = analysis.warnings.floorMismatch;
+  assert.deepEqual(floorEpisodes.map(episode => [episode.z, episode.reportedZ]), [[0, 1]]);
+  assert.deepEqual(floorSummary, {
     kind: "floor-mismatch",
     active: true,
     affectedSeconds: 2,
@@ -56,6 +62,8 @@ test("warnings summarize elapsed fixture episodes without mutating evidence", ()
       lng: 170.50036666666668,
       lat: -45.87,
       z: 0,
+      routeDistanceM: 28.388716462821627,
+      activeLegId: "leg-a-c",
       pollId: "poll-8",
       weightSeconds: 2,
       reportedLng: 170.5004,
@@ -68,6 +76,8 @@ test("warnings summarize elapsed fixture episodes without mutating evidence", ()
       lng: 170.50036666666668,
       lat: -45.87,
       z: 0,
+      routeDistanceM: 28.388716462821627,
+      activeLegId: "leg-a-c",
       pollId: "poll-8",
       weightSeconds: 2,
       reportedLng: 170.5004,
@@ -107,6 +117,7 @@ test("inactive records stay stable and floor-pair ties use time then z", () => {
     affectedSeconds: 0,
     affectedPercent: 0,
     episodeCount: 0,
+    episodes: [],
     sampleCount: 0,
     worstSeconds: 0,
     representative: null,

@@ -13,6 +13,7 @@ import { renderKpiView } from "./kpi-view.mjs";
 import { renderMapAccess } from "./map-access.mjs";
 import { renderMethodologyView } from "./methodology-view.mjs";
 import { renderPlaybackView } from "./playback-view.mjs";
+import { renderReportInsights } from "./report-insights-view.mjs";
 import { renderReportWarnings } from "./report-warning-view.mjs";
 
 export function renderLoadPanel(message = "Choose a generated result or upload a v3 result file.") {
@@ -60,6 +61,9 @@ export function renderReportShell(state, candidates = []) {
     </div>
     <div data-report-pane="analysis" class="analysis-pane">
       <section class="report-section" data-module="kpi">${renderKpiView(analysis)}</section>
+      <section class="report-section" data-module="insights">
+        ${renderReportInsights(state)}
+      </section>
       <section class="report-section" data-module="heatmap">
         ${renderHeatmapView({ analysis, thresholds })}
       </section>

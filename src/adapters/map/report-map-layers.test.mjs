@@ -71,6 +71,24 @@ test("heat selection toggles stable layers without adding sources again", () => 
   assert.equal(harness.visibility.get("report-accuracy-heat-lyr"), "none");
 });
 
+test("heat and note visibility can be controlled independently", () => {
+  const harness = mapHarness();
+  const layers = createReportMapLayers(harness.map, () => 0);
+  layers.draw("accuracy", []);
+  layers.setNotesVisible(false);
+  assert.equal(harness.visibility.get("report-accuracy-heat-lyr"), "visible");
+  assert.equal(harness.visibility.get("report-notes-lyr"), "none");
+
+  layers.setHeatVisible(false);
+  layers.setNotesVisible(true);
+  assert.equal(harness.visibility.get("report-accuracy-heat-lyr"), "none");
+  assert.equal(harness.visibility.get("report-notes-lyr"), "visible");
+
+  layers.setHeatVisible(true);
+  assert.equal(harness.visibility.get("report-sticky-heat-lyr"), "none");
+  assert.equal(harness.visibility.get("report-accuracy-heat-lyr"), "visible");
+});
+
 test("heat sits below area extrusion while report notes stay above it", () => {
   const harness = mapHarness(true);
   createReportMapLayers(harness.map, () => 0).ensure();

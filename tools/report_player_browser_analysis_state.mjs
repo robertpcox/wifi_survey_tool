@@ -2,7 +2,7 @@
 // SURFACE:      activateAnalysisWarnings(page), reportAnalysisFindings(state)
 // WHY TOGETHER: Deterministic warning setup and findings define the browser evidence contract.
 // STATE:        Short synthetic fixture threshold during one browser scenario
-// RULES:        Missing in-map warnings, exact geometry, controls, or handoff evidence fail loudly.
+// RULES:        Report banners stay empty; exact geometry, diagnostics, controls, and handoff fail loudly.
 // PROVENANCE:   Scope/steps/05b_improve_report.md
 
 export async function activateAnalysisWarnings(page) {
@@ -49,6 +49,8 @@ export function readReportAnalysisState(page) {
       text: document.querySelector("[data-module=warnings]")?.textContent ?? "",
       mapAlertText: mapAlerts?.textContent ?? "",
       mapAlertsInsideMap: Boolean(mapAlerts?.closest(".map-stage")),
+      diagnosticPanels: document.querySelectorAll(".diagnostic-panel").length,
+      insightText: document.querySelector("[data-module=insights]")?.textContent ?? "",
       noPrimaryTimeline: !document.querySelector("[data-module=timeline]"),
       thresholdOptions: {
         accuracy: [...document.querySelector("[data-threshold=accuracyM]").options]
@@ -106,12 +108,14 @@ export function reportAnalysisFindings(state) {
   if (!/Floor level disconnect/i.test(state.text)) {
     findings.push("Report floor-disconnect warning copy is missing");
   }
-  if (!state.mapAlertsInsideMap) findings.push("Report warnings are not inside the map");
-  if (!/No position update/i.test(state.mapAlertText)
-      || !/Floor level disconnect/i.test(state.mapAlertText)) {
-    findings.push("Report large map warnings are missing");
-  }
+  if (!state.mapAlertsInsideMap) findings.push("Shared Player warning slot left the map");
+  if ((state.mapAlertText ?? "").trim()) findings.push("Report still shows large map warning banners");
   if (!state.noPrimaryTimeline) findings.push("Report still exposes the primary timeline log");
+  if (state.diagnosticPanels !== 4) findings.push("Report does not show all four diagnostic panels");
+  if (!/Top no-update locations/i.test(state.insightText)
+      || !/Floor changes lag behind/i.test(state.insightText)) {
+    findings.push("Report location or floor-lag data is missing");
+  }
   if (![15, 20].every(value => state.thresholdOptions?.timeliness?.includes(value))) {
     findings.push("Report timeliness controls lack 15/20 second choices");
   }

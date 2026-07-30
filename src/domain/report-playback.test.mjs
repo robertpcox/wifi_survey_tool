@@ -35,6 +35,8 @@ test("playback bounds and requested time stay inside the recorded run", () => {
   const after = playbackFrame(fixture, endMs + 5_000);
   assert.equal(after.atMs, endMs);
   assert.equal(after.progress, 1);
+  assert.ok(after.currentPositionErrorM > 30);
+  assert.ok(after.pollEvidence.latestRawFix.distanceM < 6);
   assert.throws(
     () => playbackFrame(fixture, Number.NaN),
     /atMs must be finite/,

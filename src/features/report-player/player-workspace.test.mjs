@@ -21,3 +21,11 @@ test("narrow Player stacks the map and rail while keeping transport inset", () =
   assert.match(css, /@media \(max-width:\s*760px\)[\s\S]*grid-template-rows:\s*minmax\(240px,\s*48%\)\s+minmax\(0,\s*52%\)/);
   assert.match(css, /\.player-transport-slot\s*\{[^}]*bottom:\s*1rem/s);
 });
+
+test("Player keeps the compact map highlight controls in its header", () => {
+  assert.doesNotMatch(
+    css,
+    /\.is-player \.map-threshold-controls\s*\{[^}]*display:\s*none/s,
+  );
+  assert.match(css, /\.is-player \.map-threshold-controls\s*\{[^}]*padding:\s*0\.25rem/s);
+});

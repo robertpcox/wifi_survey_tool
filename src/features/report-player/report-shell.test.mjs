@@ -28,7 +28,7 @@ test("one map and one loaded context compose the Report and full Player", () => 
     comparison: null,
   });
   for (const module of [
-    "warnings", "floor-route", "mapAlerts", "kpi", "heatmap",
+    "warnings", "floor-route", "mapAlerts", "kpi", "insights", "heatmap",
     "comparison", "methodology", "playback",
   ]) {
     assert.match(html, new RegExp(`data-module="${module}"`));
@@ -49,6 +49,8 @@ test("one map and one loaded context compose the Report and full Player", () => 
   assert.match(html, /data-toggle-map-access/);
   assert.match(html, /data-warning-kind="stale-position"/);
   assert.match(html, /NO POSITION UPDATE/i);
+  assert.match(html, /The walk, second by second/);
+  assert.match(html, /Top no-update locations/);
   assert.doesNotMatch(html, /data-module="timeline"|<h2[^>]*>Timeline<\/h2>/);
   assert.doesNotMatch(html, /"polls"\s*:|MAP_TOKEN|value="[^"]*access/i);
 });

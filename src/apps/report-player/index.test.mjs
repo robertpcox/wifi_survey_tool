@@ -17,6 +17,8 @@ test("Report Player HTML exposes one data-free merged feature mount", () => {
   assert.match(html, /data-report-root/);
   assert.match(html, /features\/report-player\/report-player\.css/);
   assert.match(html, /features\/report-player\/report-warnings\.css/);
+  assert.match(html, /features\/report-player\/report-insights\.css/);
+  assert.match(html, /features\/report-player\/report-summary\.css/);
   assert.equal((html.match(/data-report-root/g) ?? []).length, 1);
   assert.doesNotMatch(html, /iframe|playback\.html|player\.html/);
   assert.doesNotMatch(html, /resultId|MAP_TOKEN|data-map-access/);

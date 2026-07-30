@@ -1,29 +1,30 @@
 // FEATURE:      Merged Report Player interactions
 // SURFACE:      bindReportInteractions(options), renderDynamicSections(state, candidates)
 // WHY TOGETHER: Threshold, shared map, comparison, Player, and export controls coordinate one context.
-// STATE:        Selected floor/heat layer and loaded comparison IDs
+// STATE:        Selected floor/highlight and loaded comparison IDs
 // RULES:        Re-render sections only; never reload, reparse, or mutate result evidence.
 // PROVENANCE:   Scope/steps/05a_recast_player.md
-
 import { downloadFile as browserDownload } from "../../adapters/download.mjs";
 import { assertReportResult } from "./result-loader.mjs";
 import { renderComparisonView } from "./comparison-view.mjs";
 import { bindReportFloor } from "./report-floor-controller.mjs";
 import { renderHeatmapView } from "./heatmap-view.mjs";
 import { renderKpiView } from "./kpi-view.mjs";
-import { renderAnalysisMapAlerts, renderPlayerMapAlerts } from "./map-alert-view.mjs";
+import { bindMapHighlight } from "./map-highlight-controller.mjs";
+import { renderPlayerMapAlerts } from "./map-alert-view.mjs";
 import { createAnalysisExports, renderMethodologyView } from "./methodology-view.mjs";
 import { mountPlaybackView } from "./playback-view.mjs";
+import { renderReportInsights } from "./report-insights-view.mjs";
 import { bindReportModes } from "./report-mode-controller.mjs";
 import { bindReportWarningActions, renderReportWarnings } from "./report-warning-view.mjs";
-
 export { renderPlayerFrame } from "./report-floor-controller.mjs";
 
 export function renderDynamicSections(state, candidates) {
   return {
-    mapAlerts: renderAnalysisMapAlerts(state.analysis),
+    mapAlerts: "",
     warnings: renderReportWarnings(state.analysis),
     kpi: renderKpiView(state.analysis),
+    insights: renderReportInsights(state),
     heatmap: renderHeatmapView(state),
     comparison: renderComparisonView({
       entries: candidates,
@@ -42,7 +43,6 @@ export function bindReportInteractions({
   downloadFile = browserDownload,
 }) {
   const loadedIds = new Set();
-  let heatKind = "sticky";
   let currentAnalysis = store.snapshot().analysis;
   const status = root.querySelector("[data-report-status]");
   const floorInput = root.querySelector("[data-map-floor]");
@@ -52,15 +52,6 @@ export function bindReportInteractions({
     floorInput,
     initialFloor: store.snapshot().meta.zLevels[0],
   });
-  root.querySelectorAll("[data-map-heat]").forEach(button => {
-    button.addEventListener("click", () => {
-      heatKind = button.dataset.mapHeat;
-      root.querySelectorAll("[data-map-heat]").forEach(item => {
-        item.classList.toggle("active", item === button);
-      });
-      surface.render({ heatKind });
-    });
-  });
   const player = mountPlaybackView(root.querySelector("[data-module=playback]"), {
     result: store.snapshot().result,
     transportRoot: root.querySelector("[data-player-transport]"),
@@ -69,14 +60,22 @@ export function bindReportInteractions({
       alertRoot.innerHTML = renderPlayerMapAlerts(frame, {
         thresholds: currentAnalysis.thresholds,
         floors: currentAnalysis.floors,
+        highlightKind: highlight.kind,
       });
     },
     onInactive: () => {
-      alertRoot.innerHTML = renderAnalysisMapAlerts(currentAnalysis);
+      alertRoot.innerHTML = "";
     },
     onEvidenceFocus: (id, trigger) => surface.focusEvidence(id, trigger),
   });
   const modes = bindReportModes({ root, store, surface, player });
+  const highlight = bindMapHighlight({
+    root,
+    onChange: heatKind => {
+      surface.render({ analysis: currentAnalysis, heatKind });
+      if (modes.mode === "playback") player.seek(player.atMs);
+    },
+  });
   root.querySelectorAll("[data-threshold]").forEach(input => {
     input.addEventListener("change", () => {
       store.setThresholds({
@@ -101,7 +100,7 @@ export function bindReportInteractions({
     root.querySelector("[data-threshold=accuracyM]").value = String(
       state.thresholds.accuracyM,
     );
-    surface.render({ analysis: state.analysis, heatKind });
+    surface.render({ analysis: state.analysis, heatKind: highlight.kind });
     bindDynamic(state, remaining);
     if (modes.mode === "playback") player.seek(player.atMs);
   }
@@ -145,6 +144,7 @@ export function bindReportInteractions({
     seek: modes.seek,
     setMode: modes.setMode,
     get atMs() { return modes.atMs; },
+    get highlightKind() { return highlight.kind; },
     get mode() { return modes.mode; },
   });
 }

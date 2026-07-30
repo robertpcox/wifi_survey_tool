@@ -1,7 +1,6 @@
 # Handover — Step 5b mapped Report
 
 ## Current state
-
 Step 5a remains complete. The field and where-it-gets-stuck slices of 5b are delivered;
 repeat-run grouping, ranking, and lineage exports have not begun.
 
@@ -10,13 +9,14 @@ repeat-run grouping, ranking, and lineage exports have not begun.
 - Explicit Report selection and Player Follow still command the map; Follow-off does not.
 - One persistent optional access-token control works from Report and full-screen Player.
   It submits only in memory, clears its input, announces status, and restores toggle focus.
-- Large red/orange warnings stay on the map; detailed cards retain metrics and Player handoff.
+- Large red/orange warnings are Player-only; Report cards retain metrics and Player handoff.
 - Red paths follow exact truth geometry after the timeliness limit and exclude planned dwell;
   Wi-Fi fixes and mismatch endpoints retain captured coordinates and floors.
+- Four Report charts, floor/zone summaries, floor-lag episodes, and failed-request outages now
+  replace the removed log; the field outage is 65.36 s across six failed requests.
 - At 15 s, the field result has 1388.466 s across 169 episodes and all four floors; at
   20 s it has 822.716 s. Floor mismatch remains 436.984 s across eight episodes.
-- Final isolated validation passed 563/563 tests and all shell, Creator, two mobile Runner, and four
-  Report Player Chrome scenarios. Physical Android acceptance remains separate.
+- The focused Report boundary passes 207/207 tests; physical and user smoke remain separate.
 - Routes 1a and 1b use different revision IDs but exact hash `69d2c5f11ffe…`, proving why
   survey family, immutable revision, and exact-route cohort are separate identities.
 - The old private field input was removed; its reviewed route-truth golden remains a receipt
@@ -72,14 +72,14 @@ explicitly defines a non-secret query contract.
 - Optional overlay anchors use guarded two-argument `addLayer`; a missing SDK anchor falls
   back to append. Route/active and Report heat use `mm-area-extrusion`; guidance and notes do not.
 - Route, truth, fixes, heat, pair connectors, and snap overlays keep exact `[lng, lat]` and z.
-- Report stale/floor warnings are elapsed, non-causal observations with visible evidence links.
+- Report cards are elapsed observations with evidence links; live map banners are Player-only.
 - Follow tracks walker floor and pans only outside the inner 15% viewport; disabling it stops
   camera writes without stopping the Player clock or frame writes.
 - A wrong-floor raw fix stays visible at exact coordinates beside the walker while preserving
   its reported z, display z, and mismatch state.
 - One cumulative-route truth model follows turns, authored intervals, dwell, and exact floor
   transitions. `buildGroundTruthModel` is also exported as `buildReportGroundTruth`.
-- `playbackFrame(result, atMs)` owns the shared clock frame, poll evidence, chart series,
+- `playbackFrame(result, atMs)` owns the clock, current position error, poll/chart evidence,
   walker, event times, changed-fix history, and latest raw fix.
 - Failed polls persist at sent truth and never move the blue raw fix. Changed successes
   persist as paired route/fix evidence.
@@ -102,8 +102,8 @@ the maximum reviewed route-truth shift is 0.163 m.
 - Truth/playback/snap: `src/domain/report-{ground-truth,playback,snap}.mjs` and focused helpers.
 - Provider map boundary: `mazemap.mjs`, `shared-map-layers.mjs`, Report warning/map layers,
   Player map layers, and `evidence-interactions.mjs`.
-- Player composition: `src/features/report-player/report-player.mjs`,
-  floor sync/controller, warning view, interactions, mode controller, and map surface.
+- Player composition: `report-player.mjs`, floor/highlight controllers, warnings,
+  interactions, mode controller, map surface, and `report-{insights,series,summary}-view.mjs`.
 - Player UI: `player-{transport,evidence-view,evidence-detail,charts}.mjs` and the three
   focused Player/map stylesheets.
 - Note capture/validation: `src/features/survey-runner/note-{capture,controller,view}.mjs`,

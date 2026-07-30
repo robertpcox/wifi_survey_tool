@@ -5,6 +5,7 @@
 // RULES:        Clip to run time, exclude preflight, and remove future evidence on scrub-back.
 // PROVENANCE:   Scope/steps/05a_recast_player.md playback contract
 
+import { haversine } from "./geometry.mjs";
 import { playbackPollEvidenceAt } from "./report-poll-evidence.mjs";
 import {
   playbackBounds,
@@ -32,6 +33,8 @@ export function playbackFrame(result, atMs) {
   const events = through(timeline.events, time);
   const notes = through(timeline.notes, time);
   const elapsedMs = time - timeline.bounds.startMs;
+  const latestFix = pollEvidence.latestRawFix?.fix ?? null;
+  const walker = heldNotePosition(timeline.notes, time) ?? timeline.truth.at(time);
   return {
     bounds: timeline.bounds,
     atMs: time,
@@ -41,8 +44,9 @@ export function playbackFrame(result, atMs) {
       ? elapsedMs / timeline.bounds.durationMs
       : 1,
     preflight: result.run.preflight,
-    latestFix: pollEvidence.latestRawFix?.fix ?? null,
+    latestFix,
     latestFixAgeSeconds: pollEvidence.latestRawFix?.fixAgeSeconds ?? null,
+    currentPositionErrorM: latestFix && walker ? haversine(latestFix, walker) : null,
     latestPoll: pollEvidence.latestPoll,
     latestTiming: pollTiming(pollEvidence.latestPoll),
     polls,
@@ -60,7 +64,7 @@ export function playbackFrame(result, atMs) {
     transitionTimes: [...timeline.transitionTimes],
     previousEventMs: previousEvent(timeline.eventTimes, time),
     nextEventMs: nextEvent(timeline.eventTimes, time),
-    walker: heldNotePosition(timeline.notes, time) ?? timeline.truth.at(time),
+    walker,
   };
 }
 

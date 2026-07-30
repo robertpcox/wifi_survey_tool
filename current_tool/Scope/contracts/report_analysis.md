@@ -27,9 +27,10 @@ truth without shifting geometry. Dangling, duplicate, or mismatched references a
 
 ## Interactive thresholds
 
-Position-update timeliness and accuracy thresholds are Report controls, not definition settings.
-The map offers 10, 15, 20, and 30 seconds (15 by default) and 5, 10, 15, 20, and 25 metres.
-Either change immediately recalculates metrics, heatmaps, warnings, and walked-path problems.
+Position-update timeliness and accuracy thresholds are shared Report/Player controls, not
+definition settings. The map header selects either time since last update or distance off
+route, then shows only that mode's limit. It offers 10, 15, 20, and 30 seconds (15 by default)
+and 5, 10, 15, 20, and 25 metres. Changes immediately recalculate the Report and recolour Player.
 
 Capture interval is observation cadence, not a failure threshold.
 Counts normalize to elapsed time so runs with different polling rates remain meaningful.
@@ -74,8 +75,8 @@ Threshold controls and legends sit beside the map so their meaning stays visible
 
 ## Observed warnings
 
-Large, non-causal warnings stay inside the map. Analysis summarizes the run; Player updates
-the current moment. Detailed cards retain metrics and the exact Player handoff.
+Large, non-causal warnings are Player-only and update the current moment. Report keeps detailed
+cards with run totals and exact Player handoff, without banners covering its map.
 
 - **No position update** counts time after fix identity exceeds the selected threshold while
   truth moves; planned dwell is excluded.
@@ -86,6 +87,8 @@ Every timeline fix appears in `report-wifi-fixes` at exact normalized `[lng, lat
 by native floor. Warnings report time, percentage, episodes, worst duration, and poll/time.
 Mismatch truth/reported endpoints retain exact coordinates and their own z; their action opens
 that Player evidence without changing data. Chronology remains in Player and deterministic exports.
+Report diagnostics summarize error, fix age, request RTT/failures, floor tracking, moving-only
+no-update time by floor and immutable route stop, and floor-lag episodes; no raw log is primary.
 
 ## Comparison
 

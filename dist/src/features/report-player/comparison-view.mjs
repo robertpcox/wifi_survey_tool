@@ -8,7 +8,7 @@
 import { esc } from "../../shared/format.mjs";
 
 const DISPLAY_METRICS = Object.freeze([
-  ["stickySeconds", "Sticky seconds"],
+  ["stickySeconds", "No-update seconds"],
   ["outsideAccuracySeconds", "Outside tolerance seconds"],
   ["medianAccuracyM", "Median error (m)"],
   ["medianRttMs", "Median RTT (ms)"],

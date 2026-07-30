@@ -10,6 +10,11 @@ import {
 } from "./loader.mjs";
 import { createRunnerPollLoop } from "./poll-loop.mjs";
 import { createPreflightPollLoopOptions } from "./preflight.mjs";
+import {
+  dynamicTemplateEntry,
+  runnerModeForSelection,
+} from "./runner-mode.mjs";
+import { drawRunnerSelection } from "./setup-map.mjs";
 
 export function createRunnerSetup(options) {
   const {
@@ -35,8 +40,12 @@ export function createRunnerSetup(options) {
   async function selectSurvey(event) {
     if (state.busy || state.activeRun) return;
     const id = event?.target?.value || formView.selectedSurveyId();
-    const entry = state.surveys.find(survey => survey.surveyId === id);
+    const mode = runnerModeForSelection(id);
+    const entry = mode === "dynamic-room"
+      ? dynamicTemplateEntry(state.surveys)
+      : state.surveys.find(survey => survey.surveyId === id);
     if (!entry) return;
+    state.mode = mode;
     state.definition = await (runtime.loadDefinition ?? loadRunnerDefinition)(
       entry,
       runtime,
@@ -45,20 +54,10 @@ export function createRunnerSetup(options) {
     state.preflight = null;
     state.activeRun = null;
     formView.setRunning(false);
-    formView.showDefinition(state.definition);
-    drawSelectedRoute();
+    formView.showDefinition(state.definition, { dynamic: mode === "dynamic-room" });
+    drawRunnerSelection(mapAdapter, state.definition, mode);
     entryChanged();
     pollLoop = createPollLoop();
-  }
-
-  function drawSelectedRoute() {
-    if (!mapAdapter.ready) return;
-    if (String(mapAdapter.campusId) !== String(state.definition.meta.campusId)) return;
-    mapAdapter.drawRoute?.(state.definition.route.legs);
-    mapAdapter.drawStops?.(state.definition.route.stops);
-    mapAdapter.drawWaypoints?.(state.definition.route.checkpoints);
-    mapAdapter.fitRoute?.(state.definition.route);
-    mapAdapter.resizeMapSoon?.();
   }
 
   function createPollLoop() {
@@ -88,9 +87,11 @@ export function createRunnerSetup(options) {
   }
 
   function clearCapture(message = "Capture cleared. Choose the next survey.") {
+    state.activeRun?.dispose?.();
     pollLoop?.stop();
     pollLoop = null;
     state.definition = null;
+    state.mode = null;
     state.preflight = null;
     state.polls = [];
     state.activeRun = null;

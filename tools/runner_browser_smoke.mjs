@@ -4,6 +4,7 @@ import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { multiFloorRunnerDefinition } from "./runner_browser_fixture.mjs";
+import { exerciseDynamicRoomBrowser } from "./runner_browser_dynamic.mjs";
 import { exerciseRunnerBrowserProfile } from "./runner_browser_profile.mjs";
 import { startStaticServer } from "./static_server.mjs";
 const require = createRequire(import.meta.url);
@@ -49,7 +50,11 @@ export async function runRunnerBrowserSmoke({
         path: staged ? "/runner/" : "/src/apps/runner/index.html",
         profile }));
     }
-    return { skipped: false, downloads };
+    const dynamic = await exerciseDynamicRoomBrowser({
+      browser, definition, origin: server.origin,
+      path: staged ? "/runner/" : "/src/apps/runner/index.html",
+    });
+    return { skipped: false, downloads, dynamic };
   } finally {
     if (browser) await browser.close();
     await new Promise(resolveClose => server.instance.close(resolveClose));
@@ -59,5 +64,8 @@ const isCli = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(impo
 if (isCli) {
   const result = await runRunnerBrowserSmoke({ root: process.argv[2] || "." });
   if (result.skipped) console.log(`SKIP Runner browser smoke: ${result.reason}`);
-  else console.log(`Runner browser smoke passed (${result.downloads.length} mobile profiles).`);
+  else console.log(
+    `Runner browser smoke passed (${result.downloads.length} planned profiles`
+      + " and one Dynamic room profile).",
+  );
 }

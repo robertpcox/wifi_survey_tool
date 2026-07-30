@@ -13,8 +13,8 @@ import { renderKpiView } from "./kpi-view.mjs";
 import { renderMapAccess } from "./map-access.mjs";
 import { renderMethodologyView } from "./methodology-view.mjs";
 import { renderPlaybackView } from "./playback-view.mjs";
+import { renderReportInsights } from "./report-insights-view.mjs";
 import { renderReportWarnings } from "./report-warning-view.mjs";
-import { renderTimelineView } from "./timeline-view.mjs";
 
 export function renderLoadPanel(message = "Choose a generated result or upload a v3 result file.") {
   return `
@@ -53,7 +53,7 @@ export function renderReportShell(state, candidates = []) {
     ${renderMapAccess(result)}
     <div class="shared-map-workspace" data-player-workspace>
       <section class="report-section map-section" data-module="floor-route">
-        ${renderFloorRouteView(result)}
+        ${renderFloorRouteView(result, { analysis, thresholds })}
       </section>
       <div class="player-pane" data-report-pane="playback" hidden>
         <section data-module="playback">${renderPlaybackView(result)}</section>
@@ -61,11 +61,11 @@ export function renderReportShell(state, candidates = []) {
     </div>
     <div data-report-pane="analysis" class="analysis-pane">
       <section class="report-section" data-module="kpi">${renderKpiView(analysis)}</section>
+      <section class="report-section" data-module="insights">
+        ${renderReportInsights(state)}
+      </section>
       <section class="report-section" data-module="heatmap">
         ${renderHeatmapView({ analysis, thresholds })}
-      </section>
-      <section class="report-section" data-module="timeline">
-        ${renderTimelineView(result)}
       </section>
       <section class="report-section" data-module="comparison">
         ${renderComparisonView({ entries: candidates, comparison })}

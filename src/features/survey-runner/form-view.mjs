@@ -1,4 +1,13 @@
 import { esc } from "../../shared/format.mjs";
+import {
+  formatDuration,
+  preflightMetrics,
+  preflightReasonText,
+} from "./form-view-format.mjs";
+import { DYNAMIC_SURVEY_ID } from "./runner-mode.mjs";
+
+export { preflightMetrics } from "./form-view-format.mjs";
+
 const VALUE_NAMES = ["deviceType", "deviceOs", "deviceName", "clientIp", "band", "mapAccess",
   "appId", "appKey"];
 export function createRunnerFormView(documentRef) {
@@ -19,22 +28,35 @@ export function createRunnerFormView(documentRef) {
   function populateSurveys(surveys, selectedSurveyId = null) {
     const select = find("[data-survey-select]");
     if (!select) return;
-    select.innerHTML = '<option value="">Choose next survey…</option>' + surveys.map(entry =>
+    select.innerHTML = '<option value="">Choose next survey…</option>'
+      + `<option value="${DYNAMIC_SURVEY_ID}">Dynamic room survey</option>`
+      + surveys.map(entry =>
       `<option value="${esc(entry.surveyId)}">`
       + `${esc(entry.customerName)} — ${esc(entry.surveyName)}</option>`).join("");
     if (selectedSurveyId) select.value = selectedSurveyId;
   }
 
-  function showDefinition(definition) {
+  function showDefinition(definition, { dynamic = false } = {}) {
     const requirements = definition.meta.credentialRequirements;
-    setText("[data-survey-name]", definition.meta.surveyName);
+    setText(
+      "[data-survey-name]",
+      dynamic ? "Dynamic room survey" : definition.meta.surveyName,
+    );
     setText("[data-campus-name]", definition.meta.campusName);
-    setText("[data-route-distance]", `${Math.round(definition.meta.route.distanceM)} m`);
+    setText(
+      "[data-route-distance]",
+      dynamic ? "Built live" : `${Math.round(definition.meta.route.distanceM)} m`,
+    );
     setText(
       "[data-route-duration]",
-      formatDuration(definition.meta.route.estimatedDurationSeconds),
+      dynamic
+        ? "Built live"
+        : formatDuration(definition.meta.route.estimatedDurationSeconds),
     );
-    setText("[data-checkpoint-count]", definition.route.checkpoints.length);
+    setText(
+      "[data-checkpoint-count]",
+      dynamic ? 0 : definition.route.checkpoints.length,
+    );
     for (const name of ["mapAccess", "appId", "appKey"]) {
       const row = find(`[data-credential-row="${name}"]`);
       if (row) row.hidden = !requirements[name];
@@ -124,27 +146,4 @@ export function createRunnerFormView(documentRef) {
     },
     showDefinition,
   });
-}
-
-export function preflightMetrics(sample, nowMs = Date.now()) {
-  const fix = sample?.normalized;
-  const fixMs = Date.parse(fix?.fixTime);
-  return {
-    position: fix ? `${fix.lat.toFixed(6)}, ${fix.lng.toFixed(6)}` : "No position",
-    floor: fix ? String(fix.z) : "—",
-    age: Number.isFinite(fixMs) ? `${Math.max(0, Math.round((nowMs - fixMs) / 1000))} s` : "—",
-    rtt: Number.isFinite(sample?.roundTripMs) ? `${sample.roundTripMs} ms` : "—",
-  };
-}
-
-function preflightReasonText(preflight) {
-  return preflight.reasons.length
-    ? preflight.reasons.map(reason => reason.text).join(" ")
-    : "All preflight checks passed.";
-}
-
-function formatDuration(seconds) {
-  const rounded = Math.round(seconds);
-  const minutes = Math.floor(rounded / 60);
-  return minutes ? `${minutes} min ${rounded % 60} s` : `${rounded} s`;
 }

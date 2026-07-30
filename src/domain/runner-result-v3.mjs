@@ -15,6 +15,8 @@ export function buildSurveyResultV3(options) {
     completionStatus,
     operatorComment = null,
     resultId,
+    captureMode = null,
+    routeOrigin = null,
   } = options;
   const result = {
     schemaVersion: 3,
@@ -43,6 +45,8 @@ export function buildSurveyResultV3(options) {
       pollingIntervalMs: definition.meta.sourceConfig.pollIntervalMs,
       checkpointDwellSeconds: definition.meta.route.checkpointDwellSeconds,
       preflight: structuredClone(preflight),
+      ...(captureMode ? { captureMode } : {}),
+      ...(routeOrigin ? { routeOrigin } : {}),
     },
     checkIns: structuredClone(checkIns),
     events: structuredClone(events),

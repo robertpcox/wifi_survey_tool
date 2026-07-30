@@ -73,6 +73,17 @@ export function createReportMapLayers(map, currentFloor) {
     group.setLayerVisible("report-notes-lyr", true);
   }
 
+  function setHeatVisible(visible) {
+    if (visible) return select(selectedKind);
+    for (const kind of KINDS) {
+      group.setLayerVisible(`report-${kind}-heat-lyr`, false);
+    }
+  }
+
+  function setNotesVisible(visible) {
+    group.setLayerVisible("report-notes-lyr", visible);
+  }
+
   function drawNotes(notes) {
     group.setData("report-notes", notePointFeatures(notes));
   }
@@ -83,6 +94,8 @@ export function createReportMapLayers(map, currentFloor) {
     drawNotes,
     ensure: group.ensure,
     select,
+    setHeatVisible,
+    setNotesVisible,
     setVisible,
     get selectedKind() { return selectedKind; },
     get sourceIds() { return group.sourceIds; },

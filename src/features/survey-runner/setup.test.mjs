@@ -136,7 +136,7 @@ test("setup selects definitions, reads entry state, and records poll samples", a
   assert.deepEqual(calls.stops, []);
   assert.deepEqual(calls.points, []);
   assert.deepEqual(calls.trail, []);
-  assert.deepEqual(calls.resets, ["target", "form", "run"]);
+  assert.deepEqual(calls.resets, ["target", "target", "form", "run"]);
   assert.equal(calls.activeLeg, null);
   assert.equal(state.entry.deviceName, "Tag 4");
   assert.deepEqual(

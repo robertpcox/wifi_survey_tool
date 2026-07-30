@@ -4,7 +4,6 @@
 // STATE:        None
 // RULES:        Failure is strictly beyond threshold; heat is elapsed time at ground truth.
 // PROVENANCE:   Step 5 report analysis contract
-
 import { buildReportGroundTruth } from "./report-ground-truth.mjs";
 import {
   buildReportTimeline,
@@ -13,12 +12,12 @@ import {
   reportQuantile,
   reportTruthOverlaps,
 } from "./report-samples.mjs";
+import { reportStalePathPieces } from "./report-stale-path.mjs";
 import { buildReportWarnings } from "./report-warnings.mjs";
 export const REPORT_THRESHOLDS = Object.freeze({
-  stickySeconds: 5,
+  stickySeconds: 15,
   accuracyM: 10,
 });
-
 export function analyzeReportResult(result, selected = REPORT_THRESHOLDS) {
   const thresholds = {
     stickySeconds: threshold(selected.stickySeconds, "stickySeconds"),
@@ -37,9 +36,9 @@ export function analyzeReportResult(result, selected = REPORT_THRESHOLDS) {
   const stoppedAtMs = Date.parse(result.run.stoppedAt);
   const sticky = floorBuckets(floors);
   const accuracy = floorBuckets(floors);
+  const stalePathSegments = [];
   let movingSeconds = 0;
   let measuredSeconds = 0;
-
   for (let index = 0; index < timeline.length; index++) {
     const sample = timeline[index];
     const endMs = timeline[index + 1]?.receivedMs ?? stoppedAtMs;
@@ -61,6 +60,12 @@ export function analyzeReportResult(result, selected = REPORT_THRESHOLDS) {
       }
       if (!segment.moving) continue;
       movingSeconds += elapsed;
+      stalePathSegments.push(...reportStalePathPieces({
+        sample,
+        truthSegment: segment,
+        truth,
+        thresholdSeconds: thresholds.stickySeconds,
+      }));
       const stickyStartMs = sample.heldSinceMs + thresholds.stickySeconds * 1000;
       const startMs = Math.max(segment.startMs, stickyStartMs);
       if (startMs >= segment.endMs) continue;
@@ -68,6 +73,8 @@ export function analyzeReportResult(result, selected = REPORT_THRESHOLDS) {
       addHeat(sticky, stickyTruth, (segment.endMs - startMs) / 1000, {
         pollId: sample.pollId,
         fixAgeSeconds: (segment.endMs - sample.heldSinceMs) / 1000,
+        routeDistanceM: stickyTruth?.routeDistanceM,
+        activeLegId: stickyTruth?.activeLegId,
       });
     }
   }
@@ -101,6 +108,7 @@ export function analyzeReportResult(result, selected = REPORT_THRESHOLDS) {
       medianRttMs: round(reportQuantile(rtts, 0.5)),
     },
     warnings,
+    stalePathSegments,
     timeline: timeline.map(publicReportSample),
     heatmaps: {
       sticky: [...sticky.values()],
@@ -108,14 +116,12 @@ export function analyzeReportResult(result, selected = REPORT_THRESHOLDS) {
     },
   };
 }
-
 function floorBuckets(floors) {
   return new Map(floors.map(floor => [
     String(floor.z),
     { ...floor, points: [] },
   ]));
 }
-
 function addHeat(buckets, groundTruth, weightSeconds, details) {
   const floor = buckets.get(String(groundTruth?.z));
   if (!floor || !(weightSeconds > 0)) return;
@@ -128,23 +134,17 @@ function addHeat(buckets, groundTruth, weightSeconds, details) {
     ...details,
   });
 }
-
 function heatWeight(buckets) {
   return [...buckets.values()].flatMap(floor => floor.points)
     .reduce((total, point) => total + point.weightSeconds, 0);
 }
-
 function percent(part, whole) {
   return whole > 0 ? round(part / whole * 100) : 0;
 }
-
 function round(value) {
   return Number.isFinite(value) ? Math.round(value * 1000) / 1000 : null;
 }
-
 function threshold(value, name) {
-  if (!Number.isFinite(value) || value < 0) {
-    throw new TypeError(`${name}: must be a non-negative finite number`);
-  }
+  if (!Number.isFinite(value) || value < 0) throw new TypeError(`${name}: must be a non-negative finite number`);
   return value;
 }

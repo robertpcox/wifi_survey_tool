@@ -1,0 +1,129 @@
+/* FEATURE:      Dynamic room Runner capture layout
+ * SURFACE:      Bottom map panel for point, dwell, finalisation, and paired exports
+ * WHY TOGETHER: One compact touch surface follows the live-authored survey lifecycle.
+ * STATE:        data-phase and data-dynamic-room-active supplied by the view
+ * RULES:        The map stays primary and all field actions remain thumb-sized.
+ * PROVENANCE:   Ad-hoc room survey field workflow
+ */
+
+[data-run-panel][data-dynamic-room-active="true"] > .capture-actions {
+  display: none;
+}
+
+[data-run-panel][data-dynamic-room-active="true"] .run-hud > .target-label,
+[data-run-panel][data-dynamic-room-active="true"] .run-hud > [data-current-target],
+[data-run-panel][data-dynamic-room-active="true"] .run-hud > .dwell-status,
+[data-run-panel][data-dynamic-room-active="true"]
+  .run-vitals > span:has(> [data-target-distance]) {
+  display: none;
+}
+
+[data-run-panel][data-dynamic-room-active="true"]
+  [data-action="skip-checkpoint"] {
+  display: none;
+}
+
+[data-run-panel][data-dynamic-room-active="true"] .run-vitals {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+[data-run-panel][data-dynamic-room-active="true"] .checkpoint-stop {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.dynamic-room-panel {
+  position: fixed;
+  right: max(.7rem, env(safe-area-inset-right));
+  bottom: max(.7rem, env(safe-area-inset-bottom));
+  left: max(.7rem, env(safe-area-inset-left));
+  z-index: 14;
+  display: grid;
+  width: min(35rem, calc(100% - 1.4rem));
+  margin: auto;
+  padding: .85rem;
+  gap: .65rem;
+  border: 1px solid rgb(121 145 171 / 75%);
+  border-radius: .9rem;
+  color: #17304c;
+  background: rgb(255 255 255 / 96%);
+  box-shadow: 0 .75rem 2rem rgb(20 33 61 / 25%);
+  pointer-events: auto;
+}
+
+.dynamic-room-panel[hidden] {
+  display: none;
+}
+
+.dynamic-room-panel h2,
+.dynamic-room-panel p {
+  margin: 0;
+}
+
+.dynamic-room-panel h2 {
+  font-size: 1rem;
+}
+
+.dynamic-room-panel [data-dynamic-room-dwell] {
+  color: #7b4808;
+  font-size: 1.15rem;
+}
+
+.dynamic-room-actions,
+.dynamic-room-exports {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .55rem;
+}
+
+.dynamic-room-actions button,
+.dynamic-room-exports button {
+  min-height: 3.4rem;
+  padding: .55rem .65rem;
+  border: 1px solid #7891ac;
+  border-radius: .6rem;
+  color: #17304c;
+  background: #fff;
+  font: inherit;
+  font-weight: 750;
+  line-height: 1.15;
+}
+
+.dynamic-room-actions [data-action="dynamic-dwell"],
+.dynamic-room-actions [data-action="dynamic-extend-dwell"],
+.dynamic-room-actions [data-action="dynamic-retry"] {
+  color: #7b4808;
+  border-color: #c3924d;
+  background: #fff8e8;
+}
+
+.dynamic-room-actions [data-action="dynamic-extend-dwell"],
+.dynamic-room-actions [data-action="dynamic-finish"],
+.dynamic-room-actions [data-action="dynamic-retry"] {
+  grid-column: 1 / -1;
+}
+
+.dynamic-room-exports [data-action="dynamic-clear"] {
+  grid-column: 1 / -1;
+  color: #8b2531;
+  border-color: #c88d94;
+}
+
+.dynamic-room-actions button:disabled,
+.dynamic-room-exports button:disabled {
+  opacity: .55;
+}
+
+@media (max-width: 430px) {
+  .dynamic-room-panel {
+    gap: .5rem;
+    padding: .7rem;
+    font-size: .9rem;
+  }
+
+  .dynamic-room-actions,
+  .dynamic-room-exports {
+    gap: .4rem;
+  }
+}

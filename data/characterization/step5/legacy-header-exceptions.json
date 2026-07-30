@@ -242,7 +242,6 @@
   "tools/record_step1_goldens.test.mjs",
   "tools/runner_browser_assertions.mjs",
   "tools/runner_browser_assertions.test.mjs",
-  "tools/runner_browser_environment.mjs",
   "tools/runner_browser_environment.test.mjs",
   "tools/runner_browser_smoke.mjs",
   "tools/runner_browser_smoke.test.mjs",

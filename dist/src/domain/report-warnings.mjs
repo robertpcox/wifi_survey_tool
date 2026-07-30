@@ -96,6 +96,8 @@ function evidencePoint({
     lng: groundTruth.lng,
     lat: groundTruth.lat,
     z: groundTruth.z,
+    routeDistanceM: groundTruth.routeDistanceM,
+    activeLegId: groundTruth.activeLegId,
     pollId: sample.pollId,
     weightSeconds: (endMs - startMs) / 1000,
   };

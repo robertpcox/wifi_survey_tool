@@ -12,7 +12,7 @@ const METRICS = Object.freeze([
   ["medianRttMs", "Median RTT", value => unit(value, "ms")],
   ["medianAccuracyM", "Median error", value => unit(value, "m")],
   ["p95AccuracyM", "P95 error", value => unit(value, "m")],
-  ["stickySeconds", "Sticky while moving", value => unit(value, "s")],
+  ["stickySeconds", "No update while moving", value => unit(value, "s")],
   ["floorMismatchSeconds", "Floor mismatch", value => unit(value, "s")],
   ["outsideAccuracySeconds", "Outside tolerance", value => unit(value, "s")],
 ]);
@@ -26,7 +26,7 @@ export function renderKpiView(analysis) {
   return `
     <div class="section-heading">
       <div><p class="section-kicker">Summary</p><h2>Run at a glance</h2></div>
-      <p>${esc(analysis.metrics.stickyPercent)}% sticky ·
+      <p>${esc(analysis.metrics.stickyPercent)}% beyond the timeliness threshold ·
         ${esc(analysis.metrics.floorMismatchPercent)}% floor mismatch ·
         ${esc(analysis.metrics.outsideAccuracyPercent)}% outside tolerance</p>
     </div>

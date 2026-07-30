@@ -15,12 +15,34 @@ export function summarizeWarning(kind, points, denominatorSeconds) {
     affectedSeconds: round(affectedSeconds),
     affectedPercent: percent(affectedSeconds, denominatorSeconds),
     episodeCount: episodes.length,
+    episodes: episodes.map(publicEpisode),
     sampleCount: new Set(points.map(point => point.pollId)).size,
     worstSeconds: round(worst?.affectedSeconds ?? 0),
     representative: worst
       ? publicWarningPoint(representativePoint(worst.points))
       : null,
   };
+}
+
+function publicEpisode(episode) {
+  const representative = representativePoint(episode.points);
+  const value = {
+    startedAtMs: episode.startMs,
+    endedAtMs: episode.endMs,
+    startedAt: new Date(episode.startMs).toISOString(),
+    endedAt: new Date(episode.endMs).toISOString(),
+    affectedSeconds: round(episode.affectedSeconds),
+    z: representative.z,
+    lng: representative.lng,
+    lat: representative.lat,
+    routeDistanceM: representative.routeDistanceM,
+    activeLegId: representative.activeLegId,
+    pollId: representative.pollId,
+  };
+  if (Number.isFinite(representative.reportedZ)) {
+    value.reportedZ = representative.reportedZ;
+  }
+  return value;
 }
 
 export function summarizeFloorPairs(points) {
@@ -52,6 +74,8 @@ export function publicWarningPoint(point) {
     lng: point.lng,
     lat: point.lat,
     z: point.z,
+    routeDistanceM: point.routeDistanceM,
+    activeLegId: point.activeLegId,
     pollId: point.pollId,
     weightSeconds: round(point.weightSeconds),
   };

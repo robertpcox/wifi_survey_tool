@@ -18,6 +18,14 @@ export function createMapFrame(result, {
     analysis?.[heatKind]?.heatByZ ?? analysis?.heatmaps?.[heatKind],
     floor,
   );
+  const stalePathLines = (analysis?.stalePathSegments ?? [])
+    .filter(segment => Number(segment?.z) === Number(floor))
+    .map(segment => (segment.coordinates ?? []).map(coordinate => ({
+      lng: Number(coordinate?.[0]),
+      lat: Number(coordinate?.[1]),
+      z: Number(segment.z),
+    })))
+    .filter(points => points.length > 1);
   const pollTrail = (frame?.pollTrail ?? [])
     .map(item => item.normalized ?? item)
     .filter(point => point?.z === floor);
@@ -26,6 +34,7 @@ export function createMapFrame(result, {
     floor,
     floorName: result.meta.zLevelNames[String(floor)],
     routeLines: routeLines.map(line => line.map(project)),
+    stalePathLines: stalePathLines.map(line => line.map(project)),
     stops: result.route.stops.filter(item => item.z === floor).map(project),
     checkpoints: result.route.checkpoints.filter(item => item.z === floor).map(project),
     notes: (frame?.notes ?? result.notes ?? [])

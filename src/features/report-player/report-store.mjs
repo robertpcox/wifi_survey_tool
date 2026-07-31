@@ -78,7 +78,7 @@ export function createReportPlayerStore({
   }
 
   function setView(next) {
-    if (!["analysis", "playback"].includes(next)) {
+    if (!["analysis", "playback", "overview"].includes(next)) {
       throw new Error("Unknown Report Player view");
     }
     view = next;

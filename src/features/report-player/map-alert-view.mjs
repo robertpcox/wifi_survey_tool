@@ -20,16 +20,23 @@ export function renderAnalysisMapAlerts() {
 }
 
 export function renderConcernDetail(properties = {}) {
+  if (Number.isFinite(Number(properties.runCount))) {
+    return chip(`${properties.runCount} run(s) · ${formatWholeSeconds(
+      Number(properties.lockSeconds),
+    )} locked · median ${formatMetres(Number(properties.medianErrorM))}`);
+  }
   const label = CONCERN_LABELS[properties.kind];
   if (!label) return "";
   const span = [properties.binStartM, properties.binEndM]
     .map(value => (Number.isFinite(Number(value)) ? Math.round(value) : "?"));
-  return banner({
-    kind: "concern-detail",
-    text: `${label} · ${span[0]}–${span[1]} m · out ${formatWholeSeconds(
-      Number(properties.forwardLockSeconds),
-    )} / back ${formatWholeSeconds(Number(properties.reverseLockSeconds))} locked`,
-  });
+  return chip(`${label} · ${span[0]}–${span[1]} m · out ${formatWholeSeconds(
+    Number(properties.forwardLockSeconds),
+  )} / back ${formatWholeSeconds(Number(properties.reverseLockSeconds))} locked`);
+}
+
+function chip(text) {
+  return `<div class="map-concern-chip"
+    data-map-alert-kind="concern-detail">${esc(text)}</div>`;
 }
 
 export function renderPlayerMapAlerts(frame, {

@@ -2,14 +2,17 @@
 // SURFACE:      bindReportModes(options)
 // WHY TOGETHER: Tab state, Player lifecycle, scroll restoration, map layers, and seek API switch atomically.
 // STATE:        Active mode and saved Report scroll position
-// RULES:        Leaving Player pauses before hiding and disables its map layers without clearing its clock.
+// RULES:        Leaving Player pauses before hiding; overview reuses the analysis map layers.
 // PROVENANCE:   Scope/steps/05a_recast_player.md
+
+const MODES = ["analysis", "playback", "overview"];
 
 export function bindReportModes({
   root,
   store,
   surface,
   player,
+  onModeChange = () => {},
   windowRef = root.ownerDocument?.defaultView,
 }) {
   let mode = store.snapshot().view ?? "analysis";
@@ -22,13 +25,14 @@ export function bindReportModes({
   });
 
   function setMode(next, options = {}) {
-    if (!["analysis", "playback"].includes(next)) {
-      throw new TypeError("Report Player mode must be analysis or playback");
+    if (!MODES.includes(next)) {
+      throw new TypeError("Report Player mode must be analysis, playback, or overview");
     }
     if (next === "playback") enterPlayer();
-    else leavePlayer();
+    else leavePlayer(next);
     if (Number.isFinite(options.atMs)) player.seek(options.atMs);
     if (options.pollId) player.focusEvidence(options.pollId);
+    onModeChange(mode);
     return mode;
   }
 
@@ -42,10 +46,10 @@ export function bindReportModes({
     surface.settleLayout();
   }
 
-  function leavePlayer() {
+  function leavePlayer(next = "analysis") {
     player.setActive(false);
     surface.setViewMode("analysis");
-    mode = "analysis";
+    mode = next;
     store.setView(mode);
     updateMarkup();
     surface.settleLayout().then(() => windowRef?.scrollTo?.(0, reportScrollY));

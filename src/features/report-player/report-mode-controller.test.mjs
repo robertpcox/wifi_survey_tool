@@ -45,11 +45,34 @@ test("programmatic mode and seek pause Player, preserve time, and restore Report
   assert.equal(fixture.body.classList.has("player-active"), false);
 });
 
+test("overview mode reuses analysis map layers and announces the change", () => {
+  const fixture = modeFixture();
+  const modeChanges = [];
+  const modes = bindReportModes({
+    ...fixture.options,
+    onModeChange: value => modeChanges.push(value),
+  });
+  assert.equal(modes.setMode("overview"), "overview");
+  assert.equal(modes.mode, "overview");
+  assert.deepEqual(modeChanges, ["overview"]);
+  assert.equal(fixture.panes.overview.hidden, false);
+  assert.equal(fixture.panes.analysis.hidden, true);
+  assert.equal(fixture.context.hidden, true);
+  assert.equal(fixture.body.classList.has("player-active"), false);
+  assert.ok(fixture.calls.some(call => (
+    call[0] === "surface-mode" && call[1] === "analysis"
+  )));
+  modes.setMode("analysis");
+  assert.deepEqual(modeChanges, ["overview", "analysis"]);
+  assert.equal(fixture.panes.analysis.hidden, false);
+  assert.throws(() => modes.setMode("bogus"), /analysis, playback, or overview/);
+});
+
 function modeFixture() {
   const calls = [];
   const scrolls = [];
-  const buttons = [button("analysis"), button("playback")];
-  const paneList = [pane("analysis"), pane("playback")];
+  const buttons = [button("analysis"), button("playback"), button("overview")];
+  const paneList = [pane("analysis"), pane("playback"), pane("overview")];
   const context = { hidden: false };
   const body = { classList: classSet() };
   const root = {
@@ -76,7 +99,7 @@ function modeFixture() {
   };
   return {
     calls, scrolls, root, body, context,
-    panes: { analysis: paneList[0], playback: paneList[1] },
+    panes: { analysis: paneList[0], playback: paneList[1], overview: paneList[2] },
     options: {
       root,
       store: {

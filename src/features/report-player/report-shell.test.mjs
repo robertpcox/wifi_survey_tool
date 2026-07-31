@@ -41,6 +41,9 @@ test("one map and one loaded context compose the Report and full Player", () => 
     html.indexOf('data-module="noPosition"') < html.indexOf('data-module="comparison"'),
     "no-position section renders before comparison",
   );
+  assert.match(html, /data-report-view="overview">Campus overview/);
+  assert.match(html, /data-report-pane="overview"[^>]*hidden/);
+  assert.match(html, /data-module="overview"/);
   for (const playerPart of [
     "data-player-workspace",
     'data-report-pane="playback"',

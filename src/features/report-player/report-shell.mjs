@@ -39,6 +39,8 @@ export function renderReportShell(state, candidates = []) {
           data-report-view="analysis">Analysis</button>
         <button type="button" role="tab" aria-selected="false"
           data-report-view="playback">Player</button>
+        <button type="button" role="tab" aria-selected="false"
+          data-report-view="overview">Campus overview</button>
       </div>
       <div class="report-toolbar-actions">
         <p data-report-status>One result · one analysis · one map</p>
@@ -60,6 +62,9 @@ export function renderReportShell(state, candidates = []) {
       <div class="player-pane" data-report-pane="playback" hidden>
         <section data-module="playback">${renderPlaybackView(result)}</section>
       </div>
+    </div>
+    <div data-report-pane="overview" class="analysis-pane" hidden>
+      <section class="report-section" data-module="overview"></section>
     </div>
     <div data-report-pane="analysis" class="analysis-pane">
       <section class="report-section" data-module="kpi">${renderKpiView(analysis)}</section>

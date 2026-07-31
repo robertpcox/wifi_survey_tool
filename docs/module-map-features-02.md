@@ -3,7 +3,13 @@
 `.mjs` omitted; L/B=lines/bytes; T+=adjacent `.test.mjs`; T-=none.
 E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 
+## report-player/
+- timeline-view 129/4181 T+ E renderTimelineView, reportTimelineItems I @s/format
 ## runner/
+- capture-view 110/3811 T+ E createCaptureView I @s/format
+- playback-frame 49/1515 T+ E buildPlaybackFrame, playbackTimes
+- playback 126/3076 T+ E createPlaybackController I playback-frame
+- polling 122/3422 T+ E createPollingController I @a/positioning/source-contract, @a/positioning/sources
 - runner.css 118/2619 T+
 - runner 150/4378 T+ E createRunner I @a/files, @d/survey-state, @s/format, @s/time, capture-view, playback, polling, session, walk-view, walk
 - session 90/2915 T+ E buildSession, buildSessionCsv I @d/route-contract, @d/route-model, @s/format

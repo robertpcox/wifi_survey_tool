@@ -6,7 +6,9 @@
 // PROVENANCE:   Scope/steps/05a_recast_player.md
 import { downloadFile as browserDownload } from "../../adapters/download.mjs";
 import { assertReportResult, campusRunEntries } from "./result-loader.mjs";
-import { createAllRunsLoader } from "./all-runs.mjs";
+import { bindAllRunsAction, createAllRunsLoader } from "./all-runs.mjs";
+import { createCampusOverviewController } from "./campus-overview-controller.mjs";
+import { bindComparisonAdd } from "./comparison-view.mjs";
 import { bindReportFloor } from "./report-floor-controller.mjs";
 import { bindMapHighlight } from "./map-highlight-controller.mjs";
 import { renderConcernDetail, renderPlayerMapAlerts } from "./map-alert-view.mjs";
@@ -36,6 +38,9 @@ export function bindReportInteractions({
     manifestSource,
     assertResult: assertReportResult,
   });
+  const overviewController = createCampusOverviewController(
+    { store, loader: allRunsLoader, floorInput },
+  );
   const floor = bindReportFloor(
     { surface, floorInput, initialFloor: store.snapshot().meta.zLevels[0] },
   );
@@ -53,7 +58,15 @@ export function bindReportInteractions({
     onInactive: () => { alertRoot.innerHTML = ""; },
     onEvidenceFocus: (id, trigger) => surface.focusEvidence(id, trigger),
   });
-  const modes = bindReportModes({ root, store, surface, player });
+  const modes = bindReportModes(
+    { root, store, surface, player, onModeChange: () => repaintMap() },
+  );
+  function repaintMap() {
+    surface.render({
+      analysis: overviewController.mapAnalysis(modes.mode, currentAnalysis),
+      heatKind: highlight.kind,
+    });
+  }
   const offConcern = surface.onEvidenceSelect(event => {
     if (modes.mode !== "analysis"
       || !String(event?.pairId ?? "").startsWith("concern:")) return;
@@ -61,8 +74,8 @@ export function bindReportInteractions({
   });
   const highlight = bindMapHighlight({
     root,
-    onChange: heatKind => {
-      surface.render({ analysis: currentAnalysis, heatKind });
+    onChange: () => {
+      repaintMap();
       if (modes.mode === "playback") player.seek(player.atMs);
     },
   });
@@ -72,6 +85,7 @@ export function bindReportInteractions({
         stickySeconds: Number(root.querySelector("[data-threshold=stickySeconds]").value),
         accuracyM: Number(root.querySelector("[data-threshold=accuracyM]").value),
       });
+      overviewController.rebuild();
       refresh();
     });
   });
@@ -88,11 +102,13 @@ export function bindReportInteractions({
     for (const [module, markup] of Object.entries(html)) {
       root.querySelector(`[data-module=${module}]`).innerHTML = markup;
     }
+    root.querySelector("[data-module=overview]").innerHTML =
+      overviewController.panelHtml();
     for (const [key, value] of Object.entries(state.thresholds)) {
       const input = root.querySelector(`[data-threshold=${key}]`);
       if (input) input.value = String(value);
     }
-    surface.render({ analysis: state.analysis, heatKind: highlight.kind });
+    repaintMap();
     bindDynamic(state, remaining);
     if (modes.mode === "playback") player.seek(player.atMs);
   }
@@ -106,30 +122,16 @@ export function bindReportInteractions({
       });
     });
     bindReportWarningActions(root, options => modes.setMode("playback", options));
-    root.querySelector("[data-load-all-runs]")?.addEventListener("click", async () => {
-      status.textContent = "Loading campus runs…";
-      try {
-        await allRunsLoader.load();
-        status.textContent = "Campus runs loaded · scalars use the live thresholds.";
-      } catch (error) { status.textContent = error.message; }
-      refresh();
-    });
-    const add = root.querySelector("[data-add-comparison]");
-    add?.addEventListener("click", async () => {
-      const id = root.querySelector("[data-comparison-result]").value;
-      const entry = remaining.find(item => item.resultId === id);
-      if (!entry) return;
-      add.disabled = true;
-      status.textContent = "Loading comparison result…";
-      try {
-        store.addComparison(assertReportResult(await manifestSource.result(entry.path)));
-        loadedIds.add(id);
-        status.textContent = "Comparison uses the same live thresholds.";
-        refresh();
-      } catch (error) {
-        status.textContent = error.message;
-        add.disabled = false;
-      }
+    overviewController.bindLoadAction(root, refresh);
+    bindAllRunsAction(root, { loader: allRunsLoader, status, refresh });
+    bindComparisonAdd(root, {
+      remaining,
+      status,
+      refresh,
+      addResult: async entry => store.addComparison(
+        assertReportResult(await manifestSource.result(entry.path)),
+      ),
+      markLoaded: id => loadedIds.add(id),
     });
   }
 

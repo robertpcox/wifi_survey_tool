@@ -1,5 +1,5 @@
 // FEATURE:      Report Player all-runs comparison
-// SURFACE:      createAllRunsLoader(options), renderAllRunsSection(allRuns), allRunsRow(result, analysis)
+// SURFACE:      createAllRunsLoader, bindAllRunsAction, renderAllRunsSection, allRunsRow
 // WHY TOGETHER: Lazy campus-run loading and lane-scalar rows form one route-free comparison.
 // STATE:        Fetched campus results cached by result id
 // RULES:        Nothing fetches until asked; run-level lane scalars need no route alignment.
@@ -24,7 +24,8 @@ export function createAllRunsLoader({ entries, manifestSource, assertResult }) {
   const cache = new Map();
   let loaded = false;
   return Object.freeze({
-    async load() {
+    async load(onProgress = () => {}) {
+      let done = 0;
       for (const entry of entries) {
         if (!cache.has(entry.resultId)) {
           cache.set(
@@ -32,9 +33,11 @@ export function createAllRunsLoader({ entries, manifestSource, assertResult }) {
             assertResult(await manifestSource.result(entry.path)),
           );
         }
+        onProgress(done += 1, entries.length);
       }
       loaded = true;
     },
+    results() { return [...cache.values()]; },
     rows(currentResult, thresholds, analyze = analyzeReportResult) {
       return [currentResult, ...cache.values()]
         .filter(Boolean)
@@ -43,6 +46,17 @@ export function createAllRunsLoader({ entries, manifestSource, assertResult }) {
     },
     get loaded() { return loaded; },
     get entryCount() { return entries.length; },
+  });
+}
+
+export function bindAllRunsAction(root, { loader, status, refresh }) {
+  root.querySelector("[data-load-all-runs]")?.addEventListener("click", async () => {
+    status.textContent = "Loading campus runs…";
+    try {
+      await loader.load();
+      status.textContent = "Campus runs loaded · scalars use the live thresholds.";
+    } catch (error) { status.textContent = error.message; }
+    refresh();
   });
 }
 

@@ -1,5 +1,5 @@
 // FEATURE:      Same-survey result comparison
-// SURFACE:      renderComparisonView(options)
+// SURFACE:      renderComparisonView(options), bindComparisonAdd(root, options)
 // WHY TOGETHER: Candidate selection, device labels, lane metrics, deltas, and notes are one view.
 // STATE:        None
 // RULES:        Render only manifest-provided candidates and labels from domain comparison output.
@@ -72,6 +72,26 @@ function comparisonTable(comparison) {
           <p>${esc(run.operatorComment || "No operator comment.")}</p></article>`).join("")}
       </div>
     </div>`;
+}
+
+export function bindComparisonAdd(root, { remaining, status, refresh, addResult, markLoaded }) {
+  const add = root.querySelector("[data-add-comparison]");
+  add?.addEventListener("click", async () => {
+    const id = root.querySelector("[data-comparison-result]").value;
+    const entry = remaining.find(item => item.resultId === id);
+    if (!entry) return;
+    add.disabled = true;
+    status.textContent = "Loading comparison result…";
+    try {
+      await addResult(entry);
+      markLoaded(id);
+      status.textContent = "Comparison uses the same live thresholds.";
+      refresh();
+    } catch (error) {
+      status.textContent = error.message;
+      add.disabled = false;
+    }
+  });
 }
 
 function valueCell(value) {

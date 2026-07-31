@@ -49,8 +49,12 @@ test("entry requires device, band, consent, and flagged credentials", () => {
     dynamicMarkSpacingM: "",
     extraDevice1Label: "",
     extraDevice1Ip: "",
+    extraDevice1Type: "",
+    extraDevice1Os: "",
     extraDevice2Label: "",
     extraDevice2Ip: "",
+    extraDevice2Type: "",
+    extraDevice2Os: "",
   });
   assert.deepEqual(
     runnerEntryIssues(

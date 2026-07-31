@@ -11,8 +11,12 @@ export const DYNAMIC_OPTION_NAMES = Object.freeze([
   "dynamicMarkSpacingM",
   "extraDevice1Label",
   "extraDevice1Ip",
+  "extraDevice1Type",
+  "extraDevice1Os",
   "extraDevice2Label",
   "extraDevice2Ip",
+  "extraDevice2Type",
+  "extraDevice2Os",
 ]);
 
 export function ensureDynamicOptionsMarkup(form) {
@@ -46,10 +50,26 @@ export function ensureDynamicOptionsMarkup(form) {
           <input name="extraDevice1Label" autocomplete="off" placeholder="iPhone B"></label>
         <label>Extra device 1 client IP
           <input name="extraDevice1Ip" inputmode="decimal" autocomplete="off"></label>
+        <label>Extra device 1 type
+          <select name="extraDevice1Type">
+            <option value="mobile" selected>Mobile</option>
+            <option value="laptop">Laptop</option>
+            <option value="asset">Asset</option>
+          </select></label>
+        <label>Extra device 1 OS (optional, defaults to the label)
+          <input name="extraDevice1Os" autocomplete="off" placeholder="iOS 18"></label>
         <label>Extra device 2 label (optional)
           <input name="extraDevice2Label" autocomplete="off" placeholder="iPhone C"></label>
         <label>Extra device 2 client IP
           <input name="extraDevice2Ip" inputmode="decimal" autocomplete="off"></label>
+        <label>Extra device 2 type
+          <select name="extraDevice2Type">
+            <option value="mobile" selected>Mobile</option>
+            <option value="laptop">Laptop</option>
+            <option value="asset">Asset</option>
+          </select></label>
+        <label>Extra device 2 OS (optional, defaults to the label)
+          <input name="extraDevice2Os" autocomplete="off" placeholder="Spectralink"></label>
       </div>
     </fieldset>`);
   return true;

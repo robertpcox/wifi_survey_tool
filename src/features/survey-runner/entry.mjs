@@ -13,8 +13,12 @@ export const RUNNER_OPTIONAL_FIELDS = Object.freeze([
   "dynamicMarkSpacingM",
   "extraDevice1Label",
   "extraDevice1Ip",
+  "extraDevice1Type",
+  "extraDevice1Os",
   "extraDevice2Label",
   "extraDevice2Ip",
+  "extraDevice2Type",
+  "extraDevice2Os",
 ]);
 
 export function normalizeRunnerEntry(values) {

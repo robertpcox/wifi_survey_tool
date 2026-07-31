@@ -20,6 +20,8 @@ export function dynamicDeviceResultFiles(capture, definition) {
         definition,
         entry: {
           ...capture.entry,
+          deviceType: device.deviceType || "mobile",
+          deviceOs: device.deviceOs || device.label,
           deviceName: device.label,
           clientIp: device.clientIp,
         },

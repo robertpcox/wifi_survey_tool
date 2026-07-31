@@ -14,15 +14,15 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 ## survey-runner/
 - active-run 149/4367 T+ E createActiveRunner I @d/runner-progress-v3, note-capture, run-navigation
 - definition-upload 36/1257 T+ E readRunnerDefinitionFile I @a/files, @d/survey-definition-v3
-- dynamic-device-polling 72/2104 T+ E combineDynamicPollLoops, createDynamicDevicePolling I entry, poll-loop
-- dynamic-device-results 53/1766 T+ E deviceResultFilename, dynamicDeviceResultFiles, dynamicJsonFile I @d/runner-result-v3, dynamic-room-devices
+- dynamic-device-polling 74/2170 T+ E combineDynamicPollLoops, createDynamicDevicePolling I entry, poll-loop
+- dynamic-device-results 55/1872 T+ E deviceResultFilename, dynamicDeviceResultFiles, dynamicJsonFile I @d/runner-result-v3, dynamic-room-devices
 - dynamic-room-capture-actions 70/2029 T- E createDynamicCaptureActions I @d/dynamic-room-session-v3
 - dynamic-room-capture-marks 103/3205 T+ E createDynamicMarkCapture, dynamicRoomBackAction I @d/dynamic-room-session-v3, dynamic-room-marks
 - dynamic-room-capture 122/3898 T- E createDynamicRoomCapture
   - I @d/dynamic-room-session-v3, dynamic-room-capture-actions, dynamic-room-capture-marks, dynamic-room-point, dynamic-room-run-values
-- dynamic-room-devices 80/2867 T+
-  - E DYNAMIC_MARK_SPACING_DEFAULT_M, EXTRA_DEVICE_FIELDS, deviceLabelSlug, dynamicEntryIssues, runnerDynamicDwellSeconds, runnerDynamicMarkSpacingM,
-    runnerExtraDevices I @d/dynamic-room-session-v3, @d/route-contract
+- dynamic-room-devices 94/3325 T+
+  - E DYNAMIC_MARK_SPACING_DEFAULT_M, EXTRA_DEVICE_FIELDS, EXTRA_DEVICE_TYPES, deviceLabelSlug, dynamicEntryIssues, runnerDynamicDwellSeconds,
+    runnerDynamicMarkSpacingM, runnerExtraDevices I @d/dynamic-room-session-v3, @d/route-contract
 - dynamic-room-download 27/986 T- E downloadDynamicRoomFile I @a/files
 - dynamic-room-finaliser 144/4598 T- E createDynamicRoomFinaliser I @d/dynamic-room-session-v3, dynamic-room-run-values, dynamic-survey-export
 - dynamic-room-hud 87/3080 T+ E dynamicRoomHudState, renderDynamicRoomHud, resetDynamicRoomHud I @d/dynamic-room-session-v3
@@ -30,7 +30,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - dynamic-room-point 92/2767 T+ E dynamicRoomMapPointResolver, dynamicRoomPointFromMapClick
 - dynamic-room-preflight 50/1737 T+ E runDynamicRoomPreflight I @d/dynamic-room-preflight-v3, setup-map
 - dynamic-room-route-provider 39/1307 T+ E resolveDynamicRoomRouteProvider I @a/map/routing, @d/route-path
-- dynamic-room-run-values 109/3715 T- E dynamicCaptureSnapshot, dynamicDefinitionSeed, dynamicRoomViewState, dynamicRoomWaypoints
+- dynamic-room-run-values 111/3785 T- E dynamicCaptureSnapshot, dynamicDefinitionSeed, dynamicRoomViewState, dynamicRoomWaypoints
   - I @d/dynamic-room-session-v3, dynamic-room-hud
 - dynamic-room-run 93/3100 T+ E createDynamicRoomRunner
   - I @d/dynamic-room-session-v3, dynamic-room-capture, dynamic-room-download, dynamic-room-finaliser, dynamic-route-author
@@ -45,10 +45,10 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - dynamic-survey-definition 94/3035 T+ E dynamicDefinitionInput I @d/creator-route-v3
 - dynamic-survey-export 104/3632 T+ E assertDynamicExportIdentity, finaliseDynamicSurvey
   - I @d/definition-authoring-v3, @d/runner-result-v3, @d/survey-definition-v3, @d/survey-result-v3, dynamic-device-results, dynamic-survey-definition
-- entry 65/1927 T+ E RUNNER_ENTRY_FIELDS, RUNNER_OPTIONAL_FIELDS, normalizeRunnerEntry, runnerEntryIssues, runnerPositionRequest, syncRunnerCredentials
+- entry 69/2011 T+ E RUNNER_ENTRY_FIELDS, RUNNER_OPTIONAL_FIELDS, normalizeRunnerEntry, runnerEntryIssues, runnerPositionRequest, syncRunnerCredentials
   - I dynamic-room-devices
 - feature-flags 8/416 T- E RUNNER_NOTES_ENABLED
-- form-view-dynamic-options 56/2776 T+ E DYNAMIC_OPTION_NAMES, ensureDynamicOptionsMarkup
+- form-view-dynamic-options 76/3707 T+ E DYNAMIC_OPTION_NAMES, ensureDynamicOptionsMarkup
 - form-view-format 37/1242 T+ E formatDuration, preflightMetrics, preflightReasonText
 - form-view 150/6407 T+ E createRunnerFormView, preflightMetrics I @s/format, form-view-dynamic-options, form-view-format, runner-mode
 - loader 41/1668 T+ E loadRunnerDefinition, loadRunnerManifest, surveyIdFromUrl I @d/survey-definition-v3

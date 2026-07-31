@@ -49,9 +49,14 @@ test("finalise emits one extra V3 result per polled device", async () => {
   });
   assert.equal(output.deviceResults.length, 1);
   const device = output.deviceResults[0];
-  assert.equal(device.result.run.device.name, "iPhone B");
-  assert.equal(device.result.run.device.clientIp, "192.0.2.9");
-  assert.equal(device.result.run.device.type, "mobile");
+  assert.deepEqual(device.result.run.device, {
+    type: "asset",
+    os: "Spectralink 8744",
+    name: "iPhone B",
+    clientIp: "192.0.2.9",
+  });
+  assert.notEqual(device.result.run.device.type, output.result.run.device.type);
+  assert.notEqual(device.result.run.device.os, output.result.run.device.os);
   assert.equal(device.result.run.resultId, "result-device-2");
   assert.deepEqual(device.result.polls.map(item => item.id), ["poll-iphone-b-1"]);
   assert.equal(device.result.run.preflight.sampleId, "poll-iphone-b-1");
@@ -123,6 +128,8 @@ function capture(stops) {
         label: "iPhone B",
         clientIp: "192.0.2.9",
         slug: "iphone-b",
+        deviceType: "asset",
+        deviceOs: "Spectralink 8744",
         polls: [poll("poll-iphone-b-1")],
         resultId: "result-device-2",
       },

@@ -119,6 +119,8 @@ test("a 45-second run exports one result per device without touching the primary
   const device = output.deviceResults[0];
   assert.equal(device.result.run.device.name, "iPhone B");
   assert.equal(device.result.run.device.clientIp, "192.0.2.9");
+  assert.equal(device.result.run.device.type, "mobile");
+  assert.equal(device.result.run.device.os, "iPhone B");
   assert.deepEqual(device.result.polls.map(item => item.id), ["poll-iphone-b-1"]);
   assert.deepEqual(device.result.checkIns, output.result.checkIns);
   assert.notEqual(device.result.run.resultId, output.result.run.resultId);

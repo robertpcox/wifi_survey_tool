@@ -2,7 +2,7 @@
 // SURFACE:      runnerExtraDevices, runnerDynamicDwellSeconds, dynamicEntryIssues, deviceLabelSlug
 // WHY TOGETHER: Optional extra devices and run-level dwell parse from one entry form.
 // STATE:        None
-// RULES:        Extra devices need both label and client IP; the primary device stays untouched.
+// RULES:        Extra devices need label and IP; type defaults to mobile and OS to the label.
 // PROVENANCE:   Dynamic room multi-device capture request
 
 import {
@@ -13,18 +13,28 @@ import { SUPPORTED_SPACINGS_M } from "../../domain/route-contract.mjs";
 
 export const DYNAMIC_MARK_SPACING_DEFAULT_M = 5;
 
-export const EXTRA_DEVICE_FIELDS = Object.freeze([
-  Object.freeze(["extraDevice1Label", "extraDevice1Ip"]),
-  Object.freeze(["extraDevice2Label", "extraDevice2Ip"]),
-]);
+export const EXTRA_DEVICE_TYPES = Object.freeze(["mobile", "laptop", "asset"]);
+export const EXTRA_DEVICE_FIELDS = Object.freeze([1, 2].map(slot => Object.freeze({
+  label: `extraDevice${slot}Label`,
+  ip: `extraDevice${slot}Ip`,
+  type: `extraDevice${slot}Type`,
+  os: `extraDevice${slot}Os`,
+})));
 
 export function runnerExtraDevices(entry) {
   const devices = [];
-  EXTRA_DEVICE_FIELDS.forEach(([labelField, ipField], index) => {
-    const label = clean(entry?.[labelField]);
-    const clientIp = clean(entry?.[ipField]);
+  EXTRA_DEVICE_FIELDS.forEach((fields, index) => {
+    const label = clean(entry?.[fields.label]);
+    const clientIp = clean(entry?.[fields.ip]);
     if (!label || !clientIp) return;
-    devices.push({ label, clientIp, slug: deviceLabelSlug(label, index) });
+    const type = clean(entry?.[fields.type]);
+    devices.push({
+      label,
+      clientIp,
+      slug: deviceLabelSlug(label, index),
+      deviceType: EXTRA_DEVICE_TYPES.includes(type) ? type : "mobile",
+      deviceOs: clean(entry?.[fields.os]) || label,
+    });
   });
   return devices;
 }
@@ -66,11 +76,15 @@ export function dynamicEntryIssues(entry) {
   if (spacing && !SUPPORTED_SPACINGS_M.includes(Number(spacing))) {
     issues.push("dynamicMarkSpacingM is unsupported");
   }
-  for (const [labelField, ipField] of EXTRA_DEVICE_FIELDS) {
-    const label = clean(entry?.[labelField]);
-    const clientIp = clean(entry?.[ipField]);
-    if (label && !clientIp) issues.push(`${ipField} is required`);
-    if (!label && clientIp) issues.push(`${labelField} is required`);
+  for (const fields of EXTRA_DEVICE_FIELDS) {
+    const label = clean(entry?.[fields.label]);
+    const clientIp = clean(entry?.[fields.ip]);
+    if (label && !clientIp) issues.push(`${fields.ip} is required`);
+    if (!label && clientIp) issues.push(`${fields.label} is required`);
+    const type = clean(entry?.[fields.type]);
+    if (type && !EXTRA_DEVICE_TYPES.includes(type)) {
+      issues.push(`${fields.type} is unsupported`);
+    }
   }
   return issues;
 }

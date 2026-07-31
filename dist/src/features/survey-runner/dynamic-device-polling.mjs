@@ -47,6 +47,8 @@ function deviceStream(device, options) {
     label: device.label,
     clientIp: device.clientIp,
     slug: device.slug,
+    deviceType: device.deviceType,
+    deviceOs: device.deviceOs,
     polls,
     loop,
   };

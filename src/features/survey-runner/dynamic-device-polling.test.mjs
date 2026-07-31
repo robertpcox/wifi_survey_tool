@@ -24,8 +24,10 @@ const definition = {
 };
 const entry = { clientIp: "192.0.2.8", proxyBase: "" };
 const devices = [
-  { label: "iPhone B", clientIp: "192.0.2.9", slug: "iphone-b" },
-  { label: "iPhone C", clientIp: "192.0.2.10", slug: "iphone-c" },
+  { label: "iPhone B", clientIp: "192.0.2.9", slug: "iphone-b",
+    deviceType: "mobile", deviceOs: "iOS 18" },
+  { label: "iPhone C", clientIp: "192.0.2.10", slug: "iphone-c",
+    deviceType: "asset", deviceOs: "iPhone C" },
 ];
 
 function harness() {
@@ -73,6 +75,10 @@ test("each device polls its own client IP with namespaced sequential ids", async
     "iPhone B",
     "iPhone C",
   ]);
+  assert.deepEqual(
+    polling.streams.map(stream => [stream.deviceType, stream.deviceOs]),
+    [["mobile", "iOS 18"], ["asset", "iPhone C"]],
+  );
 });
 
 test("combined loop follows the primary lifecycle and extra loops obey it", () => {

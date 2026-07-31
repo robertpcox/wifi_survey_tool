@@ -21,13 +21,24 @@ test("extra devices parse only complete label and client IP pairs", () => {
   assert.deepEqual(runnerExtraDevices({
     extraDevice1Label: " iPhone B ",
     extraDevice1Ip: " 192.0.2.9 ",
+    extraDevice1Type: "laptop",
+    extraDevice1Os: " iOS 18 ",
     extraDevice2Label: "iPhone C",
     extraDevice2Ip: "",
-  }), [{ label: "iPhone B", clientIp: "192.0.2.9", slug: "iphone-b" }]);
+  }), [{
+    label: "iPhone B", clientIp: "192.0.2.9", slug: "iphone-b",
+    deviceType: "laptop", deviceOs: "iOS 18",
+  }]);
   assert.deepEqual(runnerExtraDevices({
     extraDevice2Label: "Ward Cart 2",
     extraDevice2Ip: "192.0.2.10",
-  }), [{ label: "Ward Cart 2", clientIp: "192.0.2.10", slug: "ward-cart-2" }]);
+  }), [{
+    label: "Ward Cart 2", clientIp: "192.0.2.10", slug: "ward-cart-2",
+    deviceType: "mobile", deviceOs: "Ward Cart 2",
+  }]);
+  assert.equal(runnerExtraDevices({
+    extraDevice1Label: "Tag", extraDevice1Ip: "192.0.2.11", extraDevice1Type: "tv",
+  })[0].deviceType, "mobile");
 });
 
 test("device label slugs stay collision-safe filename fragments", () => {
@@ -80,4 +91,8 @@ test("entry issues flag half-filled devices, bad dwell, and bad proxy base", () 
     "extraDevice1Ip is required",
     "extraDevice2Label is required",
   ]);
+  assert.deepEqual(
+    dynamicEntryIssues({ extraDevice1Type: "tv" }),
+    ["extraDevice1Type is unsupported"],
+  );
 });

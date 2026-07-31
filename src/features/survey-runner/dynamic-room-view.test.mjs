@@ -13,6 +13,11 @@ import {
   dynamicRoomAcceptsPoint,
 } from "./dynamic-room-view.mjs";
 
+const HUD_SELECTORS = [
+  "[data-run-progress]", "[data-current-target]",
+  "[data-current-floor]", "[data-dwell-countdown]",
+];
+
 function harness() {
   let injected = false;
   let markup = "";
@@ -27,8 +32,10 @@ function harness() {
     listeners: {},
     textContent: "",
   });
-  const nodes = new Map(Object.values(DYNAMIC_ROOM_SELECTORS)
-    .map(selector => [selector, makeNode()]));
+  const nodes = new Map(
+    [...Object.values(DYNAMIC_ROOM_SELECTORS), ...HUD_SELECTORS]
+      .map(selector => [selector, makeNode()]),
+  );
   const root = makeNode();
   root.insertAdjacentHTML = (_position, value) => {
     insertions += 1;
@@ -45,104 +52,95 @@ function harness() {
   return { documentRef, insertions: () => insertions, markup: () => markup, nodes, root, view };
 }
 
-test("injects one accessible panel with stable integration selectors", () => {
+test("injects one panel without any bespoke walking buttons", () => {
   const state = harness();
   createDynamicRoomView(state.documentRef);
   assert.equal(state.insertions(), 1);
   assert.match(state.markup(), /data-dynamic-room-panel/);
   assert.match(state.markup(), /role="status" aria-live="polite" aria-atomic="true"/);
-  assert.match(state.markup(), /data-action="dynamic-check-in">Check in &amp; keep walking/);
-  assert.match(state.markup(), /data-action="dynamic-dwell">Dwell here for 45s/);
+  assert.match(state.markup(), /data-action="dynamic-continue-dwell" hidden>Continue/);
   assert.match(state.markup(), /data-action="dynamic-extend-dwell" hidden>\+10 seconds/);
   assert.match(state.markup(), /data-action="dynamic-finish" hidden>Finish survey/);
   assert.match(state.markup(), /data-action="dynamic-retry" hidden>Retry route finalisation/);
-  assert.match(state.markup(), /data-action="dynamic-download-definition"/);
-  assert.match(state.markup(), /data-action="dynamic-download-result"/);
   assert.match(state.markup(), /data-action="dynamic-clear">Clear capture/);
+  assert.doesNotMatch(
+    state.markup(),
+    /dynamic-check-in|dynamic-dwell"|dynamic-pass-mark|dynamic-skip-mark/,
+  );
   assert.equal(Object.isFrozen(DYNAMIC_ROOM_SELECTORS), true);
 });
 
-test("renders point, pending, dwell, finalising, and export-ready phases", () => {
+test("renders phases through the shared planned HUD", () => {
   const { nodes, root, view } = harness();
   const get = key => nodes.get(DYNAMIC_ROOM_SELECTORS[key]);
-  view.render({ phase: "tap-point" });
+  const hud = selector => nodes.get(selector);
+  view.render({ phase: "tap-point", hud: {
+    progress: "0 checked in", target: "Tap the map", floor: "—", checkInEnabled: false,
+  } });
   assert.match(get("status").textContent, /first checkpoint/);
   assert.equal(view.acceptsMapPoint(), true);
-  assert.equal(root.hidden, false);
-  assert.equal(get("clear").hidden, true);
   assert.equal(root.dataset.dynamicRoomActive, "true");
-  assert.equal(get("stop").hidden, false);
-  view.render({ phase: "pending" });
-  assert.equal(get("checkIn").hidden, false);
+  assert.equal(hud("[data-current-target]").textContent, "Tap the map");
+  assert.equal(get("checkIn").disabled, true);
+  view.render({ phase: "pending", hud: {
+    progress: "checkpoint 2", target: "Room B", floor: "Level 1", checkInEnabled: true,
+  } });
   assert.equal(get("checkIn").disabled, false);
-  assert.equal(get("dwell").hidden, false);
-  assert.equal(get("finish").hidden, true);
-  view.render({ phase: "walking", canFinish: false });
-  assert.match(get("status").textContent, /next checkpoint/);
-  assert.equal(view.acceptsMapPoint(), true);
-  assert.equal(get("finish").hidden, false);
-  assert.equal(get("finish").disabled, true);
+  assert.equal(hud("[data-current-target]").textContent, "Room B");
+  assert.equal(hud("[data-dwell-countdown]").textContent, "Ready to check in");
+  assert.equal(get("continueDwell").hidden, true);
   view.render({
-    phase: "finalising",
-    error: "Route service unavailable.",
-    retryAvailable: true,
+    phase: "dwelling",
+    dwellRemainingSeconds: 4.2,
+    hud: { progress: "checkpoint 1", target: "Room A", floor: "z1", checkInEnabled: false },
   });
+  assert.equal(hud("[data-dwell-countdown]").textContent, "5 s dwell");
+  assert.equal(get("continueDwell").hidden, false);
+  assert.equal(get("continueDwell").disabled, false);
+  assert.equal(get("extendDwell").hidden, false);
+  assert.equal(get("finish").disabled, false);
+  view.render({ phase: "finalising", error: "Route service unavailable.", retryAvailable: true });
   assert.match(get("status").textContent, /Route service unavailable.*Polling continues/);
   assert.equal(get("retry").hidden, false);
-  assert.equal(get("retry").disabled, false);
-  view.render({ phase: "dwelling", dwellRemainingSeconds: 4.2 });
-  assert.equal(get("dwellRemaining").textContent, "5 seconds remaining");
-  assert.equal(get("extendDwell").hidden, false);
-  assert.equal(get("extendDwell").disabled, false);
-  assert.equal(get("finish").disabled, false);
-  view.render({ phase: "finalising" });
-  assert.equal(
-    get("status").textContent,
-    "Finalising route — remain at the final checkpoint. Polling continues.",
-  );
-  assert.equal(get("panel").attributes["aria-busy"], "true");
-  assert.equal(get("finish").disabled, true);
-  assert.equal(get("retry").hidden, true);
   get("stopDialog").hidden = false;
   view.render({ phase: "completed", exportReady: true });
   assert.match(get("status").textContent, /ready to download/);
   assert.equal(get("exports").hidden, false);
-  assert.equal(get("downloadDefinition").disabled, false);
-  assert.equal(get("downloadResult").disabled, false);
-  assert.equal(get("clear").disabled, false);
   assert.equal(get("stop").hidden, true);
   assert.equal(get("stopDialog").hidden, true);
   view.hide();
   assert.equal(get("panel").hidden, true);
   assert.equal(root.dataset.dynamicRoomActive, "false");
+  assert.equal(get("skip").hidden, false);
+  assert.equal(get("checkIn").disabled, false);
 });
 
-test("bind emits capture intent without owning map, polling, routing, or export", () => {
+test("bind emits panel intent only; check-in and skip stay shared bindings", () => {
   const { nodes, view } = harness();
   const calls = [];
-  const handlers = {
-    checkIn: () => calls.push("check-in"),
-    dwell: () => calls.push("dwell"),
+  view.bind({
+    continueDwell: () => calls.push("continue"),
     extendDwell: () => calls.push("extend"),
     finish: () => calls.push("finish"),
     retry: () => calls.push("retry"),
     downloadDefinition: () => calls.push("definition"),
     downloadResult: () => calls.push("result"),
     clear: () => calls.push("clear"),
-  };
-  view.bind(handlers);
+  });
   for (const key of [
-    "checkIn", "dwell", "extendDwell", "finish", "retry",
+    "continueDwell", "extendDwell", "finish", "retry",
     "downloadDefinition", "downloadResult", "clear",
   ]) {
     nodes.get(DYNAMIC_ROOM_SELECTORS[key]).listeners.click();
   }
   assert.deepEqual(
     calls,
-    ["check-in", "dwell", "extend", "finish", "retry", "definition", "result", "clear"],
+    ["continue", "extend", "finish", "retry", "definition", "result", "clear"],
   );
-  assert.equal("mapClick" in handlers, false);
+  assert.deepEqual(nodes.get(DYNAMIC_ROOM_SELECTORS.checkIn).listeners, {});
+  assert.deepEqual(nodes.get(DYNAMIC_ROOM_SELECTORS.skip).listeners, {});
   assert.equal(dynamicRoomAcceptsPoint("walking"), true);
+  assert.equal(dynamicRoomAcceptsPoint("dwelling"), true);
   assert.equal(dynamicRoomAcceptsPoint("pending"), false);
   assert.throws(() => view.render({ phase: "unknown" }), /Unknown dynamic room phase/);
 });

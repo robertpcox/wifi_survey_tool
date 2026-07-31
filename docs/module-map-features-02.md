@@ -16,26 +16,30 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - definition-upload 36/1257 T+ E readRunnerDefinitionFile I @a/files, @d/survey-definition-v3
 - dynamic-device-polling 72/2104 T+ E combineDynamicPollLoops, createDynamicDevicePolling I entry, poll-loop
 - dynamic-device-results 53/1766 T+ E deviceResultFilename, dynamicDeviceResultFiles, dynamicJsonFile I @d/runner-result-v3, dynamic-room-devices
-- dynamic-room-capture-marks 82/2700 T+ E createDynamicMarkCapture, dynamicRoomBackAction I @d/dynamic-room-session-v3, dynamic-room-marks
-- dynamic-room-capture 146/4496 T- E createDynamicRoomCapture
-  - I @d/dynamic-room-session-v3, dynamic-room-capture-marks, dynamic-room-point, dynamic-room-run-values
+- dynamic-room-capture-actions 70/2029 T- E createDynamicCaptureActions I @d/dynamic-room-session-v3
+- dynamic-room-capture-marks 103/3205 T+ E createDynamicMarkCapture, dynamicRoomBackAction I @d/dynamic-room-session-v3, dynamic-room-marks
+- dynamic-room-capture 122/3898 T- E createDynamicRoomCapture
+  - I @d/dynamic-room-session-v3, dynamic-room-capture-actions, dynamic-room-capture-marks, dynamic-room-point, dynamic-room-run-values
 - dynamic-room-devices 80/2867 T+
   - E DYNAMIC_MARK_SPACING_DEFAULT_M, EXTRA_DEVICE_FIELDS, deviceLabelSlug, dynamicEntryIssues, runnerDynamicDwellSeconds, runnerDynamicMarkSpacingM,
     runnerExtraDevices I @d/dynamic-room-session-v3, @d/route-contract
 - dynamic-room-download 27/986 T- E downloadDynamicRoomFile I @a/files
 - dynamic-room-finaliser 144/4598 T- E createDynamicRoomFinaliser I @d/dynamic-room-session-v3, dynamic-room-run-values, dynamic-survey-export
-- dynamic-room-marks 56/1799 T+ E planStagedLegMarks I @d/creator-route-v3
+- dynamic-room-hud 87/3080 T+ E dynamicRoomHudState, renderDynamicRoomHud, resetDynamicRoomHud I @d/dynamic-room-session-v3
+- dynamic-room-marks 59/1868 T+ E planStagedLegMarks I @d/creator-route-v3
 - dynamic-room-point 92/2767 T+ E dynamicRoomMapPointResolver, dynamicRoomPointFromMapClick
 - dynamic-room-preflight 50/1737 T+ E runDynamicRoomPreflight I @d/dynamic-room-preflight-v3, setup-map
 - dynamic-room-route-provider 39/1307 T+ E resolveDynamicRoomRouteProvider I @a/map/routing, @d/route-path
-- dynamic-room-run-values 107/3614 T- E dynamicCaptureSnapshot, dynamicDefinitionSeed, dynamicRoomViewState, dynamicRoomWaypoints I @d/dynamic-room-session-v3
-- dynamic-room-run 94/3124 T+ E createDynamicRoomRunner
+- dynamic-room-run-values 109/3715 T- E dynamicCaptureSnapshot, dynamicDefinitionSeed, dynamicRoomViewState, dynamicRoomWaypoints
+  - I @d/dynamic-room-session-v3, dynamic-room-hud
+- dynamic-room-run 93/3100 T+ E createDynamicRoomRunner
   - I @d/dynamic-room-session-v3, dynamic-room-capture, dynamic-room-download, dynamic-room-finaliser, dynamic-route-author
 - dynamic-room-start 67/2360 T- E startDynamicRoomRunner I dynamic-device-polling, dynamic-room-devices, dynamic-room-route-provider, dynamic-room-run
-- dynamic-room-view-actions 80/3045 T- E renderDynamicRoomActions, renderDynamicRoomDwell I dynamic-room-view-markup
-- dynamic-room-view-markup 91/4512 T- E DYNAMIC_ROOM_SELECTORS, dynamicRoomDwellLabel, dynamicRoomMarkLabel, dynamicRoomStatusText, ensureDynamicRoomMarkup
-- dynamic-room-view 87/3614 T+ E DYNAMIC_ROOM_SELECTORS, createDynamicRoomView, dynamicRoomAcceptsPoint I dynamic-room-view-actions, dynamic-room-view-markup
-- dynamic-room.css 138/3388 T+
+- dynamic-room-view-actions 56/2023 T- E renderDynamicRoomActions I dynamic-room-view-markup
+- dynamic-room-view-markup 76/3764 T- E DYNAMIC_ROOM_SELECTORS, dynamicRoomStatusText, ensureDynamicRoomMarkup
+- dynamic-room-view 86/3483 T+ E DYNAMIC_ROOM_SELECTORS, createDynamicRoomView, dynamicRoomAcceptsPoint
+  - I dynamic-room-hud, dynamic-room-view-actions, dynamic-room-view-markup
+- dynamic-room.css 106/2504 T+
 - dynamic-route-author-values 71/2213 T+ E dynamicRouteFinaliseError, newDynamicRouteJob, sameDynamicRoutePair, validatedDynamicGeometry, validatedDynamicStops
 - dynamic-route-author 150/4220 T+ E createDynamicRouteAuthor I dynamic-route-author-values
 - dynamic-survey-definition 94/3035 T+ E dynamicDefinitionInput I @d/creator-route-v3
@@ -72,6 +76,6 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - setup-init 28/1289 T- E initializeRunnerSetup I loader
 - setup-map 22/998 T+ E drawRunnerSelection
 - setup 143/4133 T+ E createRunnerSetup I definition-upload, entry, loader, poll-loop, preflight, runner-mode, setup-clear, setup-init, setup-map
-- survey-runner 145/5822 T+ E RUNNER_THREE_D, mountSurveyRunner
+- survey-runner 143/5738 T+ E RUNNER_THREE_D, mountSurveyRunner
   - I @a/map/mazemap, @a/memory-credentials, @a/positioning/mazemap-cloud-v3, dynamic-room-start, dynamic-room-view, form-view, map-3d-toggle,
     note-controller, planned-run-start, result-download, result-upload, run-view, runner-preflight-action, runner-start-gate, setup

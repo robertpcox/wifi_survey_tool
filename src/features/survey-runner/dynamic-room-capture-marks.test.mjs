@@ -68,6 +68,28 @@ test("replacing or cancelling the staged target discards stale plans", async () 
   assert.equal(session.markPlan, null);
 });
 
+test("the resolved staged leg renders while dwelling and clears with the plan", async () => {
+  const { marks, renders, session } = harness((from, to) => [from, to]);
+  assert.deepEqual(marks.stagedLeg(), []);
+  const staged = placeDynamicRoomPoint(session, ROOM_B);
+  marks.handleStaged(staged.point);
+  await settle();
+  assert.equal(session.phase, "dwelling");
+  assert.ok(marks.stagedLeg().length >= 2);
+  assert.ok(renders.length >= 1);
+  assert.equal(marks.previewWaypoints().length, 2);
+  assert.equal(marks.previewWaypoints()[0].id, "dynamic-mark-preview-1");
+  assert.equal(marks.previewWaypoints()[0].state, "pending");
+  const replaced = placeDynamicRoomPoint(session, { ...ROOM_B, name: "Room C" });
+  marks.handleStaged(replaced.point);
+  assert.deepEqual(marks.stagedLeg(), []);
+  await settle();
+  assert.ok(marks.stagedLeg().length >= 2);
+  assert.equal(dynamicRoomBackAction(session, marks).changed, true);
+  assert.deepEqual(marks.stagedLeg(), []);
+  assert.deepEqual(marks.previewWaypoints(), []);
+});
+
 test("planning failure records an exported event and walking continues", async () => {
   const { marks, session } = harness(() => Promise.reject(new Error("no route")));
   const staged = placeDynamicRoomPoint(session, ROOM_B);
@@ -76,6 +98,7 @@ test("planning failure records an exported event and walking continues", async (
   const event = session.events.at(-1);
   assert.equal(event.type, "mark-plan-failed");
   assert.equal(event.message, "no route");
+  assert.deepEqual(marks.stagedLeg(), []);
   refreshDynamicRoomDwell(session, 16_000);
   assert.equal(marks.maybeArm(), false);
   assert.equal(checkInDynamicRoomPoint(session, { at: AT }).changed, true);

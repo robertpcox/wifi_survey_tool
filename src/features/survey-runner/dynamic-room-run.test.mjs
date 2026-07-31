@@ -70,6 +70,7 @@ test("Finish keeps polling until hidden routing creates both standard files", as
   };
   const runner = createDynamicRoomRunner({
     definition,
+    dwellSeconds: 30,
     entry: {
       deviceType: "mobile",
       deviceOs: "Android 16",
@@ -104,9 +105,12 @@ test("Finish keeps polling until hidden routing creates both standard files", as
   const second = definition.route.stops[1];
   await runner.handleMapClick({ lngLat: first });
   assert.equal(runner.checkIn(), true);
+  assert.equal(runner.session.phase, "dwelling");
   wallMs += 20_000;
+  assert.equal(runner.continueDwell(), true);
   await runner.handleMapClick({ lngLat: second });
   assert.equal(runner.checkIn(), true);
+  assert.equal(runner.continueDwell(), true);
   wallMs += 1_000;
   const finalising = runner.finish();
   assert.equal(runner.session.phase, "finalising");
@@ -118,7 +122,7 @@ test("Finish keeps polling until hidden routing creates both standard files", as
   assert.equal(runner.state.export.result.run.captureMode, "dynamic-room");
   assert.deepEqual(
     runner.state.export.definition.route.checkpoints.map(item => item.dwellSeconds),
-    [0, 0],
+    [20, 0],
   );
   assert.equal(rendered.at(-1).phase, "completed");
   runner.download("definition");

@@ -39,6 +39,22 @@ export function extendDynamicRoomDwell(session, nowMs) {
   };
 }
 
+export function continueDynamicRoomDwell(session, nowMs) {
+  if (session.phase !== "dwelling") return unchanged("not-dwelling");
+  const currentMs = dynamicRoomMonotonic(nowMs);
+  if (currentMs < session.dwell.deadlineMs) {
+    session.checkpoints.at(-1).dwellSeconds = Math.max(
+      0,
+      Math.round((currentMs - session.dwell.startedAtMs) / 1000),
+    );
+  }
+  expireDynamicRoomDwell(session);
+  return {
+    changed: true,
+    dwellSeconds: session.checkpoints.at(-1).dwellSeconds,
+  };
+}
+
 export function refreshDynamicRoomDwell(session, nowMs) {
   if (session.phase !== "dwelling") return unchanged("not-dwelling");
   const remainingSeconds = dynamicRoomDwellRemainingSeconds(session, nowMs);

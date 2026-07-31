@@ -25,6 +25,12 @@ export function createLayerStyles(getCurrentZLevel) {
     "line-color": zCase(MAP_STYLE.waypointCurrent),
     "line-opacity": zCaseNum(0.95, 0.2),
   };
+  const upcomingRoute = {
+    "line-width": 5,
+    "line-color": zCase(MAP_STYLE.waypointCurrent),
+    "line-opacity": zCaseNum(0.9, 0.2),
+    "line-dasharray": [1.5, 1.5],
+  };
   const trail = color => ({
     "line-width": 2.5,
     "line-color": zCase(color),
@@ -87,6 +93,8 @@ export function createLayerStyles(getCurrentZLevel) {
       ["lipi-pts-lyr", "circle-stroke-opacity", zCaseNum(1, 0.25)],
       ["route-active-lyr", "line-color", zCase(MAP_STYLE.waypointCurrent)],
       ["route-active-lyr", "line-opacity", zCaseNum(0.95, 0.2)],
+      ["staged-leg-lyr", "line-color", zCase(MAP_STYLE.waypointCurrent)],
+      ["staged-leg-lyr", "line-opacity", zCaseNum(0.9, 0.2)],
       ["wp-pts-lyr", "circle-opacity", zCaseNum(1, 0.25)],
       ["wp-pts-lyr", "circle-stroke-opacity", zCaseNum(1, 0.25)],
       ["stop-pts-lyr", "circle-stroke-color", zCase("#0f172a")],
@@ -106,6 +114,7 @@ export function createLayerStyles(getCurrentZLevel) {
     stop,
     trail,
     trailPoint,
+    upcomingRoute,
     waypoint,
   };
 }

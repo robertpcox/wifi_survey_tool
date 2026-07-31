@@ -13,10 +13,10 @@ const route = {
   hash: "route-hash",
   stops: [{}, {}],
   checkpoints: [
-    { type: "stop", spacingBasisM: 5 },
-    { type: "intermediate", spacingBasisM: 5 },
-    { type: "intermediate", spacingBasisM: 5 },
-    { type: "stop", spacingBasisM: 5 },
+    { type: "stop", spacingBasisM: 5, dwellSeconds: 2 },
+    { type: "intermediate", spacingBasisM: 5, dwellSeconds: 0 },
+    { type: "intermediate", spacingBasisM: 5, dwellSeconds: 0 },
+    { type: "stop", spacingBasisM: 5, dwellSeconds: 1 },
   ],
 };
 const valid = {

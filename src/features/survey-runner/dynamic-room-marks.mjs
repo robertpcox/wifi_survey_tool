@@ -14,7 +14,9 @@ export async function planStagedLegMarks(options) {
   const { fromStop, target, spacingM, routeBetween } = options;
   const legIndex = requiredIndex(options.legIndex);
   const spacing = Number(spacingM) || 0;
-  if (!(spacing > 0)) return { legId: `leg-${legIndex + 1}`, marks: [] };
+  if (!(spacing > 0)) {
+    return { legId: `leg-${legIndex + 1}`, marks: [], geometry: [] };
+  }
   if (typeof routeBetween !== "function") {
     throw new TypeError("routeBetween: must be a function");
   }
@@ -36,6 +38,7 @@ export async function planStagedLegMarks(options) {
   ).checkpoints;
   return {
     legId: leg.id,
+    geometry: structuredClone(leg.geometry),
     marks: generated
       .filter(checkpoint => checkpoint.type === "intermediate")
       .map(checkpoint => ({

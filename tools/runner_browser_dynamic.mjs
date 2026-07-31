@@ -37,7 +37,6 @@ export async function exerciseDynamicRoomBrowser(options) {
   );
   await page.select("[data-survey-select]", DYNAMIC_SURVEY_ID);
   await setRunnerEntry(page, "Dynamic Android");
-  await page.select('[name="dynamicDwellSeconds"]', "5");
   await page.click('[data-action="preflight"]');
   await page.waitForFunction(() => (
     document.querySelector("[data-preflight-light]").textContent === "GREEN"
@@ -63,10 +62,7 @@ export async function exerciseDynamicRoomBrowser(options) {
       timeout: error.message,
     })}`);
   }
-  const count = await page.$eval(
-    "[data-poll-count]",
-    node => Number(node.textContent),
-  );
+  const count = await page.$eval("[data-poll-count]", node => Number(node.textContent));
   await page.click('[data-action="dynamic-finish"]');
   await page.waitForSelector('[data-dynamic-room-panel][data-phase="finalising"]');
   await page.waitForFunction(before => Number(
@@ -113,6 +109,11 @@ export function dynamicRoomBrowserFindings(value) {
       || checkpoints.some(checkpoint => checkpoint.spacingBasisM !== 5)
       || value.definition?.meta?.route?.checkpointSpacingM !== 5) {
     findings.push("5 m marks did not export with planned conventions");
+  }
+  const dwells = checkpoints.map(checkpoint => checkpoint.dwellSeconds);
+  if (!(Number.isInteger(dwells[0]) && dwells[0] < 45 && dwells[1] === 0
+      && dwells[2] === 0 && Number.isInteger(dwells[3]) && dwells[3] < 45)) {
+    findings.push("early-continue did not record the actual elapsed dwell");
   }
   if (value.result?.run?.captureMode !== "dynamic-room") {
     findings.push("dynamic capture provenance missing");

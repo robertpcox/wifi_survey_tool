@@ -89,7 +89,7 @@ test("applyTo refreshes every available layer for the current floor", () => {
 
   styles.applyTo(map);
 
-  assert.equal(calls.length, 18);
+  assert.equal(calls.length, 20);
   assert.deepEqual(calls[0], [
     "route-lines-lyr",
     "line-color",

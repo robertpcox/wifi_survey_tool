@@ -1,7 +1,7 @@
 // FEATURE:      Dynamic room staged-mark capture control
 // SURFACE:      createDynamicMarkCapture(options), dynamicRoomBackAction(session, marks)
-// WHY TOGETHER: Staged-leg planning, arming, and mark-aware undo share one epoch guard.
-// STATE:        One staged-plan epoch owned by the active dynamic capture
+// WHY TOGETHER: Staged-leg planning, arming, upcoming-leg render state, and undo share one epoch.
+// STATE:        One staged-plan epoch and leg geometry owned by the active dynamic capture
 // RULES:        Failed mark planning degrades to plain walking; marks stay optional taps.
 // PROVENANCE:   Structured dynamic capture request
 
@@ -18,10 +18,12 @@ export function createDynamicMarkCapture(options) {
   const { session } = options;
   let planEpoch = 0;
   let planned = null;
+  let legGeometry = [];
 
   function handleStaged(point) {
     const epoch = ++planEpoch;
     planned = null;
+    legGeometry = [];
     if (!(session.markSpacingM > 0) || session.stops.length === 0) return false;
     void planStagedLegMarks({
       fromStop: structuredClone(session.stops.at(-1)),
@@ -32,7 +34,9 @@ export function createDynamicMarkCapture(options) {
     }).then(plan => {
       if (epoch !== planEpoch) return;
       planned = { target: point, plan };
-      if (maybeArm()) options.onRender?.();
+      legGeometry = plan.geometry ?? [];
+      maybeArm();
+      options.onRender?.();
     }).catch(error => {
       if (epoch !== planEpoch) return;
       session.events.push({
@@ -43,6 +47,20 @@ export function createDynamicMarkCapture(options) {
       options.onRender?.();
     });
     return true;
+  }
+
+  function previewWaypoints() {
+    if (!planned || session.stagedPoint !== planned.target) return [];
+    return planned.plan.marks.map((mark, index) => ({
+      ...mark,
+      id: `dynamic-mark-preview-${index + 1}`,
+      kind: "mark",
+      state: "pending",
+    }));
+  }
+
+  function stagedLeg() {
+    return legGeometry;
   }
 
   function maybeArm() {
@@ -61,10 +79,13 @@ export function createDynamicMarkCapture(options) {
   function invalidate() {
     planEpoch++;
     planned = null;
+    legGeometry = [];
     return true;
   }
 
-  return Object.freeze({ cancelStaged, handleStaged, invalidate, maybeArm });
+  return Object.freeze({
+    cancelStaged, handleStaged, invalidate, maybeArm, previewWaypoints, stagedLeg,
+  });
 }
 
 export function dynamicRoomBackAction(session, marks) {

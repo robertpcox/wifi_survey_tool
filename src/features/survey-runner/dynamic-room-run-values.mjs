@@ -9,6 +9,7 @@ import {
   dynamicRoomDwellRemainingSeconds,
   dynamicRoomMarkState,
 } from "../../domain/dynamic-room-session-v3.mjs";
+import { dynamicRoomHudState } from "./dynamic-room-hud.mjs";
 
 const PHASE = Object.freeze({
   "awaiting-point": "tap-point",
@@ -31,6 +32,7 @@ export function dynamicRoomViewState(session, state, nowMs) {
     dwellRemainingSeconds: dynamicRoomDwellRemainingSeconds(session, nowMs()),
     marks: dynamicRoomMarkState(session),
     staged: Boolean(session.stagedPoint),
+    hud: dynamicRoomHudState(session),
     error: state.error,
     polling: state.polling !== false,
     retryAvailable: session.phase === "finalising" && Boolean(state.error),

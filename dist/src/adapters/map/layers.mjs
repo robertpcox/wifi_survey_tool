@@ -5,15 +5,15 @@ import { addMapLayer, BUILDING_EXTRUSION_LAYER_IDS } from "./map-layer-order.mjs
 
 export function createMapLayers(map, getCurrentZLevel) {
   const styles = createLayerStyles(getCurrentZLevel);
-  const setSource = (id, features) => {
+  const setSource = (id, features) =>
     map.getSource(id)?.setData({ type: "FeatureCollection", features });
-  };
 
   function ensureLayers() {
-    addLayer("route-lines", "line", {
-      ...styles.route,
-    }, { "line-join": "round", "line-cap": "round" }, BUILDING_EXTRUSION_LAYER_IDS);
+    addLayer("route-lines", "line", { ...styles.route },
+      { "line-join": "round", "line-cap": "round" }, BUILDING_EXTRUSION_LAYER_IDS);
     addActiveLeg();
+    addLayer("staged-leg", "line", styles.upcomingRoute,
+      { "line-join": "round", "line-cap": "round" }, BUILDING_EXTRUSION_LAYER_IDS);
     addLayer("cloud-trail", "line", styles.trail(MAP_STYLE.cloud));
     addLayer("lipi-trail", "line", styles.trail(MAP_STYLE.lipi));
     addLayer("cloud-pts", "circle", styles.trailPoint(MAP_STYLE.cloud));
@@ -108,6 +108,13 @@ export function createMapLayers(map, getCurrentZLevel) {
     setSource("cloud-pts", points);
   }
 
+  function drawStagedLeg(points) {
+    ensureLayers();
+    const features = [];
+    appendPathFeatures(features, points || [], { staged: true });
+    setSource("staged-leg", features);
+  }
+
   function setActiveLeg(legIndex) {
     ensureLayers();
     try {
@@ -123,6 +130,7 @@ export function createMapLayers(map, getCurrentZLevel) {
     applyZStyling: () => styles.applyTo(map),
     drawRoute,
     drawPositionTrail,
+    drawStagedLeg,
     drawStops,
     drawTrails,
     drawWaypoints,
@@ -132,17 +140,11 @@ export function createMapLayers(map, getCurrentZLevel) {
 }
 
 function pointFeature(point, properties) {
-  return {
-    type: "Feature",
-    properties,
-    geometry: { type: "Point", coordinates: [point.lng, point.lat] },
-  };
+  return { type: "Feature", properties,
+    geometry: { type: "Point", coordinates: [point.lng, point.lat] } };
 }
 
 function samplePoint(sample) {
-  return {
-    lng: sample.data.longitude,
-    lat: sample.data.latitude,
-    z: sample.data.zLevel ?? 1,
-  };
+  return { lng: sample.data.longitude, lat: sample.data.latitude,
+    z: sample.data.zLevel ?? 1 };
 }

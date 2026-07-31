@@ -31,6 +31,10 @@ test("a 22 m corridor leg yields 5 m marks clear of both endpoints", async () =>
   assert.equal(plan.legId, "leg-1");
   assert.equal(calls.length, 1);
   assert.equal("name" in calls[0][1], false);
+  assert.deepEqual(plan.geometry, [
+    { lng: FROM.lng, lat: FROM.lat, z: 1 },
+    { lng: TARGET.lng, lat: TARGET.lat, z: 1 },
+  ]);
   assert.equal(plan.marks.length, 2);
   for (const [index, mark] of plan.marks.entries()) {
     assert.equal(mark.legId, "leg-1");
@@ -51,7 +55,7 @@ test("spacing zero returns no marks without routing", async () => {
       throw new Error("must not route");
     },
   });
-  assert.deepEqual(plan, { legId: "leg-2", marks: [] });
+  assert.deepEqual(plan, { legId: "leg-2", marks: [], geometry: [] });
 });
 
 test("short legs produce no marks and bad indexes are rejected", async () => {

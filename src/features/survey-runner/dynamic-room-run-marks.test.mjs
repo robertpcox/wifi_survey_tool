@@ -20,12 +20,9 @@ const poll = id => ({
   sourceId: "mazemap-cloud",
   sentAt: "2026-07-30T00:59:59.900Z",
   receivedAt: "2026-07-30T01:00:00.000Z",
-  roundTripMs: 100,
-  httpStatus: 200,
-  success: true,
+  roundTripMs: 100, httpStatus: 200, success: true,
   normalized: { lat: -45.8724, lng: 170.5085, z: 1, fixTime: null, confidence: 0.9 },
-  raw: { fixture: true },
-  error: null,
+  raw: { fixture: true }, error: null,
 });
 
 test("staged 5 m marks flow into every exported result", async () => {
@@ -38,6 +35,8 @@ test("staged 5 m marks flow into every exported result", async () => {
     stop() { this.active = false; },
   };
   const rendered = [];
+  const stagedLegDraws = [];
+  const waypointDraws = [];
   const view = {
     phase: "tap-point",
     acceptsMapPoint() {
@@ -51,11 +50,8 @@ test("staged 5 m marks flow into every exported result", async () => {
   const runner = createDynamicRoomRunner({
     definition,
     entry: {
-      deviceType: "mobile",
-      deviceOs: "Android 16",
-      deviceName: "Field handset",
-      clientIp: "192.0.2.8",
-      band: "5",
+      deviceType: "mobile", deviceOs: "Android 16",
+      deviceName: "Field handset", clientIp: "192.0.2.8", band: "5",
     },
     preflight: { verdict: "green", sampleId: "poll-1", acknowledged: false, reasons: [] },
     polls: [poll("poll-1")],
@@ -63,18 +59,14 @@ test("staged 5 m marks flow into every exported result", async () => {
     dwellSeconds: 45,
     markSpacingM: 5,
     extraDevices: [{
-      label: "iPhone B",
-      clientIp: "192.0.2.9",
-      slug: "iphone-b",
+      label: "iPhone B", clientIp: "192.0.2.9", slug: "iphone-b",
       polls: [poll("poll-iphone-b-1")],
     }],
     mapAdapter: {
       currentZLevel: 1,
-      drawRoute() {},
-      drawStops() {},
-      drawWaypoints() {},
-      focusWaypoint() {},
-      setMapZLevel() {},
+      drawRoute() {}, drawStops() {}, focusWaypoint() {}, setMapZLevel() {},
+      drawStagedLeg(points) { stagedLegDraws.push(points); },
+      drawWaypoints(waypoints) { waypointDraws.push(waypoints); },
     },
     routeBetween: async (from, to) => [
       { lng: from.lng, lat: from.lat, z: from.z },
@@ -97,27 +89,43 @@ test("staged 5 m marks flow into every exported result", async () => {
   const first = definition.route.stops[0];
   const second = { lng: first.lng, lat: first.lat + 0.0002, z: first.z };
   await runner.handleMapClick({ lngLat: first });
-  assert.equal(runner.dwell(), true);
+  assert.equal(runner.checkIn(), true);
   assert.equal(runner.session.phase, "dwelling");
   await runner.handleMapClick({ lngLat: second });
   assert.equal(runner.session.phase, "dwelling");
   assert.ok(runner.session.stagedPoint);
   await new Promise(resolve => setTimeout(resolve, 0));
-  wallMs += 46_000;
-  timers.splice(0).forEach(callback => callback());
+  assert.equal(runner.session.phase, "dwelling");
+  assert.equal(stagedLegDraws.at(-1).length, 2);
+  assert.equal(
+    waypointDraws.at(-1).filter(point => point.id?.startsWith("dynamic-mark-preview")).length,
+    2,
+  );
+  wallMs += 12_000;
+  assert.equal(runner.continueDwell(), true);
+  timers.splice(0);
   assert.equal(runner.session.phase, "pending-point");
+  assert.equal(runner.session.checkpoints[0].dwellSeconds, 12);
   assert.equal(runner.session.markPlan.marks.length, 2);
   assert.deepEqual(
     rendered.at(-1).marks,
     { consumed: 0, total: 2, remaining: 2, pending: runner.session.markPlan.marks },
   );
-  wallMs += 5_000;
-  assert.equal(runner.passMark(), true);
-  wallMs += 5_000;
-  assert.equal(runner.passMark(), true);
-  assert.equal(runner.passMark(), false);
+  assert.deepEqual(rendered.at(-1).hud.target, "Mark 1 of 2");
   wallMs += 5_000;
   assert.equal(runner.checkIn(), true);
+  wallMs += 5_000;
+  assert.equal(runner.checkIn(), true);
+  assert.equal(runner.skip(), false);
+  assert.equal(rendered.at(-1).hud.progress, "checkpoint 2");
+  assert.equal(stagedLegDraws.at(-1).length, 2);
+  wallMs += 5_000;
+  assert.equal(runner.checkIn(), true);
+  assert.equal(runner.session.phase, "dwelling");
+  assert.deepEqual(stagedLegDraws.at(-1), []);
+  wallMs += 9_000;
+  assert.equal(runner.continueDwell(), true);
+  timers.splice(0);
   wallMs += 1_000;
   await runner.finish();
   assert.equal(runner.state.completionStatus, "completed");
@@ -128,15 +136,13 @@ test("staged 5 m marks flow into every exported result", async () => {
   );
   assert.equal(output.definition.route.checkpoints[1].legId, "leg-1");
   assert.equal(output.definition.meta.route.checkpointSpacingM, 5);
-  assert.equal(output.definition.route.checkpoints[0].dwellSeconds, 45);
   assert.deepEqual(
-    output.result.checkIns.map(item => item.checkpointId),
-    ["checkpoint-1", "checkpoint-2", "checkpoint-3", "checkpoint-4"],
+    output.definition.route.checkpoints.map(item => item.dwellSeconds),
+    [12, 0, 0, 9],
   );
+  assert.deepEqual(output.result.checkIns.map(item => item.checkpointId),
+    ["checkpoint-1", "checkpoint-2", "checkpoint-3", "checkpoint-4"]);
   assert.equal(output.deviceResults.length, 1);
   assert.equal(output.deviceResults[0].result.checkIns.length, 4);
-  assert.equal(
-    output.deviceResults[0].result.route.checkpoints.length,
-    4,
-  );
+  assert.equal(output.deviceResults[0].result.route.checkpoints.length, 4);
 });

@@ -24,8 +24,8 @@ export {
 export {
   DYNAMIC_DWELL_CHOICES_SECONDS, DYNAMIC_DWELL_DEFAULT_SECONDS,
   DYNAMIC_DWELL_EXTENSION_SECONDS, DYNAMIC_DWELL_SECONDS,
-  dynamicRoomDwellRemainingSeconds, extendDynamicRoomDwell,
-  normalizeDynamicDwellSeconds, refreshDynamicRoomDwell,
+  continueDynamicRoomDwell, dynamicRoomDwellRemainingSeconds,
+  extendDynamicRoomDwell, normalizeDynamicDwellSeconds, refreshDynamicRoomDwell,
 } from "./dynamic-room-session-dwell-v3.mjs";
 export {
   armDynamicRoomMarks, cancelStagedDynamicRoomPoint, dynamicRoomMarkState,

@@ -12,6 +12,7 @@ import {
   DYNAMIC_DWELL_CHOICES_SECONDS,
   DYNAMIC_DWELL_DEFAULT_SECONDS,
   checkInDynamicRoomPoint,
+  continueDynamicRoomDwell,
   createDynamicRoomSession,
   extendDynamicRoomDwell,
   normalizeDynamicDwellSeconds,
@@ -54,6 +55,35 @@ test("the ten-second extension stacks on the configured dwell", () => {
     changed: false,
     remainingSeconds: 1,
   });
+});
+
+test("continuing early records the actual elapsed dwell and promotes staging", () => {
+  const session = createDynamicRoomSession({ dwellSeconds: 45 });
+  placeDynamicRoomPoint(session, ROOM);
+  checkInDynamicRoomPoint(session, { at: AT, dwell: true, nowMs: 2_000 });
+  session.stagedPoint = { lng: 170.5086, lat: -45.8722, z: 1 };
+  const early = continueDynamicRoomDwell(session, 14_400);
+  assert.deepEqual(early, { changed: true, dwellSeconds: 12 });
+  assert.equal(session.checkpoints[0].dwellSeconds, 12);
+  assert.equal(session.phase, "pending-point");
+  assert.equal(session.pendingPoint.lng, 170.5086);
+  assert.equal(session.stagedPoint, null);
+  assert.equal(session.dwell, null);
+  assert.equal(continueDynamicRoomDwell(session, 15_000).reason, "not-dwelling");
+});
+
+test("continuing after the deadline keeps the fully-stood dwell value", () => {
+  const session = createDynamicRoomSession({ dwellSeconds: 15 });
+  placeDynamicRoomPoint(session, ROOM);
+  checkInDynamicRoomPoint(session, { at: AT, dwell: true, nowMs: 0 });
+  extendDynamicRoomDwell(session, 10_000);
+  const result = continueDynamicRoomDwell(session, 26_000);
+  assert.deepEqual(result, { changed: true, dwellSeconds: 25 });
+  assert.equal(session.phase, "walking");
+  const immediate = createDynamicRoomSession({ dwellSeconds: 45 });
+  placeDynamicRoomPoint(immediate, ROOM);
+  checkInDynamicRoomPoint(immediate, { at: AT, dwell: true, nowMs: 0 });
+  assert.equal(continueDynamicRoomDwell(immediate, 400).dwellSeconds, 0);
 });
 
 test("invalid dwell values fall back to the legacy default", () => {

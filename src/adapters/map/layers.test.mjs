@@ -39,23 +39,13 @@ test("ensureLayers registers the original sources and layers once", () => {
   adapter.ensureLayers();
 
   assert.deepEqual([...map.sources.keys()], [
-    "route-lines",
-    "cloud-trail",
-    "lipi-trail",
-    "cloud-pts",
-    "lipi-pts",
-    "wp-pts",
-    "stop-pts",
+    "route-lines", "staged-leg", "cloud-trail", "lipi-trail",
+    "cloud-pts", "lipi-pts", "wp-pts", "stop-pts",
   ]);
   assert.deepEqual([...map.layers.keys()], [
-    "route-lines-lyr",
-    "route-active-lyr",
-    "cloud-trail-lyr",
-    "lipi-trail-lyr",
-    "cloud-pts-lyr",
-    "lipi-pts-lyr",
-    "wp-pts-lyr",
-    "stop-pts-lyr",
+    "route-lines-lyr", "route-active-lyr", "staged-leg-lyr",
+    "cloud-trail-lyr", "lipi-trail-lyr", "cloud-pts-lyr",
+    "lipi-pts-lyr", "wp-pts-lyr", "stop-pts-lyr",
   ]);
   assert.deepEqual(map.layers.get("route-active-lyr").filter, [
     "==",

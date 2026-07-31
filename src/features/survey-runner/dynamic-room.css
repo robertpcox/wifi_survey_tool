@@ -6,37 +6,15 @@
  * PROVENANCE:   Ad-hoc room survey field workflow
  */
 
-[data-run-panel][data-dynamic-room-active="true"] > .capture-actions {
-  display: none;
-}
-
-[data-run-panel][data-dynamic-room-active="true"] .run-hud > .target-label,
-[data-run-panel][data-dynamic-room-active="true"] .run-hud > [data-current-target],
-[data-run-panel][data-dynamic-room-active="true"] .run-hud > .dwell-status,
 [data-run-panel][data-dynamic-room-active="true"]
   .run-vitals > span:has(> [data-target-distance]) {
   display: none;
 }
 
-[data-run-panel][data-dynamic-room-active="true"]
-  [data-action="skip-checkpoint"] {
-  display: none;
-}
-
-[data-run-panel][data-dynamic-room-active="true"] .run-vitals {
-  grid-column: 1;
-  grid-row: 1;
-}
-
-[data-run-panel][data-dynamic-room-active="true"] .checkpoint-stop {
-  grid-column: 2;
-  grid-row: 1;
-}
-
 .dynamic-room-panel {
   position: fixed;
   right: max(.7rem, env(safe-area-inset-right));
-  bottom: max(.7rem, env(safe-area-inset-bottom));
+  bottom: calc(max(.75rem, env(safe-area-inset-bottom)) + 6.6rem);
   left: max(.7rem, env(safe-area-inset-left));
   z-index: 14;
   display: grid;
@@ -65,11 +43,6 @@
   font-size: 1rem;
 }
 
-.dynamic-room-panel [data-dynamic-room-dwell] {
-  color: #7b4808;
-  font-size: 1.15rem;
-}
-
 .dynamic-room-actions,
 .dynamic-room-exports {
   display: grid;
@@ -90,7 +63,6 @@
   line-height: 1.15;
 }
 
-.dynamic-room-actions [data-action="dynamic-dwell"],
 .dynamic-room-actions [data-action="dynamic-extend-dwell"],
 .dynamic-room-actions [data-action="dynamic-retry"] {
   color: #7b4808;
@@ -98,19 +70,15 @@
   background: #fff8e8;
 }
 
-.dynamic-room-actions [data-action="dynamic-extend-dwell"],
+.dynamic-room-actions [data-action="dynamic-continue-dwell"] {
+  color: #14532d;
+  border-color: #4d9d6a;
+  background: #eefaf1;
+}
+
 .dynamic-room-actions [data-action="dynamic-finish"],
 .dynamic-room-actions [data-action="dynamic-retry"] {
   grid-column: 1 / -1;
-}
-
-.dynamic-room-actions [data-action="dynamic-pass-mark"] {
-  grid-column: 1 / -1;
-  min-height: 4.2rem;
-  color: #fff;
-  border-color: #1d4ed8;
-  background: #2563eb;
-  font-size: 1.1rem;
 }
 
 .dynamic-room-exports [data-action="dynamic-clear"] {

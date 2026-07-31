@@ -1,6 +1,6 @@
 // FEATURE:      Dynamic room Runner capture view
 // SURFACE:      createDynamicRoomView(documentRef)
-// WHY TOGETHER: Live point choice, dwell staging, marks, and paired exports form one panel.
+// WHY TOGETHER: Live point choice, dwell staging, and paired exports drive one shared HUD.
 // STATE:        tap-point, pending, walking, dwelling, finalising, or completed
 // RULES:        This view emits intent only; map clicks, polling, routing, and export stay external.
 // PROVENANCE:   Ad-hoc room survey field workflow
@@ -10,10 +10,11 @@ import {
   dynamicRoomStatusText,
   ensureDynamicRoomMarkup,
 } from "./dynamic-room-view-markup.mjs";
+import { renderDynamicRoomActions } from "./dynamic-room-view-actions.mjs";
 import {
-  renderDynamicRoomActions,
-  renderDynamicRoomDwell,
-} from "./dynamic-room-view-actions.mjs";
+  renderDynamicRoomHud,
+  resetDynamicRoomHud,
+} from "./dynamic-room-hud.mjs";
 
 export { DYNAMIC_ROOM_SELECTORS } from "./dynamic-room-view-markup.mjs";
 const PHASES = new Set(["tap-point", "pending", "walking", "dwelling", "finalising", "completed"]);
@@ -49,18 +50,15 @@ export function createDynamicRoomView(documentRef) {
     setText(find, DYNAMIC_ROOM_SELECTORS.status, dynamicRoomStatusText(state));
     const back = find(DYNAMIC_ROOM_SELECTORS.back);
     if (back) back.disabled = !state.canBack;
-    renderDynamicRoomDwell(find, phase, state.dwellRemainingSeconds);
+    renderDynamicRoomHud(find, state);
     renderDynamicRoomActions(find, phase, state);
   }
 
   return Object.freeze({
     acceptsMapPoint: () => dynamicRoomAcceptsPoint(currentPhase),
     bind(handlers) {
-      bind(find, DYNAMIC_ROOM_SELECTORS.checkIn, handlers.checkIn);
-      bind(find, DYNAMIC_ROOM_SELECTORS.dwell, handlers.dwell);
+      bind(find, DYNAMIC_ROOM_SELECTORS.continueDwell, handlers.continueDwell);
       bind(find, DYNAMIC_ROOM_SELECTORS.extendDwell, handlers.extendDwell);
-      bind(find, DYNAMIC_ROOM_SELECTORS.passMark, handlers.passMark);
-      bind(find, DYNAMIC_ROOM_SELECTORS.skipMark, handlers.skipMark);
       bind(find, DYNAMIC_ROOM_SELECTORS.finish, handlers.finish);
       bind(find, DYNAMIC_ROOM_SELECTORS.retry, handlers.retry);
       bind(find, DYNAMIC_ROOM_SELECTORS.downloadDefinition, handlers.downloadDefinition);
@@ -72,6 +70,7 @@ export function createDynamicRoomView(documentRef) {
       if (panel) panel.hidden = true;
       const root = find("[data-run-panel]");
       if (root) root.dataset.dynamicRoomActive = "false";
+      resetDynamicRoomHud(find);
     },
     render,
   });

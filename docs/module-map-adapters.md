@@ -8,8 +8,8 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - evidence-interactions 103/3269 T+ E createEvidenceInteractions
 - features 64/1843 T+ E appendPathFeatures, emptyFC, recentSourceFixes
 - geojson-layer-group 77/2367 T+ E createGeoJsonLayerGroup I features, map-layer-order
-- layer-styles 111/3387 T+ E createLayerStyles I @d/route-contract
-- layers 148/4337 T+ E createMapLayers I @d/route-contract, features, layer-styles, map-layer-order
+- layer-styles 120/3720 T+ E createLayerStyles I @d/route-contract
+- layers 150/4653 T+ E createMapLayers I @d/route-contract, features, layer-styles, map-layer-order
 - map-camera-follow 60/2140 T+ E followMapPoint
 - map-geojson 80/2743 T+ E geoCircle, geoPath, geoPoint, validMapPoint
 - map-layer-order 24/988 T+ E AREA_EXTRUSION_LAYER_ID, BUILDING_EXTRUSION_LAYER_IDS, WALLS_EXTRUSION_LAYER_ID, addMapLayer
@@ -25,7 +25,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - mazemap-runtime 38/1032 T+ E errorMessage, normalizeCampusId, numericZ, waitForMapLoad
 - mazemap-sdk 78/2763 T+ E MAZEMAP_CSS_URL, MAZEMAP_JS_URL, loadMazemapSdk, resolveMazemapSdk
 - mazemap-shared-boundary 78/2384 T+ E createMazeMapSharedBoundary
-- mazemap 146/6025 T+ E createMazeMapAdapter
+- mazemap 147/6085 T+ E createMazeMapAdapter
   - I @d/route-contract, layers, map-resize, mazemap-3d, mazemap-controls, mazemap-errors, mazemap-floor-control, mazemap-launch, mazemap-queries,
     mazemap-runtime, mazemap-sdk, mazemap-shared-boundary, shared-map-layers
 - note-features 37/1262 T+ E notePointFeatures

@@ -16,19 +16,20 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
     survey-meta-v3
 - definition-copy-v3 30/1397 T+ E immutableDefinitionCopy, mutableDefinitionCopy, sanitizedDefinitionCopy
 - dynamic-room-preflight-v3 89/2610 T+ E evaluateDynamicRoomPreflight I runner-preflight-v3
-- dynamic-room-session-dwell-v3 68/2420 T+
-  - E DYNAMIC_DWELL_CHOICES_SECONDS, DYNAMIC_DWELL_DEFAULT_SECONDS, DYNAMIC_DWELL_EXTENSION_SECONDS, DYNAMIC_DWELL_SECONDS, dynamicRoomDwellRemainingSeconds,
-    extendDynamicRoomDwell, normalizeDynamicDwellSeconds, refreshDynamicRoomDwell I dynamic-room-session-values-v3
+- dynamic-room-session-dwell-v3 84/2918 T+
+  - E DYNAMIC_DWELL_CHOICES_SECONDS, DYNAMIC_DWELL_DEFAULT_SECONDS, DYNAMIC_DWELL_EXTENSION_SECONDS, DYNAMIC_DWELL_SECONDS, continueDynamicRoomDwell,
+    dynamicRoomDwellRemainingSeconds, extendDynamicRoomDwell, normalizeDynamicDwellSeconds, refreshDynamicRoomDwell I dynamic-room-session-values-v3
 - dynamic-room-session-finalise-v3 51/1950 T- E completeDynamicRoomSession, requestDynamicRoomFinish I dynamic-room-session-values-v3
 - dynamic-room-session-marks-v3 112/3731 T+
   - E armDynamicRoomMarks, cancelStagedDynamicRoomPoint, dynamicRoomMarkState, normalizeDynamicMarkSpacingM, passDynamicRoomMark, skipDynamicRoomMark,
     undoDynamicRoomMarkEntry I dynamic-room-session-values-v3
-- dynamic-room-session-v3 146/5185 T+
+- dynamic-room-session-v3 146/5211 T+
   - E DYNAMIC_DWELL_CHOICES_SECONDS, DYNAMIC_DWELL_DEFAULT_SECONDS, DYNAMIC_DWELL_EXTENSION_SECONDS, DYNAMIC_DWELL_SECONDS, armDynamicRoomMarks,
-    cancelDynamicRoomPoint, cancelStagedDynamicRoomPoint, checkInDynamicRoomPoint, completeDynamicRoomSession, createDynamicRoomSession,
-    dynamicRoomDwellRemainingSeconds, dynamicRoomMarkState, extendDynamicRoomDwell, normalizeDynamicDwellSeconds, normalizeDynamicMarkSpacingM,
-    passDynamicRoomMark, placeDynamicRoomPoint, refreshDynamicRoomDwell, requestDynamicRoomFinish, skipDynamicRoomMark, undoDynamicRoomMarkEntry,
-    undoLastDynamicRoomCheckIn I dynamic-room-session-dwell-v3, dynamic-room-session-finalise-v3, dynamic-room-session-marks-v3, dynamic-room-session-values-v3
+    cancelDynamicRoomPoint, cancelStagedDynamicRoomPoint, checkInDynamicRoomPoint, completeDynamicRoomSession, continueDynamicRoomDwell,
+    createDynamicRoomSession, dynamicRoomDwellRemainingSeconds, dynamicRoomMarkState, extendDynamicRoomDwell, normalizeDynamicDwellSeconds,
+    normalizeDynamicMarkSpacingM, passDynamicRoomMark, placeDynamicRoomPoint, refreshDynamicRoomDwell, requestDynamicRoomFinish, skipDynamicRoomMark,
+    undoDynamicRoomMarkEntry, undoLastDynamicRoomCheckIn
+  - I dynamic-room-session-dwell-v3, dynamic-room-session-finalise-v3, dynamic-room-session-marks-v3, dynamic-room-session-values-v3
 - dynamic-room-session-values-v3 90/2472 T-
   - E dynamicRoomCheckInRecords, dynamicRoomMonotonic, dynamicRoomTimestamp, exactDynamicRoomPoint, remainingDynamicRoomDwellSeconds
 - geometry 38/1241 T+ E bearing, haversine, lerp, pathLength

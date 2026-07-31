@@ -107,8 +107,10 @@ test("a 45-second run exports one result per device without touching the primary
   assert.equal(rendered.at(-1).dwellSeconds, 45);
   assert.equal(runner.checkIn(), true);
   wallMs += 20_000;
+  assert.equal(runner.continueDwell(), true);
   await runner.handleMapClick({ lngLat: second });
   assert.equal(runner.checkIn(), true);
+  assert.equal(runner.continueDwell(), true);
   wallMs += 1_000;
   await runner.finish();
   assert.equal(runner.state.completionStatus, "completed");

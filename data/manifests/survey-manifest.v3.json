@@ -2,6 +2,16 @@
   "schemaVersion": 3,
   "surveys": [
     {
+      "surveyId": "375c4882-2e72-4758-8089-f1d2a3bf7c8c",
+      "surveyName": "Dynamic room survey",
+      "customerId": "292",
+      "customerName": "NTT - NDH",
+      "campusId": "566",
+      "routeId": "dynamic-room-20260731005033",
+      "routeHash": "16dc4269d8803f23094bef051c6e7f834eaeb4fef152d811e71ccf10774264a2",
+      "path": "data/surveys/375c4882-2e72-4758-8089-f1d2a3bf7c8c.definition.v3.json"
+    },
+    {
       "surveyId": "4a9ba424-a96f-466d-a000-d0ba5d62571e",
       "surveyName": "All Floors",
       "customerId": "292",

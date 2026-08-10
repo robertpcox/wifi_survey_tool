@@ -31,6 +31,7 @@ test("controller merges after load, extends floors, and serves overview mode", a
       loaded = true;
     },
     results: () => [outAndBack],
+    records: () => [{ result: outAndBack, exceptions: [] }],
     get loaded() { return loaded; },
     get entryCount() { return 1; },
   };
@@ -42,7 +43,15 @@ test("controller merges after load, extends floors, and serves overview mode", a
   const controller = createCampusOverviewController({ store, loader, floorInput });
   assert.equal(controller.loaded, false);
   assert.equal(controller.rebuild(), null);
-  assert.equal(controller.mapAnalysis("overview", analysis), analysis);
+  const emptyOverview = controller.mapAnalysis("overview", analysis);
+  assert.equal(emptyOverview.overview, true);
+  assert.deepEqual(emptyOverview.fitPoints, []);
+  assert.deepEqual(Object.keys(emptyOverview.heatmaps), [
+    "freeze", "sticky", "lag", "accuracy", "room",
+  ]);
+  assert.ok(Object.values(emptyOverview.heatmaps)
+    .every(floors => floors.every(floor => floor.points.length === 0)));
+  assert.equal(emptyOverview.areaResolution, null);
   assert.match(controller.panelHtml(), /Load and merge all 2 campus runs/);
 
   const progress = [];
@@ -57,7 +66,15 @@ test("controller merges after load, extends floors, and serves overview mode", a
   assert.deepEqual(added, ['<option value="1">First</option>']);
   const overviewAnalysis = controller.mapAnalysis("overview", analysis);
   assert.notEqual(overviewAnalysis, analysis);
-  assert.ok(overviewAnalysis.concernSegments.length > 0);
+  assert.deepEqual(overviewAnalysis.concernSegments, []);
+  controller.setRoomSummary({
+    truthIssuePoints: [{ lng: 170.5, lat: -45.87, z: 0, weight: 1 }],
+    ciscoIssuePoints: [{ lng: 170.6, lat: -45.87, z: 0, weight: 1 }],
+  });
+  assert.equal(controller.mapAnalysis("overview", analysis)
+    .heatmaps.room[0].points.length, 1);
+  assert.equal(controller.mapAnalysis("overview", analysis)
+    .heatmaps.room[0].points[0].lng, 170.6);
   assert.equal(controller.mapAnalysis("analysis", analysis), analysis);
   assert.match(controller.panelHtml(), /2 runs merged/);
   assert.equal(progress.at(-1), "refreshed");

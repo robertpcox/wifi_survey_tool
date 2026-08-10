@@ -1,15 +1,15 @@
 // FEATURE:      Report heat overlays on the shared geographic map
 // SURFACE:      createReportMapLayers(map, currentFloor)
-// WHY TOGETHER: Sticky/accuracy extraction, GeoJSON weighting, and heat visibility share one boundary.
-// STATE:        Selected report heat kind and two stable GeoJSON sources
-// RULES:        Use exact lng/lat/z, elapsed weightSeconds, and the selected meta floor.
+// WHY TOGETHER: Report heat extraction, GeoJSON weighting, and visibility share one boundary.
+// STATE:        Selected report heat kind and stable per-kind GeoJSON sources
+// RULES:        Use exact lng/lat/z, a unit-neutral weight, and the selected meta floor.
 // PROVENANCE:   Scope/contracts/report_analysis.md shared-map heat contract
 
 import { createGeoJsonLayerGroup } from "./geojson-layer-group.mjs";
 import { AREA_EXTRUSION_LAYER_ID } from "./map-layer-order.mjs";
 import { notePointFeatures } from "./note-features.mjs";
 
-const KINDS = ["sticky", "accuracy"];
+const KINDS = ["freeze", "sticky", "lag", "accuracy", "room"];
 const COLORS = [
   "interpolate", ["linear"], ["heatmap-density"],
   0, "rgba(0,0,255,0)",
@@ -126,20 +126,20 @@ function heatFeature(point) {
   const lng = Number(point?.lng);
   const lat = Number(point?.lat);
   const z = Number(point?.z);
-  const weightSeconds = Number(point?.weightSeconds ?? point?.weight);
-  if (![lng, lat, z, weightSeconds].every(Number.isFinite)) {
-    throw new TypeError("Report heat points require finite lng, lat, z, and weightSeconds.");
+  const weight = Number(point?.weight ?? point?.weightSeconds);
+  if (![lng, lat, z, weight].every(Number.isFinite)) {
+    throw new TypeError("Report heat points require finite lng, lat, z, and weight.");
   }
   return {
     type: "Feature",
-    properties: { ...point, z, weightSeconds },
+    properties: { ...point, z, weight },
     geometry: { type: "Point", coordinates: [lng, lat] },
   };
 }
 
 function heatPaint() {
   return {
-    "heatmap-weight": ["get", "weightSeconds"],
+    "heatmap-weight": ["get", "weight"],
     "heatmap-intensity": ["interpolate", ["linear"], ["zoom"], 16, 0.2, 22, 1],
     "heatmap-color": COLORS,
     "heatmap-radius": ["interpolate", ["linear"], ["zoom"], 10, 5, 22, 30],

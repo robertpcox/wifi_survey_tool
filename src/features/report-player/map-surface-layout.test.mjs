@@ -12,6 +12,7 @@ import test from "node:test";
 import {
   createMapSurfaceLayout,
   routeCenter,
+  routeForMapAnalysis,
   safelyCreateMap,
 } from "./map-surface-layout.mjs";
 
@@ -58,4 +59,24 @@ test("route center and guarded construction use fixture geography without throwi
   assert.deepEqual(safelyCreateMap(() => adapter), { adapter, error: null });
   const error = new Error("SDK absent");
   assert.deepEqual(safelyCreateMap(() => { throw error; }), { adapter: null, error });
+});
+
+test("overview fit uses aggregate points instead of the seed route", async () => {
+  const fitted = [];
+  const aggregate = routeForMapAnalysis({
+    overview: true,
+    fitPoints: [{ lng: 3, lat: 4, z: 1 }],
+  }, result.route);
+  const layout = createMapSurfaceLayout({
+    adapter: {
+      fitRoute: route => fitted.push(route),
+      resizeMapSoon: async () => {},
+    },
+    route: result.route,
+  });
+  layout.setRoute(aggregate);
+  await layout.settle();
+  assert.equal(fitted[0], aggregate);
+  assert.equal(routeForMapAnalysis({}, result.route), result.route);
+  assert.deepEqual(routeForMapAnalysis({ overview: true }, result.route), { legs: [] });
 });

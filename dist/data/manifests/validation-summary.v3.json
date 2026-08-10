@@ -3,5 +3,6 @@
   "valid": true,
   "surveyCount": 8,
   "resultCount": 12,
-  "customerCount": 1
+  "customerCount": 1,
+  "reviewedExceptionCount": 4
 }

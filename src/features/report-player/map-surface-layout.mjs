@@ -11,9 +11,10 @@ export function createMapSurfaceLayout({
   route,
   ResizeObserverRef,
 }) {
+  let fittedRoute = route;
   async function settle() {
     await adapter?.resizeMapSoon();
-    adapter?.fitRoute(route);
+    adapter?.fitRoute(fittedRoute);
   }
 
   let observer = null;
@@ -23,8 +24,15 @@ export function createMapSurfaceLayout({
   }
   return Object.freeze({
     disconnect: () => observer?.disconnect(),
+    setRoute(next) { fittedRoute = next ?? route; },
     settle,
   });
+}
+
+export function routeForMapAnalysis(analysis, fallback) {
+  if (!analysis?.overview) return fallback;
+  return { legs: analysis.fitPoints?.length
+    ? [{ geometry: analysis.fitPoints }] : [] };
 }
 
 export function routeCenter(route) {

@@ -29,7 +29,7 @@ test("one map and one loaded context compose the Report and full Player", () => 
   });
   for (const module of [
     "warnings", "floor-route", "mapAlerts", "kpi", "insights", "direction",
-    "heatmap", "noPosition", "comparison", "methodology", "playback",
+    "heatmap", "noPosition", "rooms", "comparison", "methodology", "playback",
   ]) {
     assert.match(html, new RegExp(`data-module="${module}"`));
   }
@@ -69,3 +69,23 @@ test("one map and one loaded context compose the Report and full Player", () => 
 function count(value, fragment) {
   return value.split(fragment).length - 1;
 }
+
+test("consolidated shell exposes overview without seed-run modes", () => {
+  const analysis = analyzeReportResult(result, {
+    stickySeconds: 2,
+    accuracyM: 5,
+  });
+  const html = renderReportShell({
+    result,
+    analysis,
+    thresholds: analysis.thresholds,
+    comparison: null,
+    view: "overview",
+    consolidated: true,
+  });
+  assert.match(html, /data-report-view="overview">Consolidated report/);
+  assert.doesNotMatch(html, /data-report-view="analysis"/);
+  assert.doesNotMatch(html, /data-report-view="playback"/);
+  assert.match(html, /data-report-pane="overview" class="analysis-pane">/);
+  assert.match(html, /data-report-context="analysis" hidden/);
+});

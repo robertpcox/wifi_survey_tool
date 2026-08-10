@@ -9,6 +9,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  consolidatedReportUrl,
   createDashboardModel,
   customerIdFromUrl,
   reportPlayerBaseFromUrl,
@@ -18,7 +19,7 @@ import {
 const survey = { surveyId: "survey-a", surveyName: "Route A" };
 const completed = {
   resultId: "result-a", surveyId: "survey-a",
-  customerId: "customer-a", completionStatus: "completed",
+  customerId: "customer-a", campusId: "566", completionStatus: "completed",
   exportedAt: "2026-07-28T01:00:00Z", path: "results/a.result.v3.json",
   device: { name: "Handset", type: "mobile", os: "OS 1" }, band: "5",
 };
@@ -52,14 +53,50 @@ test("dashboard model is customer-scoped and launches only completed results", (
     results: [completed, { ...completed, completionStatus: "aborted" }],
   }, "customer-a");
   assert.equal(model.surveys[0].results.length, 1);
+  assert.deepEqual(model.campuses, [{
+    campusId: "566",
+    customerId: "customer-a",
+    runCount: 1,
+    surveyCount: 1,
+    latestExportedAt: "2026-07-28T01:00:00Z",
+  }]);
   assert.match(model.surveys[0].results[0].deviceLabel, /Handset · mobile · OS 1 · 5 GHz/);
   assert.equal(model.surveys[0].results[0].device.clientIp, undefined);
   assert.equal(
     reportPlayerUrl(completed, "/wifi-survey-v3/report-player/"),
     "/wifi-survey-v3/report-player/?customer_id=customer-a&result_id=result-a",
   );
+  assert.equal(
+    consolidatedReportUrl(model.campuses[0], "/wifi-survey-v3/report-player/"),
+    "/wifi-survey-v3/report-player/?customer_id=customer-a&campus_id=566&view=overview",
+  );
   assert.throws(() => reportPlayerUrl(completed), /base must be a directory URL/);
   assert.throws(() => createDashboardModel({
     schemaVersion: 3, customerId: "other", surveys: [], results: [],
   }, "customer-a"), /does not match/);
+});
+
+test("campus consolidation omits reviewed exclude-run entries", () => {
+  const excluded = {
+    ...completed,
+    resultId: "result-excluded",
+    reviewedExceptions: [{ disposition: "exclude-run" }],
+  };
+  const secondCampus = {
+    ...completed,
+    resultId: "result-b",
+    surveyId: "survey-b",
+    campusId: "900",
+  };
+  const model = createDashboardModel({
+    schemaVersion: 3,
+    customerId: "customer-a",
+    surveys: [survey, { ...survey, surveyId: "survey-b" }],
+    results: [completed, excluded, secondCampus],
+  });
+  assert.deepEqual(
+    model.campuses.map(item => [item.campusId, item.runCount]),
+    [["566", 1], ["900", 1]],
+  );
+  assert.equal(model.surveys[0].results.length, 2);
 });

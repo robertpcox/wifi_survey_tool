@@ -5,9 +5,14 @@
 // RULES:        Failure is strictly beyond threshold; heat is elapsed time at ground truth.
 // PROVENANCE:   Step 5 report analysis contract
 import { buildFixLanes } from "./report-fix-metrics.mjs";
+import { reportAnalysisOptions } from "./report-analysis-options.mjs";
 import { buildUniqueFixSamples, publicFixSample } from "./report-fix-samples.mjs";
 import { buildReportGroundTruth } from "./report-ground-truth.mjs";
 import { addHeatPoint, floorHeatBuckets, totalHeatSeconds } from "./report-heat.mjs";
+import {
+  applyReportCoverage,
+  buildReportCoverage,
+} from "./report-reviewed-exceptions.mjs";
 import {
   buildReportTimeline,
   publicReportSample,
@@ -22,24 +27,19 @@ export const REPORT_THRESHOLDS = Object.freeze({
   accuracyM: 10,
   noPositionSeconds: 30,
 });
-export function analyzeReportResult(result, selected = REPORT_THRESHOLDS) {
-  const thresholds = {
-    stickySeconds: threshold(selected.stickySeconds, "stickySeconds"),
-    accuracyM: threshold(selected.accuracyM, "accuracyM"),
-    noPositionSeconds: threshold(
-      selected.noPositionSeconds ?? REPORT_THRESHOLDS.noPositionSeconds,
-      "noPositionSeconds",
-    ),
-  };
-  const floors = (result?.meta?.zLevels ?? []).map(z => {
-    const name = result.meta.zLevelNames?.[String(z)];
-    if (typeof name !== "string" || !name.trim()) {
-      throw new TypeError(`meta.zLevelNames.${z}: must name every configured floor`);
-    }
-    return { z, name };
-  });
-  if (!floors.length) throw new TypeError("meta.zLevels: must contain a floor");
-  const truth = buildReportGroundTruth(result);
+export function analyzeReportResult(
+  result,
+  selected = REPORT_THRESHOLDS,
+  reviewedExceptions = [],
+) {
+  const { floors, thresholds } = reportAnalysisOptions(
+    result,
+    selected,
+    REPORT_THRESHOLDS,
+  );
+  const playbackTruth = buildReportGroundTruth(result);
+  const coverage = buildReportCoverage(result, reviewedExceptions, playbackTruth);
+  const truth = applyReportCoverage(playbackTruth, coverage);
   const timeline = buildReportTimeline(result, truth, thresholds);
   const stoppedAtMs = Date.parse(result.run.stoppedAt);
   const sticky = floorHeatBuckets(floors);
@@ -97,6 +97,7 @@ export function analyzeReportResult(result, selected = REPORT_THRESHOLDS) {
     stickySeconds,
     timeline,
     truth,
+    coverage,
   });
   const warnings = buildReportWarnings({
     timeline,
@@ -110,6 +111,11 @@ export function analyzeReportResult(result, selected = REPORT_THRESHOLDS) {
   const rtts = timeline.map(item => item.roundTripMs).filter(Number.isFinite);
   return {
     thresholds,
+    reviewedExceptions: coverage.reviewedExceptions,
+    coverage: {
+      eligibleSeconds: coverage.eligibleSeconds,
+      excludedSeconds: coverage.excludedSeconds,
+    },
     floors,
     metrics: {
       sampleCount: timeline.length,
@@ -140,8 +146,4 @@ function percent(part, whole) {
 }
 function round(value) {
   return Number.isFinite(value) ? Math.round(value * 1000) / 1000 : null;
-}
-function threshold(value, name) {
-  if (!Number.isFinite(value) || value < 0) throw new TypeError(`${name}: must be a non-negative finite number`);
-  return value;
 }

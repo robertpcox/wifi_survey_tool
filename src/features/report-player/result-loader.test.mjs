@@ -23,6 +23,7 @@ const result = JSON.parse(await readFile(
 const entry = {
   resultId: result.run.resultId,
   surveyId: result.run.surveyId,
+  campusId: result.run.campusId,
   routeHash: result.run.routeHash,
   completionStatus: "completed",
   path: "results/report.result.v3.json",
@@ -46,9 +47,44 @@ test("loader resolves IDs through one customer manifest and validates coordinate
     },
   });
   assert.equal(loaded.result, result);
+  assert.equal(loaded.initialView, "analysis");
+  assert.equal(loaded.consolidated, false);
   const malformed = structuredClone(result);
   malformed.polls[0].normalized.lng = Number.NaN;
   assert.throws(() => assertReportResult(malformed), /normalized\.lng must be finite/);
+});
+
+test("campus overview URL chooses the newest eligible seed deterministically", async () => {
+  const older = { ...entry, resultId: "older", exportedAt: "2026-07-28T00:00:00Z" };
+  const newest = { ...entry, exportedAt: "2026-07-29T00:00:00Z" };
+  const selection = resultSelectionFromUrl(
+    "https://survey.test/report-player/?customer_id=customer-report&campus_id=566&view=overview",
+  );
+  assert.deepEqual(selection, {
+    customerId: "customer-report",
+    resultId: null,
+    campusId: "566",
+    view: "overview",
+  });
+  const loaded = await loadSelectedResult({
+    selection,
+    manifestSource: {
+      customer: async () => ({
+        customerId: "customer-report",
+        results: [older, newest, {
+          ...newest,
+          resultId: "excluded",
+          reviewedExceptions: [{ disposition: "exclude-run" }],
+        }],
+      }),
+      result: async path => {
+        assert.equal(path, newest.path);
+        return result;
+      },
+    },
+  });
+  assert.equal(loaded.consolidated, true);
+  assert.equal(loaded.initialView, "overview");
 });
 
 test("comparison discovery uses completed matching manifest entries", () => {
@@ -82,6 +118,11 @@ test("campus discovery keeps every completed campus run, newest first", () => {
       },
       { ...campus, resultId: "aborted", completionStatus: "aborted" },
       { ...campus, resultId: "other-campus", campusId: "999" },
+      {
+        ...campus,
+        resultId: "excluded",
+        reviewedExceptions: [{ disposition: "exclude-run" }],
+      },
     ],
   }, { ...result, run: { ...result.run, resultId: "someone-else" } });
   assert.deepEqual(

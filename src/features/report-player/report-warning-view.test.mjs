@@ -58,6 +58,30 @@ test("clear evidence renders one explicit all-clear state", () => {
   assert.doesNotMatch(html, /data-warning-play/);
 });
 
+test("reviewed intervals disclose excluded coverage and preserved playback", () => {
+  const html = renderReportWarnings({
+    reviewedExceptions: [{
+      disposition: "exclude-interval",
+      reason: "A check-in was missed.",
+      excludedSeconds: 155.15,
+      excludedDistanceM: 31.657,
+      routeAnchor: {
+        fromCheckpointId: "checkpoint-28",
+        toCheckpointId: "checkpoint-29",
+      },
+    }],
+    warnings: {
+      stalePosition: { active: false },
+      floorMismatch: { active: false },
+    },
+  });
+  assert.match(html, /Reviewed data exclusion/);
+  assert.match(html, /checkpoint-28[\s\S]*checkpoint-29/);
+  assert.match(html, /2 m 35 s/);
+  assert.match(html, /31\.7 m/);
+  assert.match(html, /Player playback are preserved/);
+});
+
 test("warning action hands exact time and poll identity to Player", () => {
   const calls = [];
   const button = {

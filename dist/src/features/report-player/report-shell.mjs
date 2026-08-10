@@ -32,41 +32,41 @@ export function renderLoadPanel(message = "Choose a generated result or upload a
 
 export function renderReportShell(state, candidates = []) {
   const { result, analysis, thresholds, comparison } = state;
+  const overview = state.view === "overview";
   return `
-    <div class="report-toolbar">
+    <div class="report-toolbar${state.consolidated ? " is-consolidated" : ""}">
       <div role="tablist" aria-label="Report Player mode">
-        <button type="button" role="tab" aria-selected="true"
-          data-report-view="analysis">Analysis</button>
-        <button type="button" role="tab" aria-selected="false"
-          data-report-view="playback">Player</button>
-        <button type="button" role="tab" aria-selected="false"
-          data-report-view="overview">Campus overview</button>
+        ${renderModeTabs(state)}
       </div>
       <div class="report-toolbar-actions">
-        <p data-report-status>One result · one analysis · one map</p>
+        <p data-report-status>${state.consolidated
+    ? "Campus report · loading eligible runs"
+    : "One result · one analysis · one map"}</p>
         <button type="button" data-toggle-map-access aria-expanded="false"
           aria-controls="report-map-access">
           Map access token
         </button>
       </div>
     </div>
-    <div data-report-context="analysis">
+    <div data-report-context="analysis"${overview ? " hidden" : ""}>
       ${renderIdentityView(result)}
       <section data-module="warnings">${renderReportWarnings(analysis)}</section>
     </div>
     ${renderMapAccess(result)}
     <div class="shared-map-workspace" data-player-workspace>
       <section class="report-section map-section" data-module="floor-route">
-        ${renderFloorRouteView(result, { analysis, thresholds })}
+        ${renderFloorRouteView(result, {
+    analysis, thresholds, consolidated: state.consolidated,
+  })}
       </section>
       <div class="player-pane" data-report-pane="playback" hidden>
         <section data-module="playback">${renderPlaybackView(result)}</section>
       </div>
     </div>
-    <div data-report-pane="overview" class="analysis-pane" hidden>
+    <div data-report-pane="overview" class="analysis-pane"${overview ? "" : " hidden"}>
       <section class="report-section" data-module="overview"></section>
     </div>
-    <div data-report-pane="analysis" class="analysis-pane">
+    <div data-report-pane="analysis" class="analysis-pane"${overview ? " hidden" : ""}>
       <section class="report-section" data-module="kpi">${renderKpiView(analysis)}</section>
       <section class="report-section" data-module="insights">
         ${renderReportInsights(state)}
@@ -80,6 +80,7 @@ export function renderReportShell(state, candidates = []) {
       <section class="report-section" data-module="noPosition">
         ${renderNoPositionView(state)}
       </section>
+      <section class="report-section" data-module="rooms"></section>
       <section class="report-section" data-module="comparison">
         ${renderComparisonView({ entries: candidates, comparison })}
       </section>
@@ -87,4 +88,18 @@ export function renderReportShell(state, candidates = []) {
         ${renderMethodologyView({ result, analysis })}
       </section>
     </div>`;
+}
+
+function renderModeTabs(state) {
+  if (state.consolidated) {
+    return `<button type="button" role="tab" aria-selected="true"
+      data-report-view="overview">Consolidated report</button>`;
+  }
+  const selected = mode => String((state.view ?? "analysis") === mode);
+  return `<button type="button" role="tab" aria-selected="${selected("analysis")}"
+      data-report-view="analysis">Analysis</button>
+    <button type="button" role="tab" aria-selected="${selected("playback")}"
+      data-report-view="playback">Player</button>
+    <button type="button" role="tab" aria-selected="${selected("overview")}"
+      data-report-view="overview">Campus overview</button>`;
 }

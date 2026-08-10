@@ -44,6 +44,7 @@ export function createDashboardModel(manifest, expectedCustomerId) {
   }
   const completed = (manifest.results ?? [])
     .filter(result => result.completionStatus === "completed");
+  const campuses = campusGroups(completed.filter(result => !excludedRun(result)));
   const surveys = (manifest.surveys ?? []).map(survey => ({
     ...survey,
     results: completed
@@ -66,19 +67,69 @@ export function createDashboardModel(manifest, expectedCustomerId) {
   return Object.freeze({
     customerId: manifest.customerId,
     customerName: manifest.customerName || manifest.customerId,
+    campuses,
     surveys,
   });
 }
 
+export function consolidatedReportUrl(campus, base) {
+  assertReportPlayerBase(base);
+  const params = new URLSearchParams({
+    customer_id: campus.customerId,
+    campus_id: campus.campusId,
+    view: "overview",
+  });
+  return `${base}?${params}`;
+}
+
 export function reportPlayerUrl(result, base) {
-  if (typeof base !== "string" || !base.endsWith("/")) {
-    throw new TypeError("Report Player base must be a directory URL");
-  }
+  assertReportPlayerBase(base);
   const params = new URLSearchParams({
     customer_id: result.customerId,
     result_id: result.resultId,
   });
   return `${base}?${params}`;
+}
+
+function campusGroups(results) {
+  const groups = new Map();
+  for (const result of results) {
+    const campusId = String(result.campusId ?? "").trim();
+    if (!campusId) continue;
+    if (!groups.has(campusId)) groups.set(campusId, {
+      campusId,
+      customerId: result.customerId,
+      runCount: 0,
+      surveyIds: new Set(),
+      latestExportedAt: result.exportedAt,
+    });
+    const group = groups.get(campusId);
+    group.runCount += 1;
+    group.surveyIds.add(result.surveyId);
+    if (result.exportedAt > group.latestExportedAt) {
+      group.latestExportedAt = result.exportedAt;
+    }
+  }
+  return [...groups.values()]
+    .sort((left, right) => left.campusId.localeCompare(right.campusId))
+    .map(group => Object.freeze({
+      campusId: group.campusId,
+      customerId: group.customerId,
+      runCount: group.runCount,
+      surveyCount: group.surveyIds.size,
+      latestExportedAt: group.latestExportedAt,
+    }));
+}
+
+function excludedRun(result) {
+  return (result.reviewedExceptions ?? [])
+    .some(item => item.disposition === "exclude-run");
+}
+
+function assertReportPlayerBase(base) {
+  if (typeof base !== "string" || !base.endsWith("/")) {
+    throw new TypeError("Report Player base must be a directory URL");
+  }
 }
 
 function deviceLabel(result) {

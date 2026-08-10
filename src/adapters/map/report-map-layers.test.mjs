@@ -1,5 +1,5 @@
 // FEATURE:      Report heat overlays on the shared geographic map
-// SURFACE:      Sticky/accuracy GeoJSON and mode visibility tests
+// SURFACE:      Freeze/sticky/lag/accuracy/room GeoJSON and mode visibility tests
 // WHY TOGETHER: One fake map proves weighting, exact coordinates, floor filters, and stable sources.
 // STATE:        In-memory source, layer, filter, and visibility calls
 // RULES:        Heat uses elapsed seconds and never normalizes geographic coordinates.
@@ -40,6 +40,7 @@ test("report heat retains exact weighted coordinates and filters the meta floor"
     [170.5004, -45.8704],
   ]);
   assert.deepEqual(features.map(item => item.properties.weightSeconds), [2.75, 1]);
+  assert.deepEqual(features.map(item => item.properties.weight), [2.75, 1]);
   assert.equal(
     harness.sources.get("report-notes").data.features[0].properties.routeHash,
     "a".repeat(64),
@@ -54,7 +55,7 @@ test("report heat retains exact weighted coordinates and filters the meta floor"
   ]);
   assert.deepEqual(
     harness.layers.get("report-sticky-heat-lyr").paint["heatmap-weight"],
-    ["get", "weightSeconds"],
+    ["get", "weight"],
   );
 });
 
@@ -62,13 +63,21 @@ test("heat selection toggles stable layers without adding sources again", () => 
   const harness = mapHarness();
   const layers = createReportMapLayers(harness.map, () => 0);
   layers.draw("sticky", []);
+  layers.draw("lag", [{ lng: 1.5, lat: 2.5, z: 0, weight: 11 }]);
   layers.draw("accuracy", [{ lng: 1, lat: 2, z: 0, weightSeconds: 3 }]);
   layers.select("none");
   layers.setVisible(true);
-  assert.equal(harness.addSourceCalls, 3);
-  assert.equal(harness.addLayerCalls, 3);
+  assert.equal(harness.addSourceCalls, 6);
+  assert.equal(harness.addLayerCalls, 6);
+  assert.equal(
+    harness.sources.get("report-lag-heat").data.features[0].properties.weight,
+    11,
+  );
+  assert.equal(harness.visibility.get("report-freeze-heat-lyr"), "none");
   assert.equal(harness.visibility.get("report-sticky-heat-lyr"), "none");
+  assert.equal(harness.visibility.get("report-lag-heat-lyr"), "none");
   assert.equal(harness.visibility.get("report-accuracy-heat-lyr"), "none");
+  assert.equal(harness.visibility.get("report-room-heat-lyr"), "none");
 });
 
 test("heat and note visibility can be controlled independently", () => {
@@ -92,14 +101,10 @@ test("heat and note visibility can be controlled independently", () => {
 test("heat sits below area extrusion while report notes stay above it", () => {
   const harness = mapHarness(true);
   createReportMapLayers(harness.map, () => 0).ensure();
-  assert.equal(
-    harness.placements.get("report-sticky-heat-lyr"),
-    "mm-area-extrusion",
-  );
-  assert.equal(
-    harness.placements.get("report-accuracy-heat-lyr"),
-    "mm-area-extrusion",
-  );
+  for (const kind of ["freeze", "sticky", "lag", "accuracy", "room"]) {
+    assert.equal(harness.placements.get(`report-${kind}-heat-lyr`),
+      "mm-area-extrusion");
+  }
   assert.equal(harness.placements.get("report-notes-lyr"), undefined);
 });
 

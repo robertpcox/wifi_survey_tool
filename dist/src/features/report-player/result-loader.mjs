@@ -10,21 +10,31 @@ import { validateSurveyResultV3 } from "../../domain/survey-result-v3.mjs";
 
 export function resultSelectionFromUrl(url) {
   const parsed = url instanceof URL ? url : new URL(url, import.meta.url);
+  const view = parsed.searchParams.get("view") === "overview"
+    ? "overview"
+    : "analysis";
   return Object.freeze({
     customerId: parsed.searchParams.get("customer_id")?.trim() || null,
     resultId: parsed.searchParams.get("result_id")?.trim() || null,
+    campusId: parsed.searchParams.get("campus_id")?.trim() || null,
+    view,
   });
 }
 
 export async function loadSelectedResult({ selection, manifestSource }) {
-  if (!selection.customerId || !selection.resultId) {
+  if (!selection.customerId) {
     throw new Error("Choose a result from a customer dashboard or upload a v3 result file");
   }
   const manifest = await manifestSource.customer(selection.customerId);
   if (manifest.customerId !== selection.customerId) {
     throw new Error("Customer manifest does not match the requested customer");
   }
-  const entry = manifest.results.find(item => item.resultId === selection.resultId);
+  const consolidated = !selection.resultId
+    && selection.view === "overview"
+    && Boolean(selection.campusId);
+  const entry = consolidated
+    ? consolidatedSeed(manifest, selection.campusId)
+    : manifest.results.find(item => item.resultId === selection.resultId);
   if (!entry) throw new Error("The selected result is not in this customer manifest");
   const result = assertReportResult(await manifestSource.result(entry.path));
   if (
@@ -33,7 +43,14 @@ export async function loadSelectedResult({ selection, manifestSource }) {
   ) {
     throw new Error("Loaded result identity does not match its manifest");
   }
-  return Object.freeze({ result, manifest, entry });
+  return Object.freeze({
+    result,
+    manifest,
+    entry,
+    exceptions: entry.reviewedExceptions ?? [],
+    initialView: selection.view ?? "analysis",
+    consolidated,
+  });
 }
 
 export async function readUploadedResult(file) {
@@ -65,6 +82,8 @@ export function comparisonEntries(manifest, result) {
     && entry.completionStatus === "completed"
     && entry.surveyId === result.run.surveyId
     && entry.routeHash === result.run.routeHash
+    && !(entry.reviewedExceptions ?? [])
+      .some(item => item.disposition === "exclude-run")
   ));
 }
 
@@ -73,7 +92,22 @@ export function campusRunEntries(manifest, result) {
     entry.resultId !== result.run.resultId
     && entry.completionStatus === "completed"
     && entry.campusId === result.run.campusId
+    && !excludedRun(entry)
   )).sort((left, right) => right.exportedAt.localeCompare(left.exportedAt));
+}
+
+function consolidatedSeed(manifest, campusId) {
+  return (manifest.results ?? [])
+    .filter(entry => entry.completionStatus === "completed"
+      && String(entry.campusId) === String(campusId)
+      && !excludedRun(entry))
+    .sort((left, right) => right.exportedAt.localeCompare(left.exportedAt)
+      || left.resultId.localeCompare(right.resultId))[0] ?? null;
+}
+
+function excludedRun(entry) {
+  return (entry.reviewedExceptions ?? [])
+    .some(item => item.disposition === "exclude-run");
 }
 
 function assertPosition(position, path) {

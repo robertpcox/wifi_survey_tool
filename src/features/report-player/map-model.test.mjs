@@ -84,3 +84,21 @@ test("map frame composes embedded route and ground-truth heat by meta floor", ()
   assert.equal(createMapFrame(result, { floor: 1 }).floorName, "First");
   assert.deepEqual(createMapFrame(result, { floor: 1 }).stalePathLines, []);
 });
+
+test("overview fallback hides the bootstrap route and fits aggregate evidence", () => {
+  const frame = createMapFrame(result, {
+    floor: 0,
+    heatKind: "room",
+    analysis: {
+      overview: true,
+      fitPoints: [{ lng: 170.6, lat: -45.8, z: 0 }],
+      heatmaps: { room: [{ z: 0, points: [{
+        lng: 170.6, lat: -45.8, z: 0, weightSeconds: 1,
+      }] }] },
+    },
+  });
+  assert.deepEqual(frame.routeLines, []);
+  assert.deepEqual(frame.stops, []);
+  assert.deepEqual(frame.checkpoints, []);
+  assert.equal(frame.heat.length, 1);
+});

@@ -15,7 +15,26 @@
       "band": "5",
       "completionStatus": "completed",
       "exportedAt": "2026-07-31T01:42:19.476Z",
-      "path": "results/292__566__375c4882-2e72-4758-8089-f1d2a3bf7c8c__2026-07-31T01-42-19Z__android.result.v3.json"
+      "path": "results/292__566__375c4882-2e72-4758-8089-f1d2a3bf7c8c__2026-07-31T01-42-19Z__android.result.v3.json",
+      "reviewedExceptions": [
+        {
+          "id": "ndh-20260731-missing-check-in-android",
+          "resultId": "5000f3cd-92eb-47ab-ad92-d62e2d8ca0fb",
+          "routeHash": "16dc4269d8803f23094bef051c6e7f834eaeb4fef152d811e71ccf10774264a2",
+          "routeAnchor": {
+            "type": "checkpoint-interval",
+            "routeHash": "16dc4269d8803f23094bef051c6e7f834eaeb4fef152d811e71ccf10774264a2",
+            "fromCheckpointId": "checkpoint-28",
+            "toCheckpointId": "checkpoint-29",
+            "legId": "leg-4"
+          },
+          "code": "missing-check-in",
+          "reason": "A missed field check-in made route timing and inferred ground truth unreliable for this interval.",
+          "disposition": "exclude-interval",
+          "reviewer": "field-survey-operator",
+          "recordedAt": "2026-08-10T00:25:56Z"
+        }
+      ]
     },
     {
       "resultId": "8ad8e031-e726-4dca-9072-50ace74779a5",
@@ -31,7 +50,26 @@
       "band": "5",
       "completionStatus": "completed",
       "exportedAt": "2026-07-31T01:42:19.476Z",
-      "path": "results/292__566__375c4882-2e72-4758-8089-f1d2a3bf7c8c__2026-07-31T01-42-19Z__iphone.result.v3.json"
+      "path": "results/292__566__375c4882-2e72-4758-8089-f1d2a3bf7c8c__2026-07-31T01-42-19Z__iphone.result.v3.json",
+      "reviewedExceptions": [
+        {
+          "id": "ndh-20260731-missing-check-in-iphone",
+          "resultId": "8ad8e031-e726-4dca-9072-50ace74779a5",
+          "routeHash": "16dc4269d8803f23094bef051c6e7f834eaeb4fef152d811e71ccf10774264a2",
+          "routeAnchor": {
+            "type": "checkpoint-interval",
+            "routeHash": "16dc4269d8803f23094bef051c6e7f834eaeb4fef152d811e71ccf10774264a2",
+            "fromCheckpointId": "checkpoint-28",
+            "toCheckpointId": "checkpoint-29",
+            "legId": "leg-4"
+          },
+          "code": "missing-check-in",
+          "reason": "A missed field check-in made route timing and inferred ground truth unreliable for this interval.",
+          "disposition": "exclude-interval",
+          "reviewer": "field-survey-operator",
+          "recordedAt": "2026-08-10T00:25:56Z"
+        }
+      ]
     },
     {
       "resultId": "51de0486-8020-4ef5-9a41-7b4ea5379fc1",
@@ -47,7 +85,26 @@
       "band": "5",
       "completionStatus": "completed",
       "exportedAt": "2026-07-31T01:42:19.476Z",
-      "path": "results/292__566__375c4882-2e72-4758-8089-f1d2a3bf7c8c__2026-07-31T01-42-19Z__spectralink.result.v3.json"
+      "path": "results/292__566__375c4882-2e72-4758-8089-f1d2a3bf7c8c__2026-07-31T01-42-19Z__spectralink.result.v3.json",
+      "reviewedExceptions": [
+        {
+          "id": "ndh-20260731-missing-check-in-spectralink",
+          "resultId": "51de0486-8020-4ef5-9a41-7b4ea5379fc1",
+          "routeHash": "16dc4269d8803f23094bef051c6e7f834eaeb4fef152d811e71ccf10774264a2",
+          "routeAnchor": {
+            "type": "checkpoint-interval",
+            "routeHash": "16dc4269d8803f23094bef051c6e7f834eaeb4fef152d811e71ccf10774264a2",
+            "fromCheckpointId": "checkpoint-28",
+            "toCheckpointId": "checkpoint-29",
+            "legId": "leg-4"
+          },
+          "code": "missing-check-in",
+          "reason": "A missed field check-in made route timing and inferred ground truth unreliable for this interval.",
+          "disposition": "exclude-interval",
+          "reviewer": "field-survey-operator",
+          "recordedAt": "2026-08-10T00:25:56Z"
+        }
+      ]
     },
     {
       "resultId": "cf825576-d61d-4825-ad1b-89eaa3700961",
@@ -63,7 +120,26 @@
       "band": "5",
       "completionStatus": "completed",
       "exportedAt": "2026-07-31T01:42:19.476Z",
-      "path": "results/292__566__375c4882-2e72-4758-8089-f1d2a3bf7c8c__2026-07-31T01-42-19Z.result.v3.json"
+      "path": "results/292__566__375c4882-2e72-4758-8089-f1d2a3bf7c8c__2026-07-31T01-42-19Z.result.v3.json",
+      "reviewedExceptions": [
+        {
+          "id": "ndh-20260731-missing-check-in-macbook",
+          "resultId": "cf825576-d61d-4825-ad1b-89eaa3700961",
+          "routeHash": "16dc4269d8803f23094bef051c6e7f834eaeb4fef152d811e71ccf10774264a2",
+          "routeAnchor": {
+            "type": "checkpoint-interval",
+            "routeHash": "16dc4269d8803f23094bef051c6e7f834eaeb4fef152d811e71ccf10774264a2",
+            "fromCheckpointId": "checkpoint-28",
+            "toCheckpointId": "checkpoint-29",
+            "legId": "leg-4"
+          },
+          "code": "missing-check-in",
+          "reason": "A missed field check-in made route timing and inferred ground truth unreliable for this interval.",
+          "disposition": "exclude-interval",
+          "reviewer": "field-survey-operator",
+          "recordedAt": "2026-08-10T00:25:56Z"
+        }
+      ]
     },
     {
       "resultId": "b029e89e-f4e9-46c7-a2df-fbf1731770ec",
@@ -79,7 +155,8 @@
       "band": "5",
       "completionStatus": "completed",
       "exportedAt": "2026-07-30T02:36:21.861Z",
-      "path": "results/292__566__4a9ba424-a96f-466d-a000-d0ba5d62571e__2026-07-30T02-36-21Z.result.v3.json"
+      "path": "results/292__566__4a9ba424-a96f-466d-a000-d0ba5d62571e__2026-07-30T02-36-21Z.result.v3.json",
+      "reviewedExceptions": []
     },
     {
       "resultId": "d61fb99c-2079-42a3-93a5-a18399ff6854",
@@ -95,7 +172,8 @@
       "band": "6",
       "completionStatus": "completed",
       "exportedAt": "2026-07-29T01:35:07.700Z",
-      "path": "results/292__566__701fc3a3-aba8-48f7-b22b-d0d26d780e8c__2026-07-29T01-35-07Z.result.v3.json"
+      "path": "results/292__566__701fc3a3-aba8-48f7-b22b-d0d26d780e8c__2026-07-29T01-35-07Z.result.v3.json",
+      "reviewedExceptions": []
     },
     {
       "resultId": "bac9a4da-3bdd-406b-b36c-002bb68cdb79",
@@ -111,7 +189,8 @@
       "band": "5",
       "completionStatus": "aborted",
       "exportedAt": "2026-07-29T09:47:35.031Z",
-      "path": "results/292__566__76468764-17fb-41f2-b48a-e591cbd4783c__2026-07-29T09-47-35Z.result.v3.json"
+      "path": "results/292__566__76468764-17fb-41f2-b48a-e591cbd4783c__2026-07-29T09-47-35Z.result.v3.json",
+      "reviewedExceptions": []
     },
     {
       "resultId": "70912396-77e3-4a0a-a580-1cf2056c867a",
@@ -127,7 +206,8 @@
       "band": "5",
       "completionStatus": "completed",
       "exportedAt": "2026-07-29T02:08:18.470Z",
-      "path": "results/292__566__8bed4861-476e-417f-943c-0c08c40e7e1c__2026-07-29T02-08-18Z.result.v3.json"
+      "path": "results/292__566__8bed4861-476e-417f-943c-0c08c40e7e1c__2026-07-29T02-08-18Z.result.v3.json",
+      "reviewedExceptions": []
     },
     {
       "resultId": "0d79f17a-3ca6-4228-b7c3-a7f7cc84fd8f",
@@ -143,7 +223,8 @@
       "band": "5",
       "completionStatus": "completed",
       "exportedAt": "2026-07-30T05:21:06.790Z",
-      "path": "results/292__566__a9c69528-da66-4121-b597-67e049cb1961__2026-07-30T05-21-06Z.result.v3.json"
+      "path": "results/292__566__a9c69528-da66-4121-b597-67e049cb1961__2026-07-30T05-21-06Z.result.v3.json",
+      "reviewedExceptions": []
     },
     {
       "resultId": "0871865c-f653-425d-9e78-c0c013bdb7b5",
@@ -159,7 +240,8 @@
       "band": "5",
       "completionStatus": "completed",
       "exportedAt": "2026-07-29T02:02:55.562Z",
-      "path": "results/292__566__b714527c-6197-4a08-b4cb-3d33ee022f9c__2026-07-29T02-02-55Z.result.v3.json"
+      "path": "results/292__566__b714527c-6197-4a08-b4cb-3d33ee022f9c__2026-07-29T02-02-55Z.result.v3.json",
+      "reviewedExceptions": []
     },
     {
       "resultId": "6a226d13-5e8c-411e-897b-39fe4c767aee",
@@ -175,7 +257,8 @@
       "band": "5",
       "completionStatus": "completed",
       "exportedAt": "2026-07-29T01:41:28.663Z",
-      "path": "results/292__566__ff3e7307-a71c-4708-9ce9-6dd7fc182a89__2026-07-29T01-41-28Z.result.v3.json"
+      "path": "results/292__566__ff3e7307-a71c-4708-9ce9-6dd7fc182a89__2026-07-29T01-41-28Z.result.v3.json",
+      "reviewedExceptions": []
     },
     {
       "resultId": "8ecb4401-0686-4241-a396-2a8b5bc97802",
@@ -191,7 +274,8 @@
       "band": "5",
       "completionStatus": "completed",
       "exportedAt": "2026-07-29T02:17:04.387Z",
-      "path": "results/292__566__ff3e7307-a71c-4708-9ce9-6dd7fc182a89__2026-07-29T02-17-04Z.result.v3.json"
+      "path": "results/292__566__ff3e7307-a71c-4708-9ce9-6dd7fc182a89__2026-07-29T02-17-04Z.result.v3.json",
+      "reviewedExceptions": []
     }
   ]
 }

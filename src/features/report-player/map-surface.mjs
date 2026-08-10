@@ -8,7 +8,9 @@ import { classifyMazeMapLaunchError } from "../../adapters/map/mazemap-errors.mj
 import { drawRouteFallback } from "./map-fallback.mjs";
 import { createMapFloorSync } from "./map-floor-sync.mjs";
 import { createMapFrame } from "./map-model.mjs";
-import { createMapSurfaceLayout, routeCenter, safelyCreateMap } from "./map-surface-layout.mjs";
+import { createMapSurfaceLayout, routeCenter, routeForMapAnalysis, safelyCreateMap } from "./map-surface-layout.mjs";
+import { createMapSurfaceVisibility } from "./map-surface-visibility.mjs";
+import { createReportBaseRoute } from "./report-base-route.mjs";
 export function createReportMapSurface({
   result, canvas, mapElement,
   fallbackElement,
@@ -24,6 +26,8 @@ export function createReportMapSurface({
   let mapMode = "launching";
   let launchPromise = null;
   const { adapter, error: adapterError } = safelyCreateMap(createMap ?? createPrivateMap);
+  const baseRoute = createReportBaseRoute(adapter, result);
+  const visibility = createMapSurfaceVisibility({ mapElement, fallbackElement, statusElement });
   const layout = createMapSurfaceLayout({
     adapter,
     mapElement,
@@ -34,7 +38,7 @@ export function createReportMapSurface({
     adapter,
     initialFloor: result.meta.zLevels[0],
     onNativeChange() {
-      if (mapMode === "mazemap" && viewMode === "analysis")
+      if (mapMode === "mazemap" && viewMode !== "playback")
         adapter.drawReportHeat(heatKind, analysis);
     },
   });
@@ -43,7 +47,7 @@ export function createReportMapSurface({
   }
   async function launch(token, phase) {
     if (!adapter) return fallback(adapterError ?? new Error("MazeMap adapter is unavailable"));
-    showMap("Loading public campus map…");
+    visibility.showMap("Loading public campus map…");
     try {
       const launchedFloor = await adapter.launch(token, null, {
         campusId: result.meta.campusId,
@@ -54,7 +58,7 @@ export function createReportMapSurface({
       });
       configureMap(launchedFloor);
       mapMode = "mazemap";
-      showMap(token ? "MazeMap access active." : "Public MazeMap active.");
+      visibility.showMap(token ? "MazeMap access active." : "Public MazeMap active.");
       await layout.settle();
       renderActive();
       return Object.freeze({ status: "ready", mode: mapMode });
@@ -69,17 +73,18 @@ export function createReportMapSurface({
   }
   function configureMap(launchedFloor) {
     floorSync.start(launchedFloor);
-    adapter.drawRoute(result.route.legs);
-    adapter.drawStops(result.route.stops);
-    adapter.drawWaypoints(result.route.checkpoints);
-    adapter.drawReportNotes?.(result.notes ?? []);
-    adapter.setViewMode(viewMode);
+    baseRoute.setVisible(viewMode !== "overview");
+    adapter.setViewMode(viewMode === "overview" ? "analysis" : viewMode);
   }
   function render(next = {}) {
     const reportChanged = Object.hasOwn(next, "analysis") || Object.hasOwn(next, "heatKind");
     if (Object.hasOwn(next, "floor"))
       floorSync.command(next.floor, mapMode === "mazemap");
-    if (Object.hasOwn(next, "analysis")) analysis = next.analysis;
+    if (Object.hasOwn(next, "analysis")) {
+      analysis = next.analysis;
+      layout.setRoute(routeForMapAnalysis(analysis, result.route));
+      if (mapMode === "mazemap") void layout.settle();
+    }
     if (Object.hasOwn(next, "heatKind")) heatKind = next.heatKind;
     if (Object.hasOwn(next, "frame")) playerFrame = next.frame;
     if (Object.hasOwn(next, "snap")) snap = next.snap;
@@ -88,15 +93,16 @@ export function createReportMapSurface({
   }
   function renderActive(forceReport = false) {
     if (mapMode === "mazemap") {
-      if (forceReport || viewMode === "analysis") adapter.drawReportHeat(heatKind, analysis);
+      if (forceReport || viewMode !== "playback") adapter.drawReportHeat(heatKind, analysis);
       if (viewMode === "playback" && playerFrame)
         adapter.drawPlayerFrame(playerFrame, snap);
     } else if (mapMode === "fallback") drawRouteFallback(canvas, fallbackModel());
   }
   function setViewMode(mode) {
     viewMode = mode;
-    adapter?.setViewMode(mode);
-    if (mode === "analysis") {
+    baseRoute.setVisible(mode !== "overview");
+    adapter?.setViewMode(mode === "overview" ? "analysis" : mode);
+    if (mode !== "playback") {
       adapter?.disablePlayerLayers();
       playerFrame = null;
       snap = null;
@@ -108,16 +114,9 @@ export function createReportMapSurface({
   function fallback(error) {
     floorSync.stop();
     mapMode = "fallback";
-    mapElement.hidden = true;
-    fallbackElement.hidden = false;
-    statusElement.textContent = "MazeMap unavailable · labelled route fallback active";
+    visibility.showFallback();
     drawRouteFallback(canvas, fallbackModel());
     return Object.freeze({ status: "fallback", error, mode: mapMode });
-  }
-  function showMap(message) {
-    mapElement.hidden = false;
-    fallbackElement.hidden = true;
-    statusElement.textContent = message;
   }
   function fallbackModel() {
     return createMapFrame(result, {

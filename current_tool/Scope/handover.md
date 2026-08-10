@@ -1,150 +1,100 @@
-# Handover — Step 5b mapped Report
+# Handover — consolidated MazeMap/Cisco issue report
 
 ## Current state
-Step 5a remains complete. The field and where-it-gets-stuck slices of 5b are delivered;
-repeat-run grouping, ranking, and lineage exports have not begun.
 
-- Native MazeMap z-level is authoritative for Report filters and its named selector.
-  Route fitting is camera-only, and resize, threshold, and mode changes preserve the floor.
-- Explicit Report selection and Player Follow still command the map; Follow-off does not.
-- One persistent optional access-token control works from Report and full-screen Player.
-  It submits only in memory, clears its input, announces status, and restores toggle focus.
-- Large red/orange warnings are Player-only; Report cards retain metrics and Player handoff.
-- Red paths follow exact truth geometry after the timeliness limit and exclude planned dwell;
-  Wi-Fi fixes and mismatch endpoints retain captured coordinates and floors.
-- Four Report charts, floor/zone summaries, floor-lag episodes, and failed-request outages now
-  replace the removed log; the field outage is 65.36 s across six failed requests.
-- At 15 s, the field result has 1388.466 s across 169 episodes and all four floors; at
-  20 s it has 822.716 s. Floor mismatch remains 436.984 s across eight episodes.
-- The focused Report boundary passes 207/207 tests; physical and user smoke remain separate.
-- Routes 1a and 1b use different revision IDs but exact hash `69d2c5f11ffe…`, proving why
-  survey family, immutable revision, and exact-route cohort are separate identities.
-- The old private field input was removed; its reviewed route-truth golden remains a receipt
-  and no longer makes the build depend on a production result filename.
+The Dashboard-first consolidated report is implemented, release-build validated, and synchronized
+as an atomic 340-file artifact into the local demo checkout for publication.
 
-## Assigned work and stop boundary
+- Canonical campus URL:
+  `/report-player/?customer_id=292&campus_id=566&view=overview`
+- Existing `result_id` URLs, Analysis, and Player remain unchanged and individually playable.
+- Dashboard groups eligible completed results by campus and puts “Consolidated issue report”
+  before individual survey cards.
+- Consolidation loads same-campus runs as `{result, entry, exceptions}` bundles, isolates failed
+  fetches, and excludes `exclude-run` results from metrics while keeping them discoverable raw.
+- All four 31 July missing-check-in intervals remain clipped by validated sidecars. Captured JSON
+  and Player truth are immutable.
 
-Execute `Scope/steps/05b_improve_report.md`.
+## Map evidence contract
 
-Turn the current single-run Report into deterministic, explainable issue intelligence and
-repeat-run stacking. Freeze its adjacency, grouping, severity, and tie-break rules in
-`Scope/contracts/report_analysis.md` before implementation fan-out.
+The consolidated map exposes independent selectors; the units and run counts never cross lanes.
 
-Resolve survey lineage and reviewed exception annotations per
-`Scope/contracts/survey_lineage_and_exceptions.md`; never group on route hash alone.
+1. **Path sections that froze** — reviewed moving truth geometry, with stale duration distributed
+   along the full walked path into 5 m cells.
+2. **Where Cisco stayed held** — accumulated seconds at the exact unsnapped Cisco coordinate.
+3. **Lag behind while walking** — positive trailing distance at raw Cisco coordinates; positions
+   ahead of the walker are excluded from this lane and its run graph.
+4. **Distance off route** — only fix errors beyond the selected threshold.
+5. **MazeMap area resolution** — solid expected sample, hollow raw Cisco ring, and a same-floor
+   connector for outside points. Wrong-floor, no-position, and unavailable lookup are distinct.
 
-Reuse the delivered Player and shared map. Do not change playback transport/truth semantics,
-mutate captured evidence, add a second map, or begin Step 6. Stop at the 5b respawn boundary.
+The arbitrary seed run contributes no route, marker, heat, warning, Wi-Fi, or camera framing to
+the campus view. Aggregate evidence controls the camera after asynchronous loading.
 
-## Delivered entry contracts
+## Room and corridor semantics
 
-`src/adapters/map/mazemap.mjs` exports `createMazeMapAdapter(options)`. The returned adapter
-provides:
+- MazeMap POI polygon = expected area truth.
+- Cisco Spaces `playbackFrame(...).latestFix` = observed blue dot.
+- Optional snap-to-path = visualization only; it never changes scoring.
+- Dynamic stop/dwell checkpoints form room visits. Every displayed Cisco state from dwell entry
+  through exit is scored, exposing already resolved, settled late, lost resolution, intermittent
+  drift, temporary resolution, not resolved at exit, and stuck-through-dwell outcomes.
+- Dynamic intermediate checkpoints form corridor samples. Each exact check-in compares the raw
+  Cisco point with the MazeMap area and retains forward/reverse failure direction.
+- Provider/query failures are unscored, never Cisco failures. Closest-POI results must contain the
+  point before they can label a room; polygon containment is the pass/fail authority.
+- New captures persist the clicked POI ID/name from `_mapContext` into standard stop fields before
+  runtime context is sanitized. Historical results resolve POIs live; no guessed IDs are written.
 
-- `launch`, `resizeMapSoon`, camera-only `fitRoute`, and observed/commanded floor APIs
-- `drawReportHeat(kind, analysis, floor)` and `drawPlayerFrame(frame, snap)`
-- `setViewMode(mode)`, `disablePlayerLayers()`, and `followWalker(walker)`
-- `onEvidenceSelect(callback)`, `focusEvidence(pollId, trigger)`, `set3dEnabled(enabled)`,
-  and read-only `threeDEnabled`
+For linked result `8ad8e031-e726-4dca-9072-50ace74779a5`, reviewed coverage yields:
 
-`src/features/report-player/map-surface.mjs` exports `createReportMapSurface(options)`. Its
-single surface provides launch/retry, render/mode/layout, floor subscription, evidence focus,
-cleanup, and the current observed floor.
+- 28 room dwells;
+- 738 displayed Cisco states across those dwells;
+- 111 eligible corridor samples (112 authored intermediate marks minus one reviewed sample).
 
-`mountReportPlayer()` returns one `{result, meta, store, surface, player, mapReady}` session.
-Its `player` facade provides `setMode`, `seek`, `focusEvidence`, `mode`, and `atMs`.
+## Report surfaces
 
-`seek()` and `focusEvidence()` enter Player when necessary. Leaving Player pauses it,
-preserves `atMs`, restores Report scroll, disables Player layers, and prevents hidden writes.
-`atMs` is absolute Unix epoch milliseconds and clamps to the recorded run bounds. There is
-no URL-level timestamp or poll deep link; 5b should use this in-memory facade unless it
-explicitly defines a non-secret query contract.
+- Per-run and campus moving metrics remain separate from stationary area rates.
+- Run graph/table: freeze time, positive trailing lag, and effective availability.
+- Ranked geographic tables: frozen path, raw held positions, trailing lag, thresholded error.
+- Room report: final resolution, dwell inside-area time, settle lag, transient drift, stuck state,
+  POI grouping, run/device identity, and traceable issue evidence.
+- Corridor report: samples inside/outside, POI grouping, failure direction, run/device identity,
+  exact Cisco coordinates, and traceable issue evidence.
 
-## Settled invariants
+## Main ownership
 
-- Public launch uses `result.meta.campusId` in a visible, sized container without a token.
-- Only structured map-load 401/403 evidence reveals access UI. SDK, network, timeout, tile,
-  generic, and unknown failures stay prompt-free and use the labelled route fallback.
-- Submitted map access is memory-only and retry reuses the same adapter lifecycle.
-- Its toolbar control remains reachable in both modes; public launch still comes first.
-- MazeMap 3D options are omitted unless a caller supplies them; Report/Player therefore
-  retains its existing 2D constructor and capture evidence never contains view state.
-- Optional overlay anchors use guarded two-argument `addLayer`; a missing SDK anchor falls
-  back to append. Route/active and Report heat use `mm-area-extrusion`; guidance and notes do not.
-- Route, truth, fixes, heat, pair connectors, and snap overlays keep exact `[lng, lat]` and z.
-- Report cards are elapsed observations with evidence links; live map banners are Player-only.
-- Follow tracks walker floor and pans only outside the inner 15% viewport; disabling it stops
-  camera writes without stopping the Player clock or frame writes.
-- A wrong-floor raw fix stays visible at exact coordinates beside the walker while preserving
-  its reported z, display z, and mismatch state.
-- One cumulative-route truth model follows turns, authored intervals, dwell, and exact floor
-  transitions. `buildGroundTruthModel` is also exported as `buildReportGroundTruth`.
-- `playbackFrame(result, atMs)` owns the clock, current position error, poll/chart evidence,
-  walker, event times, changed-fix history, and latest raw fix.
-- Failed polls persist at sent truth and never move the blue raw fix. Changed successes
-  persist as paired route/fix evidence.
-- `snapFixToActiveRoute(rawFix, walker, radiusM)` is same-floor, active-interval, immutable,
-  and visualization-only.
+- Dashboard/URL: `dashboard-selection.mjs`, `dashboard.mjs`, `result-loader.mjs`.
+- Collection lifecycle: `all-runs.mjs`, `report-collection-controller.mjs`,
+  `campus-overview-controller.mjs`.
+- Moving consolidation: `report-campus-{overview,grid,runs,position-evidence}.mjs`,
+  `report-path-weights.mjs`, `campus-{run-summary,hotspot}-view.mjs`.
+- Area domain: `report-{displayed-fix,room-observation,room-resolution,room-summary}.mjs`,
+  `report-{corridor-observation,corridor-summary,area-summary}.mjs`.
+- MazeMap boundary: `mazemap-{queries,room}.mjs`, `report-area-resolution-map-layer.mjs`,
+  `report-map-layers.mjs`, `shared-map-layers.mjs`.
+- Area UI: `room-resolution-{loader,view,evidence-view}.mjs`,
+  `corridor-resolution-view.mjs`, `room-resolution.css`.
 
-## Evidence and fixtures
+## Validation
 
-- Primary: `data/fixtures/report-player/result.fixture.v3.json`
-- Turns/floor transition: `data/fixtures/report-player/route-turns.fixture.v3.json`
-- Reviewed removed-field receipt: `data/fixtures/report-player/route-truth-analysis.golden.json`
-- Sanitized launch errors: `data/fixtures/map/mazemap-launch-errors.fixture.json`
+`node tools/build.mjs` passed on 2026-08-10:
 
-The receipt records sticky at 25 points / 60.028 seconds and
-outside-accuracy at 2 points / 2.963 seconds. Median error changes from 3.638 m to 3.730 m;
-the maximum reviewed route-truth shift is 0.163 m.
+- 805 tests passed, 0 failed, 3 skipped because Puppeteer/Chrome is unavailable;
+- size, header, import, schema, reference, Nginx, secrets, completeness, golden, manifest,
+  and module-map gates passed;
+- staged distribution secret scan passed;
+- all four browser-smoke commands reached their dependency-aware skip boundary;
+- `dist/` and eight module-map documents were regenerated;
+- 340 publishable files were synchronized atomically into the demo checkout.
 
-## Current ownership
+## Remaining field validation
 
-- Truth/playback/snap: `src/domain/report-{ground-truth,playback,snap}.mjs` and focused helpers.
-- Provider map boundary: `mazemap.mjs`, `shared-map-layers.mjs`, Report warning/map layers,
-  Player map layers, and `evidence-interactions.mjs`.
-- Player composition: `report-player.mjs`, floor/highlight controllers, warnings,
-  interactions, mode controller, map surface, and `report-{insights,series,summary}-view.mjs`.
-- Player UI: `player-{transport,evidence-view,evidence-detail,charts}.mjs` and the three
-  focused Player/map stylesheets.
-- Note capture/validation: `src/features/survey-runner/note-{capture,controller,view}.mjs`,
-  `src/domain/capture-note-v3.mjs`, and `src/adapters/map/note-features.mjs`.
-- Browser acceptance: `tools/report_player_browser_*.mjs` and `tools/report_player_actual_sdk_smoke.mjs`.
-
-## Known constraints, remaining defects, and adjacent changes
-
-Remaining Step 5a product defects: none known after the final Follow, wrong-floor, and
-browser-storage audit.
-
-- The actual-SDK smoke needs Chrome, Puppeteer, network access, and a software WebGL backend.
-  It deliberately uploads only the synthetic fixture, not the authorized physical result.
-- The provider SDK may create its own telemetry storage. Acceptance separately rejects app
-  credential fields; source, staged output, URLs, results, and app storage remain clean.
-- `dist/` contains seven field results already authorized for the configured public demo.
-  A plain build synchronizes them and the new patch; `--no-deploy` remains validation-only.
-- `surveyFamilyId`, lineage sidecar projection, and reviewed-exception consumption are
-  contracted but not implemented. Legacy resolution falls back to `surveyId`.
-- Physical Android Runner acceptance remains a project risk, not Step 5b scope.
-
-## Exact next read order
-
-1. This handover.
-2. `Scope/steps/05b_improve_report.md`.
-3. `Scope/step_standard.md`, `coding_pattern.md`, `test_standard.md`, and `test_plan.md`.
-4. `Scope/contracts/survey_lineage_and_exceptions.md`, `capture_note_v3.md`, then
-   `report_analysis.md`.
-5. The delivered map, mode, store, truth, playback, and snap owners listed above.
-6. The four fixtures above and current analysis/comparison/export modules.
-7. `tools/report_player_browser_smoke.mjs`.
-
-## Validation commands
-
-```sh
-node --test src/domain/report-*.test.mjs
-node --test src/adapters/map/*.test.mjs
-node --test src/features/report-player/*.test.mjs src/apps/report-player/*.test.mjs tools/report_player*.test.mjs
-node tools/report_player_browser_smoke.mjs .
-node tools/report_player_actual_sdk_smoke.mjs dist
-node tools/build.mjs --no-deploy
-```
-
-Browser/full-build commands need local servers; actual-SDK is networked. An authorized plain build syncs demo.
+- Exercise the consolidated URL with live/public or supplied MazeMap access so real campus-566
+  POI polygons can be visually checked against the 28/738/111 linked-run evidence counts.
+- Verify the Dashboard card, all five selectors, floor changes, marker/ring legend, room table,
+  corridor table, and partial lookup/fetch status in a real browser.
+- Optional Chrome/Puppeteer installation would turn the dependency skips into visual smoke runs.
+- Survey-family lineage still falls back to `surveyId`; do not infer family from route hash alone.
+- Historical result JSON remains immutable; future releases should continue to publish only the
+  generated deployment subtree.

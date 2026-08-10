@@ -22,30 +22,54 @@ const COLUMNS = Object.freeze([
 
 export function createAllRunsLoader({ entries, manifestSource, assertResult }) {
   const cache = new Map();
+  const failures = new Map();
   let loaded = false;
   return Object.freeze({
     async load(onProgress = () => {}) {
       let done = 0;
       for (const entry of entries) {
         if (!cache.has(entry.resultId)) {
-          cache.set(
-            entry.resultId,
-            assertResult(await manifestSource.result(entry.path)),
-          );
+          try {
+            const result = assertResult(await manifestSource.result(entry.path));
+            cache.set(entry.resultId, {
+              result,
+              entry,
+              exceptions: entry.reviewedExceptions ?? [],
+            });
+            failures.delete(entry.resultId);
+          } catch (error) {
+            failures.set(entry.resultId, error);
+          }
         }
         onProgress(done += 1, entries.length);
       }
       loaded = true;
     },
-    results() { return [...cache.values()]; },
-    rows(currentResult, thresholds, analyze = analyzeReportResult) {
-      return [currentResult, ...cache.values()]
+    records() { return [...cache.values()]; },
+    results() { return [...cache.values()].map(record => record.result); },
+    rows(
+      currentResult,
+      thresholds,
+      analyze = analyzeReportResult,
+      currentExceptions = [],
+    ) {
+      return [currentResult, ...cache.values().map(record => record.result)]
         .filter(Boolean)
-        .map(result => allRunsRow(result, analyze(result, thresholds), currentResult))
+        .map(result => {
+          const exceptions = result === currentResult ? currentExceptions
+            : cache.get(result.run.resultId)?.exceptions ?? [];
+          return allRunsRow(
+            result,
+            analyze(result, thresholds, exceptions),
+            currentResult,
+          );
+        })
         .sort((left, right) => right.startedAt.localeCompare(left.startedAt));
     },
     get loaded() { return loaded; },
     get entryCount() { return entries.length; },
+    get failureCount() { return failures.size; },
+    get loadedCount() { return cache.size; },
   });
 }
 

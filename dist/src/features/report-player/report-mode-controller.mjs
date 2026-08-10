@@ -48,7 +48,7 @@ export function bindReportModes({
 
   function leavePlayer(next = "analysis") {
     player.setActive(false);
-    surface.setViewMode("analysis");
+    surface.setViewMode(next);
     mode = next;
     store.setView(mode);
     updateMarkup();
@@ -79,6 +79,7 @@ export function bindReportModes({
   }
 
   updateMarkup();
+  surface.setViewMode(mode);
   return Object.freeze({
     destroy,
     focusEvidence(id) {

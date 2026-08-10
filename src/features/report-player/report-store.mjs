@@ -19,26 +19,33 @@ export function createReportPlayerStore({
   let result = null;
   let meta = null;
   let manifest = null;
+  let exceptions = [];
   let analysis = null;
   let comparisonResults = [];
   let comparison = null;
   let thresholds = { ...REPORT_THRESHOLDS };
   let view = "analysis";
+  let consolidated = false;
   const subscribers = new Set();
 
   function load(payload) {
     result = payload.result;
     meta = result.meta;
     manifest = payload.manifest ?? null;
+    exceptions = payload.exceptions ?? [];
     comparisonResults = [];
     comparison = null;
+    view = ["analysis", "playback", "overview"].includes(payload.initialView)
+      ? payload.initialView
+      : "analysis";
+    consolidated = payload.consolidated === true;
     analysis = analyzed();
     notify();
     return snapshot();
   }
 
   function analyzed() {
-    const value = analyze(result, thresholds);
+    const value = analyze(result, thresholds, exceptions);
     return { ...value, concernSegments: buildConcernSegments(result, value) };
   }
 
@@ -53,26 +60,29 @@ export function createReportPlayerStore({
     };
     analysis = analyzed();
     comparison = comparisonResults.length
-      ? compare([result, ...comparisonResults], thresholds)
+      ? compare([{ result, exceptions }, ...comparisonResults], thresholds)
       : null;
     notify();
     return snapshot();
   }
 
-  function addComparison(candidate) {
+  function addComparison(candidate, candidateExceptions = []) {
     const existing = comparisonResults
-      .filter(item => item.run.resultId !== candidate.run.resultId);
-    comparisonResults = [...existing, candidate];
-    comparison = compare([result, ...comparisonResults], thresholds);
+      .filter(item => item.result.run.resultId !== candidate.run.resultId);
+    comparisonResults = [
+      ...existing,
+      { result: candidate, exceptions: candidateExceptions },
+    ];
+    comparison = compare([{ result, exceptions }, ...comparisonResults], thresholds);
     notify();
     return comparison;
   }
 
   function removeComparison(resultId) {
     comparisonResults = comparisonResults
-      .filter(item => item.run.resultId !== resultId);
+      .filter(item => item.result.run.resultId !== resultId);
     comparison = comparisonResults.length
-      ? compare([result, ...comparisonResults], thresholds)
+      ? compare([{ result, exceptions }, ...comparisonResults], thresholds)
       : null;
     notify();
   }
@@ -91,11 +101,13 @@ export function createReportPlayerStore({
       result,
       meta,
       manifest,
+      exceptions: [...exceptions],
       analysis,
       comparison,
-      comparisonResults: [...comparisonResults],
+      comparisonResults: comparisonResults.map(item => item.result),
       thresholds: { ...thresholds },
       view,
+      consolidated,
     });
   }
 

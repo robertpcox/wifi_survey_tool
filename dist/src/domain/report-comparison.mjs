@@ -11,19 +11,23 @@ export function compareReportResults(results, thresholds) {
   if (!Array.isArray(results) || results.length < 2) {
     throw new TypeError("Comparison requires at least two results.");
   }
-  for (const result of results) {
+  const candidates = results.map(comparisonCandidate);
+  for (const { result, exceptions } of candidates) {
     if (result?.run?.completionStatus !== "completed") {
       throw new TypeError(
         `Result ${result?.run?.resultId ?? "unknown"} is not completed.`,
       );
     }
+    if (exceptions.some(item => item.disposition === "exclude-run")) {
+      throw new TypeError(`Result ${result.run.resultId} is excluded by review.`);
+    }
   }
-  const ordered = [...results].sort((left, right) => (
-    Date.parse(left.run.startedAt) - Date.parse(right.run.startedAt)
-    || left.run.resultId.localeCompare(right.run.resultId)
+  const ordered = [...candidates].sort((left, right) => (
+    Date.parse(left.result.run.startedAt) - Date.parse(right.result.run.startedAt)
+    || left.result.run.resultId.localeCompare(right.result.run.resultId)
   ));
-  const baseline = ordered[0];
-  for (const result of ordered.slice(1)) {
+  const baseline = ordered[0].result;
+  for (const { result } of ordered.slice(1)) {
     if (result.run.surveyId !== baseline.run.surveyId) {
       throw new TypeError("Comparison requires matching survey IDs.");
     }
@@ -31,9 +35,9 @@ export function compareReportResults(results, thresholds) {
       throw new TypeError("Comparison requires matching route hashes.");
     }
   }
-  const analyzed = ordered.map(result => ({
+  const analyzed = ordered.map(({ result, exceptions }) => ({
     result,
-    analysis: analyzeReportResult(result, thresholds),
+    analysis: analyzeReportResult(result, thresholds, exceptions),
   }));
   const baselineMetrics = comparableMetrics(analyzed[0].analysis);
   return {
@@ -64,6 +68,12 @@ export function compareReportResults(results, thresholds) {
       };
     }),
   };
+}
+
+function comparisonCandidate(value) {
+  return value?.result
+    ? { result: value.result, exceptions: value.exceptions ?? [] }
+    : { result: value, exceptions: [] };
 }
 
 function comparableMetrics(analysis) {

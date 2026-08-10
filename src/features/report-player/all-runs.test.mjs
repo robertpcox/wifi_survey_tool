@@ -41,6 +41,8 @@ test("loader fetches lazily and rows sort newest-first with the current run", as
   assert.deepEqual(fetched, []);
   await loader.load();
   assert.equal(loader.loaded, true);
+  assert.equal(loader.failureCount, 0);
+  assert.equal(loader.records()[0].result, older);
   assert.deepEqual(fetched, ["results/older.result.v3.json"]);
   const rows = loader.rows(result, thresholds);
   assert.deepEqual(
@@ -50,6 +52,30 @@ test("loader fetches lazily and rows sort newest-first with the current run", as
   assert.equal(rows[0].fixCount, 3);
   assert.ok(Number.isFinite(rows[0].medianAccuracyM));
   assert.ok(Number.isFinite(rows[0].noPositionPercent));
+});
+
+test("loader retains reviewed exceptions and isolates unavailable runs", async () => {
+  const loader = createAllRunsLoader({
+    entries: [
+      {
+        resultId: "ok", path: "ok.json",
+        reviewedExceptions: [{ disposition: "exclude-interval" }],
+      },
+      { resultId: "bad", path: "bad.json" },
+    ],
+    manifestSource: {
+      result: async path => {
+        if (path === "bad.json") throw new Error("offline");
+        return result;
+      },
+    },
+    assertResult: value => value,
+  });
+  await loader.load();
+  assert.equal(loader.loaded, true);
+  assert.equal(loader.loadedCount, 1);
+  assert.equal(loader.failureCount, 1);
+  assert.equal(loader.records()[0].exceptions[0].disposition, "exclude-interval");
 });
 
 test("row scalars come straight from the analysis lanes", () => {

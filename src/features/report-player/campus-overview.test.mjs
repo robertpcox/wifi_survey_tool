@@ -35,20 +35,29 @@ test("the merged model paints through the shared map analysis shape", () => {
   assert.deepEqual(map.stalePathSegments, []);
   assert.deepEqual(map.timeline, []);
   assert.deepEqual(map.warnings, { floorMismatch: { points: [] } });
+  assert.equal(map.overview, true);
+  assert.ok(map.fitPoints.length > 0);
   const sticky = map.heatmaps.sticky.find(floor => floor.z === 0);
   assert.ok(sticky.points.length > 0);
-  assert.ok(sticky.points.every(point => point.weightSeconds > 0
+  assert.ok(sticky.points.every(point => point.weight > 0
     && Number.isFinite(point.lng) && Number.isFinite(point.lat)));
-  assert.ok(map.concernSegments.length > 0);
-  for (const segment of map.concernSegments) {
-    assert.match(segment.pairId, /^concern:merged:/);
-    assert.equal(segment.coordinates.length, 2);
-    assert.ok(["centre", "approach-forward", "approach-reverse"]
-      .includes(segment.kind));
-    assert.ok(Number.isFinite(segment.runCount));
-  }
-  assert.ok(map.concernSegments.some(segment => segment.kind === "centre"));
+  assert.ok(map.heatmaps.lag.some(floor => floor.points.length > 0));
+  assert.deepEqual(map.concernSegments, []);
   assert.equal(overviewMapAnalysis(built.model).floors.length, 2);
+});
+
+test("room failures feed a clean selectable overview heat layer", () => {
+  const room = overviewMapAnalysis(built.model, {
+    truthIssuePoints: [{
+      lng: 170.5, lat: -45.87, z: 0, weight: 2,
+    }],
+    ciscoIssuePoints: [{
+      lng: 170.5002, lat: -45.87, z: 0, weight: 2,
+    }],
+  });
+  assert.equal(room.heatmaps.room.find(floor => floor.z === 0).points.length, 1);
+  assert.equal(room.heatmaps.room[0].points[0].lng, 170.5002);
+  assert.ok(room.fitPoints.some(point => point.lng === 170.5002));
 });
 
 test("the panel offers lazy loading, then the merged table", () => {
@@ -70,4 +79,36 @@ test("the panel offers lazy loading, then the merged table", () => {
   assert.match(loaded, /Both directions/);
   assert.match(loaded, /Ground/);
   assert.doesNotMatch(loaded, /data-load-overview/);
+});
+
+test("non-seed overview runs carry their reviewed exceptions into analysis", () => {
+  const calls = [];
+  buildCampusOverviewModel({
+    result: straight,
+    analysis: analyzeReportResult(straight, thresholds),
+    thresholds,
+    others: [{
+      result: outAndBack,
+      exceptions: [{ disposition: "exclude-interval", id: "review-1" }],
+    }],
+    analyze(value, selected, exceptions) {
+      calls.push([value.run.resultId, selected, exceptions]);
+      return analyzeReportResult(value, selected, []);
+    },
+  });
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0][0], outAndBack.run.resultId);
+  assert.equal(calls[0][2][0].id, "review-1");
+});
+
+test("an exclude-run seed stays playable but outside the consolidated model", () => {
+  const withoutSeed = buildCampusOverviewModel({
+    result: straight,
+    analysis: analyzeReportResult(straight, thresholds),
+    thresholds,
+    others: [outAndBack],
+    includeResult: false,
+  });
+  assert.equal(withoutSeed.model.runCount, 1);
+  assert.equal(withoutSeed.model.runs[0].resultId, outAndBack.run.resultId);
 });

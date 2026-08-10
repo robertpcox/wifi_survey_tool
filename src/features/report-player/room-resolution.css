@@ -1,0 +1,122 @@
+/* FEATURE:      Dynamic room-resolution report
+ * SURFACE:      Room KPI cards, issue graph, ranking, evidence, and Cisco map legend
+ * WHY TOGETHER: Stationary room evidence shares one compact responsive visual language.
+ * STATE:        Responsive layout only
+ * RULES:        Keep truth/fix terminology legible without relying on color alone.
+ * PROVENANCE:   Dynamic dwell room-resolution evidence
+ */
+
+.map-room-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #334155;
+}
+
+.map-room-legend i {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  background: #16a34a;
+  box-shadow: 0 0 0 3px rgb(22 163 74 / 18%);
+}
+
+.map-room-legend i.outside {
+  background: #dc2626;
+  box-shadow: 0 0 0 3px rgb(220 38 38 / 18%);
+}
+
+.map-room-legend i.floor {
+  background: #f97316;
+  box-shadow: 0 0 0 3px rgb(249 115 22 / 18%);
+}
+
+.map-room-legend i.unknown {
+  background: #64748b;
+  box-shadow: 0 0 0 3px rgb(100 116 139 / 18%);
+}
+
+.room-resolution-empty,
+.room-resolution-report {
+  margin-top: 1.25rem;
+  padding: 1.1rem;
+  border: 1px solid #d6e0eb;
+  border-radius: 0.8rem;
+  background: #f8fafc;
+}
+
+.room-resolution-empty h3,
+.room-resolution-empty p,
+.room-resolution-report header p,
+.room-resolution-report header h3 { margin: 0; }
+
+.room-resolution-report header { display: grid; gap: 0.35rem; }
+.room-resolution-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin: 1rem 0;
+}
+
+.room-resolution-kpis article {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.8rem;
+  border-radius: 0.65rem;
+  color: #fff;
+  background: #1c3557;
+}
+
+.room-resolution-kpis span,
+.room-resolution-kpis small { color: #c9d8eb; }
+.room-resolution-kpis strong { font-size: 1.6rem; }
+.room-issue-graph { margin: 1.25rem 0; }
+.room-issue-graph figcaption { margin-bottom: 0.65rem; font-weight: 700; }
+.room-issue-graph > div {
+  display: grid;
+  grid-template-columns: minmax(9rem, 0.45fr) 1fr 2rem;
+  gap: 0.65rem;
+  align-items: center;
+  margin: 0.4rem 0;
+}
+
+.room-issue-graph i {
+  overflow: hidden;
+  height: 0.75rem;
+  border-radius: 999px;
+  background: #e2e8f0;
+}
+
+.room-issue-graph b { display: block; height: 100%; background: #7c3aed; }
+.room-resolution-table h4 { margin-bottom: 0.5rem; }
+.room-resolution-evidence { margin-top: 1rem; }
+.room-resolution-evidence summary { cursor: pointer; font-weight: 700; }
+.corridor-resolution-report { margin-top: 1.5rem; }
+.corridor-resolution-empty { margin-top: 1rem; }
+.campus-hotspot-tables { display: grid; gap: 1rem; margin-top: 1.25rem; }
+.campus-hotspot-tables h3,
+.campus-hotspot-tables p { margin: 0 0 0.4rem; }
+.corridor-resolution-graph i { background: #fee2e2; }
+.corridor-resolution-graph b { background: #16a34a; }
+.room-resolution-table table,
+.room-resolution-evidence table,
+.corridor-resolution-report table { width: 100%; border-collapse: collapse; }
+.room-resolution-table th,
+.room-resolution-table td,
+.room-resolution-evidence th,
+.room-resolution-evidence td,
+.corridor-resolution-report th,
+.corridor-resolution-report td {
+  padding: 0.65rem;
+  border-bottom: 1px solid #d6e0eb;
+  text-align: left;
+}
+
+@media (max-width: 800px) {
+  .room-resolution-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 520px) {
+  .room-resolution-kpis { grid-template-columns: 1fr; }
+  .room-issue-graph > div { grid-template-columns: 8rem 1fr 2rem; }
+}

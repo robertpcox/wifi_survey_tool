@@ -27,7 +27,7 @@ export function renderMapAccess(result) {
     </aside>`;
 }
 
-export function bindMapAccess({ root, credentials, surface }) {
+export function bindMapAccess({ root, credentials, surface, onReady = () => {} }) {
   const panel = root.querySelector("[data-map-access-panel]");
   const input = root.querySelector("[data-map-access]");
   const status = root.querySelector("[data-map-access-status]");
@@ -71,6 +71,7 @@ export function bindMapAccess({ root, credentials, surface }) {
     try {
       const outcome = await surface.retryAccess(credentials.read("mapAccess"));
       handleLaunch(outcome, true);
+      if (outcome?.status === "ready") onReady(outcome);
     } catch (error) {
       credentials.clear("mapAccess");
       handleLaunch({ status: "fallback", error }, true);

@@ -17,6 +17,7 @@ export function buildFixLanes({
   stickySeconds,
   timeline,
   truth,
+  coverage,
 }) {
   const lag = buildLagBehind({ timeline, truth, thresholds });
   const noPosition = buildNoPositionOutages({
@@ -24,6 +25,7 @@ export function buildFixLanes({
     timeline,
     truth,
     thresholdSeconds: thresholds.noPositionSeconds,
+    coverage,
   });
   return {
     accuracy: accuracyLane(samples, thresholds),
@@ -32,7 +34,7 @@ export function buildFixLanes({
       ...lag.metrics,
     },
     availability: {
-      ...availabilityLane(result),
+      ...availabilityLane(result, coverage),
       noPositionSeconds: noPosition.totalSeconds,
       noPositionPercent: noPosition.percent,
       noPositionEpisodeCount: noPosition.episodes.length,
@@ -92,7 +94,7 @@ function freshnessLane(samples, thresholds, movingSeconds, stickySeconds) {
   };
 }
 
-function availabilityLane(result) {
+function availabilityLane(result, coverage) {
   const startMs = Date.parse(result.run.startedAt);
   const endMs = Date.parse(result.run.stoppedAt);
   const polls = result.polls.filter(poll => {
@@ -100,7 +102,8 @@ function availabilityLane(result) {
     return poll.id !== result.run.preflight.sampleId
       && Number.isFinite(receivedMs)
       && receivedMs >= startMs
-      && receivedMs <= endMs;
+      && receivedMs <= endMs
+      && !coverage?.excludes(receivedMs);
   });
   const successes = polls.filter(poll => poll.success === true);
   const rtts = polls.map(poll => poll.roundTripMs).filter(Number.isFinite);

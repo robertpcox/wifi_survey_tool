@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 3,
+  "exceptions": [
+    {
+      "id": "ndh-20260731-missing-check-in-android",
+      "resultId": "5000f3cd-92eb-47ab-ad92-d62e2d8ca0fb",
+      "routeHash": "16dc4269d8803f23094bef051c6e7f834eaeb4fef152d811e71ccf10774264a2",
+      "routeAnchor": {
+        "type": "checkpoint-interval",
+        "routeHash": "16dc4269d8803f23094bef051c6e7f834eaeb4fef152d811e71ccf10774264a2",
+        "fromCheckpointId": "checkpoint-28",
+        "toCheckpointId": "checkpoint-29",
+        "legId": "leg-4"
+      },
+      "code": "missing-check-in",
+      "reason": "A missed field check-in made route timing and inferred ground truth unreliable for this interval.",
+      "disposition": "exclude-interval",
+      "reviewer": "field-survey-operator",
+      "recordedAt": "2026-08-10T00:25:56Z"
+    },
+    {
+      "id": "ndh-20260731-missing-check-in-iphone",
+      "resultId": "8ad8e031-e726-4dca-9072-50ace74779a5",
+      "routeHash": "16dc4269d8803f23094bef051c6e7f834eaeb4fef152d811e71ccf10774264a2",
+      "routeAnchor": {
+        "type": "checkpoint-interval",
+        "routeHash": "16dc4269d8803f23094bef051c6e7f834eaeb4fef152d811e71ccf10774264a2",
+        "fromCheckpointId": "checkpoint-28",
+        "toCheckpointId": "checkpoint-29",
+        "legId": "leg-4"
+      },
+      "code": "missing-check-in",
+      "reason": "A missed field check-in made route timing and inferred ground truth unreliable for this interval.",
+      "disposition": "exclude-interval",
+      "reviewer": "field-survey-operator",
+      "recordedAt": "2026-08-10T00:25:56Z"
+    },
+    {
+      "id": "ndh-20260731-missing-check-in-macbook",
+      "resultId": "cf825576-d61d-4825-ad1b-89eaa3700961",
+      "routeHash": "16dc4269d8803f23094bef051c6e7f834eaeb4fef152d811e71ccf10774264a2",
+      "routeAnchor": {
+        "type": "checkpoint-interval",
+        "routeHash": "16dc4269d8803f23094bef051c6e7f834eaeb4fef152d811e71ccf10774264a2",
+        "fromCheckpointId": "checkpoint-28",
+        "toCheckpointId": "checkpoint-29",
+        "legId": "leg-4"
+      },
+      "code": "missing-check-in",
+      "reason": "A missed field check-in made route timing and inferred ground truth unreliable for this interval.",
+      "disposition": "exclude-interval",
+      "reviewer": "field-survey-operator",
+      "recordedAt": "2026-08-10T00:25:56Z"
+    },
+    {
+      "id": "ndh-20260731-missing-check-in-spectralink",
+      "resultId": "51de0486-8020-4ef5-9a41-7b4ea5379fc1",
+      "routeHash": "16dc4269d8803f23094bef051c6e7f834eaeb4fef152d811e71ccf10774264a2",
+      "routeAnchor": {
+        "type": "checkpoint-interval",
+        "routeHash": "16dc4269d8803f23094bef051c6e7f834eaeb4fef152d811e71ccf10774264a2",
+        "fromCheckpointId": "checkpoint-28",
+        "toCheckpointId": "checkpoint-29",
+        "legId": "leg-4"
+      },
+      "code": "missing-check-in",
+      "reason": "A missed field check-in made route timing and inferred ground truth unreliable for this interval.",
+      "disposition": "exclude-interval",
+      "reviewer": "field-survey-operator",
+      "recordedAt": "2026-08-10T00:25:56Z"
+    }
+  ]
+}

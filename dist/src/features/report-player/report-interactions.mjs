@@ -5,9 +5,6 @@
 // RULES:        Re-render sections only; never reload, reparse, or mutate result evidence.
 // PROVENANCE:   Scope/steps/05a_recast_player.md
 import { downloadFile as browserDownload } from "../../adapters/download.mjs";
-import { assertReportResult, campusRunEntries } from "./result-loader.mjs";
-import { bindAllRunsAction, createAllRunsLoader } from "./all-runs.mjs";
-import { createCampusOverviewController } from "./campus-overview-controller.mjs";
 import { bindComparisonAdd } from "./comparison-view.mjs";
 import { bindReportFloor } from "./report-floor-controller.mjs";
 import { bindMapHighlight } from "./map-highlight-controller.mjs";
@@ -17,9 +14,10 @@ import { mountPlaybackView } from "./playback-view.mjs";
 import { bindReportModes } from "./report-mode-controller.mjs";
 import { renderDynamicSections } from "./report-sections.mjs";
 import { bindReportWarningActions } from "./report-warning-view.mjs";
+import { createReportCollectionController } from "./report-collection-controller.mjs";
+import { assertReportResult } from "./result-loader.mjs";
 export { renderPlayerFrame } from "./report-floor-controller.mjs";
 export { renderDynamicSections } from "./report-sections.mjs";
-
 export function bindReportInteractions({
   root,
   store,
@@ -33,14 +31,9 @@ export function bindReportInteractions({
   const status = root.querySelector("[data-report-status]");
   const floorInput = root.querySelector("[data-map-floor]");
   const alertRoot = root.querySelector("[data-module=mapAlerts]");
-  const allRunsLoader = createAllRunsLoader({
-    entries: campusRunEntries(store.snapshot().manifest, store.snapshot().result),
-    manifestSource,
-    assertResult: assertReportResult,
+  const collection = createReportCollectionController({
+    store, manifestSource, floorInput, surface,
   });
-  const overviewController = createCampusOverviewController(
-    { store, loader: allRunsLoader, floorInput },
-  );
   const floor = bindReportFloor(
     { surface, floorInput, initialFloor: store.snapshot().meta.zLevels[0] },
   );
@@ -63,7 +56,7 @@ export function bindReportInteractions({
   );
   function repaintMap() {
     surface.render({
-      analysis: overviewController.mapAnalysis(modes.mode, currentAnalysis),
+      analysis: collection.mapAnalysis(modes.mode, currentAnalysis),
       heatKind: highlight.kind,
     });
   }
@@ -74,6 +67,7 @@ export function bindReportInteractions({
   });
   const highlight = bindMapHighlight({
     root,
+    initialKind: store.snapshot().consolidated ? "freeze" : "sticky",
     onChange: () => {
       repaintMap();
       if (modes.mode === "playback") player.seek(player.atMs);
@@ -85,25 +79,23 @@ export function bindReportInteractions({
         stickySeconds: Number(root.querySelector("[data-threshold=stickySeconds]").value),
         accuracyM: Number(root.querySelector("[data-threshold=accuracyM]").value),
       });
-      overviewController.rebuild();
+      collection.rebuild();
       refresh();
     });
   });
-
   function refresh() {
     const state = store.snapshot();
     currentAnalysis = state.analysis;
     const remaining = candidates.filter(entry => !loadedIds.has(entry.resultId));
     const html = renderDynamicSections(state, remaining, {
-      entryCount: allRunsLoader.entryCount,
-      loaded: allRunsLoader.loaded,
-      rows: allRunsLoader.loaded ? allRunsLoader.rows(state.result, state.thresholds) : [],
+      ...collection.allRunsState(state),
     });
     for (const [module, markup] of Object.entries(html)) {
       root.querySelector(`[data-module=${module}]`).innerHTML = markup;
     }
     root.querySelector("[data-module=overview]").innerHTML =
-      overviewController.panelHtml();
+      collection.overviewHtml();
+    root.querySelector("[data-module=rooms]").innerHTML = collection.roomHtml();
     for (const [key, value] of Object.entries(state.thresholds)) {
       const input = root.querySelector(`[data-threshold=${key}]`);
       if (input) input.value = String(value);
@@ -122,14 +114,14 @@ export function bindReportInteractions({
       });
     });
     bindReportWarningActions(root, options => modes.setMode("playback", options));
-    overviewController.bindLoadAction(root, refresh);
-    bindAllRunsAction(root, { loader: allRunsLoader, status, refresh });
+    collection.bind(root, { refresh, status });
     bindComparisonAdd(root, {
       remaining,
       status,
       refresh,
       addResult: async entry => store.addComparison(
         assertReportResult(await manifestSource.result(entry.path)),
+        entry.reviewedExceptions ?? [],
       ),
       markLoaded: id => loadedIds.add(id),
     });
@@ -137,11 +129,14 @@ export function bindReportInteractions({
 
   refresh();
   return Object.freeze({
+    enableRoomLookup: () => collection.enableRoomLookup(refresh),
     refresh,
     destroy() { floor.destroy(); modes.destroy(); offConcern(); },
     focusEvidence: modes.focusEvidence,
     seek: modes.seek,
     setMode: modes.setMode,
+    prepareOverview: () => collection.loadOverview(refresh, status),
+    markRoomUnavailable: () => collection.markRoomUnavailable(refresh),
     get atMs() { return modes.atMs; },
     get highlightKind() { return highlight.kind; },
     get mode() { return modes.mode; },

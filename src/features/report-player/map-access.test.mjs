@@ -75,6 +75,7 @@ test("typed access is held in memory, cleared from the input, and retried", asyn
   const fixture = fakeAccessRoot();
   const credentials = memoryCredentials();
   const retries = [];
+  const ready = [];
   const binding = bindMapAccess({
     root: fixture.root,
     credentials,
@@ -84,6 +85,7 @@ test("typed access is held in memory, cleared from the input, and retried", asyn
         return { status: "ready" };
       },
     },
+    onReady: outcome => ready.push(outcome.status),
   });
   fixture.input.value = "typed-at-runtime";
   await binding.retry();
@@ -93,6 +95,7 @@ test("typed access is held in memory, cleared from the input, and retried", asyn
   assert.equal(fixture.panel.hidden, true);
   assert.equal(fixture.toggleButton.attributes["aria-expanded"], "false");
   assert.equal(fixture.toggleButton.focused, 1);
+  assert.deepEqual(ready, ["ready"]);
 });
 
 function memoryCredentials() {

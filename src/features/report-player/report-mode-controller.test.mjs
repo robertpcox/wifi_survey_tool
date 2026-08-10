@@ -60,7 +60,7 @@ test("overview mode reuses analysis map layers and announces the change", () => 
   assert.equal(fixture.context.hidden, true);
   assert.equal(fixture.body.classList.has("player-active"), false);
   assert.ok(fixture.calls.some(call => (
-    call[0] === "surface-mode" && call[1] === "analysis"
+    call[0] === "surface-mode" && call[1] === "overview"
   )));
   modes.setMode("analysis");
   assert.deepEqual(modeChanges, ["overview", "analysis"]);

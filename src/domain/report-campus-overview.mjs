@@ -6,30 +6,54 @@
 // PROVENANCE:   NDH merged campus picture · problem areas across runs, devices, and days
 
 import { buildConcernSegments } from "./report-concern-segments.mjs";
-import { reportQuantile } from "./report-samples.mjs";
-
-const LAT_METERS = 110540;
-const LNG_METERS = 111320;
+import { createCampusGrid } from "./report-campus-grid.mjs";
+import { campusCiscoWalkingEvidence }
+  from "./report-campus-position-evidence.mjs";
+import { campusRunMetrics, campusRunSummaries }
+  from "./report-campus-runs.mjs";
+import { weightedPathPoints } from "./report-path-weights.mjs";
 
 export function buildCampusOverview(runs, { binSizeM = 5 } = {}) {
-  if (!runs?.length) return { binSizeM, runCount: 0, floors: [], bins: [] };
+  if (!runs?.length) return {
+    binSizeM, runCount: 0, runs: [], metrics: campusRunMetrics([]),
+    floors: [], bins: [],
+  };
   const origin = runs[0].result.checkIns[0].groundTruth;
-  const lngScale = LNG_METERS * Math.cos(origin.lat * Math.PI / 180);
-  const bins = new Map();
-  const binAt = point => binFor(bins, origin, lngScale, binSizeM, point);
+  const grid = createCampusGrid(origin, binSizeM);
+  const binAt = grid.at;
   for (const { result, analysis } of runs) {
     const runId = result.run.resultId;
     for (const sample of analysis.fixes.samples) {
-      if (!sample.groundTruth || !Number.isFinite(sample.accuracyM)) continue;
+      if (!sample.groundTruth || !Number.isFinite(sample.accuracyM)
+          || sample.accuracyM <= analysis.thresholds.accuracyM) continue;
       const bin = binAt(sample.groundTruth);
       bin.errors.push(sample.accuracyM);
       bin.fixCount += 1;
       bin.runIds.add(runId);
+      bin.accuracyRunIds.add(runId);
     }
     for (const piece of analysis.stalePathSegments ?? []) {
-      const bin = binAt(midpoint(piece.coordinates, piece.z));
-      bin.lockSeconds += piece.durationSeconds ?? 0;
+      for (const sample of weightedPathPoints(
+        piece.coordinates, piece.z, piece.durationSeconds, binSizeM / 2,
+      )) {
+        const bin = binAt(sample.point);
+        bin.lockSeconds += sample.weight;
+        bin.runIds.add(runId);
+        bin.lockRunIds.add(runId);
+      }
+    }
+    const walking = campusCiscoWalkingEvidence(analysis);
+    for (const item of walking.held) {
+      const bin = binAt(item.point);
+      bin.heldSeconds += item.seconds;
       bin.runIds.add(runId);
+      bin.heldRunIds.add(runId);
+    }
+    for (const item of walking.lag) {
+      const bin = binAt(item.point);
+      bin.lags.push(item.lagBehindM);
+      bin.runIds.add(runId);
+      bin.lagRunIds.add(runId);
     }
     const concerns = analysis.concernSegments
       ?? buildConcernSegments(result, analysis);
@@ -38,37 +62,19 @@ export function buildCampusOverview(runs, { binSizeM = 5 } = {}) {
       if (segment.kind === "centre") bin.centreRuns.add(runId);
       if (segment.kind === "approach-forward") bin.forwardRuns.add(runId);
       if (segment.kind === "approach-reverse") bin.reverseRuns.add(runId);
+      bin.runIds.add(runId);
     }
   }
   return {
     binSizeM,
     runCount: runs.length,
+    runs: campusRunSummaries(runs),
+    metrics: campusRunMetrics(runs),
     floors: floorUnion(runs),
-    bins: [...bins.values()].map(publicBin)
+    bins: grid.values()
       .sort((left, right) => right.lockSeconds - left.lockSeconds
-        || right.runCount - left.runCount),
+        || right.lockRunCount - left.lockRunCount),
   };
-}
-
-function binFor(bins, origin, lngScale, binSizeM, point) {
-  const ix = Math.floor((point.lng - origin.lng) * lngScale / binSizeM);
-  const iy = Math.floor((point.lat - origin.lat) * LAT_METERS / binSizeM);
-  const key = `${point.z}|${ix}|${iy}`;
-  if (!bins.has(key)) {
-    bins.set(key, {
-      z: point.z,
-      lng: origin.lng + (ix + 0.5) * binSizeM / lngScale,
-      lat: origin.lat + (iy + 0.5) * binSizeM / LAT_METERS,
-      errors: [],
-      fixCount: 0,
-      lockSeconds: 0,
-      runIds: new Set(),
-      forwardRuns: new Set(),
-      reverseRuns: new Set(),
-      centreRuns: new Set(),
-    });
-  }
-  return bins.get(key);
 }
 
 function midpoint(coordinates, z) {
@@ -91,28 +97,4 @@ function floorUnion(runs) {
   return [...names.entries()]
     .sort((left, right) => left[0] - right[0])
     .map(([z, name]) => ({ z, name }));
-}
-
-function publicBin(bin) {
-  const forward = bin.forwardRuns.size;
-  const reverse = bin.reverseRuns.size;
-  const centre = bin.centreRuns.size;
-  return {
-    z: bin.z,
-    lng: bin.lng,
-    lat: bin.lat,
-    runCount: bin.runIds.size,
-    runIds: [...bin.runIds].sort(),
-    fixCount: bin.fixCount,
-    lockSeconds: round(bin.lockSeconds),
-    medianErrorM: round(reportQuantile(bin.errors, 0.5)),
-    forwardRunCount: forward,
-    reverseRunCount: reverse,
-    centreRunCount: centre,
-    bothDirections: centre > 0 || (forward > 0 && reverse > 0),
-  };
-}
-
-function round(value) {
-  return Number.isFinite(value) ? Math.round(value * 1000) / 1000 : null;
 }

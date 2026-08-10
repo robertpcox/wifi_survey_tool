@@ -1,0 +1,59 @@
+/* FEATURE:      Customer consolidated-report launch
+ * SURFACE:      First dashboard card
+ * WHY TOGETHER: Campus aggregate copy and its primary action form one dashboard component.
+ * STATE:        Responsive layout only
+ * RULES:        Keep this visually and semantically distinct from raw result launch rows.
+ * PROVENANCE:   Customer request · consolidated runs as the first dashboard option
+ */
+
+.dashboard-consolidated {
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.9fr) minmax(18rem, 1.1fr);
+  gap: 2rem;
+  margin-bottom: 1rem;
+  padding: 1.5rem;
+  border: 2px solid #2457a6;
+  border-radius: 1rem;
+  color: #fff;
+  background: linear-gradient(135deg, #14213d, #2457a6);
+  box-shadow: 0 1rem 2.5rem rgb(20 33 61 / 16%);
+}
+
+.dashboard-consolidated h2 { margin: 0.2rem 0; }
+.dashboard-consolidated p { color: #dbeafe; }
+.dashboard-consolidated ul {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dashboard-consolidated li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem;
+  border: 1px solid rgb(255 255 255 / 24%);
+  border-radius: 0.75rem;
+  background: rgb(255 255 255 / 10%);
+}
+
+.dashboard-consolidated li div { display: grid; gap: 0.2rem; }
+.dashboard-consolidated li span { color: #dbeafe; font-size: 0.85rem; }
+.dashboard-consolidated-launch {
+  flex: 0 0 auto;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.55rem;
+  color: #14213d;
+  background: #fff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+@media (max-width: 700px) {
+  .dashboard-consolidated { grid-template-columns: 1fr; gap: 1rem; }
+  .dashboard-consolidated li { align-items: stretch; flex-direction: column; }
+  .dashboard-consolidated-launch { text-align: center; }
+}

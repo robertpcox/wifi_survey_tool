@@ -10,6 +10,7 @@ export function buildNoPositionOutages({
   timeline,
   truth,
   thresholdSeconds,
+  coverage,
 }) {
   const startMs = Date.parse(result.run.startedAt);
   const stopMs = Date.parse(result.run.stoppedAt);
@@ -33,23 +34,29 @@ export function buildNoPositionOutages({
     if (!(to > from)) return;
     const held = heldSince.get(poll.id);
     if (poll.success !== true || !Number.isFinite(held)) {
-      intervals.push([from, to]);
+      intervals.push(...includedRanges(coverage, from, to));
       return;
     }
     const staleFromMs = Math.max(from, held + thresholdSeconds * 1000);
-    if (staleFromMs < to) intervals.push([staleFromMs, to]);
+    if (staleFromMs < to) {
+      intervals.push(...includedRanges(coverage, staleFromMs, to));
+    }
   });
   const episodes = merge(intervals)
     .map(([startedMs, endedMs]) => episode(startedMs, endedMs, truth));
   const totalSeconds = episodes
     .reduce((total, item) => total + item.durationSeconds, 0);
-  const runSeconds = (stopMs - startMs) / 1000;
+  const runSeconds = coverage?.eligibleSeconds ?? (stopMs - startMs) / 1000;
   return {
     thresholdSeconds,
     totalSeconds: round(totalSeconds),
     percent: runSeconds > 0 ? round(totalSeconds / runSeconds * 100) : 0,
     episodes,
   };
+}
+
+function includedRanges(coverage, fromMs, toMs) {
+  return coverage?.includedRanges(fromMs, toMs) ?? [[fromMs, toMs]];
 }
 
 function merge(intervals) {

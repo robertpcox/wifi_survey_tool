@@ -1,0 +1,117 @@
+// FEATURE:      Dynamic room-resolution report
+// SURFACE:      renderRoomResolutionView(options)
+// WHY TOGETHER: Stationary KPI, issue graph, room ranking, and evidence table form one report.
+// STATE:        None
+// RULES:        Label MazeMap as truth and Cisco Spaces as the unsnapped observed blue dot.
+// PROVENANCE:   Dynamic dwell room-resolution evidence
+
+import { esc } from "../../shared/format.mjs";
+import { renderCorridorResolution }
+  from "./corridor-resolution-view.mjs";
+import { renderRoomResolutionEvidence }
+  from "./room-resolution-evidence-view.mjs";
+
+export function renderRoomResolutionView({ status, summary, error = null }) {
+  if (status !== "ready") return pending(status, error);
+  if (!summary.visitCount && !summary.corridor?.sampleCount) {
+    return `<div class="room-resolution-empty">
+    <h3>MazeMap area resolution</h3>
+    <p>No eligible dynamic room stops or corridor marks are present in these runs.</p>
+  </div>`;
+  }
+  return `<div class="room-resolution-report">
+    <header>
+      <p class="section-kicker">Raw Cisco versus MazeMap areas</p>
+      <h3>Did the blue dot resolve inside each room and corridor?</h3>
+      <p>Room dwells score every displayed Cisco state from entry to exit.
+        Corridors use repeated intermediate walking marks. Snap-to-path output
+        never enters either score.</p>
+    </header>
+    ${summary.visitCount ? `${summaryCards(summary)}${issueGraph(summary)}
+      ${roomTable(summary)}${renderRoomResolutionEvidence(summary)}` : roomEmpty()}
+    ${renderCorridorResolution(summary.corridor)}
+  </div>`;
+}
+function pending(status, error) {
+  const messages = {
+    idle: "Area evidence waits for the campus map.",
+    loading: "Resolving MazeMap polygons for room and corridor Cisco fixes…",
+    unavailable: "Area lookup is unavailable; no Cisco area failures are inferred.",
+    error: error?.message || "Area evidence could not be resolved.",
+  };
+  return `<div class="room-resolution-empty" data-room-resolution-status="${esc(status)}">
+    <h3>MazeMap area resolution</h3><p>${esc(messages[status] ?? messages.idle)}</p>
+  </div>`;
+}
+function roomEmpty() {
+  return `<div class="room-resolution-empty"><h4>Room stops</h4>
+    <p>No eligible room stop/dwell evidence is present.</p></div>`;
+}
+function summaryCards(summary) {
+  const rate = summary.resolutionPercent == null
+    ? "—"
+    : `${summary.resolutionPercent.toFixed(1)}%`;
+  return `<div class="room-resolution-kpis">
+    ${card("Room resolution", rate, `${summary.scoredVisitCount} scored visits`)}
+    ${card("Failed room visits", summary.failedVisitCount, "check-in or dwell exit outside")}
+    ${card("Settled during dwell", summary.settledDuringDwellCount, "wrong on entry, correct on exit")}
+    ${card("Dwell inside-area", percent(summary.dwellResolutionPercent),
+    `${one(summary.dwellScoredSeconds)} scored seconds`)}
+    ${card("Median settle time", seconds(summary.medianSettleSeconds),
+    `p95 ${seconds(summary.p95SettleSeconds)}`)}
+    ${card("Stuck through dwell", summary.stuckAtDwellEndCount, "same Cisco position at exit")}
+  </div>`;
+}
+function card(label, value, detail) {
+  return `<article><span>${esc(label)}</span><strong>${esc(value)}</strong><small>${esc(detail)}</small></article>`;
+}
+function issueGraph(summary) {
+  const bars = [
+    ["Wrong room", summary.primaryFailures["wrong-room"]],
+    ["No mapped room", summary.primaryFailures.unresolved],
+    ["Wrong floor", summary.primaryFailures["wrong-floor"]],
+    ["No Cisco fix", summary.primaryFailures["no-displayed-fix"]],
+    ["Settled during dwell", summary.settledDuringDwellCount],
+    ["Lost resolution", summary.lostResolutionCount],
+    ["Intermittent in dwell", summary.intermittentResolutionCount],
+    ["Temporary resolution", summary.temporaryResolutionCount],
+  ];
+  const normalized = bars.map(([label, value]) => [label, Number(value) || 0]);
+  const maximum = Math.max(1, ...normalized.map(([, value]) => value));
+  return `<figure class="room-issue-graph">
+    <figcaption>Stationary outcomes across eligible visits</figcaption>
+    ${normalized.map(([label, value]) => `<div>
+      <span>${esc(label)}</span><i><b style="width:${value / maximum * 100}%"></b></i>
+      <strong>${esc(value)}</strong>
+    </div>`).join("")}
+  </figure>`;
+}
+function roomTable(summary) {
+  const rows = summary.rooms
+    .filter(room => room.failures || room.unscored || room.settled
+      || room.drifted || room.stuck)
+    .slice(0, 20);
+  return `<div class="room-resolution-table">
+    <h4>Rooms needing attention</h4>
+    <div class="report-table-scroll"><table><thead><tr>
+      <th>MazeMap room</th><th>Runs</th><th>Visits</th><th>Resolved</th>
+      <th>Failed</th><th>Unscored</th><th>Settled late</th><th>Dwell drift</th><th>Stuck</th>
+    </tr></thead><tbody>${rows.map(room => `<tr>
+      <th>${esc(room.name || room.poiId || "Unmapped target")}</th>
+      <td>${esc(room.runCount)}</td><td>${esc(room.visits)}</td>
+      <td>${esc(room.resolved)}</td><td>${esc(room.failures)}</td>
+      <td>${esc(room.unscored)}</td><td>${esc(room.settled)}</td>
+      <td>${esc(room.drifted ?? 0)}</td><td>${esc(room.stuck)}</td>
+    </tr>`).join("") || '<tr><td colspan="9">No room failures.</td></tr>'}
+    </tbody></table></div>
+  </div>`;
+}
+function percent(value) {
+  return Number.isFinite(value) ? `${Number(value).toFixed(1)}%` : "—";
+}
+function one(value) {
+  return Number.isFinite(value) ? Number(value).toFixed(1) : "—";
+}
+function seconds(value) {
+  return Number.isFinite(value) ? `${Number(value).toFixed(1)} s` : "—";
+}

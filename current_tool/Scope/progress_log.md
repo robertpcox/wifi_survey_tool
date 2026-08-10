@@ -1,5 +1,21 @@
 # Progress log — newest entry first
 
+## 2026-08-10 — Consolidated campus and MazeMap area report built for demo
+
+- Added the Dashboard-first campus report URL while leaving every raw result/Player URL unchanged.
+- Split the consolidated map into walked-path freeze, raw Cisco held position, positive trailing
+  lag, thresholded distance error, and MazeMap room/corridor containment lanes.
+- Dynamic room dwells score every displayed raw Cisco state; corridor marks score repeated
+  intermediate checkpoints. Snap-to-path never enters either area score.
+- The linked iPhone run contributes 28 room dwells / 738 dwell states and, after review clipping,
+  111 corridor samples. Solid markers show expected samples; hollow rings show Cisco positions.
+- Every campus run carries its own reviewed exceptions; `exclude-run` records stay playable but
+  cannot enter consolidation. The four missing-check-in intervals remain excluded without editing
+  captured results or raw playback.
+- The release build passed 805/805 runnable tests with three dependency-only Chrome skips, every
+  gate, regenerated manifests/module maps, and synchronized 340 publishable files atomically into
+  the demo checkout.
+
 ## 2026-07-30 — Dynamic room Runner built and validated
 
 - Added Dynamic room first in Runner: live map check-ins, 5/+10s dwell, Back, hidden routing, Finish polling, and paired V3 exports.

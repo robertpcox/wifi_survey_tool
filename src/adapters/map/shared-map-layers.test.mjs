@@ -17,7 +17,7 @@ test("mode switching reuses sources and blocks disabled Player writes", () => {
   layers.drawReportHeat("sticky", [
     { lng: 170.1, lat: -45.1, z: 0, weightSeconds: 2 },
   ]);
-  layers.drawReportHeat("sticky", {
+  const analysis = {
     heatmaps: { sticky: [] },
     stalePathSegments: [{
       z: 0,
@@ -43,7 +43,8 @@ test("mode switching reuses sources and blocks disabled Player writes", () => {
         }],
       },
     },
-  });
+  };
+  layers.drawReportHeat("sticky", analysis);
   assert.equal(
     harness.sources.get("report-floor-mismatch").data.features[0].properties.reportedZ,
     1,
@@ -108,6 +109,7 @@ test("mode switching reuses sources and blocks disabled Player writes", () => {
   assert.equal(harness.visibility.get("report-wifi-fixes-lyr"), "visible");
   assert.equal(harness.visibility.get("report-stale-path-lyr"), "visible");
   assert.ok(layers.sourceIds.includes("report-stale-path"));
+  assert.ok(layers.sourceIds.includes("report-area-resolution-cisco"));
 });
 
 function mapHarness() {

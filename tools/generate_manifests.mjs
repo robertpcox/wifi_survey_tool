@@ -11,6 +11,13 @@ import { fileURLToPath } from "node:url";
 
 import { validateSurveyDefinitionV3 } from "../src/domain/survey-definition-v3.mjs";
 import { validateSurveyResultV3 } from "../src/domain/survey-result-v3.mjs";
+import {
+  compareManifestEntry,
+  customerManifests,
+  resultManifestEntry,
+  surveyManifestEntry,
+} from "./manifest_entries.mjs";
+import { loadReviewedExceptions } from "./reviewed_exception_manifests.mjs";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 export async function generateManifests({
@@ -23,9 +30,15 @@ export async function generateManifests({
     throw error;
   });
   const surveys = await loadFamily(
-    resolve(root, "data/surveys"), root, validateSurveyDefinitionV3, surveyEntry);
-  const results = await loadFamily(
-    resolve(root, "results"), root, validateSurveyResultV3, resultEntry);
+    resolve(root, "data/surveys"), root, validateSurveyDefinitionV3, surveyManifestEntry);
+  const loadedResults = await loadFamily(
+    resolve(root, "results"), root, validateSurveyResultV3, resultManifestEntry);
+  const reviewedExceptions = await loadReviewedExceptions(root, loadedResults);
+  const results = loadedResults.map(entry => ({
+    ...entry,
+    reviewedExceptions: reviewedExceptions.exceptions
+      .filter(item => item.resultId === entry.resultId),
+  }));
   const surveyManifest = { schemaVersion: 3, surveys };
   const resultManifest = { schemaVersion: 3, results };
   const customers = customerManifests(surveys, results);
@@ -35,12 +48,17 @@ export async function generateManifests({
     surveyCount: surveys.length,
     resultCount: results.length,
     customerCount: customers.length,
+    reviewedExceptionCount: reviewedExceptions.exceptions.length,
   };
   await rm(outputDir, { recursive: true, force: true });
   await mkdir(resolve(outputDir, "customers"), { recursive: true });
   if (readme) await writeFile(readmePath, readme);
   await writeJson(resolve(outputDir, "survey-manifest.v3.json"), surveyManifest);
   await writeJson(resolve(outputDir, "result-manifest.v3.json"), resultManifest);
+  await writeJson(
+    resolve(outputDir, "reviewed-exceptions.v3.json"),
+    reviewedExceptions,
+  );
   await writeJson(resolve(outputDir, "validation-summary.v3.json"), summary);
   for (const customer of customers) {
     const path = resolve(outputDir, "customers", `${customer.customerId}.manifest.v3.json`);
@@ -60,7 +78,7 @@ async function loadFamily(directory, root, validate, createEntry) {
     }
     entries.push(createEntry(value, repositoryPath(root, path)));
   }
-  return entries.sort(compareEntry);
+  return entries.sort(compareManifestEntry);
 }
 
 async function jsonFiles(directory) {
@@ -78,58 +96,6 @@ async function jsonFiles(directory) {
     else if (entry.isFile() && entry.name.endsWith(".json")) paths.push(path);
   }
   return paths.sort();
-}
-
-function surveyEntry(definition, path) {
-  return {
-    surveyId: definition.meta.surveyId,
-    surveyName: definition.meta.surveyName,
-    customerId: definition.meta.customerId,
-    customerName: definition.meta.customerName,
-    campusId: definition.meta.campusId,
-    routeId: definition.meta.route.routeId,
-    routeHash: definition.meta.route.hash,
-    path,
-  };
-}
-
-function resultEntry(result, path) {
-  return {
-    resultId: result.run.resultId,
-    surveyId: result.run.surveyId,
-    customerId: result.run.customerId,
-    campusId: result.run.campusId,
-    routeHash: result.run.routeHash,
-    device: {
-      type: result.run.device.type,
-      os: result.run.device.os,
-      name: result.run.device.name,
-    },
-    band: result.run.band,
-    completionStatus: result.run.completionStatus,
-    exportedAt: result.run.exportedAt,
-    path,
-  };
-}
-
-function customerManifests(surveys, results) {
-  const ids = [...new Set([
-    ...surveys.map(entry => entry.customerId),
-    ...results.map(entry => entry.customerId),
-  ])].sort();
-  return ids.map(customerId => ({
-    schemaVersion: 3,
-    customerId,
-    customerName: surveys.find(entry => entry.customerId === customerId)?.customerName || null,
-    surveys: surveys.filter(entry => entry.customerId === customerId),
-    results: results.filter(entry => entry.customerId === customerId),
-  }));
-}
-
-function compareEntry(left, right) {
-  const leftKey = left.surveyId || left.resultId;
-  const rightKey = right.surveyId || right.resultId;
-  return leftKey.localeCompare(rightKey) || left.path.localeCompare(right.path);
 }
 
 function repositoryPath(root, path) {

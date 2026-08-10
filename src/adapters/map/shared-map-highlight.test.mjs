@@ -38,6 +38,14 @@ test("selected highlight colours Analysis and Player without leaking report evid
         }],
       },
     },
+    areaResolution: { areaObservations: [{
+      resultId: "run-area", checkpointId: "clinic", observationKind: "dwell",
+      expectedRoom: { name: "Clinic" }, scored: true, resolved: false,
+      target: { lng: 170.24, lat: -45.24, z: 2 },
+      primary: {
+        status: "wrong-room", point: { lng: 170.26, lat: -45.24, z: 2 },
+      },
+    }] },
   };
   layers.drawReportHeat("accuracy", analysis);
   layers.drawReportNotes([{
@@ -72,6 +80,33 @@ test("selected highlight colours Analysis and Player without leaking report evid
   assert.equal(harness.visibility.get("report-accuracy-heat-lyr"), "none");
   assert.equal(harness.visibility.get("report-stale-path-lyr"), "visible");
   assert.equal(harness.visibility.get("report-notes-lyr"), "none");
+
+  const areaCisco = harness.sources.get("report-area-resolution-cisco")
+    .data.features[0];
+  assert.deepEqual(areaCisco.geometry.coordinates, [170.26, -45.24]);
+  assert.equal(areaCisco.properties.verdict, "outside");
+  assert.equal(harness.visibility.get("report-area-resolution-cisco-lyr"), "none");
+
+  layers.setViewMode("analysis");
+  layers.drawReportHeat("room", {
+    ...analysis, heatmaps: { room: [] },
+  });
+  assert.equal(harness.visibility.get("report-room-heat-lyr"), "visible");
+  assert.equal(harness.visibility.get("report-area-resolution-cisco-lyr"), "visible");
+  assert.equal(harness.visibility.get("report-stale-path-lyr"), "none");
+
+  layers.drawReportHeat("lag", {
+    heatmaps: { lag: [{ lng: 170.3, lat: -45.3, z: 2, weight: 18 }] },
+  });
+  assert.equal(harness.visibility.get("report-lag-heat-lyr"), "visible");
+  assert.equal(harness.visibility.get("report-area-resolution-cisco-lyr"), "none");
+  assert.equal(harness.visibility.get("report-stale-path-lyr"), "none");
+
+  layers.drawReportHeat("freeze", {
+    ...analysis, heatmaps: { freeze: [] },
+  });
+  assert.equal(harness.visibility.get("report-freeze-heat-lyr"), "visible");
+  assert.equal(harness.visibility.get("report-stale-path-lyr"), "visible");
 });
 
 function mapHarness() {

@@ -26,6 +26,9 @@ const overview = buildCampusOverview([
 test("runs sharing a corridor pool into the same geographic bins", () => {
   assert.equal(overview.runCount, 2);
   assert.equal(overview.binSizeM, 5);
+  assert.equal(overview.runs.length, 2);
+  assert.ok(Number.isFinite(overview.metrics.totalStickySeconds));
+  assert.ok(Number.isFinite(overview.metrics.medianRunLagBehindM));
   assert.deepEqual(overview.floors, [{ z: 0, name: "Ground" }, { z: 1, name: "First" }]);
   const shared = overview.bins.find(bin => bin.runCount === 2);
   assert.ok(shared, "expected a bin visited by both runs");
@@ -33,6 +36,8 @@ test("runs sharing a corridor pool into the same geographic bins", () => {
   assert.deepEqual(shared.runIds, ["result-out-back-1", "result-report-1"]);
   assert.ok(shared.lockSeconds > 0);
   assert.ok(Number.isFinite(shared.medianErrorM));
+  assert.ok(overview.bins.some(bin => bin.heldSeconds > 0 && bin.heldRunCount > 0));
+  assert.ok(overview.bins.some(bin => Number.isFinite(bin.medianLagBehindM)));
 });
 
 test("direction evidence merges across runs into both-direction spots", () => {
@@ -46,10 +51,41 @@ test("direction evidence merges across runs into both-direction spots", () => {
   );
 });
 
+test("a long freeze paints its path with lane-specific run counts", () => {
+  const analysis = analyzeReportResult(straight, thresholds);
+  const origin = straight.checkIns[0].groundTruth;
+  const frozen = {
+    ...analysis,
+    concernSegments: [],
+    stalePathSegments: [{
+      z: origin.z,
+      coordinates: [
+        [origin.lng, origin.lat],
+        [origin.lng + 0.0003, origin.lat],
+      ],
+      durationSeconds: 55,
+    }],
+    heatmaps: { ...analysis.heatmaps, sticky: [] },
+    fixes: { ...analysis.fixes, samples: [], lagSeries: [] },
+  };
+  const merged = buildCampusOverview([{ result: straight, analysis: frozen }]);
+  const lockBins = merged.bins.filter(bin => bin.lockSeconds > 0);
+  assert.ok(lockBins.length > 2);
+  assert.ok(Math.abs(lockBins.reduce((sum, bin) => sum + bin.lockSeconds, 0) - 55) < 0.01);
+  assert.equal(lockBins.every(bin => bin.lockRunCount === 1), true);
+  assert.equal(lockBins.every(bin => bin.accuracyRunCount === 0), true);
+});
+
 test("an empty run list yields an empty overview", () => {
   assert.deepEqual(buildCampusOverview([]), {
     binSizeM: 5,
     runCount: 0,
+    runs: [],
+    metrics: {
+      totalStickySeconds: 0,
+      medianRunLagBehindM: null,
+      medianRunNoPositionPercent: null,
+    },
     floors: [],
     bins: [],
   });

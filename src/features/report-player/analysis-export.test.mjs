@@ -41,6 +41,7 @@ test("exports carry the accuracy, freshness, and availability lanes", () => {
     /"fix-freshness","","longestHoldSeconds","6","seconds"/,
   );
   assert.match(files.csv.content, /"fix-availability","","medianRttMs","100","milliseconds"/);
+  assert.deepEqual(summary.reviewedExceptions, []);
 });
 
 test("a lane-less legacy analysis still exports safely", () => {

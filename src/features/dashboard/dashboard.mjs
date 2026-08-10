@@ -5,10 +5,15 @@
 // RULES:        Escape manifest text and expose completed results only.
 // PROVENANCE:   Scope/steps/05_dashboard_report_player.md
 
-import { createDashboardModel, reportPlayerUrl } from "../../domain/dashboard-selection.mjs";
+import {
+  consolidatedReportUrl,
+  createDashboardModel,
+  reportPlayerUrl,
+} from "../../domain/dashboard-selection.mjs";
 import { esc } from "../../shared/format.mjs";
 
 export function renderDashboard(model, reportPlayerBase) {
+  const consolidated = renderConsolidated(model, reportPlayerBase);
   const surveyCards = model.surveys.map(survey => {
     const options = survey.results.length
       ? survey.results.map(result => `
@@ -38,7 +43,33 @@ export function renderDashboard(model, reportPlayerBase) {
       <h1>${esc(model.customerName)}</h1>
       <p>${model.surveys.length} available survey${model.surveys.length === 1 ? "" : "s"}</p>
     </section>
+    ${consolidated}
     <section class="dashboard-grid">${surveyCards || emptyDashboard()}</section>`;
+}
+
+function renderConsolidated(model, reportPlayerBase) {
+  const campuses = model.campuses ?? [];
+  const actions = campuses.map(campus => `
+    <li>
+      <div>
+        <strong>Campus ${esc(campus.campusId)}</strong>
+        <span>${esc(campus.runCount)} completed runs ·
+          ${esc(campus.surveyCount)} surveys</span>
+      </div>
+      <a class="dashboard-consolidated-launch"
+        href="${esc(consolidatedReportUrl(campus, reportPlayerBase))}">
+        Open consolidated report
+      </a>
+    </li>`).join("");
+  return `<section class="dashboard-consolidated" aria-labelledby="consolidated-title">
+    <div>
+      <p class="dashboard-kicker">First look</p>
+      <h2 id="consolidated-title">Consolidated issue report</h2>
+      <p>Merge every eligible run by campus to find frozen path sections,
+        held Cisco positions, lag, and room/corridor area failures.</p>
+    </div>
+    <ul>${actions || '<li class="dashboard-empty">No completed runs to consolidate.</li>'}</ul>
+  </section>`;
 }
 
 export async function mountDashboard({

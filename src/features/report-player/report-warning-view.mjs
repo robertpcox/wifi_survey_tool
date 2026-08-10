@@ -10,7 +10,10 @@ import { esc } from "../../shared/format.mjs";
 export function renderReportWarnings(analysis) {
   const stale = analysis?.warnings?.stalePosition;
   const floor = analysis?.warnings?.floorMismatch;
+  const reviewed = (analysis?.reviewedExceptions ?? [])
+    .filter(item => item.disposition !== "include");
   const cards = [
+    ...reviewed.map(reviewedExceptionCard),
     stale?.active && warningCard({
       kind: "stale-position",
       title: "No position update",
@@ -38,6 +41,24 @@ export function renderReportWarnings(analysis) {
     </header>
     <div class="report-warning-grid">${cards.join("")}</div>
   </section>`;
+}
+
+function reviewedExceptionCard(exception) {
+  const anchor = exception.routeAnchor;
+  return `<article class="report-warning-card reviewed-exception"
+      data-warning-kind="reviewed-exception" role="status">
+    <div>
+      <strong>Reviewed data exclusion</strong>
+      <p>${esc(exception.reason)}</p>
+    </div>
+    <dl>
+      <div><dt>From</dt><dd>${esc(anchor.fromCheckpointId)}</dd></div>
+      <div><dt>To</dt><dd>${esc(anchor.toCheckpointId)}</dd></div>
+      <div><dt>Excluded</dt><dd>${esc(formatSeconds(exception.excludedSeconds))}</dd></div>
+      <div><dt>Route</dt><dd>${esc(formatMetres(exception.excludedDistanceM))}</dd></div>
+    </dl>
+    <p class="warning-evidence">Raw capture and Player playback are preserved.</p>
+  </article>`;
 }
 
 export function bindReportWarningActions(root, open) {
@@ -110,4 +131,8 @@ function formatSeconds(value) {
   if (hours) return `${hours} h ${minutes} m ${remainder} s`;
   if (minutes) return `${minutes} m ${remainder} s`;
   return `${value.toFixed(1)} s`;
+}
+
+function formatMetres(value) {
+  return Number.isFinite(value) ? `${value.toFixed(1)} m` : "—";
 }

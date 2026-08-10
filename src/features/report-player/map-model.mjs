@@ -11,7 +11,8 @@ export function createMapFrame(result, {
   frame = null,
   heatKind = "sticky",
 } = {}) {
-  const routeLines = result.route.legs
+  const overview = analysis?.overview === true;
+  const routeLines = (overview ? [] : result.route.legs)
     .flatMap(leg => floorSegments(leg.geometry ?? [], floor))
     .filter(points => points.length > 1);
   const heat = heatForFloor(
@@ -40,7 +41,9 @@ export function createMapFrame(result, {
   const pollTrail = (frame?.pollTrail ?? [])
     .map(item => item.normalized ?? item)
     .filter(point => point?.z === floor);
-  const project = createProjector(routeLines.flat());
+  const project = createProjector(
+    overview ? analysis.fitPoints ?? [] : routeLines.flat(),
+  );
   return Object.freeze({
     floor,
     floorName: result.meta.zLevelNames[String(floor)],
@@ -50,9 +53,11 @@ export function createMapFrame(result, {
       kind: line.kind,
       points: line.points.map(project),
     })),
-    stops: result.route.stops.filter(item => item.z === floor).map(project),
-    checkpoints: result.route.checkpoints.filter(item => item.z === floor).map(project),
-    notes: (frame?.notes ?? result.notes ?? [])
+    stops: overview ? [] : result.route.stops
+      .filter(item => item.z === floor).map(project),
+    checkpoints: overview ? [] : result.route.checkpoints
+      .filter(item => item.z === floor).map(project),
+    notes: (overview ? [] : frame?.notes ?? result.notes ?? [])
       .filter(note => note.groundTruth.z === floor)
       .map(note => project({ ...note.groundTruth, ...note })),
     heat: heat.map(item => ({ ...project(item), weightSeconds: item.weightSeconds ?? item.weight })),

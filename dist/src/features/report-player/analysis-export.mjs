@@ -14,6 +14,9 @@ export function createAnalysisSummary(result, analysis) {
       routeHash: result?.run?.routeHash ?? null,
     },
     thresholds: { ...(analysis?.thresholds ?? {}) },
+    coverage: { ...(analysis?.coverage ?? {}) },
+    reviewedExceptions: (analysis?.reviewedExceptions ?? [])
+      .map(exception => ({ ...exception, routeAnchor: { ...exception.routeAnchor } })),
     floors: (analysis?.floors ?? []).map(({ z, name }) => ({ z, name })),
     metrics: { ...(analysis?.metrics ?? {}) },
     fixes: {
@@ -62,6 +65,18 @@ export function buildAnalysisCsv(summary) {
   }
   for (const [metric, value] of Object.entries(summary.thresholds)) {
     rows.push(["threshold", "", metric, value, metricUnit(metric)]);
+  }
+  for (const exception of summary.reviewedExceptions) {
+    rows.push([
+      "reviewed-exception",
+      exception.routeAnchor.legId,
+      `${exception.routeAnchor.fromCheckpointId}->${exception.routeAnchor.toCheckpointId}`,
+      exception.reason,
+      exception.disposition,
+    ]);
+  }
+  for (const [metric, value] of Object.entries(summary.coverage)) {
+    rows.push(["coverage", "", metric, value, metricUnit(metric)]);
   }
   for (const [metric, value] of Object.entries(summary.metrics)) {
     rows.push(["metric", "", metric, value, metricUnit(metric)]);

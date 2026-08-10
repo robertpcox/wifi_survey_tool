@@ -8,23 +8,32 @@
 import { analyzeReportResult } from "../../domain/report-analysis.mjs";
 import { buildCampusOverview } from "../../domain/report-campus-overview.mjs";
 import { esc } from "../../shared/format.mjs";
+import { renderCampusHotspotTables } from "./campus-hotspot-view.mjs";
+import { renderCampusRunSummary } from "./campus-run-summary-view.mjs";
 
 export function buildCampusOverviewModel({
   result,
   analysis,
   thresholds,
   others,
+  includeResult = true,
   analyze = analyzeReportResult,
 }) {
   const model = buildCampusOverview([
-    { result, analysis },
-    ...others.map(other => ({ result: other, analysis: analyze(other, thresholds) })),
+    ...(includeResult ? [{ result, analysis }] : []),
+    ...others.map(other => {
+      const record = other?.result ? other : { result: other, exceptions: [] };
+      return {
+        result: record.result,
+        analysis: analyze(record.result, thresholds, record.exceptions ?? []),
+      };
+    }),
   ]);
   return { model, mapAnalysis: overviewMapAnalysis(model) };
 }
 
-export function overviewMapAnalysis(overview) {
-  const heatFloors = weight => overview.floors.map(floor => ({
+export function overviewMapAnalysis(overview, roomSummary = null) {
+  const heatFloors = (weight, runs) => overview.floors.map(floor => ({
     ...floor,
     points: overview.bins
       .filter(bin => bin.z === floor.z && weight(bin) > 0)
@@ -32,53 +41,71 @@ export function overviewMapAnalysis(overview) {
         lng: bin.lng,
         lat: bin.lat,
         z: bin.z,
-        weightSeconds: weight(bin),
-        runCount: bin.runCount,
+        weight: weight(bin),
+        runCount: runs(bin),
       })),
   }));
   return {
+    overview: true,
     floors: overview.floors,
+    fitPoints: [
+      ...overview.bins,
+      ...(roomSummary?.truthIssuePoints ?? []),
+      ...(roomSummary?.ciscoIssuePoints ?? []),
+    ],
     heatmaps: {
-      sticky: heatFloors(bin => bin.lockSeconds),
-      accuracy: heatFloors(bin => bin.medianErrorM ?? 0),
+      freeze: heatFloors(bin => bin.lockSeconds, bin => bin.lockRunCount),
+      sticky: heatFloors(bin => bin.heldSeconds, bin => bin.heldRunCount),
+      lag: heatFloors(bin => bin.medianLagBehindM ?? 0, bin => bin.lagRunCount),
+      accuracy: heatFloors(bin => bin.medianErrorM ?? 0, bin => bin.accuracyRunCount),
+      room: overview.floors.map(floor => ({
+        ...floor,
+        points: (roomSummary?.ciscoIssuePoints ?? [])
+          .filter(point => Number(point.z) === Number(floor.z)),
+      })),
     },
-    concernSegments: overview.bins
-      .filter(bin => bin.lockSeconds > 0
-        && (bin.bothDirections || bin.forwardRunCount || bin.reverseRunCount))
-      .map(bin => binSegment(bin, overview.binSizeM)),
+    concernSegments: [],
     stalePathSegments: [],
     timeline: [],
     warnings: { floorMismatch: { points: [] } },
   };
 }
 
-export function renderCampusOverviewPanel({ overview, entryCount, loaded }) {
+export function renderCampusOverviewPanel({
+  overview,
+  entryCount,
+  failureCount = 0,
+  includeCurrent = true,
+  loaded,
+}) {
+  const availableCount = entryCount + Number(includeCurrent);
   return `
     <div class="section-heading">
       <div>
         <p class="section-kicker">Campus overview</p>
         <h2>Problem areas merged across every run</h2>
       </div>
-      <p>${esc(entryCount + 1)} campus run(s) available</p>
+      <p>${esc(availableCount)} campus run(s) available</p>
     </div>
     <p class="diagnostic-intro">
-      Every campus result is pooled onto a 5 m geographic grid per floor —
-      lock time, direction evidence, and fix error merge across runs, devices,
-      and days. The map above paints the merged picture; switch floors beside it.
+      Every eligible campus result is pooled per floor. Separate highlights show
+      frozen walked-path sections, the raw Cisco positions that stayed held,
+      movement lag, distance error, and MazeMap room/corridor containment.
+      Reviewed exclusions are applied before runs are merged.
     </p>
-    ${loaded ? overviewTable(overview) : `
+    ${loaded ? overviewTable(overview, failureCount) : `
       <button type="button" data-load-overview>
-        Load and merge all ${esc(entryCount + 1)} campus runs</button>
+        Load and merge all ${esc(availableCount)} campus runs</button>
       <p data-overview-status>Nothing is loaded yet.</p>`}`;
 }
 
-function overviewTable(overview) {
+function overviewTable(overview, failureCount) {
   const floorNames = new Map(overview.floors.map(floor => [floor.z, floor.name]));
   const worst = overview.bins.filter(bin => bin.lockSeconds > 0).slice(0, 12);
   const rows = worst.map(bin => `<tr>
       <td>${esc(floorNames.get(bin.z) ?? `z ${bin.z}`)}</td>
       <td>${esc(bin.lat.toFixed(5))}, ${esc(bin.lng.toFixed(5))}</td>
-      <td>${esc(bin.runCount)}</td>
+      <td>${esc(bin.lockRunCount)}</td>
       <td>${esc(bin.lockSeconds.toFixed(1))} s</td>
       <td>${esc(Number.isFinite(bin.medianErrorM) ? `${bin.medianErrorM.toFixed(1)} m` : "—")}</td>
       <td>${bin.bothDirections ? "Both directions" : "One direction"}</td>
@@ -88,7 +115,10 @@ function overviewTable(overview) {
       ${esc(overview.runCount)} runs merged ·
       ${esc(overview.bins.filter(bin => bin.lockSeconds > 0).length)} lock bins ·
       ${esc(overview.bins.filter(bin => bin.bothDirections).length)} both-direction spots
+      ${failureCount ? ` · ${esc(failureCount)} run(s) unavailable` : ""}
     </p>
+    ${renderCampusRunSummary(overview)}
+    <h3>Frozen walked-path sections</h3>
     <div class="report-table-scroll">
       <table>
         <thead><tr>
@@ -97,29 +127,6 @@ function overviewTable(overview) {
         </tr></thead>
         <tbody>${rows || '<tr><td colspan="6">No merged lock evidence.</td></tr>'}</tbody>
       </table>
-    </div>`;
-}
-
-function binSegment(bin, binSizeM) {
-  const dLat = binSizeM / 2 / 110540;
-  const dLng = binSizeM / 2 / (111320 * Math.cos(bin.lat * Math.PI / 180));
-  return {
-    kind: bin.bothDirections
-      ? "centre"
-      : (bin.forwardRunCount >= bin.reverseRunCount
-        ? "approach-forward"
-        : "approach-reverse"),
-    direction: bin.bothDirections
-      ? "both"
-      : (bin.forwardRunCount >= bin.reverseRunCount ? "forward" : "reverse"),
-    pairId: `concern:merged:${bin.z}:${bin.lat.toFixed(6)}:${bin.lng.toFixed(6)}`,
-    z: bin.z,
-    coordinates: [
-      [bin.lng - dLng, bin.lat - dLat],
-      [bin.lng + dLng, bin.lat + dLat],
-    ],
-    runCount: bin.runCount,
-    lockSeconds: bin.lockSeconds,
-    medianErrorM: bin.medianErrorM,
-  };
+    </div>
+    ${renderCampusHotspotTables(overview)}`;
 }

@@ -58,3 +58,14 @@ test("store applies selected thresholds to accepted comparison runs", () => {
   });
   assert.equal(comparison.runs[1].device.band, "6");
 });
+
+test("consolidated payload starts in overview without reanalysis", () => {
+  const store = createReportPlayerStore();
+  const state = store.load({
+    result,
+    initialView: "overview",
+    consolidated: true,
+  });
+  assert.equal(state.view, "overview");
+  assert.equal(state.consolidated, true);
+});

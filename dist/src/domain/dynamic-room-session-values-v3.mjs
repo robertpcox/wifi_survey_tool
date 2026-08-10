@@ -24,12 +24,13 @@ export function dynamicRoomCheckInRecords(
   stopIndex = sequence,
 ) {
   const at = dynamicRoomTimestamp(atValue);
+  const poi = point._mapContext?.poi ?? {};
   const stop = {
     id: `stop-${stopIndex + 1}`,
     name: point.name || `Checkpoint ${stopIndex + 1}`,
     ...coordinates(point),
-    poiId: null,
-    poiName: null,
+    poiId: textOrNull(poi.id),
+    poiName: textOrNull(poi.name),
     locationType: "room",
     provenance: { method: "map" },
   };
@@ -53,6 +54,11 @@ export function dynamicRoomCheckInRecords(
   };
   const event = { type: "checkpoint-reached", at, checkpointId: checkpoint.id };
   return { stop, checkpoint, checkIn, event };
+}
+
+function textOrNull(value) {
+  const text = String(value ?? "").trim();
+  return text || null;
 }
 
 export function remainingDynamicRoomDwellSeconds(dwell, nowMs) {

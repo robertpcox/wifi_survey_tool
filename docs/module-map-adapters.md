@@ -21,7 +21,8 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - mazemap-floor-control 39/1319 T+ E createMazeMapFloorControl
 - mazemap-launch 144/4524 T+ E campusForLaunch, createLoadedMazeMap, launchCenter, resolveLaunchContainer, waitForMazeMapLoad I mazemap-catalog, mazemap-errors
 - mazemap-poi-position 38/1187 T+ E poiCenter
-- mazemap-queries 32/1203 T+ E createMazeMapQueries I mazemap-catalog
+- mazemap-queries 66/2342 T+ E createMazeMapQueries I mazemap-catalog, mazemap-room
+- mazemap-room 45/1581 T+ E mergeMazeMapRooms, normalizeMazeMapRoom
 - mazemap-runtime 38/1032 T+ E errorMessage, normalizeCampusId, numericZ, waitForMapLoad
 - mazemap-sdk 78/2763 T+ E MAZEMAP_CSS_URL, MAZEMAP_JS_URL, loadMazemapSdk, resolveMazemapSdk
 - mazemap-shared-boundary 78/2384 T+ E createMazeMapSharedBoundary
@@ -34,15 +35,16 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - player-live-raw-fix 25/959 T+ E liveRawFixFeature I map-geojson
 - player-map-features 150/5779 T+ E buildPlayerFeatureCollections I map-geojson, note-features, player-fix-history, player-live-raw-fix
 - player-map-layers 53/1823 T+ E createPlayerMapLayers I evidence-interactions, geojson-layer-group, player-layer-definitions, player-map-features
+- report-area-resolution-map-layer 134/4893 T+ E createReportAreaResolutionMapLayer I geojson-layer-group
 - report-concern-map-layer 102/3059 T+ E createReportConcernMapLayer I evidence-interactions, geojson-layer-group
-- report-map-layers 148/4491 T+ E createReportMapLayers I geojson-layer-group, map-layer-order, note-features
+- report-map-layers 148/4477 T+ E createReportMapLayers I geojson-layer-group, map-layer-order, note-features
 - report-stale-path-map-layer 78/2233 T+ E createReportStalePathMapLayer I geojson-layer-group
 - report-warning-map-layer 118/3224 T+ E createReportWarningMapLayer I geojson-layer-group
 - report-wifi-map-layer 59/1880 T+ E createReportWifiMapLayer I geojson-layer-group
 - routing 41/1295 T+ E fetchLegGeoJSON, getPoi, getPoiAt
-- shared-map-layers 128/4076 T+ E createSharedMapLayers
-  - I map-camera-follow, player-map-layers, report-concern-map-layer, report-map-layers, report-stale-path-map-layer, report-warning-map-layer,
-    report-wifi-map-layer
+- shared-map-layers 136/4443 T+ E createSharedMapLayers
+  - I map-camera-follow, player-map-layers, report-area-resolution-map-layer, report-concern-map-layer, report-map-layers, report-stale-path-map-layer,
+    report-warning-map-layer, report-wifi-map-layer
 ## positioning/
 - cloud 16/528 T+ E fetchCloudPosition
 - lipi 11/300 T+ E fetchLipiPosition

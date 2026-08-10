@@ -6,6 +6,8 @@
 // PROVENANCE:   Scope/steps/05a_recast_player.md shared map contract
 
 import { createPlayerMapLayers } from "./player-map-layers.mjs";
+import { createReportAreaResolutionMapLayer }
+  from "./report-area-resolution-map-layer.mjs";
 import { createReportConcernMapLayer } from "./report-concern-map-layer.mjs";
 import { createReportMapLayers } from "./report-map-layers.mjs";
 import { createReportStalePathMapLayer } from "./report-stale-path-map-layer.mjs";
@@ -15,6 +17,7 @@ import { followMapPoint } from "./map-camera-follow.mjs";
 
 export function createSharedMapLayers(map, currentFloor) {
   const report = createReportMapLayers(map, currentFloor);
+  const area = createReportAreaResolutionMapLayer(map, currentFloor);
   const concern = createReportConcernMapLayer(map, currentFloor);
   const stalePath = createReportStalePathMapLayer(map, currentFloor);
   const warnings = createReportWarningMapLayer(map, currentFloor);
@@ -29,9 +32,10 @@ export function createSharedMapLayers(map, currentFloor) {
     report.setHeatVisible(highlightKind !== "none");
     report.setNotesVisible(analysisVisible);
     concern.setVisible(analysisVisible);
-    stalePath.setVisible(highlightKind === "sticky");
+    stalePath.setVisible(["freeze", "sticky"].includes(highlightKind));
     warnings.setVisible(analysisVisible);
     wifi.setVisible(analysisVisible);
+    area.setVisible(analysisVisible && highlightKind === "room");
     player.setVisible(playerEnabled);
   }
 
@@ -42,6 +46,7 @@ export function createSharedMapLayers(map, currentFloor) {
     mode = nextMode;
     playerEnabled = mode === "playback";
     report.ensure();
+    area.ensure();
     concern.ensure();
     stalePath.ensure();
     wifi.ensure();
@@ -58,6 +63,7 @@ export function createSharedMapLayers(map, currentFloor) {
     stalePath.draw(pointsOrAnalysis);
     wifi.draw(pointsOrAnalysis);
     warnings.draw(pointsOrAnalysis?.warnings?.floorMismatch);
+    area.draw(pointsOrAnalysis?.areaResolution);
     applyVisibility();
     return count;
   }
@@ -89,6 +95,7 @@ export function createSharedMapLayers(map, currentFloor) {
     stalePath.applyFloor();
     warnings.applyFloor();
     wifi.applyFloor();
+    area.applyFloor();
     player.applyFloor();
   }
 
@@ -117,6 +124,7 @@ export function createSharedMapLayers(map, currentFloor) {
     get sourceIds() {
       return [
         ...report.sourceIds,
+        ...area.sourceIds,
         ...concern.sourceIds,
         ...stalePath.sourceIds,
         ...warnings.sourceIds,

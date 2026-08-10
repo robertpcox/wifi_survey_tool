@@ -32,7 +32,10 @@ export async function mountReportPlayer({
       root.querySelector("[data-report-status]").textContent = error.message;
     }
   });
-  if (!selection.customerId || !selection.resultId) {
+  const canLoadOverview = selection.customerId
+    && selection.campusId
+    && selection.view === "overview";
+  if (!selection.customerId || (!selection.resultId && !canLoadOverview)) {
     return Object.freeze({ ready: uploadSession.promise, store: null });
   }
   try {
@@ -62,13 +65,15 @@ export async function mountReportPlayer({
         : null,
     });
     surface.render({ analysis: state.analysis });
+    let player = null;
     const access = bindMapAccess({
       root,
       result: payload.result,
       credentials,
       surface,
+      onReady: () => player?.enableRoomLookup(),
     });
-    const player = bindReportInteractions({
+    player = bindReportInteractions({
       root,
       store,
       surface,
@@ -76,10 +81,20 @@ export async function mountReportPlayer({
       manifestSource,
       downloadFile,
     });
+    const overviewReady = payload.initialView === "overview"
+      ? player.prepareOverview()
+      : Promise.resolve(false);
     const mapReady = surface.start().then(access.handleLaunch);
+    const roomReady = Promise.all([mapReady, overviewReady]).then(() => (
+      surface.mapMode === "mazemap"
+        ? player.enableRoomLookup()
+        : player.markRoomUnavailable()
+    ));
     return Object.freeze({
       mapReady,
+      overviewReady,
       player,
+      roomReady,
       store,
       surface,
       result: payload.result,

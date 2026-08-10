@@ -66,7 +66,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
   - I @d/report-analysis, @d/report-campus-overview, @s/format, campus-hotspot-view, campus-run-summary-view
 - campus-run-summary-view 49/2347 T+ E renderCampusRunSummary I @s/format
 - comparison-view 108/4465 T+ E bindComparisonAdd, renderComparisonView I @s/format, all-runs
-- corridor-resolution-view 104/4612 T- E renderCorridorResolution I @s/format
+- corridor-resolution-view 104/4610 T- E renderCorridorResolution I @s/format
 - direction-view 129/5536 T+ E renderDirectionView I @d/report-direction-overlay, @s/format, report-chart-svg
 - floor-route-view 144/6556 T+ E renderFloorRouteView I @s/format
 - heatmap-view 65/2314 T+ E renderHeatmapView I @s/format
@@ -109,7 +109,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
     report-floor-controller, report-mode-controller, report-sections, report-warning-view, result-loader
 - report-mode-controller 94/3025 T+ E bindReportModes
 - report-player.css 148/3552 T+
-- report-player 118/4359 T+ E mountReportPlayer I map-access, map-surface, report-interactions, report-shell, report-store, result-loader
+- report-player 121/4339 T+ E mountReportPlayer I map-access, map-surface, report-interactions, report-shell, report-store, result-loader
 - report-sections 33/1397 T+ E renderDynamicSections
   - I comparison-view, direction-view, heatmap-view, kpi-view, methodology-view, no-position-view, report-insights-view, report-warning-view
 - report-series-view 129/5499 T+ E renderReportSeries I @s/format, report-chart-svg

@@ -1,9 +1,9 @@
-// FEATURE:      Dynamic room-resolution report
+// FEATURE:      Survey area-resolution report
 // SURFACE:      renderRoomResolutionView(options)
 // WHY TOGETHER: Stationary KPI, issue graph, room ranking, and evidence table form one report.
 // STATE:        None
 // RULES:        Label MazeMap as truth and Cisco Spaces as the unsnapped observed blue dot.
-// PROVENANCE:   Dynamic dwell room-resolution evidence
+// PROVENANCE:   Consolidated stop/dwell and corridor evidence
 
 import { esc } from "../../shared/format.mjs";
 import { renderCorridorResolution }
@@ -16,7 +16,7 @@ export function renderRoomResolutionView({ status, summary, error = null }) {
   if (!summary.visitCount && !summary.corridor?.sampleCount) {
     return `<div class="room-resolution-empty">
     <h3>MazeMap area resolution</h3>
-    <p>No eligible dynamic room stops or corridor marks are present in these runs.</p>
+    <p>No eligible room stops or corridor checkpoints are present in these runs.</p>
   </div>`;
   }
   return `<div class="room-resolution-report">
@@ -30,6 +30,9 @@ export function renderRoomResolutionView({ status, summary, error = null }) {
         surveyed positions; blue points show raw Cisco at each corridor mark or
         at the end of the 20 s / available room window. Dotted lines show their
         same-floor displacement. Snap-to-path never enters either score.</p>
+      <p><strong>${esc(summary.runCount ?? 0)} contributing runs:</strong>
+        ${esc(summary.visitCount)} room stops and
+        ${esc(summary.corridor?.sampleCount ?? 0)} corridor checkpoints.</p>
     </header>
     ${summary.visitCount ? `${summaryCards(summary)}${issueGraph(summary)}
       ${roomTable(summary)}${renderRoomResolutionEvidence(summary)}` : roomEmpty()}

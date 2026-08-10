@@ -1,15 +1,15 @@
-// FEATURE:      Dynamic corridor area evidence
+// FEATURE:      Corridor area evidence
 // SURFACE:      node --test src/domain/report-corridor-observation.test.mjs
-// WHY TOGETHER: Intermediate eligibility and raw displayed-fix timing define corridor samples.
+// WHY TOGETHER: Intermediate eligibility and raw displayed-fix timing define all-run samples.
 // STATE:        Cloned compact result fixture
-// RULES:        Stops and planned surveys never become corridor containment samples.
-// PROVENANCE:   Long-corridor MazeMap area-resolution evidence
+// RULES:        Every intermediate contributes one sample; stops and dwell ticks never enter.
+// PROVENANCE:   All eligible survey corridor checkpoints
 
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import { buildDynamicCorridorObservations }
+import { buildCorridorObservations }
   from "./report-corridor-observation.mjs";
 
 const source = JSON.parse(await readFile(
@@ -19,7 +19,7 @@ const source = JSON.parse(await readFile(
 test("dynamic intermediate marks repeatedly sample the unsnapped Cisco dot", () => {
   const result = structuredClone(source);
   result.run.captureMode = "dynamic-room";
-  const observations = buildDynamicCorridorObservations(result);
+  const observations = buildCorridorObservations(result);
   assert.equal(observations.length, 1);
   assert.equal(observations[0].checkpointId, "checkpoint-b");
   assert.equal(observations[0].observationKind, "corridor-point");
@@ -53,9 +53,15 @@ test("reviewed run exclusions remove dynamic corridor evidence", () => {
     reviewer: "test-reviewer",
     recordedAt: "2026-08-10T00:00:00.000Z",
   };
-  assert.deepEqual(buildDynamicCorridorObservations(result, [exception]), []);
+  assert.deepEqual(buildCorridorObservations(result, [exception]), []);
 });
 
-test("planned intermediate checkpoints are not dynamic corridor evidence", () => {
-  assert.deepEqual(buildDynamicCorridorObservations(source), []);
+test("planned intermediates contribute one corridor sample regardless of dwell", () => {
+  const result = structuredClone(source);
+  result.route.checkpoints[1].dwellSeconds = 20;
+  const observations = buildCorridorObservations(result);
+  assert.equal(observations.length, 1);
+  assert.equal(observations[0].checkpointId, "checkpoint-b");
+  assert.equal(observations[0].observationKind, "corridor-point");
+  assert.equal(observations[0].startMs, observations[0].endMs);
 });

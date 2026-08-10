@@ -3,17 +3,23 @@
 // WHY TOGETHER: Room visits and corridor samples share map evidence but retain separate denominators.
 // STATE:        None
 // RULES:        Never collapse a corridor sample into the room-visit resolution rate.
-// PROVENANCE:   Dynamic room and long-corridor area resolution
+// PROVENANCE:   All-run room and long-corridor area resolution
 
 export function combineAreaResolutionSummaries(room, corridor) {
   const areaObservations = [
     ...(room.observations ?? []),
     ...(corridor.observations ?? []),
   ];
+  const runIds = [...new Set(areaObservations
+    .map(item => item.resultId)
+    .filter(Boolean))].sort();
   return Object.freeze({
     ...room,
     corridor,
     areaObservations,
+    observationCount: areaObservations.length,
+    runCount: runIds.length,
+    runIds,
     areaPolygons: aggregateAreaPolygons(areaObservations),
     truthIssuePoints: [
       ...(room.truthIssuePoints ?? []),

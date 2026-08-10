@@ -33,8 +33,7 @@ export function renderLoadPanel(message = "Choose a generated result or upload a
 export function renderReportShell(state, candidates = []) {
   const { result, analysis, thresholds, comparison } = state;
   const overview = state.view === "overview";
-  const requirePrivateAccess = state.consolidated
-    || result.run.captureMode === "dynamic-room";
+  const requirePrivateAccess = requiresPrivateAreaAccess(state);
   return `
     <div class="report-toolbar${state.consolidated ? " is-consolidated" : ""}">
       <div role="tablist" aria-label="Report Player mode">
@@ -90,6 +89,19 @@ export function renderReportShell(state, candidates = []) {
         ${renderMethodologyView({ result, analysis })}
       </section>
     </div>`;
+}
+
+export function requiresPrivateAreaAccess({
+  result, consolidated = false, exceptions = [],
+}) {
+  if (consolidated) return true;
+  if (exceptions.some(item => item.disposition === "exclude-run")) return false;
+  const checkedIn = new Set((result.checkIns ?? [])
+    .map(item => item.checkpointId));
+  return (result.route?.checkpoints ?? []).some(checkpoint => (
+    ["stop", "intermediate"].includes(checkpoint.type)
+      && checkedIn.has(checkpoint.id)
+  ));
 }
 
 function renderModeTabs(state) {

@@ -1,9 +1,9 @@
-// FEATURE:      Dynamic corridor area evidence
-// SURFACE:      buildDynamicCorridorObservations(result, reviewedExceptions)
+// FEATURE:      Corridor area evidence
+// SURFACE:      buildCorridorObservations(result, reviewedExceptions)
 // WHY TOGETHER: Intermediate walking checkpoints form repeated corridor containment samples.
 // STATE:        None
 // RULES:        Use exact checkpoint truth and displayed raw Cisco fix; never snap to the route.
-// PROVENANCE:   Long-corridor MazeMap area-resolution evidence
+// PROVENANCE:   All eligible survey corridor checkpoints
 
 import { displayedCiscoFix } from "./report-displayed-fix.mjs";
 import { buildGroundTruthModel } from "./report-ground-truth.mjs";
@@ -11,8 +11,7 @@ import { buildReportCoverage } from "./report-reviewed-exceptions.mjs";
 import { createReportRouteAxis, travelDirectionAt }
   from "./report-route-axis.mjs";
 
-export function buildDynamicCorridorObservations(result, reviewedExceptions = []) {
-  if (result?.run?.captureMode !== "dynamic-room") return [];
+export function buildCorridorObservations(result, reviewedExceptions = []) {
   const checkIns = new Map(result.checkIns.map(item => [item.checkpointId, item]));
   const truth = buildGroundTruthModel(result);
   const coverage = buildReportCoverage(result, reviewedExceptions, truth);

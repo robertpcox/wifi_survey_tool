@@ -1,9 +1,9 @@
-// FEATURE:      Dynamic room-resolution report
+// FEATURE:      Survey area-resolution report
 // SURFACE:      node --test src/features/report-player/room-resolution-view.test.mjs
 // WHY TOGETHER: Loading, empty, KPI, graph, and evidence markup share one report view.
 // STATE:        Synthetic summary
 // RULES:        Copy names both MazeMap truth and the raw Cisco blue dot.
-// PROVENANCE:   Dynamic dwell room-resolution evidence
+// PROVENANCE:   Consolidated stop/dwell and corridor evidence
 
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -38,7 +38,7 @@ test("ready view renders stationary KPIs, graph, room rank, and evidence", () =>
     },
   };
   const html = renderRoomResolutionView({ status: "ready", summary: {
-    visitCount: 1, scoredVisitCount: 1, resolvedVisitCount: 0,
+    runCount: 4, visitCount: 1, scoredVisitCount: 1, resolvedVisitCount: 0,
     failedVisitCount: 1, resolutionPercent: 0,
     settledDuringDwellCount: 0, stuckAtDwellEndCount: 1,
     primaryFailures: {
@@ -53,8 +53,9 @@ test("ready view renders stationary KPIs, graph, room rank, and evidence", () =>
   assert.match(html, /observes raw Cisco for up to 20 seconds/);
   assert.match(html, /not extra failed\s+visits/);
   assert.match(html, /One majority verdict and timing outcome/);
+  assert.match(html, /4 contributing runs/);
   assert.match(html, /Room majority outcomes and timing/);
-  assert.match(html, /No eligible dynamic intermediate marks/);
+  assert.match(html, /No eligible intermediate checkpoints/);
   assert.match(html, /Corridor/);
   assert.match(html, /Phone &lt;one&gt;/);
 });

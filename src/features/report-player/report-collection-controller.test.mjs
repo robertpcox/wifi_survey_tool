@@ -2,8 +2,8 @@
 // SURFACE:      node --test src/features/report-player/report-collection-controller.test.mjs
 // WHY TOGETHER: Auto-load, exception-aware bundles, and room-map enrichment share one controller test.
 // STATE:        Fixture store, manifest source, and room resolver
-// RULES:        Campus overview and room evidence reuse one loaded result collection.
-// PROVENANCE:   Campus-level consolidated report and dynamic dwell room evidence
+// RULES:        Campus overview and all-run area evidence reuse one loaded result collection.
+// PROVENANCE:   Campus-level consolidated report and survey area resolution
 
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -43,11 +43,11 @@ test("collection autoloads campus runs and exposes overview map state", async ()
   assert.ok(refreshes > 0);
 });
 
-test("an all-run room request supersedes concurrent current-only work", async () => {
+test("an all-run area request includes dynamic and planned survey evidence", async () => {
   const current = structuredClone(result);
   current.run.captureMode = "dynamic-room";
-  const other = structuredClone(current);
-  other.run.resultId = "other-dynamic";
+  const other = structuredClone(result);
+  other.run.resultId = "other-planned";
   const analysis = analyzeReportResult(current, {
     stickySeconds: 2, accuracyM: 5, noPositionSeconds: 30,
   });
@@ -76,6 +76,9 @@ test("an all-run room request supersedes concurrent current-only work", async ()
   release();
   await Promise.all([currentWork, allWork]);
   assert.equal(controller.roomSummary.visitCount, 4);
+  assert.equal(controller.roomSummary.corridor.sampleCount, 2);
+  assert.deepEqual(new Set(controller.roomSummary.observations.map(item => item.resultId)),
+    new Set([current.run.resultId, other.run.resultId]));
   const direct = controller.mapAnalysis("analysis", analysis);
   assert.equal(direct.areaResolution.visitCount, 4);
   assert.ok(direct.heatmaps.room.every(floor => floor.points.length === 0));

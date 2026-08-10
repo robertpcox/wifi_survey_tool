@@ -1,10 +1,11 @@
-// FEATURE:      Dynamic stationary room evidence
-// SURFACE:      buildDynamicRoomObservations(result, reviewedExceptions)
+// FEATURE:      Stationary room evidence
+// SURFACE:      buildRoomObservations(result, reviewedExceptions)
 // WHY TOGETHER: Eligible stop/dwell windows and their displayed Cisco fixes share one clock rule.
 // STATE:        None
 // RULES:        Use Player raw-fix state only; never score walking, intermediates, or snap output.
-// PROVENANCE:   Dynamic dwell room-resolution evidence
+// PROVENANCE:   All eligible survey stop/dwell evidence
 
+import { checkpointDwellSeconds } from "./checkpoint-dwell-v3.mjs";
 import {
   displayedCiscoFix,
   displayedCiscoFixSeries,
@@ -12,8 +13,7 @@ import {
 import { AREA_WINDOW_SECONDS } from "./report-area-verdict.mjs";
 import { buildReportCoverage } from "./report-reviewed-exceptions.mjs";
 
-export function buildDynamicRoomObservations(result, reviewedExceptions = []) {
-  if (result?.run?.captureMode !== "dynamic-room") return [];
+export function buildRoomObservations(result, reviewedExceptions = []) {
   const stops = new Map(result.route.stops.map(stop => [stop.id, stop]));
   const checkIns = new Map(result.checkIns.map(item => [item.checkpointId, item]));
   const orderedCheckIns = result.checkIns
@@ -29,7 +29,10 @@ export function buildDynamicRoomObservations(result, reviewedExceptions = []) {
     if (!checkIn || !stop) return [];
     const startMs = Date.parse(checkIn.at);
     if (!Number.isFinite(startMs) || coverage.excludes(startMs)) return [];
-    const dwellSeconds = nonNegative(checkpoint.dwellSeconds);
+    const dwellSeconds = checkpointDwellSeconds(
+      checkpoint,
+      result.run.checkpointDwellSeconds,
+    );
     const nextCheckInMs = orderedCheckIns.find(value => value > startMs);
     const plannedEndMs = startMs + dwellSeconds * 1000;
     const endMs = dwellSeconds > 0
@@ -64,11 +67,6 @@ export function buildDynamicRoomObservations(result, reviewedExceptions = []) {
       device: structuredClone(result.run.device),
     })];
   });
-}
-
-function nonNegative(value) {
-  const number = Number(value ?? 0);
-  return Number.isFinite(number) && number > 0 ? number : 0;
 }
 
 function text(value) {

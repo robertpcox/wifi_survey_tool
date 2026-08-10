@@ -1,9 +1,9 @@
 // FEATURE:      Report room-resolution loading
 // SURFACE:      node --test src/features/report-player/room-resolution-loader.test.mjs
 // WHY TOGETHER: Lookup caching, stationary scoring, and unavailable state share one loader.
-// STATE:        Dynamic fixture and injected room resolver
+// STATE:        Survey fixture and injected room resolver
 // RULES:        No browser, SDK, walking, or snapped coordinate enters this test.
-// PROVENANCE:   Dynamic dwell room-resolution evidence
+// PROVENANCE:   All-run stop/dwell and corridor evidence
 
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";

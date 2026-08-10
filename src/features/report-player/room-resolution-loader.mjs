@@ -2,17 +2,17 @@
 // SURFACE:      createRoomResolutionLoader(options)
 // WHY TOGETHER: Cached MazeMap lookups and bounded stationary scoring share one async lifecycle.
 // STATE:        Point lookup promises, load status, and latest consolidated summary
-// RULES:        Query dynamic stops and corridor marks; lookup failures never become Cisco failures.
-// PROVENANCE:   Dynamic MazeMap area-resolution evidence
+// RULES:        Query all eligible stops and corridor marks; lookup failures never become Cisco failures.
+// PROVENANCE:   Consolidated MazeMap area-resolution evidence
 
 import { combineAreaResolutionSummaries }
   from "../../domain/report-area-summary.mjs";
-import { buildDynamicCorridorObservations }
+import { buildCorridorObservations }
   from "../../domain/report-corridor-observation.mjs";
 import { buildCorridorResolutionSummary }
   from "../../domain/report-corridor-summary.mjs";
 import { roomContainsPoint } from "../../domain/report-room-geometry.mjs";
-import { buildDynamicRoomObservations } from "../../domain/report-room-observation.mjs";
+import { buildRoomObservations } from "../../domain/report-room-observation.mjs";
 import { scoreRoomObservation } from "../../domain/report-room-resolution.mjs";
 import { buildRoomResolutionSummary } from "../../domain/report-room-summary.mjs";
 import { mapWithConcurrency } from "./bounded-map.mjs";
@@ -38,10 +38,10 @@ export function createRoomResolutionLoader({
     }
     status = "loading";
     error = null;
-    const rooms = bundles.flatMap(bundle => buildDynamicRoomObservations(
+    const rooms = bundles.flatMap(bundle => buildRoomObservations(
       bundle.result, bundle.exceptions ?? [],
     ));
-    const corridors = bundles.flatMap(bundle => buildDynamicCorridorObservations(
+    const corridors = bundles.flatMap(bundle => buildCorridorObservations(
       bundle.result, bundle.exceptions ?? [],
     ));
     const observations = [...rooms, ...corridors];

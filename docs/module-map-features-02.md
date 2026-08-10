@@ -4,7 +4,7 @@
 E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 
 ## report-player/
-- report-shell 107/4983 T+ E renderLoadPanel, renderReportShell
+- report-shell 119/5416 T+ E renderLoadPanel, renderReportShell, requiresPrivateAreaAccess
   - I comparison-view, direction-view, floor-route-view, heatmap-view, identity-view, kpi-view, map-access, methodology-view, no-position-view, playback-view,
     report-insights-view, report-warning-view
 - report-store 138/3992 T+ E createReportPlayerStore I @d/report-analysis, @d/report-comparison, @d/report-concern-segments
@@ -17,10 +17,10 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
   - I @a/files, @d/survey-result-v3
 - room-resolution-catalog 121/4341 T+ E createCampusRoomCatalog, expectedCatalogRoom, knownRoomIndex, observedKnownRoom I @d/report-room-geometry
 - room-resolution-evidence-view 80/3314 T+ E renderRoomResolutionEvidence I @s/format
-- room-resolution-loader 141/5522 T+ E createRoomResolutionLoader
+- room-resolution-loader 141/5504 T+ E createRoomResolutionLoader
   - I @d/report-area-summary, @d/report-corridor-observation, @d/report-corridor-summary, @d/report-room-geometry, @d/report-room-observation,
     @d/report-room-resolution, @d/report-room-summary, bounded-map, room-resolution-catalog
-- room-resolution-view 122/6036 T+ E renderRoomResolutionView I @s/format, corridor-resolution-view, room-resolution-evidence-view
+- room-resolution-view 125/6242 T+ E renderRoomResolutionView I @s/format, corridor-resolution-view, room-resolution-evidence-view
 - room-resolution.css 144/4001 T-
 - timeline-view 129/4181 T+ E renderTimelineView, reportTimelineItems I @s/format
 ## runner/

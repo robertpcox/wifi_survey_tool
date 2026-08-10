@@ -94,14 +94,23 @@ test("consolidated shell exposes overview without seed-run modes", () => {
   assert.doesNotMatch(html, /data-access-required="true"[^>]*hidden/);
 });
 
-test("a direct dynamic-room report also requires private polygon access", () => {
-  const dynamic = structuredClone(result);
-  dynamic.run.captureMode = "dynamic-room";
-  const analysis = analyzeReportResult(dynamic, { stickySeconds: 2, accuracyM: 5 });
+test("a direct planned report with area checkpoints requires private access", () => {
+  const analysis = analyzeReportResult(result, { stickySeconds: 2, accuracyM: 5 });
   const html = renderReportShell({
-    result: dynamic, analysis, thresholds: analysis.thresholds,
+    result, analysis, thresholds: analysis.thresholds,
     comparison: null, view: "analysis", consolidated: false,
   });
   assert.match(html, /data-access-required="true"/);
   assert.match(html, /MazeMap access required for area resolution/);
+});
+
+test("an excluded direct result does not request private area access", () => {
+  const analysis = analyzeReportResult(result, { stickySeconds: 2, accuracyM: 5 });
+  const html = renderReportShell({
+    result, analysis, thresholds: analysis.thresholds,
+    comparison: null, view: "analysis", consolidated: false,
+    exceptions: [{ disposition: "exclude-run" }],
+  });
+  assert.match(html, /data-access-required="false"/);
+  assert.doesNotMatch(html, /data-access-required="true"/);
 });

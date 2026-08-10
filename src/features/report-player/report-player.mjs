@@ -9,7 +9,11 @@ import { comparisonEntries, loadSelectedResult, readUploadedResult } from "./res
 import { bindMapAccess } from "./map-access.mjs";
 import { createReportMapSurface } from "./map-surface.mjs";
 import { bindReportInteractions } from "./report-interactions.mjs";
-import { renderLoadPanel, renderReportShell } from "./report-shell.mjs";
+import {
+  renderLoadPanel,
+  renderReportShell,
+  requiresPrivateAreaAccess,
+} from "./report-shell.mjs";
 import { createReportPlayerStore } from "./report-store.mjs";
 
 export async function mountReportPlayer({
@@ -48,8 +52,7 @@ export async function mountReportPlayer({
   }
 
   function activate(payload) {
-    const requirePrivateAccess = payload.consolidated === true
-      || payload.result.run.captureMode === "dynamic-room";
+    const requirePrivateAccess = requiresPrivateAreaAccess(payload);
     const areaAccessError = new Error(
       "Private MazeMap access is required to resolve level polygons; area results have not been scored.",
     );

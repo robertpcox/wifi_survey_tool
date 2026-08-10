@@ -10,7 +10,7 @@ import { esc } from "../../shared/format.mjs";
 export function renderCorridorResolution(summary) {
   if (!summary?.sampleCount) return `<section class="corridor-resolution-empty">
     <h4>Corridor walking samples</h4>
-    <p>No eligible dynamic intermediate marks are present.</p>
+    <p>No eligible intermediate checkpoints are present.</p>
   </section>`;
   return `<section class="corridor-resolution-report">
     <div class="section-heading"><div><h4>Corridor walking samples</h4>

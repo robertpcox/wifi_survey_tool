@@ -99,13 +99,15 @@ export function renderFloorRouteView(result, {
     : "Position error beyond the selected distance"}
       </span>
       <span class="map-room-legend" data-highlight-legend="room" hidden>
-        Whole-area fill:
-        <i class="inside" aria-hidden="true"></i> green = all scored samples inside
-        <i class="floor" aria-hidden="true"></i> amber = mostly inside, some outside
-        <i class="outside" aria-hidden="true"></i> red = half or more outside
-        <i class="unknown" aria-hidden="true"></i> grey = unscored
-        · solid dot = expected sample · hollow ring = raw Cisco location
-        · dashed connector = outside drift from expected to raw Cisco
+        Whole-area majority verdict:
+        <i class="area-good" aria-hidden="true"></i> green = majority inside
+        <i class="area-mixed" aria-hidden="true"></i> amber = exact split / mixed
+        <i class="area-bad" aria-hidden="true"></i> red = majority outside
+        <i class="area-unscored" aria-hidden="true"></i> grey = unscored
+        · room ring = Cisco at end of the 20 s / available dwell window
+        · corridor ring = one raw Cisco fix per walking checkpoint
+        · thin dashed line = room endpoint outside drift · no corridor connector lines
+        · catch-up states stay in report detail
       </span>
       ${consolidated ? "" : `<span class="map-result-legend">
         <i aria-hidden="true"></i> Wi-Fi result position on its reported floor

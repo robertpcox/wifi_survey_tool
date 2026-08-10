@@ -66,9 +66,9 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
   - I @d/report-analysis, @d/report-campus-overview, @s/format, campus-hotspot-view, campus-run-summary-view
 - campus-run-summary-view 49/2347 T+ E renderCampusRunSummary I @s/format
 - comparison-view 108/4465 T+ E bindComparisonAdd, renderComparisonView I @s/format, all-runs
-- corridor-resolution-view 102/4483 T- E renderCorridorResolution I @s/format
+- corridor-resolution-view 103/4562 T- E renderCorridorResolution I @s/format
 - direction-view 129/5536 T+ E renderDirectionView I @d/report-direction-overlay, @s/format, report-chart-svg
-- floor-route-view 141/6399 T+ E renderFloorRouteView I @s/format
+- floor-route-view 143/6537 T+ E renderFloorRouteView I @s/format
 - heatmap-view 65/2314 T+ E renderHeatmapView I @s/format
 - identity-view 75/2867 T+ E renderIdentityView I @s/format
 - kpi-view 72/3306 T+ E renderKpiView I @s/format

@@ -30,7 +30,7 @@ export function createSharedMapLayers(map, currentFloor) {
 
   function applyVisibility() {
     const analysisVisible = mode === "analysis";
-    report.setHeatVisible(highlightKind !== "none");
+    report.setHeatVisible(!["none", "room"].includes(highlightKind));
     report.setNotesVisible(analysisVisible);
     concern.setVisible(analysisVisible);
     stalePath.setVisible(highlightKind === "freeze"

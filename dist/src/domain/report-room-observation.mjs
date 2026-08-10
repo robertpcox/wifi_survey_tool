@@ -9,6 +9,7 @@ import {
   displayedCiscoFix,
   displayedCiscoFixSeries,
 } from "./report-displayed-fix.mjs";
+import { AREA_WINDOW_SECONDS } from "./report-area-verdict.mjs";
 import { buildReportCoverage } from "./report-reviewed-exceptions.mjs";
 
 export function buildDynamicRoomObservations(result, reviewedExceptions = []) {
@@ -32,13 +33,15 @@ export function buildDynamicRoomObservations(result, reviewedExceptions = []) {
     const nextCheckInMs = orderedCheckIns.find(value => value > startMs);
     const plannedEndMs = startMs + dwellSeconds * 1000;
     const endMs = dwellSeconds > 0
-      ? Math.min(plannedEndMs, nextCheckInMs ?? Infinity, stoppedAtMs)
+      ? Math.max(startMs, Math.min(plannedEndMs, nextCheckInMs ?? Infinity, stoppedAtMs))
       : startMs;
-    const moments = endMs === startMs
+    const windowEndMs = Math.min(endMs, startMs + AREA_WINDOW_SECONDS * 1000);
+    const moments = windowEndMs === startMs
       ? [displayedCiscoFix(result, startMs)]
-      : displayedCiscoFixSeries(result, startMs, endMs);
+      : displayedCiscoFixSeries(result, startMs, windowEndMs);
     const entry = moments[0];
     const exit = moments.at(-1);
+    const windowSeconds = (windowEndMs - startMs) / 1000;
     return [Object.freeze({
       resultId: result.run.resultId,
       surveyId: result.run.surveyId,
@@ -51,6 +54,9 @@ export function buildDynamicRoomObservations(result, reviewedExceptions = []) {
       startMs,
       endMs,
       dwellSeconds: (endMs - startMs) / 1000,
+      windowEndMs,
+      windowSeconds,
+      windowComplete: windowSeconds === AREA_WINDOW_SECONDS,
       observationKind: dwellSeconds > 0 ? "dwell" : "check-in",
       moments,
       entry,

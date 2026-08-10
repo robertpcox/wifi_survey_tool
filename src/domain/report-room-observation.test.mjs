@@ -32,11 +32,30 @@ test("dynamic room observations use entry/exit displayed fixes at stop dwells", 
   assert.equal(observations[0].moments[1].pollId, "poll-2");
   assert.equal(observations[0].exit.pollId, "poll-3");
   assert.equal(observations[0].exit.ageSeconds, 4);
+  assert.equal(observations[0].windowSeconds, 4);
+  assert.equal(observations[0].windowComplete, false);
+  assert.equal(observations[0].windowEndMs, observations[0].endMs);
   assert.equal(observations[1].observationKind, "check-in");
+  assert.equal(observations[1].windowSeconds, 0);
   assert.equal(observations[1].entry, observations[1].exit);
   assert.equal(observations[1].exit.pollId, "poll-8");
 });
 
 test("planned survey checkpoints are never treated as dynamic room evidence", () => {
   assert.deepEqual(buildDynamicRoomObservations(source), []);
+});
+
+test("long dwells expose only the first 20 seconds as working moments", () => {
+  const result = structuredClone(source);
+  result.run.captureMode = "dynamic-room";
+  result.route.checkpoints[0].dwellSeconds = 30;
+  result.checkIns[1].at = "2026-07-28T01:00:40.000Z";
+  result.checkIns[2].at = "2026-07-28T01:00:48.000Z";
+  result.run.stoppedAt = "2026-07-28T01:01:00.000Z";
+  const observation = buildDynamicRoomObservations(result)[0];
+  assert.equal(observation.dwellSeconds, 30);
+  assert.equal(observation.windowSeconds, 20);
+  assert.equal(observation.windowComplete, true);
+  assert.equal(observation.exit.atMs, observation.windowEndMs);
+  assert.ok(observation.windowEndMs < observation.endMs);
 });

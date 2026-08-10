@@ -50,9 +50,10 @@ test("ready view renders stationary KPIs, graph, room rank, and evidence", () =>
     }],
     observations: [observation],
   } });
-  assert.match(html, /blue dot resolve inside each room and corridor/);
-  assert.match(html, /Stationary outcomes/);
-  assert.match(html, /Rooms needing attention/);
+  assert.match(html, /observes raw Cisco for up to 20 seconds/);
+  assert.match(html, /not extra failed\s+visits/);
+  assert.match(html, /One majority verdict and timing outcome/);
+  assert.match(html, /Room majority outcomes and timing/);
   assert.match(html, /No eligible dynamic intermediate marks/);
   assert.match(html, /Corridor/);
   assert.match(html, /Phone &lt;one&gt;/);
@@ -81,6 +82,7 @@ test("ready view renders corridor-only area evidence", () => {
   } });
   assert.match(html, /No eligible room stop\/dwell evidence/);
   assert.match(html, /Corridor walking samples/);
+  assert.match(html, /whole corridor colour shows the majority outcome/);
   assert.match(html, /Outside expected area/);
   assert.match(html, /Ward corridor/);
   assert.match(html, /Reverse/);

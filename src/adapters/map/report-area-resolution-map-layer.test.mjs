@@ -10,8 +10,7 @@ import test from "node:test";
 
 import { createReportAreaResolutionMapLayer }
   from "./report-area-resolution-map-layer.mjs";
-
-test("area layer draws resolved truth and failed unsnapped Cisco drift", () => {
+test("corridor layer retains raw fixes without dashed-line spaghetti", () => {
   const harness = mapHarness();
   const layer = createReportAreaResolutionMapLayer(harness.map, () => 2);
   const base = {
@@ -39,31 +38,41 @@ test("area layer draws resolved truth and failed unsnapped Cisco drift", () => {
   assert.deepEqual(cisco.map(item => item.geometry.coordinates), [
     [170.5, -45.8], [170.6, -45.8],
   ]);
-  assert.deepEqual(drift[0].geometry.coordinates, [
-    [170.51, -45.8], [170.6, -45.8],
-  ]);
+  assert.equal(drift.length, 0);
 });
-
-test("dwell layer retains outside entry and resolved exit samples", () => {
+test("dwell layer shows one endpoint fix and at most one outside connector", () => {
   const harness = mapHarness();
   const layer = createReportAreaResolutionMapLayer(harness.map, () => 2);
   layer.draw({ areaObservations: [{
     resultId: "run-a", checkpointId: "clinic", observationKind: "dwell",
     expectedRoom: { name: "Clinic" }, resolved: true, scored: true,
+    verdictBasis: "time-majority", tied: false,
+    windowSeconds: 20, windowComplete: true, windowEndMs: 20_000,
     target: { lng: 170.5, lat: -45.8, z: 2 },
     entry: {
       status: "wrong-room", point: { lng: 170.6, lat: -45.8, z: 2 },
     },
+    moments: [
+      { status: "wrong-room", point: { lng: 170.6, lat: -45.8, z: 2 } },
+      { status: "wrong-room", point: { lng: 170.55, lat: -45.8, z: 2 } },
+      { status: "wrong-room", point: { lng: 170.6, lat: -45.8, z: 2 } },
+    ],
     primary: {
       status: "resolved", point: { lng: 170.5, lat: -45.8, z: 2 },
     },
+    windowExit: {
+      status: "wrong-room", point: { lng: 170.6, lat: -45.8, z: 2 },
+    },
   }] });
   const cisco = features(harness, "report-area-resolution-cisco");
-  assert.deepEqual(cisco.map(item => item.properties.phase), ["entry", "exit"]);
-  assert.deepEqual(cisco.map(item => item.properties.verdict), ["outside", "inside"]);
+  assert.equal(cisco.length, 1);
+  assert.deepEqual([cisco[0].properties.phase, cisco[0].properties.verdict], ["end-window", "outside"]);
+  assert.deepEqual([cisco[0].properties.status, cisco[0].properties.visitStatus], ["wrong-room", "resolved"]);
+  assert.equal(cisco[0].properties.representedSampleCount, 3);
+  assert.equal(cisco[0].properties.visitVerdict, "inside");
+  assert.equal(cisco[0].properties.windowEndMs, 20_000);
   assert.equal(features(harness, "report-area-resolution-drift").length, 1);
 });
-
 test("wrong-floor and no-position samples are not labelled outside", () => {
   const harness = mapHarness();
   const layer = createReportAreaResolutionMapLayer(harness.map, () => 2);
@@ -88,7 +97,6 @@ test("wrong-floor and no-position samples are not labelled outside", () => {
     .properties.markerRole, "cisco-position");
   assert.equal(features(harness, "report-area-resolution-drift").length, 0);
 });
-
 test("area layer fills complete Polygon and MultiPolygon areas by aggregate severity", () => {
   const harness = mapHarness();
   const layer = createReportAreaResolutionMapLayer(harness.map, () => 2);
@@ -113,18 +121,16 @@ test("area layer fills complete Polygon and MultiPolygon areas by aggregate seve
   }] });
   const areas = features(harness, "report-area-resolution-area");
   assert.deepEqual(areas.map(item => item.geometry.type), ["Polygon", "MultiPolygon"]);
-  assert.deepEqual(areas.map(item => item.properties.severity), ["mixed", "bad"]);
+  assert.deepEqual(areas.map(item => item.properties.severity), ["good", "bad"]);
   assert.deepEqual(areas.map(item => item.properties.z), [2, 3]);
   assert.equal(areas[0].geometry, polygon);
   assert.equal(harness.layers.get("report-area-resolution-area-lyr").type, "fill");
   assert.deepEqual(harness.filters.get("report-area-resolution-area-lyr"),
     ["==", ["get", "z"], 2]);
 });
-
 function features(harness, id) {
   return harness.sources.get(id).data.features;
 }
-
 function mapHarness() {
   const harness = { layers: new Map(), sources: new Map(), filters: new Map() };
   harness.map = {

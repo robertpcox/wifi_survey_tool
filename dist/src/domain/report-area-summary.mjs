@@ -54,7 +54,7 @@ export function aggregateAreaPolygons(observations = []) {
     if (observation.observationKind) {
       group.observationKinds.add(observation.observationKind);
     }
-    for (const moment of observationMoments(observation)) countMoment(group, moment);
+    countVote(group, observation.primary);
   }
   return [...groups.values()].map(finalizeArea).sort((left, right) => (
     severityRank(right.severity) - severityRank(left.severity)
@@ -64,12 +64,7 @@ export function aggregateAreaPolygons(observations = []) {
   ));
 }
 
-function observationMoments(observation) {
-  return observation.observationKind === "dwell" && observation.moments?.length
-    ? observation.moments : [observation.primary];
-}
-
-function countMoment(group, moment) {
+function countVote(group, moment) {
   if (moment?.status === "resolved") {
     group.scoredSampleCount += 1;
     group.insideSampleCount += 1;
@@ -97,8 +92,9 @@ function finalizeArea(group) {
 
 function areaSeverity(group) {
   if (!group.scoredSampleCount) return "unscored";
-  if (!group.outsideSampleCount) return "good";
-  return group.insideSampleCount > group.outsideSampleCount ? "mixed" : "bad";
+  if (group.insideSampleCount > group.outsideSampleCount) return "good";
+  if (group.outsideSampleCount > group.insideSampleCount) return "bad";
+  return "mixed";
 }
 
 function severityRank(value) {

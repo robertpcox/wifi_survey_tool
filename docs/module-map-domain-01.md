@@ -37,7 +37,8 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - report-analysis 149/5490 T+ E REPORT_THRESHOLDS, analyzeReportResult
   - I report-analysis-options, report-fix-metrics, report-fix-samples, report-ground-truth, report-heat, report-reviewed-exceptions, report-samples,
     report-stale-path, report-warnings
-- report-area-summary 121/3907 T+ E aggregateAreaPolygons, combineAreaResolutionSummaries
+- report-area-summary 117/3721 T+ E aggregateAreaPolygons, combineAreaResolutionSummaries
+- report-area-verdict 141/5394 T+ E AREA_WINDOW_SECONDS, UNSCORED_AREA_STATUSES, areaVisitVerdict, areaWindowMoments
 - report-campus-grid 81/2562 T- E createCampusGrid I report-samples
 - report-campus-overview 108/3980 T+ E buildCampusOverview
   - I report-campus-grid, report-campus-position-evidence, report-campus-runs, report-concern-segments, report-path-weights
@@ -69,8 +70,8 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - report-reviewed-exceptions 106/4198 T+ E applyReportCoverage, buildReportCoverage I report-ground-truth, reviewed-exceptions-v3
 - report-room-geometry 60/2335 T+ E roomContainsPoint
 - report-room-groups 72/2776 T- E groupRoomRuns, groupRoomVisits
-- report-room-observation 71/2832 T+ E buildDynamicRoomObservations I report-displayed-fix, report-reviewed-exceptions
-- report-room-resolution 150/6018 T+ E scoreRoomMoment, scoreRoomObservation I report-room-geometry
+- report-room-observation 77/3166 T+ E buildDynamicRoomObservations I report-area-verdict, report-displayed-fix, report-reviewed-exceptions
+- report-room-resolution 150/6059 T+ E scoreRoomMoment, scoreRoomObservation I report-area-verdict, report-room-geometry
 - report-room-summary 109/4480 T+ E buildRoomResolutionSummary I report-room-groups, report-samples
 - report-route-axis 49/2103 T+ E createReportRouteAxis, travelDirectionAt
 - report-route-geometry 150/6536 T+ E projectToReportRoute, reportRouteInterval, reportRoutePointAt I geometry
@@ -95,5 +96,3 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - runner-progress-v3 147/4952 T+
   - E checkInCurrent, createRunnerProgress, finishRunnerProgress, skipCurrentCheckpoint, startRunnerProgress, tickRunnerDwell, undoLastCheckpointAction
   - I checkpoint-dwell-v3
-- runner-result-v3 78/2139 T+ E buildSurveyResultV3, resultFilename I survey-result-v3
-- stop-targets 90/2469 T+ E outdoorsStop, poiToStop, pointToStop, stopName, stopTargetTitle, tagOf I route-model

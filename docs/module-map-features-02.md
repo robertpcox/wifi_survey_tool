@@ -16,12 +16,12 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - result-loader 123/4594 T+ E assertReportResult, campusRunEntries, comparisonEntries, loadSelectedResult, readUploadedResult, resultSelectionFromUrl
   - I @a/files, @d/survey-result-v3
 - room-resolution-catalog 121/4341 T+ E createCampusRoomCatalog, expectedCatalogRoom, knownRoomIndex, observedKnownRoom I @d/report-room-geometry
-- room-resolution-evidence-view 57/2411 T+ E renderRoomResolutionEvidence I @s/format
+- room-resolution-evidence-view 80/3314 T+ E renderRoomResolutionEvidence I @s/format
 - room-resolution-loader 141/5522 T+ E createRoomResolutionLoader
   - I @d/report-area-summary, @d/report-corridor-observation, @d/report-corridor-summary, @d/report-room-geometry, @d/report-room-observation,
     @d/report-room-resolution, @d/report-room-summary, bounded-map, room-resolution-catalog
-- room-resolution-view 118/5615 T+ E renderRoomResolutionView I @s/format, corridor-resolution-view, room-resolution-evidence-view
-- room-resolution.css 122/3404 T-
+- room-resolution-view 121/5909 T+ E renderRoomResolutionView I @s/format, corridor-resolution-view, room-resolution-evidence-view
+- room-resolution.css 137/3839 T-
 - timeline-view 129/4181 T+ E renderTimelineView, reportTimelineItems I @s/format
 ## runner/
 - capture-view 110/3811 T+ E createCaptureView I @s/format

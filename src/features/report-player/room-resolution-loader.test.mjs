@@ -39,7 +39,9 @@ test("loader resolves and scores dynamic stationary visits with cached points", 
   const summary = await loader.load([{ result, exceptions: [] }]);
   assert.equal(loader.status, "ready");
   assert.equal(summary.visitCount, 2);
-  assert.equal(summary.resolvedVisitCount, 2);
+  assert.equal(summary.resolvedVisitCount, 0, "an exact no-fix/inside tie fails");
+  assert.equal(summary.failedVisitCount, 1);
+  assert.equal(summary.unscoredVisitCount, 1, "zero dwell is not room evidence");
   assert.equal(summary.corridor.sampleCount, 1);
   assert.equal(summary.corridor.resolvedSampleCount, 1);
   assert.equal(calls.length, 3, "each distinct MazeMap truth point is resolved once");
@@ -76,7 +78,7 @@ test("captured MazeMap POI identity is authoritative for future runs", async () 
 test("outside Cisco points are scored by containment without another POI lookup", async () => {
   const result = structuredClone(source);
   result.run.captureMode = "dynamic-room";
-  result.route.checkpoints[0].dwellSeconds = 4;
+  result.route.checkpoints[0].dwellSeconds = 6;
   result.polls.find(item => item.id === "poll-3").normalized.lng += 0.01;
   const outside = result.polls.find(item => item.id === "poll-3").normalized;
   let outsideLookups = 0;
@@ -95,7 +97,7 @@ test("outside Cisco points are scored by containment without another POI lookup"
 test("an outside Cisco point stays unresolved even when another POI is nearby", async () => {
   const result = structuredClone(source);
   result.run.captureMode = "dynamic-room";
-  result.route.checkpoints[0].dwellSeconds = 4;
+  result.route.checkpoints[0].dwellSeconds = 6;
   result.polls.find(item => item.id === "poll-3").normalized.lng += 0.01;
   const target = result.checkIns[0].groundTruth;
   const loader = createRoomResolutionLoader({

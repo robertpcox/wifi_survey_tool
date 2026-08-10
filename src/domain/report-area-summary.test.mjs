@@ -37,7 +37,7 @@ test("area summary combines map evidence without collapsing denominators", () =>
   assert.equal(combined.ciscoIssuePoints.length, 2);
 });
 
-test("area polygons aggregate all dwell moments and corridor samples", () => {
+test("area polygons count one majority verdict per room visit and corridor sample", () => {
   const polygon = { type: "Polygon", coordinates: [[
     [170.5, -45.8], [170.6, -45.8], [170.6, -45.7],
     [170.5, -45.7], [170.5, -45.8],
@@ -51,6 +51,7 @@ test("area polygons aggregate all dwell moments and corridor samples", () => {
     expectedRoom: { id: "clinic", name: "Clinic", z: 2, geometry: polygon },
     moments: [{ status: "resolved" }, { status: "wrong-room" },
       { status: "resolved" }],
+    primary: { status: "resolved" },
   }, {
     resultId: "run-b", observationKind: "corridor-point",
     expectedRoom: { id: "clinic", name: "Clinic", z: 2, geometry: polygon },
@@ -62,9 +63,9 @@ test("area polygons aggregate all dwell moments and corridor samples", () => {
   }]);
   assert.equal(areas.length, 2);
   const clinic = areas.find(item => item.poiId === "clinic");
-  assert.equal(clinic.severity, "mixed");
-  assert.equal(clinic.insideSampleCount, 3);
-  assert.equal(clinic.outsideSampleCount, 1);
+  assert.equal(clinic.severity, "good");
+  assert.equal(clinic.insideSampleCount, 2);
+  assert.equal(clinic.outsideSampleCount, 0);
   assert.equal(clinic.runCount, 2);
   assert.equal(clinic.geometry, polygon);
   const hall = areas.find(item => item.poiId === "hall");
@@ -76,16 +77,17 @@ test("area polygon severity is deterministic for good, mixed, bad, and unscored"
   const geometry = { type: "Polygon", coordinates: [[
     [0, 0], [1, 0], [1, 1], [0, 0],
   ]] };
-  const observation = (id, statuses) => ({
-    resultId: "run", observationKind: "dwell",
+  const observation = (id, status) => ({
+    resultId: "run", observationKind: "dwell", primary: { status },
     expectedRoom: { id, name: id, z: 1, geometry },
-    moments: statuses.map(status => ({ status })),
   });
   const areas = aggregateAreaPolygons([
-    observation("good", ["resolved", "resolved"]),
-    observation("mixed", ["resolved", "resolved", "wrong-room"]),
-    observation("bad", ["resolved", "wrong-room"]),
-    observation("unscored", ["lookup-unavailable"]),
+    observation("good", "resolved"), observation("good", "resolved"),
+    observation("good", "wrong-room"),
+    observation("mixed", "resolved"), observation("mixed", "wrong-room"),
+    observation("bad", "resolved"), observation("bad", "wrong-room"),
+    observation("bad", "wrong-room"),
+    observation("unscored", "lookup-unavailable"),
   ]);
   assert.deepEqual(Object.fromEntries(areas.map(item => [item.poiId, item.severity])), {
     bad: "bad", mixed: "mixed", good: "good", unscored: "unscored",

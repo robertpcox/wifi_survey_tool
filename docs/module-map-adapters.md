@@ -35,15 +35,17 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - player-live-raw-fix 25/959 T+ E liveRawFixFeature I map-geojson
 - player-map-features 150/5779 T+ E buildPlayerFeatureCollections I map-geojson, note-features, player-fix-history, player-live-raw-fix
 - player-map-layers 53/1823 T+ E createPlayerMapLayers I evidence-interactions, geojson-layer-group, player-layer-definitions, player-map-features
-- report-area-polygon-features 21/843 T- E areaPolygonFeatures
-- report-area-resolution-map-layer 150/5651 T+ E createReportAreaResolutionMapLayer I geojson-layer-group, report-area-polygon-features
+- report-area-observation-features 100/4081 T+ E areaObservationFeatures
+- report-area-polygon-features 37/1379 T+ E areaPolygonFeatures, presentationSeverity
+- report-area-resolution-map-layer 83/3147 T+ E createReportAreaResolutionMapLayer
+  - I geojson-layer-group, report-area-observation-features, report-area-polygon-features
 - report-concern-map-layer 102/3059 T+ E createReportConcernMapLayer I evidence-interactions, geojson-layer-group
 - report-map-layers 148/4477 T+ E createReportMapLayers I geojson-layer-group, map-layer-order, note-features
 - report-stale-path-map-layer 101/2678 T+ E createReportStalePathMapLayer I geojson-layer-group
 - report-warning-map-layer 118/3224 T+ E createReportWarningMapLayer I geojson-layer-group
 - report-wifi-map-layer 59/1880 T+ E createReportWifiMapLayer I geojson-layer-group
 - routing 41/1295 T+ E fetchLegGeoJSON, getPoi, getPoiAt
-- shared-map-layers 139/4570 T+ E createSharedMapLayers
+- shared-map-layers 139/4587 T+ E createSharedMapLayers
   - I map-camera-follow, player-map-layers, report-area-resolution-map-layer, report-concern-map-layer, report-map-layers, report-stale-path-map-layer,
     report-warning-map-layer, report-wifi-map-layer
 ## positioning/

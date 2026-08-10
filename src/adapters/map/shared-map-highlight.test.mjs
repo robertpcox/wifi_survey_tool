@@ -9,7 +9,6 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { createSharedMapLayers } from "./shared-map-layers.mjs";
-
 test("selected highlight colours Analysis and Player without leaking report evidence", () => {
   const harness = mapHarness();
   const layers = createSharedMapLayers(harness.map, () => 2);
@@ -100,7 +99,8 @@ test("selected highlight colours Analysis and Player without leaking report evid
   layers.drawReportHeat("room", {
     ...analysis, heatmaps: { room: [] },
   });
-  assert.equal(harness.visibility.get("report-room-heat-lyr"), "visible");
+  assert.equal(harness.visibility.get("report-room-heat-lyr"), "none",
+    "area polygons replace noisy per-fix room heat");
   assert.equal(harness.sources.get("report-room-heat").data.features.length, 0);
   assert.equal(harness.sources.get("report-area-resolution-area")
     .data.features.length, 1);

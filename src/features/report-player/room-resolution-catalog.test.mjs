@@ -21,7 +21,7 @@ const source = JSON.parse(await readFile(
 test("campus polygons identify an unvisited wrong room without point lookups", async () => {
   const result = structuredClone(source);
   result.run.captureMode = "dynamic-room";
-  result.route.checkpoints[0].dwellSeconds = 4;
+  result.route.checkpoints[0].dwellSeconds = 6;
   result.polls.find(item => item.id === "poll-3").normalized.lng = 170.5008;
   let catalogCalls = 0;
   let targetCalls = 0;

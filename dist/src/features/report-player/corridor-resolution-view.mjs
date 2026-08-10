@@ -14,7 +14,8 @@ export function renderCorridorResolution(summary) {
   </section>`;
   return `<section class="corridor-resolution-report">
     <div class="section-heading"><div><h4>Corridor walking samples</h4>
-      <p>Each intermediate mark compares the raw Cisco dot with its MazeMap area.</p>
+      <p>Each intermediate mark contributes one raw Cisco containment sample.
+        The whole corridor colour shows the majority outcome across those samples.</p>
     </div><p>${esc(summary.sampleCount)} samples</p></div>
     <div class="room-resolution-kpis corridor-resolution-kpis">
       ${card("Inside expected area", rate(summary.resolutionPercent), `${summary.scoredSampleCount} scored`)}

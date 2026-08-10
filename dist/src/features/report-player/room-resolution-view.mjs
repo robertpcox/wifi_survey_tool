@@ -22,10 +22,13 @@ export function renderRoomResolutionView({ status, summary, error = null }) {
   return `<div class="room-resolution-report">
     <header>
       <p class="section-kicker">Raw Cisco versus MazeMap areas</p>
-      <h3>Did the blue dot resolve inside each room and corridor?</h3>
-      <p>Room dwells score every displayed Cisco state from entry to exit.
-        Corridors use repeated intermediate walking marks. Snap-to-path output
-        never enters either score.</p>
+      <h3>Did the blue dot resolve in the expected room or corridor?</h3>
+      <p>Each room visit observes raw Cisco for up to 20 seconds and uses the
+        majority of scored time for one visit verdict. Corridors use repeated
+        walking marks. Catch-up states remain timing evidence, not extra failed
+        visits. Area fill shows the majority verdict; one hollow ring shows Cisco
+        at the end of the 20 s or available dwell window. Snap-to-path never
+        enters either score.</p>
     </header>
     ${summary.visitCount ? `${summaryCards(summary)}${issueGraph(summary)}
       ${roomTable(summary)}${renderRoomResolutionEvidence(summary)}` : roomEmpty()}
@@ -53,14 +56,14 @@ function summaryCards(summary) {
     ? "—"
     : `${summary.resolutionPercent.toFixed(1)}%`;
   return `<div class="room-resolution-kpis">
-    ${card("Room resolution", rate, `${summary.scoredVisitCount} scored visits`)}
-    ${card("Failed room visits", summary.failedVisitCount, "check-in or dwell exit outside")}
-    ${card("Settled during dwell", summary.settledDuringDwellCount, "wrong on entry, correct on exit")}
-    ${card("Dwell inside-area", percent(summary.dwellResolutionPercent),
+    ${card("Majority-inside visits", rate, `${summary.scoredVisitCount} scored visits`)}
+    ${card("Majority-outside visits", summary.failedVisitCount, "one verdict per visit")}
+    ${card("Caught up within 20 s", summary.settledDuringDwellCount, "timing evidence, not extra failures")}
+    ${card("Observed time inside", percent(summary.dwellResolutionPercent),
     `${one(summary.dwellScoredSeconds)} scored seconds`)}
     ${card("Median settle time", seconds(summary.medianSettleSeconds),
     `p95 ${seconds(summary.p95SettleSeconds)}`)}
-    ${card("Stuck through dwell", summary.stuckAtDwellEndCount, "same Cisco position at exit")}
+    ${card("Stuck through visit", summary.stuckAtDwellEndCount, "same Cisco position at exit")}
   </div>`;
 }
 function card(label, value, detail) {
@@ -72,7 +75,7 @@ function issueGraph(summary) {
     ["Outside mapped room/area", summary.primaryFailures.unresolved],
     ["Wrong floor", summary.primaryFailures["wrong-floor"]],
     ["No Cisco fix", summary.primaryFailures["no-displayed-fix"]],
-    ["Settled during dwell", summary.settledDuringDwellCount],
+    ["Caught up within 20 s", summary.settledDuringDwellCount],
     ["Lost resolution", summary.lostResolutionCount],
     ["Intermittent in dwell", summary.intermittentResolutionCount],
     ["Temporary resolution", summary.temporaryResolutionCount],
@@ -80,7 +83,7 @@ function issueGraph(summary) {
   const normalized = bars.map(([label, value]) => [label, Number(value) || 0]);
   const maximum = Math.max(1, ...normalized.map(([, value]) => value));
   return `<figure class="room-issue-graph">
-    <figcaption>Stationary outcomes across eligible visits</figcaption>
+    <figcaption>One majority verdict and timing outcome per eligible visit</figcaption>
     ${normalized.map(([label, value]) => `<div>
       <span>${esc(label)}</span><i><b style="width:${value / maximum * 100}%"></b></i>
       <strong>${esc(value)}</strong>
@@ -93,10 +96,10 @@ function roomTable(summary) {
       || room.drifted || room.stuck)
     .slice(0, 20);
   return `<div class="room-resolution-table">
-    <h4>Rooms needing attention</h4>
+    <h4>Room majority outcomes and timing</h4>
     <div class="report-table-scroll"><table><thead><tr>
-      <th>MazeMap room</th><th>Runs</th><th>Visits</th><th>Resolved</th>
-      <th>Failed</th><th>Unscored</th><th>Settled late</th><th>Dwell drift</th><th>Stuck</th>
+      <th>MazeMap room</th><th>Runs</th><th>Visits</th><th>Majority inside</th>
+      <th>Majority outside</th><th>Unscored</th><th>Caught up</th><th>Transient drift</th><th>Stuck</th>
     </tr></thead><tbody>${rows.map(room => `<tr>
       <th>${esc(room.name || room.poiId || "Unmapped target")}</th>
       <td>${esc(room.runCount)}</td><td>${esc(room.visits)}</td>

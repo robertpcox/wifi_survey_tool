@@ -9,8 +9,10 @@
 .map-room-legend {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.35rem;
   color: #334155;
+  line-height: 1.35;
 }
 
 .map-room-legend i {
@@ -35,6 +37,19 @@
   background: #64748b;
   box-shadow: 0 0 0 3px rgb(100 116 139 / 18%);
 }
+
+.map-room-legend i.area-good,
+.map-room-legend i.area-mixed,
+.map-room-legend i.area-bad,
+.map-room-legend i.area-unscored {
+  border-radius: 0.15rem;
+  box-shadow: none;
+}
+
+.map-room-legend i.area-good { background: #16a34a; }
+.map-room-legend i.area-mixed { background: #f59e0b; }
+.map-room-legend i.area-bad { background: #dc2626; }
+.map-room-legend i.area-unscored { background: #64748b; }
 
 .room-resolution-empty,
 .room-resolution-report {

@@ -6,8 +6,8 @@
 // PROVENANCE:   Dynamic dwell room-resolution evidence
 
 import { roomContainsPoint } from "./report-room-geometry.mjs";
-
-const UNSCORED = new Set(["truth-unavailable", "lookup-unavailable"]);
+import { areaVisitVerdict, areaWindowMoments, UNSCORED_AREA_STATUSES as UNSCORED }
+  from "./report-area-verdict.mjs";
 
 export function scoreRoomMoment({
   evidence, expected, observed, expectedError, observedError,
@@ -30,7 +30,7 @@ export function scoreRoomMoment({
 export function scoreRoomObservation(observation, lookups) {
   const evidenceMoments = observation.moments?.length
     ? observation.moments : legacyMoments(observation);
-  const moments = evidenceMoments.map((evidence, index) => {
+  const scoredMoments = evidenceMoments.map((evidence, index) => {
     const lookup = momentLookup(lookups, index, evidenceMoments.length);
     return scoreRoomMoment({
       evidence,
@@ -40,18 +40,20 @@ export function scoreRoomObservation(observation, lookups) {
       observedError: lookup.error,
     });
   });
+  const moments = areaWindowMoments(observation, scoredMoments);
   const entry = moments[0];
   const exit = moments.at(-1);
-  const primary = observation.observationKind === "dwell" ? exit : entry;
+  const visitVerdict = areaVisitVerdict(observation, moments);
   const duration = dwellDuration(moments);
-  const points = evidenceMoments.map(item => item?.point);
+  const points = moments.map(item => item?.point);
   return Object.freeze({
     ...observation,
     expectedRoom: publicRoom(lookups.expected),
     moments,
     entry,
     exit,
-    primary,
+    windowExit: exit,
+    ...visitVerdict,
     settleState: settleState(observation, moments),
     stuckThroughDwell: observation.observationKind === "dwell"
       && exit.status !== "resolved"
@@ -64,8 +66,6 @@ export function scoreRoomObservation(observation, lookups) {
     dwellFailureMomentCount: moments.filter(item => (
       !UNSCORED.has(item.status) && item.status !== "resolved"
     )).length,
-    scored: !UNSCORED.has(primary.status),
-    resolved: primary.status === "resolved",
   });
 }
 function settleState(observation, moments) {

@@ -48,6 +48,11 @@ export async function mountReportPlayer({
   }
 
   function activate(payload) {
+    const requirePrivateAccess = payload.consolidated === true
+      || payload.result.run.captureMode === "dynamic-room";
+    const areaAccessError = new Error(
+      "Private MazeMap access is required to resolve level polygons; area results have not been scored.",
+    );
     const store = createReportPlayerStore();
     const state = store.load(payload);
     const candidates = payload.manifest
@@ -71,7 +76,9 @@ export async function mountReportPlayer({
       result: payload.result,
       credentials,
       surface,
+      requirePrivateAccess,
       onReady: () => player?.enableRoomLookup(),
+      onDecline: () => player?.markRoomUnavailable(areaAccessError),
     });
     player = bindReportInteractions({
       root,
@@ -86,7 +93,9 @@ export async function mountReportPlayer({
       : Promise.resolve(false);
     const mapReady = surface.start().then(access.handleLaunch);
     const roomReady = Promise.all([mapReady, overviewReady]).then(() => (
-      surface.mapMode === "mazemap"
+      requirePrivateAccess && !access.accessReady
+        ? player.markRoomUnavailable(areaAccessError)
+        : surface.mapMode === "mazemap"
         ? player.enableRoomLookup()
         : player.markRoomUnavailable()
     ));

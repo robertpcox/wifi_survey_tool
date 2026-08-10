@@ -76,6 +76,9 @@ test("an all-run room request supersedes concurrent current-only work", async ()
   release();
   await Promise.all([currentWork, allWork]);
   assert.equal(controller.roomSummary.visitCount, 4);
+  const direct = controller.mapAnalysis("analysis", analysis);
+  assert.equal(direct.areaResolution.visitCount, 4);
+  assert.ok(direct.heatmaps.room.every(floor => floor.points.length === 0));
 });
 
 function room(lng, lat, z) {

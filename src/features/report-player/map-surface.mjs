@@ -12,9 +12,7 @@ import { createMapSurfaceLayout, routeCenter, routeForMapAnalysis, safelyCreateM
 import { createMapSurfaceVisibility } from "./map-surface-visibility.mjs";
 import { createReportBaseRoute } from "./report-base-route.mjs";
 export function createReportMapSurface({
-  result, canvas, mapElement,
-  fallbackElement,
-  statusElement,
+  result, canvas, mapElement, fallbackElement, statusElement,
   createMap, createPrivateMap,
   ResizeObserverRef = globalThis.ResizeObserver,
 }) {
@@ -29,10 +27,7 @@ export function createReportMapSurface({
   const baseRoute = createReportBaseRoute(adapter, result);
   const visibility = createMapSurfaceVisibility({ mapElement, fallbackElement, statusElement });
   const layout = createMapSurfaceLayout({
-    adapter,
-    mapElement,
-    route: result.route,
-    ResizeObserverRef,
+    adapter, mapElement, route: result.route, ResizeObserverRef,
   });
   const floorSync = createMapFloorSync({
     adapter,
@@ -47,7 +42,9 @@ export function createReportMapSurface({
   }
   async function launch(token, phase) {
     if (!adapter) return fallback(adapterError ?? new Error("MazeMap adapter is unavailable"));
-    visibility.showMap("Loading public campus map…");
+    visibility.showMap(token
+      ? "Loading private campus map…"
+      : "Loading public campus map…");
     try {
       const launchedFloor = await adapter.launch(token, null, {
         campusId: result.meta.campusId,
@@ -138,7 +135,10 @@ export function createReportMapSurface({
     onEvidenceSelect: callback => adapter?.onEvidenceSelect?.(callback) ?? (() => {}),
     onFloorChange: floorSync.onChange,
     render,
-    retryAccess: token => launch(token, "access-retry"),
+    retryAccess: async token => {
+      await launchPromise;
+      return launch(token, "access-retry");
+    },
     setViewMode,
     settleLayout: layout.settle,
     start,

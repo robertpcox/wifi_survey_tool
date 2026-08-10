@@ -129,9 +129,9 @@ function publicRoom(room) {
     id: room.id ?? null,
     name: room.name ?? null,
     z: Number.isFinite(room.z) ? room.z : null,
+    geometry: ["Polygon", "MultiPolygon"].includes(room.geometry?.type) ? room.geometry : null,
   }) : null;
 }
-
 function samePoint(left, right) {
   if (!left || !right) return left === right;
   return left.lng === right.lng && left.lat === right.lat && left.z === right.z;

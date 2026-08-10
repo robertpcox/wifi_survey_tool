@@ -39,7 +39,9 @@ export function createMazeMapAdapter(options = {}) {
     setCurrentZ: value => { currentZLevel = value; },
   });
   const shared = createMazeMapSharedBoundary({ setFloor });
-  const queries = createMazeMapQueries(resolveSdk, () => activeCatalog);
+  const queries = createMazeMapQueries(
+    resolveSdk, () => activeCatalog, () => campusId,
+  );
   async function resolveSdk() {
     Mazemap = await resolveMazemapSdk(Mazemap, options);
     return Mazemap;

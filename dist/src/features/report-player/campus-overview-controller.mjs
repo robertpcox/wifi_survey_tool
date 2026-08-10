@@ -102,11 +102,7 @@ function overviewMapWithRooms(built, roomSummary) {
     ],
     heatmaps: {
       ...built.mapAnalysis.heatmaps,
-      room: built.model.floors.map(floor => ({
-        ...floor,
-        points: roomSummary.ciscoIssuePoints
-          .filter(point => Number(point.z) === Number(floor.z)),
-      })),
+      room: built.model.floors.map(floor => ({ ...floor, points: [] })),
     },
   };
 }

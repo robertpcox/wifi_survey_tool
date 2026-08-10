@@ -42,10 +42,13 @@ test("public denial retries on one observed adapter then resizes and fits", asyn
   });
   const floors = [];
   const unsubscribe = surface.onFloorChange(value => floors.push(value));
-  const denied = await surface.start();
+  const publicWork = surface.start();
+  const privateWork = surface.retryAccess("typed-at-runtime");
+  assert.equal(launches, 1, "private retry waits for the initial public launch");
+  const denied = await publicWork;
   assert.equal(denied.status, "access-denied");
   assert.deepEqual(calls[0], ["observe", elements.mapElement.parentElement]);
-  const ready = await surface.retryAccess("typed-at-runtime");
+  const ready = await privateWork;
   assert.equal(ready.status, "ready");
   assert.equal(creations, 1);
   assert.deepEqual(
@@ -74,7 +77,6 @@ test("public denial retries on one observed adapter then resizes and fits", asyn
   assert.ok(calls.some(call => call[0] === "disconnect"));
   assert.ok(calls.some(call => call[0] === "stop-floor-watch"));
 });
-
 test("generic launch failure labels and draws the route fallback", async () => {
   const calls = [];
   const elements = mapElements();
@@ -94,7 +96,6 @@ test("generic launch failure labels and draws the route fallback", async () => {
   assert.match(elements.statusElement.textContent, /labelled route fallback active/);
   assert.ok(elements.canvas.contextCalls.includes("clearRect"));
 });
-
 function fakeAdapter(calls, launch, { floor = result.meta.zLevels[0] } = {}) {
   let currentFloor = floor;
   let floorCallback = null;
@@ -131,7 +132,6 @@ function fakeAdapter(calls, launch, { floor = result.meta.zLevels[0] } = {}) {
   };
   return adapter;
 }
-
 function mapElements() {
   const contextCalls = [];
   const context = new Proxy({}, {

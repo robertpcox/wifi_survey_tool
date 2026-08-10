@@ -54,20 +54,17 @@ export function overviewMapAnalysis(overview, roomSummary = null) {
       ...(roomSummary?.ciscoIssuePoints ?? []),
     ],
     heatmaps: {
-      freeze: heatFloors(bin => bin.lockSeconds, bin => bin.lockRunCount),
+      freeze: overview.floors.map(floor => ({ ...floor, points: [] })),
       sticky: heatFloors(bin => bin.heldSeconds, bin => bin.heldRunCount),
       lag: heatFloors(bin => bin.medianLagBehindM ?? 0, bin => bin.lagRunCount),
       accuracy: heatFloors(bin => bin.medianErrorM ?? 0, bin => bin.accuracyRunCount),
-      room: overview.floors.map(floor => ({
-        ...floor,
-        points: (roomSummary?.ciscoIssuePoints ?? [])
-          .filter(point => Number(point.z) === Number(floor.z)),
-      })),
+      room: overview.floors.map(floor => ({ ...floor, points: [] })),
     },
     concernSegments: [],
-    stalePathSegments: [],
+    stalePathSegments: overview.stalePathSegments ?? [],
     timeline: [],
     warnings: { floorMismatch: { points: [] } },
+    areaResolution: roomSummary,
   };
 }
 

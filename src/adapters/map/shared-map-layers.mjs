@@ -26,13 +26,15 @@ export function createSharedMapLayers(map, currentFloor) {
   let mode = "analysis";
   let highlightKind = "sticky";
   let playerEnabled = false;
+  let reportOverview = false;
 
   function applyVisibility() {
     const analysisVisible = mode === "analysis";
     report.setHeatVisible(highlightKind !== "none");
     report.setNotesVisible(analysisVisible);
     concern.setVisible(analysisVisible);
-    stalePath.setVisible(["freeze", "sticky"].includes(highlightKind));
+    stalePath.setVisible(highlightKind === "freeze"
+      || (!reportOverview && highlightKind === "sticky"));
     warnings.setVisible(analysisVisible);
     wifi.setVisible(analysisVisible);
     area.setVisible(analysisVisible && highlightKind === "room");
@@ -59,6 +61,7 @@ export function createSharedMapLayers(map, currentFloor) {
   function drawReportHeat(kind, pointsOrAnalysis) {
     const count = report.draw(kind, pointsOrAnalysis);
     highlightKind = kind;
+    reportOverview = pointsOrAnalysis?.overview === true;
     concern.draw(pointsOrAnalysis);
     stalePath.draw(pointsOrAnalysis);
     wifi.draw(pointsOrAnalysis);

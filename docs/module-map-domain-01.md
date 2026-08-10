@@ -37,9 +37,9 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - report-analysis 149/5490 T+ E REPORT_THRESHOLDS, analyzeReportResult
   - I report-analysis-options, report-fix-metrics, report-fix-samples, report-ground-truth, report-heat, report-reviewed-exceptions, report-samples,
     report-stale-path, report-warnings
-- report-area-summary 25/852 T+ E combineAreaResolutionSummaries
+- report-area-summary 121/3907 T+ E aggregateAreaPolygons, combineAreaResolutionSummaries
 - report-campus-grid 81/2562 T- E createCampusGrid I report-samples
-- report-campus-overview 100/3684 T+ E buildCampusOverview
+- report-campus-overview 108/3980 T+ E buildCampusOverview
   - I report-campus-grid, report-campus-position-evidence, report-campus-runs, report-concern-segments, report-path-weights
 - report-campus-position-evidence 31/1389 T+ E campusCiscoWalkingEvidence
 - report-campus-runs 46/1807 T+ E campusRunMetrics, campusRunSummaries I report-samples
@@ -70,7 +70,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - report-room-geometry 60/2335 T+ E roomContainsPoint
 - report-room-groups 72/2776 T- E groupRoomRuns, groupRoomVisits
 - report-room-observation 71/2832 T+ E buildDynamicRoomObservations I report-displayed-fix, report-reviewed-exceptions
-- report-room-resolution 150/5923 T+ E scoreRoomMoment, scoreRoomObservation I report-room-geometry
+- report-room-resolution 150/6018 T+ E scoreRoomMoment, scoreRoomObservation I report-room-geometry
 - report-room-summary 109/4480 T+ E buildRoomResolutionSummary I report-room-groups, report-samples
 - report-route-axis 49/2103 T+ E createReportRouteAxis, travelDirectionAt
 - report-route-geometry 150/6536 T+ E projectToReportRoute, reportRouteInterval, reportRoutePointAt I geometry

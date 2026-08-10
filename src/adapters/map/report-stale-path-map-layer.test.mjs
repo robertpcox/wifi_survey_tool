@@ -68,9 +68,14 @@ test("stale path keeps exact route bends, evidence properties, and native z", ()
     "line-cap": "round",
     "line-join": "round",
   });
-  assert.equal(definition.paint["line-color"], "#ef4444");
-  assert.equal(definition.paint["line-width"], 7);
-  assert.equal(definition.paint["line-opacity"], 0.72);
+  for (const property of ["line-color", "line-width", "line-opacity"]) {
+    assert.equal(definition.paint[property][0], "interpolate");
+    assert.deepEqual(definition.paint[property][2], [
+      "to-number",
+      ["coalesce", ["get", "weightSeconds"], ["get", "durationSeconds"], 0],
+      0,
+    ]);
+  }
 });
 
 test("stale path accepts direct segments, clears for heat points, and rejects bad lines", () => {

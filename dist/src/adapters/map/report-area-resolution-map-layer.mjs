@@ -1,13 +1,28 @@
 // FEATURE:      MazeMap area-resolution map evidence
 // SURFACE:      createReportAreaResolutionMapLayer(map, currentFloor)
 // WHY TOGETHER: Inside/outside truth points, raw Cisco drift, and connectors form one overlay.
-// STATE:        Three stable GeoJSON sources filtered by displayed floor
+// STATE:        Four stable GeoJSON sources filtered by displayed floor
 // RULES:        Green/red status uses polygon scoring; observed coordinates are never snapped.
 // PROVENANCE:   Dynamic room and long-corridor area resolution
 
 import { createGeoJsonLayerGroup } from "./geojson-layer-group.mjs";
+import { areaPolygonFeatures } from "./report-area-polygon-features.mjs";
 
 const DEFINITIONS = [{
+  id: "report-area-resolution-area-lyr",
+  source: "report-area-resolution-area",
+  type: "fill",
+  paint: {
+    "fill-color": ["match", ["get", "severity"],
+      "good", "#16a34a", "mixed", "#f59e0b",
+      "bad", "#dc2626", "#64748b"],
+    "fill-opacity": ["match", ["get", "severity"],
+      "good", 0.14, "mixed", 0.28, "bad", 0.36, 0.14],
+    "fill-outline-color": ["match", ["get", "severity"],
+      "good", "#15803d", "mixed", "#b45309",
+      "bad", "#991b1b", "#475569"],
+  },
+}, {
   id: "report-area-resolution-truth-lyr",
   source: "report-area-resolution-truth",
   type: "circle",
@@ -51,9 +66,10 @@ export function createReportAreaResolutionMapLayer(map, currentFloor) {
   function draw(summary) {
     const observations = summary?.areaObservations ?? [];
     const features = observations.map(areaFeatures);
-    group.setData(DEFINITIONS[0].source, features.map(item => item.truth));
-    group.setData(DEFINITIONS[1].source, features.flatMap(item => item.line ?? []));
-    group.setData(DEFINITIONS[2].source, features.flatMap(item => item.cisco ?? []));
+    group.setData(DEFINITIONS[0].source, areaPolygonFeatures(summary?.areaPolygons));
+    group.setData(DEFINITIONS[1].source, features.map(item => item.truth));
+    group.setData(DEFINITIONS[2].source, features.flatMap(item => item.line ?? []));
+    group.setData(DEFINITIONS[3].source, features.flatMap(item => item.cisco ?? []));
     return observations.length;
   }
 
@@ -85,6 +101,8 @@ function areaFeatures(observation) {
     pointFeature(item.moment.point, {
       ...shared, markerRole: "cisco-position",
       phase: item.phase, verdict: momentVerdict(item.moment),
+      resolvedAreaId: item.moment.room?.id ?? null,
+      resolvedAreaName: item.moment.room?.name ?? null,
     })
   ));
   const line = moments.filter(item => (
@@ -116,7 +134,6 @@ function displayedMoments(observation) {
   }
   return moments;
 }
-
 function momentVerdict(moment) {
   if (moment?.status === "resolved") return "inside";
   if (["wrong-room", "unresolved"].includes(moment?.status)) return "outside";
@@ -124,7 +141,6 @@ function momentVerdict(moment) {
   if (moment?.status === "no-displayed-fix") return "no-position";
   return "unscored";
 }
-
 function pointFeature(point, properties) {
   return {
     type: "Feature",

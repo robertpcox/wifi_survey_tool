@@ -16,11 +16,34 @@ const DEFINITION = {
     "line-join": "round",
   },
   paint: {
-    "line-color": "#ef4444",
-    "line-opacity": 0.72,
-    "line-width": 7,
+    "line-color": [
+      "interpolate", ["linear"], freezeWeight(),
+      0, "#f59e0b",
+      15, "#f97316",
+      60, "#dc2626",
+    ],
+    "line-opacity": [
+      "interpolate", ["linear"], freezeWeight(),
+      0, 0.55,
+      15, 0.72,
+      60, 0.9,
+    ],
+    "line-width": [
+      "interpolate", ["linear"], freezeWeight(),
+      0, 4,
+      15, 7,
+      60, 12,
+    ],
   },
 };
+
+function freezeWeight() {
+  return [
+    "to-number",
+    ["coalesce", ["get", "weightSeconds"], ["get", "durationSeconds"], 0],
+    0,
+  ];
+}
 
 export function createReportStalePathMapLayer(map, currentFloor) {
   const group = createGeoJsonLayerGroup(map, [DEFINITION], currentFloor);

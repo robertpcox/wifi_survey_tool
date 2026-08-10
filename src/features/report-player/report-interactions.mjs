@@ -136,7 +136,7 @@ export function bindReportInteractions({
     seek: modes.seek,
     setMode: modes.setMode,
     prepareOverview: () => collection.loadOverview(refresh, status),
-    markRoomUnavailable: () => collection.markRoomUnavailable(refresh),
+    markRoomUnavailable: cause => collection.markRoomUnavailable(refresh, cause),
     get atMs() { return modes.atMs; },
     get highlightKind() { return highlight.kind; },
     get mode() { return modes.mode; },

@@ -54,10 +54,46 @@ test("room lookup fetches missing full geometry and handles no nearby POI", asyn
   assert.equal(await queries.resolveRoomAt(1, 2, 3), null);
 });
 
+test("campus room catalogue loads polygon POIs once per mapped building", async () => {
+  const calls = [];
+  const geometry = offset => ({ type: "Polygon", coordinates: [[
+    [offset, 1], [offset + 1, 1], [offset + 1, 2], [offset, 2], [offset, 1],
+  ]] });
+  const queries = createMazeMapQueries(async () => ({ Data: {
+    getPois: async query => {
+      calls.push(query);
+      return { type: "FeatureCollection", features: [{
+        type: "Feature",
+        id: `room-${query.buildingid}`,
+        properties: { name: `Room ${query.buildingid}`, zLevel: query.buildingid },
+        geometry: geometry(query.buildingid),
+      }] };
+    },
+  } }), () => ({
+    buildings: [
+      { properties: { id: 2 } },
+      { properties: { id: 3 } },
+    ],
+  }), () => 566);
+  const rooms = await queries.resolveCampusRooms();
+  assert.deepEqual(calls, [
+    { campusid: 566, buildingid: 2 },
+    { campusid: 566, buildingid: 3 },
+  ]);
+  assert.deepEqual(rooms.map(room => [room.id, room.name, room.z]), [
+    ["room-2", "Room 2", 2],
+    ["room-3", "Room 3", 3],
+  ]);
+});
+
 test("queries reject when the installed SDK lacks a required endpoint", async () => {
   const queries = createMazeMapQueries(async () => ({ Data: {} }), () => ({}));
   await assert.rejects(queries.describePoint(1, 2, 3), /point lookup is unavailable/);
   await assert.rejects(queries.lookupPoi(1), /POI lookup is unavailable/);
   await assert.rejects(queries.resolveRoomAt(1, 2, 3), /room lookup is unavailable/);
   await assert.rejects(queries.resolveRoomById(1, 3), /POI lookup is unavailable/);
+  const empty = createMazeMapQueries(async () => ({ Data: {
+    getPois: async () => [],
+  } }), () => ({ buildings: [] }), () => 566);
+  await assert.rejects(empty.resolveCampusRooms(), /no polygon POIs/);
 });

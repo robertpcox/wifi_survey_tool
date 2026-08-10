@@ -63,7 +63,7 @@ function corridorEvidence(summary) {
       <td>${esc(clock(item.checkedInAt))}</td><th>${esc(item.checkpointId)}</th>
       <td>${esc(item.device?.name || "Unknown")}</td>
       <td>${esc(item.expectedRoom?.name || "Unmapped")}</td>
-      <td>${esc(position(item.primary.point))}</td><td>${esc(item.primary.status)}</td>
+      <td>${esc(observedArea(item.primary))}</td><td>${esc(item.primary.status)}</td>
       <td>${esc(item.direction || "—")}</td>
     </tr>`).join("") || '<tr><td colspan="8">Every scored sample was inside.</td></tr>'}
     </tbody></table></div></details>`;
@@ -86,6 +86,10 @@ function failureDirection(area) {
 
 function position(point) {
   return point ? `${point.lat.toFixed(5)}, ${point.lng.toFixed(5)}` : "No position";
+}
+
+function observedArea(moment) {
+  return moment?.room?.name || moment?.room?.id || position(moment?.point);
 }
 
 function shortId(value) {

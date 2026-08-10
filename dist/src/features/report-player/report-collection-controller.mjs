@@ -28,6 +28,7 @@ export function createReportCollectionController({
   const rooms = createRoomResolutionLoader({
     resolveRoomAt: surface.adapter?.resolveRoomAt,
     resolveRoomById: surface.adapter?.resolveRoomById,
+    resolveCampusRooms: surface.adapter?.resolveCampusRooms,
   });
   let roomLookupReady = false;
   let roomWork = null;
@@ -119,27 +120,22 @@ export function createReportCollectionController({
       roomLookupReady = true;
       return resolveRooms(overview.loaded, refresh);
     },
-    markRoomUnavailable(refresh) {
+    markRoomUnavailable(refresh, cause = null) {
       roomLookupReady = false;
-      rooms.setUnavailable();
+      rooms.setUnavailable(cause);
       refresh();
     },
     get overviewLoaded() { return overview.loaded; },
     get roomSummary() { return rooms.summary; },
   });
 }
-
 function withRoomHeat(analysis, summary) {
   return {
     ...analysis,
     areaResolution: summary,
     heatmaps: {
       ...analysis.heatmaps,
-      room: analysis.floors.map(floor => ({
-        ...floor,
-        points: summary.ciscoIssuePoints
-          .filter(point => Number(point.z) === Number(floor.z)),
-      })),
+      room: analysis.floors.map(floor => ({ ...floor, points: [] })),
     },
   };
 }

@@ -83,7 +83,7 @@ export function renderFloorRouteView(result, {
     : ""}
       </span>`}
       ${consolidated ? `<span class="map-stale-legend" data-highlight-legend="freeze">
-        <i aria-hidden="true"></i> Walked path freeze · hotter = more seconds
+        <i aria-hidden="true"></i> Walked path freeze · thicker/darker = more seconds
       </span>` : ""}
       <span class="map-stale-legend" data-highlight-legend="sticky"${consolidated ? " hidden" : ""}>
         <i aria-hidden="true"></i> ${consolidated
@@ -99,12 +99,13 @@ export function renderFloorRouteView(result, {
     : "Position error beyond the selected distance"}
       </span>
       <span class="map-room-legend" data-highlight-legend="room" hidden>
-        Solid = expected sample · hollow ring = raw Cisco ·
-        <i class="inside" aria-hidden="true"></i> inside
-        <i class="outside" aria-hidden="true"></i> outside
-        <i class="floor" aria-hidden="true"></i> wrong floor
-        <i class="unknown" aria-hidden="true"></i> no position / unscored
-        · background heat = repeated failed samples
+        Whole-area fill:
+        <i class="inside" aria-hidden="true"></i> green = all scored samples inside
+        <i class="floor" aria-hidden="true"></i> amber = mostly inside, some outside
+        <i class="outside" aria-hidden="true"></i> red = half or more outside
+        <i class="unknown" aria-hidden="true"></i> grey = unscored
+        · solid dot = expected sample · hollow ring = raw Cisco location
+        · dashed connector = outside drift from expected to raw Cisco
       </span>
       ${consolidated ? "" : `<span class="map-result-legend">
         <i aria-hidden="true"></i> Wi-Fi result position on its reported floor

@@ -33,6 +33,8 @@ export function renderLoadPanel(message = "Choose a generated result or upload a
 export function renderReportShell(state, candidates = []) {
   const { result, analysis, thresholds, comparison } = state;
   const overview = state.view === "overview";
+  const requirePrivateAccess = state.consolidated
+    || result.run.captureMode === "dynamic-room";
   return `
     <div class="report-toolbar${state.consolidated ? " is-consolidated" : ""}">
       <div role="tablist" aria-label="Report Player mode">
@@ -52,7 +54,7 @@ export function renderReportShell(state, candidates = []) {
       ${renderIdentityView(result)}
       <section data-module="warnings">${renderReportWarnings(analysis)}</section>
     </div>
-    ${renderMapAccess(result)}
+    ${renderMapAccess(result, { requirePrivateAccess })}
     <div class="shared-map-workspace" data-player-workspace>
       <section class="report-section map-section" data-module="floor-route">
         ${renderFloorRouteView(result, {

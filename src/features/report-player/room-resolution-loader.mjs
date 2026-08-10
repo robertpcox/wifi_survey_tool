@@ -16,17 +16,23 @@ import { buildDynamicRoomObservations } from "../../domain/report-room-observati
 import { scoreRoomObservation } from "../../domain/report-room-resolution.mjs";
 import { buildRoomResolutionSummary } from "../../domain/report-room-summary.mjs";
 import { mapWithConcurrency } from "./bounded-map.mjs";
+import {
+  createCampusRoomCatalog, expectedCatalogRoom, knownRoomIndex, observedKnownRoom,
+} from "./room-resolution-catalog.mjs";
 
 export function createRoomResolutionLoader({
-  resolveRoomAt, resolveRoomById, concurrency = 6,
+  resolveRoomAt, resolveRoomById, resolveCampusRooms, concurrency = 6,
 }) {
   const cache = new Map();
+  const loadCampusRooms = createCampusRoomCatalog(resolveCampusRooms);
   let status = "idle";
   let summary = buildRoomResolutionSummary([]);
   let error = null;
 
   async function load(bundles, onProgress = () => {}) {
-    if (typeof resolveRoomAt !== "function") {
+    if (typeof resolveRoomAt !== "function"
+        && typeof resolveRoomById !== "function"
+        && typeof resolveCampusRooms !== "function") {
       status = "unavailable";
       return summary;
     }
@@ -41,11 +47,14 @@ export function createRoomResolutionLoader({
     const observations = [...rooms, ...corridors];
     let done = 0;
     try {
-      const scored = await mapWithConcurrency(observations, concurrency, async observation => {
-        const result = await resolveObservation(observation);
+      const catalogRooms = await loadCampusRooms();
+      const prepared = await mapWithConcurrency(observations, concurrency, async observation => {
+        const result = await resolveExpectedRoom(observation, catalogRooms);
         onProgress(done += 1, observations.length);
         return result;
       });
+      const knownRooms = knownRoomIndex(prepared, catalogRooms);
+      const scored = prepared.map(item => scoreObservation(item, knownRooms));
       const roomSummary = buildRoomResolutionSummary(
         scored.filter(item => item.observationKind !== "corridor-point"),
       );
@@ -61,37 +70,40 @@ export function createRoomResolutionLoader({
     return summary;
   }
 
-  async function resolveObservation(observation) {
-    const expectedLookup = observation.expectedPoiId
-      && typeof resolveRoomById === "function"
-      ? await lookupId(observation.expectedPoiId, observation.target.z)
-      : await lookup(observation.target);
+  async function resolveExpectedRoom(observation, catalogRooms) {
+    const catalogRoom = expectedCatalogRoom(observation, catalogRooms);
+    if (catalogRoom) {
+      return { observation, expected: catalogRoom, expectedError: null };
+    }
+    const expectedLookup = await fallbackExpectedLookup(observation);
     const candidate = expectedLookup.room;
     const expected = roomContainsPoint(candidate, observation.target)
       ? candidate : null;
+    return { observation, expected, expectedError: expectedLookup.error };
+  }
+
+  function fallbackExpectedLookup(observation) {
+    if (observation.expectedPoiId && typeof resolveRoomById === "function") {
+      return lookupId(observation.expectedPoiId, observation.target.z);
+    }
+    if (typeof resolveRoomAt === "function") return lookup(observation.target);
+    return Promise.resolve({ room: null, error: null });
+  }
+
+  function scoreObservation(item, knownRooms) {
+    const { observation, expected, expectedError } = item;
     const evidenceMoments = observation.moments?.length
       ? observation.moments
       : (observation.exit === observation.entry
         ? [observation.entry] : [observation.entry, observation.exit]);
-    const moments = await mapWithConcurrency(
-      evidenceMoments, 2, item => observedRoom(item?.point, expected),
-    );
+    const moments = evidenceMoments.map(evidence => (
+      observedKnownRoom(evidence?.point, expected, knownRooms)
+    ));
     return scoreRoomObservation(observation, {
       expected,
-      expectedError: expectedLookup.error,
+      expectedError,
       moments,
     });
-  }
-
-  async function observedRoom(point, expected) {
-    if (!point || !expected?.geometry) return { room: null, error: null };
-    if (Number(point.z) !== Number(expected.z)) return { room: null, error: null };
-    if (roomContainsPoint(expected, point)) return { room: expected, error: null };
-    const found = await lookup(point);
-    if (found.error || !roomContainsPoint(found.room, point)) {
-      return { room: null, error: found.error };
-    }
-    return found;
   }
 
   function lookup(point) {

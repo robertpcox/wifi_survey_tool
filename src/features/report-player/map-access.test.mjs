@@ -1,4 +1,4 @@
-// FEATURE:      Report Player public-first map access
+// FEATURE:      Report Player optional public-first map access
 // SURFACE:      node --test src/features/report-player/map-access.test.mjs
 // WHY TOGETHER: Hidden prompt, typed retry, and prompt-free fallback prove one access boundary.
 // STATE:        Fake access controls and memory-only credential store
@@ -17,7 +17,7 @@ const result = JSON.parse(await readFile(
 
 test("access markup stays hidden despite its metadata hint", () => {
   const html = renderMapAccess(result);
-  assert.match(html, /data-map-access-panel[^>]*data-access-hint="true" hidden/);
+  assert.match(html, /data-map-access-panel[^>]*data-access-hint="true"[^>]* hidden/);
   assert.match(html, /Optional MazeMap access token/);
   assert.match(html, /type="password"/);
   assert.match(html, /autocomplete="one-time-code"/);

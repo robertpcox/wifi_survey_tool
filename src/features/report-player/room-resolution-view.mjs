@@ -36,7 +36,8 @@ function pending(status, error) {
   const messages = {
     idle: "Area evidence waits for the campus map.",
     loading: "Resolving MazeMap polygons for room and corridor Cisco fixes…",
-    unavailable: "Area lookup is unavailable; no Cisco area failures are inferred.",
+    unavailable: error?.message
+      || "Area lookup is unavailable; no Cisco area failures are inferred.",
     error: error?.message || "Area evidence could not be resolved.",
   };
   return `<div class="room-resolution-empty" data-room-resolution-status="${esc(status)}">
@@ -68,7 +69,7 @@ function card(label, value, detail) {
 function issueGraph(summary) {
   const bars = [
     ["Wrong room", summary.primaryFailures["wrong-room"]],
-    ["No mapped room", summary.primaryFailures.unresolved],
+    ["Outside mapped room/area", summary.primaryFailures.unresolved],
     ["Wrong floor", summary.primaryFailures["wrong-floor"]],
     ["No Cisco fix", summary.primaryFailures["no-displayed-fix"]],
     ["Settled during dwell", summary.settledDuringDwellCount],

@@ -73,27 +73,26 @@ test("captured MazeMap POI identity is authoritative for future runs", async () 
   assert.equal(loader.summary.observations[0].expectedRoom.id, "selected-room");
 });
 
-test("an observed room lookup outage stays unscored", async () => {
+test("outside Cisco points are scored by containment without another POI lookup", async () => {
   const result = structuredClone(source);
   result.run.captureMode = "dynamic-room";
   result.route.checkpoints[0].dwellSeconds = 4;
   result.polls.find(item => item.id === "poll-3").normalized.lng += 0.01;
-  const target = result.checkIns[0].groundTruth;
+  const outside = result.polls.find(item => item.id === "poll-3").normalized;
+  let outsideLookups = 0;
   const loader = createRoomResolutionLoader({
     resolveRoomAt: async (lng, lat, z) => {
-      if (lng === target.lng && lat === target.lat) {
-        return room("truth", lng, lat, z);
-      }
-      throw new Error("MazeMap lookup unavailable");
+      if (lng === outside.lng && lat === outside.lat) outsideLookups += 1;
+      return room("truth", lng, lat, z);
     },
   });
   const summary = await loader.load([{ result, exceptions: [] }]);
-  assert.equal(summary.failedVisitCount, 0);
-  assert.ok(summary.unscoredVisitCount > 0);
-  assert.equal(summary.observations[0].primary.status, "lookup-unavailable");
+  assert.ok(summary.failedVisitCount > 0);
+  assert.equal(summary.observations[0].primary.status, "unresolved");
+  assert.equal(outsideLookups, 0);
 });
 
-test("a closest POI that does not contain the Cisco point stays unresolved", async () => {
+test("an outside Cisco point stays unresolved even when another POI is nearby", async () => {
   const result = structuredClone(source);
   result.run.captureMode = "dynamic-room";
   result.route.checkpoints[0].dwellSeconds = 4;

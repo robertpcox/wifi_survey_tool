@@ -67,14 +67,16 @@ test("controller merges after load, extends floors, and serves overview mode", a
   const overviewAnalysis = controller.mapAnalysis("overview", analysis);
   assert.notEqual(overviewAnalysis, analysis);
   assert.deepEqual(overviewAnalysis.concernSegments, []);
-  controller.setRoomSummary({
+  const roomSummary = {
     truthIssuePoints: [{ lng: 170.5, lat: -45.87, z: 0, weight: 1 }],
     ciscoIssuePoints: [{ lng: 170.6, lat: -45.87, z: 0, weight: 1 }],
-  });
-  assert.equal(controller.mapAnalysis("overview", analysis)
-    .heatmaps.room[0].points.length, 1);
-  assert.equal(controller.mapAnalysis("overview", analysis)
-    .heatmaps.room[0].points[0].lng, 170.6);
+    areaPolygons: [{ areaKey: "clinic", severity: "bad" }],
+  };
+  controller.setRoomSummary(roomSummary);
+  const roomAnalysis = controller.mapAnalysis("overview", analysis);
+  assert.ok(roomAnalysis.heatmaps.room.every(floor => floor.points.length === 0));
+  assert.equal(roomAnalysis.areaResolution, roomSummary);
+  assert.ok(roomAnalysis.fitPoints.some(point => point.lng === 170.6));
   assert.equal(controller.mapAnalysis("analysis", analysis), analysis);
   assert.match(controller.panelHtml(), /2 runs merged/);
   assert.equal(progress.at(-1), "refreshed");

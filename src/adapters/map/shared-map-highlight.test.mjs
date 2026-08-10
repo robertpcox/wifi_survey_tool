@@ -38,14 +38,23 @@ test("selected highlight colours Analysis and Player without leaking report evid
         }],
       },
     },
-    areaResolution: { areaObservations: [{
-      resultId: "run-area", checkpointId: "clinic", observationKind: "dwell",
-      expectedRoom: { name: "Clinic" }, scored: true, resolved: false,
-      target: { lng: 170.24, lat: -45.24, z: 2 },
-      primary: {
-        status: "wrong-room", point: { lng: 170.26, lat: -45.24, z: 2 },
-      },
-    }] },
+    areaResolution: {
+      areaObservations: [{
+        resultId: "run-area", checkpointId: "clinic", observationKind: "dwell",
+        expectedRoom: { name: "Clinic" }, scored: true, resolved: false,
+        target: { lng: 170.24, lat: -45.24, z: 2 },
+        primary: {
+          status: "wrong-room", point: { lng: 170.26, lat: -45.24, z: 2 },
+        },
+      }],
+      areaPolygons: [{
+        areaKey: "clinic", areaName: "Clinic", z: 2, severity: "bad",
+        geometry: { type: "Polygon", coordinates: [[
+          [170.23, -45.25], [170.25, -45.25],
+          [170.25, -45.23], [170.23, -45.25],
+        ]] },
+      }],
+    },
   };
   layers.drawReportHeat("accuracy", analysis);
   layers.drawReportNotes([{
@@ -92,6 +101,10 @@ test("selected highlight colours Analysis and Player without leaking report evid
     ...analysis, heatmaps: { room: [] },
   });
   assert.equal(harness.visibility.get("report-room-heat-lyr"), "visible");
+  assert.equal(harness.sources.get("report-room-heat").data.features.length, 0);
+  assert.equal(harness.sources.get("report-area-resolution-area")
+    .data.features.length, 1);
+  assert.equal(harness.visibility.get("report-area-resolution-area-lyr"), "visible");
   assert.equal(harness.visibility.get("report-area-resolution-cisco-lyr"), "visible");
   assert.equal(harness.visibility.get("report-stale-path-lyr"), "none");
 
@@ -103,12 +116,17 @@ test("selected highlight colours Analysis and Player without leaking report evid
   assert.equal(harness.visibility.get("report-stale-path-lyr"), "none");
 
   layers.drawReportHeat("freeze", {
-    ...analysis, heatmaps: { freeze: [] },
+    ...analysis, overview: true, heatmaps: { freeze: [] },
   });
   assert.equal(harness.visibility.get("report-freeze-heat-lyr"), "visible");
   assert.equal(harness.visibility.get("report-stale-path-lyr"), "visible");
-});
 
+  layers.drawReportHeat("sticky", {
+    ...analysis, overview: true, heatmaps: { sticky: [] },
+  });
+  assert.equal(harness.visibility.get("report-sticky-heat-lyr"), "visible");
+  assert.equal(harness.visibility.get("report-stale-path-lyr"), "none");
+});
 function mapHarness() {
   const harness = {
     layers: new Map(), sources: new Map(), visibility: new Map(),

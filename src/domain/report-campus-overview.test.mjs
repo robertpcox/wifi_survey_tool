@@ -30,6 +30,10 @@ test("runs sharing a corridor pool into the same geographic bins", () => {
   assert.ok(Number.isFinite(overview.metrics.totalStickySeconds));
   assert.ok(Number.isFinite(overview.metrics.medianRunLagBehindM));
   assert.deepEqual(overview.floors, [{ z: 0, name: "Ground" }, { z: 1, name: "First" }]);
+  assert.ok(overview.stalePathSegments.length > 0);
+  assert.ok(overview.stalePathSegments.every(segment => (
+    segment.resultId && segment.weightSeconds === segment.durationSeconds
+  )));
   const shared = overview.bins.find(bin => bin.runCount === 2);
   assert.ok(shared, "expected a bin visited by both runs");
   assert.equal(shared.z, 0);
@@ -74,6 +78,11 @@ test("a long freeze paints its path with lane-specific run counts", () => {
   assert.ok(Math.abs(lockBins.reduce((sum, bin) => sum + bin.lockSeconds, 0) - 55) < 0.01);
   assert.equal(lockBins.every(bin => bin.lockRunCount === 1), true);
   assert.equal(lockBins.every(bin => bin.accuracyRunCount === 0), true);
+  assert.deepEqual(merged.stalePathSegments, [{
+    ...frozen.stalePathSegments[0],
+    resultId: straight.run.resultId,
+    weightSeconds: 55,
+  }]);
 });
 
 test("an empty run list yields an empty overview", () => {
@@ -88,5 +97,6 @@ test("an empty run list yields an empty overview", () => {
     },
     floors: [],
     bins: [],
+    stalePathSegments: [],
   });
 });

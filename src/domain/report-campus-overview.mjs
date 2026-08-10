@@ -16,11 +16,12 @@ import { weightedPathPoints } from "./report-path-weights.mjs";
 export function buildCampusOverview(runs, { binSizeM = 5 } = {}) {
   if (!runs?.length) return {
     binSizeM, runCount: 0, runs: [], metrics: campusRunMetrics([]),
-    floors: [], bins: [],
+    floors: [], bins: [], stalePathSegments: [],
   };
   const origin = runs[0].result.checkIns[0].groundTruth;
   const grid = createCampusGrid(origin, binSizeM);
   const binAt = grid.at;
+  const stalePathSegments = [];
   for (const { result, analysis } of runs) {
     const runId = result.run.resultId;
     for (const sample of analysis.fixes.samples) {
@@ -33,6 +34,12 @@ export function buildCampusOverview(runs, { binSizeM = 5 } = {}) {
       bin.accuracyRunIds.add(runId);
     }
     for (const piece of analysis.stalePathSegments ?? []) {
+      const weightSeconds = Number(piece.durationSeconds);
+      stalePathSegments.push({
+        ...piece,
+        resultId: runId,
+        weightSeconds: Number.isFinite(weightSeconds) ? weightSeconds : 0,
+      });
       for (const sample of weightedPathPoints(
         piece.coordinates, piece.z, piece.durationSeconds, binSizeM / 2,
       )) {
@@ -71,6 +78,7 @@ export function buildCampusOverview(runs, { binSizeM = 5 } = {}) {
     runs: campusRunSummaries(runs),
     metrics: campusRunMetrics(runs),
     floors: floorUnion(runs),
+    stalePathSegments,
     bins: grid.values()
       .sort((left, right) => right.lockSeconds - left.lockSeconds
         || right.lockRunCount - left.lockRunCount),

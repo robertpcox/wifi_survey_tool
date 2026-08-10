@@ -56,6 +56,8 @@ test("dwell scores the exit and exposes late settlement or a stuck dot", () => {
   });
   assert.equal(settled.primary.status, "resolved");
   assert.equal(settled.settleState, "resolved-during-dwell");
+  assert.equal(settled.expectedRoom.geometry, expected.geometry,
+    "the MazeMap polygon remains available for consolidated area fills");
   const stuckPoint = evidence({ lng: 3, lat: 1, z: 1 });
   const stuck = scoreRoomObservation({ ...base, entry: stuckPoint, exit: stuckPoint }, {
     expected,

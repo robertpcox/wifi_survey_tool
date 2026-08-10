@@ -25,13 +25,17 @@ test("area layer draws resolved truth and failed unsnapped Cisco drift", () => {
   }, {
     ...base, checkpointId: "outside", scored: true, resolved: false,
     target: { lng: 170.51, lat: -45.8, z: 2 },
-    primary: { status: "wrong-room", point: { lng: 170.6, lat: -45.8, z: 2 } },
+    primary: {
+      status: "wrong-room", point: { lng: 170.6, lat: -45.8, z: 2 },
+      room: { id: "other-room", name: "Other room" },
+    },
   }] }), 2);
   const truth = features(harness, "report-area-resolution-truth");
   const cisco = features(harness, "report-area-resolution-cisco");
   const drift = features(harness, "report-area-resolution-drift");
   assert.deepEqual(truth.map(item => item.properties.verdict), ["inside", "outside"]);
   assert.deepEqual(cisco.map(item => item.properties.verdict), ["inside", "outside"]);
+  assert.equal(cisco[1].properties.resolvedAreaName, "Other room");
   assert.deepEqual(cisco.map(item => item.geometry.coordinates), [
     [170.5, -45.8], [170.6, -45.8],
   ]);
@@ -85,12 +89,44 @@ test("wrong-floor and no-position samples are not labelled outside", () => {
   assert.equal(features(harness, "report-area-resolution-drift").length, 0);
 });
 
+test("area layer fills complete Polygon and MultiPolygon areas by aggregate severity", () => {
+  const harness = mapHarness();
+  const layer = createReportAreaResolutionMapLayer(harness.map, () => 2);
+  const polygon = { type: "Polygon", coordinates: [[
+    [170.5, -45.8], [170.6, -45.8], [170.6, -45.7],
+    [170.5, -45.7], [170.5, -45.8],
+  ]] };
+  const multiPolygon = { type: "MultiPolygon", coordinates: [[[
+    [170.7, -45.8], [170.8, -45.8], [170.8, -45.7],
+    [170.7, -45.7], [170.7, -45.8],
+  ]]] };
+  layer.draw({ areaObservations: [], areaPolygons: [{
+    areaKey: "poi:clinic:z:2", poiId: "clinic", areaName: "Clinic", z: 2,
+    geometry: polygon, severity: "mixed", observationCount: 4,
+    scoredSampleCount: 4, insideSampleCount: 3, outsideSampleCount: 1,
+    resolutionPercent: 75, runCount: 2,
+  }, {
+    areaKey: "poi:hall:z:3", poiId: "hall", areaName: "Hall", z: 3,
+    geometry: multiPolygon, severity: "bad", observationCount: 2,
+    scoredSampleCount: 2, insideSampleCount: 0, outsideSampleCount: 2,
+    resolutionPercent: 0, runCount: 1,
+  }] });
+  const areas = features(harness, "report-area-resolution-area");
+  assert.deepEqual(areas.map(item => item.geometry.type), ["Polygon", "MultiPolygon"]);
+  assert.deepEqual(areas.map(item => item.properties.severity), ["mixed", "bad"]);
+  assert.deepEqual(areas.map(item => item.properties.z), [2, 3]);
+  assert.equal(areas[0].geometry, polygon);
+  assert.equal(harness.layers.get("report-area-resolution-area-lyr").type, "fill");
+  assert.deepEqual(harness.filters.get("report-area-resolution-area-lyr"),
+    ["==", ["get", "z"], 2]);
+});
+
 function features(harness, id) {
   return harness.sources.get(id).data.features;
 }
 
 function mapHarness() {
-  const harness = { layers: new Map(), sources: new Map() };
+  const harness = { layers: new Map(), sources: new Map(), filters: new Map() };
   harness.map = {
     addLayer: value => harness.layers.set(value.id, value),
     addSource(id, value) {
@@ -101,7 +137,7 @@ function mapHarness() {
     },
     getLayer: id => harness.layers.get(id),
     getSource: id => harness.sources.get(id),
-    setFilter() {},
+    setFilter: (id, filter) => harness.filters.set(id, filter),
     setLayoutProperty() {},
   };
   return harness;

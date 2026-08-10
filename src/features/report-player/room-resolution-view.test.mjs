@@ -15,6 +15,15 @@ test("view explains unavailable lookup without inventing room failures", () => {
     /no Cisco area failures are inferred/);
 });
 
+test("view clearly reports when private level polygons were not authorized", () => {
+  const html = renderRoomResolutionView({
+    status: "unavailable",
+    error: new Error("Private MazeMap access is required; area results were not scored."),
+  });
+  assert.match(html, /Private MazeMap access is required/);
+  assert.match(html, /not scored/);
+});
+
 test("ready view renders stationary KPIs, graph, room rank, and evidence", () => {
   const observation = {
     checkpointId: "checkpoint-1",

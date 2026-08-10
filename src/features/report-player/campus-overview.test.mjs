@@ -32,7 +32,10 @@ const built = buildCampusOverviewModel({
 test("the merged model paints through the shared map analysis shape", () => {
   const map = built.mapAnalysis;
   assert.deepEqual(map.floors.map(floor => floor.z), [0, 1]);
-  assert.deepEqual(map.stalePathSegments, []);
+  assert.equal(map.stalePathSegments.length, built.model.stalePathSegments.length);
+  assert.ok(map.stalePathSegments.length > 0);
+  assert.ok(map.stalePathSegments.every(segment => segment.resultId));
+  assert.ok(map.heatmaps.freeze.every(floor => floor.points.length === 0));
   assert.deepEqual(map.timeline, []);
   assert.deepEqual(map.warnings, { floorMismatch: { points: [] } });
   assert.equal(map.overview, true);
@@ -46,17 +49,19 @@ test("the merged model paints through the shared map analysis shape", () => {
   assert.equal(overviewMapAnalysis(built.model).floors.length, 2);
 });
 
-test("room failures feed a clean selectable overview heat layer", () => {
-  const room = overviewMapAnalysis(built.model, {
+test("room failures fit the map and retain area evidence without point heat", () => {
+  const summary = {
     truthIssuePoints: [{
       lng: 170.5, lat: -45.87, z: 0, weight: 2,
     }],
     ciscoIssuePoints: [{
       lng: 170.5002, lat: -45.87, z: 0, weight: 2,
     }],
-  });
-  assert.equal(room.heatmaps.room.find(floor => floor.z === 0).points.length, 1);
-  assert.equal(room.heatmaps.room[0].points[0].lng, 170.5002);
+    areaPolygons: [{ areaKey: "clinic", severity: "bad" }],
+  };
+  const room = overviewMapAnalysis(built.model, summary);
+  assert.ok(room.heatmaps.room.every(floor => floor.points.length === 0));
+  assert.equal(room.areaResolution, summary);
   assert.ok(room.fitPoints.some(point => point.lng === 170.5002));
 });
 

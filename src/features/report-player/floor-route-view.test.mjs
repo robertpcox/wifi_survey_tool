@@ -57,3 +57,25 @@ test("floor route view uses only ordered meta floor names and one map surface", 
   assert.equal((html.match(/data-report-map/g) ?? []).length, 1);
   assert.equal((html.match(/data-maze-map/g) ?? []).length, 1);
 });
+
+test("consolidated freeze mode describes continuous weighted path linework", () => {
+  const analysis = analyzeReportResult(result, {
+    stickySeconds: 15,
+    accuracyM: 10,
+  });
+  const html = renderFloorRouteView(result, {
+    analysis,
+    thresholds: analysis.thresholds,
+    consolidated: true,
+  });
+  assert.match(html, /Path sections that froze/);
+  assert.match(html, /Walked path freeze · thicker\/darker = more seconds/);
+  assert.match(html, /Whole-area fill:/);
+  assert.match(html, /green = all scored samples inside/);
+  assert.match(html, /amber = mostly inside, some outside/);
+  assert.match(html, /red = half or more outside/);
+  assert.match(html, /grey = unscored/);
+  assert.match(html, /hollow ring = raw Cisco location/);
+  assert.match(html, /dashed connector = outside drift from expected to raw Cisco/);
+  assert.doesNotMatch(html, /background heat = repeated failed samples/);
+});

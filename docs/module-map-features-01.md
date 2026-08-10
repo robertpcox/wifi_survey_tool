@@ -72,7 +72,8 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - heatmap-view 65/2314 T+ E renderHeatmapView I @s/format
 - identity-view 75/2867 T+ E renderIdentityView I @s/format
 - kpi-view 72/3306 T+ E renderKpiView I @s/format
-- map-access 144/5339 T+ E bindMapAccess, renderMapAccess I @s/format
+- map-access-view 33/1783 T- E renderMapAccess
+- map-access 149/4741 T+ E bindMapAccess, renderMapAccess I @s/format, map-access-view
 - map-alert-view 116/4091 T+ E renderAnalysisMapAlerts, renderConcernDetail, renderPlayerMapAlerts I @d/geometry, @s/format
 - map-fallback 88/3144 T+ E drawRouteFallback
 - map-floor-sync 90/2423 T+ E createMapFloorSync
@@ -81,7 +82,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - map-surface-layout 55/1729 T+ E createMapSurfaceLayout, routeCenter, routeForMapAnalysis, safelyCreateMap
 - map-surface-visibility 21/830 T+ E createMapSurfaceVisibility
 - map-surface.css 150/3437 T+
-- map-surface 149/5904 T+ E createReportMapSurface
+- map-surface 149/5910 T+ E createReportMapSurface
   - I @a/map/mazemap-errors, map-fallback, map-floor-sync, map-model, map-surface-layout, map-surface-visibility, report-base-route
 - methodology-view 72/2866 T+ E buildAnalysisCsv, createAnalysisExports, createAnalysisSummary, downloadAnalysisExports, renderMethodologyView
   - I @s/format, analysis-export
@@ -98,7 +99,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - player-workspace.css 129/3294 T+
 - report-base-route 24/895 T+ E createReportBaseRoute
 - report-chart-svg 81/3093 T+ E CHART, bucketExtremes, chartX, chartY, renderChartGrid, renderCriticalDots, renderOutageBands, renderTimeAxis
-- report-collection-controller 146/4960 T+ E createReportCollectionController
+- report-collection-controller 147/5037 T+ E createReportCollectionController
   - I all-runs, campus-overview-controller, result-loader, room-resolution-loader, room-resolution-view
 - report-floor-controller 61/1882 T+ E bindReportFloor, renderPlayerFrame
 - report-insights-view 19/853 T+ E renderReportInsights I @d/report-insights, report-series-view, report-summary-view
@@ -108,7 +109,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
     report-floor-controller, report-mode-controller, report-sections, report-warning-view, result-loader
 - report-mode-controller 94/3025 T+ E bindReportModes
 - report-player.css 148/3552 T+
-- report-player 119/4375 T+ E mountReportPlayer I map-access, map-surface, report-interactions, report-shell, report-store, result-loader
+- report-player 118/4359 T+ E mountReportPlayer I map-access, map-surface, report-interactions, report-shell, report-store, result-loader
 - report-sections 33/1397 T+ E renderDynamicSections
   - I comparison-view, direction-view, heatmap-view, kpi-view, methodology-view, no-position-view, report-insights-view, report-warning-view
 - report-series-view 129/5499 T+ E renderReportSeries I @s/format, report-chart-svg

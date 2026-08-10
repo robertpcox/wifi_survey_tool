@@ -85,7 +85,7 @@ export function createReportCollectionController({
     if (all) bundles.push(...loader.records());
     roomWorkAll = all;
     const work = rooms.load(bundles).then(summary => {
-      overview.setRoomSummary(summary);
+      if (rooms.status === "ready") overview.setRoomSummary(summary);
       return summary;
     });
     roomWork = work;
@@ -126,6 +126,7 @@ export function createReportCollectionController({
       refresh();
     },
     get overviewLoaded() { return overview.loaded; },
+    get roomStatus() { return rooms.status; },
     get roomSummary() { return rooms.summary; },
   });
 }

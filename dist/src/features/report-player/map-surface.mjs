@@ -2,7 +2,7 @@
 // SURFACE:      createReportMapSurface(options)
 // WHY TOGETHER: Public-first launch, one adapter lifecycle, fallback, resize, and mode layers share state.
 // STATE:        One map adapter plus floor, analysis, Player frame, snap overlay, and launch outcome
-// RULES:        Reuse one map; prompt only on typed denial; inactive Player writes no map layers.
+// RULES:        Reuse one adapter; private access may be the first launch; Player writes stay isolated.
 // PROVENANCE:   Scope/steps/05a_recast_player.md
 import { classifyMazeMapLaunchError } from "../../adapters/map/mazemap-errors.mjs";
 import { drawRouteFallback } from "./map-fallback.mjs";

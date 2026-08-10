@@ -2,7 +2,7 @@
 // SURFACE:      mountReportPlayer(options)
 // WHY TOGETHER: Result loading, shared map launch, store, and public Player API define one session.
 // STATE:        One loaded result, analysis, MazeMap lifecycle, Player clock, and memory-only access
-// RULES:        Parse once, attempt public MazeMap first, and expose mode/seek without reloading.
+// RULES:        Required area views gate the first MazeMap launch on access or explicit decline.
 // PROVENANCE:   Scope/steps/05a_recast_player.md
 
 import { comparisonEntries, loadSelectedResult, readUploadedResult } from "./result-loader.mjs";
@@ -91,14 +91,13 @@ export async function mountReportPlayer({
     const overviewReady = payload.initialView === "overview"
       ? player.prepareOverview()
       : Promise.resolve(false);
-    const mapReady = surface.start().then(access.handleLaunch);
-    const roomReady = Promise.all([mapReady, overviewReady]).then(() => (
-      requirePrivateAccess && !access.accessReady
-        ? player.markRoomUnavailable(areaAccessError)
-        : surface.mapMode === "mazemap"
-        ? player.enableRoomLookup()
-        : player.markRoomUnavailable()
-    ));
+    const mapReady = access.start();
+    const roomReady = Promise.all([mapReady, overviewReady]).then(() => {
+      if (requirePrivateAccess) return access.accessReady
+        ? true : player.markRoomUnavailable(areaAccessError);
+      return surface.mapMode === "mazemap"
+        ? player.enableRoomLookup() : player.markRoomUnavailable();
+    });
     return Object.freeze({
       mapReady,
       overviewReady,

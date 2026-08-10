@@ -2,37 +2,11 @@
 // SURFACE:      renderMapAccess(result), bindMapAccess(options)
 // WHY TOGETHER: Optional public retry and required private-area access share one credential boundary.
 // STATE:        In-memory credential store supplied by the app
-// RULES:        Area scoring gates proactively; optional access still opens only on proved denial.
+// RULES:        Required access gates the first map launch; optional access stays public-first.
 // PROVENANCE:   Scope/steps/05a_recast_player.md
 
 import { esc } from "../../shared/format.mjs";
-
-export function renderMapAccess(result, { requirePrivateAccess = false } = {}) {
-  const hint = Boolean(result.meta.credentialRequirements.mapAccess);
-  return `
-    <aside id="report-map-access" class="map-access"
-      data-map-access-panel data-access-hint="${hint}"
-      data-access-required="${requirePrivateAccess}"${requirePrivateAccess ? "" : " hidden"}>
-      <div>
-        <strong>${requirePrivateAccess
-    ? "MazeMap access required for area resolution"
-    : "Optional MazeMap access token"}</strong>
-        <span>${requirePrivateAccess
-    ? "Room and corridor area scoring needs private level polygons. Public map and route evidence can load without them."
-    : "Enter a private access token when the public map does not show the required campus detail."}
-          The token is held in memory for this tab only.</span>
-      </div>
-      <div class="map-access-row">
-        <input data-map-access type="password" autocomplete="one-time-code"
-          aria-label="${requirePrivateAccess ? "Required" : "Optional"} MazeMap access token"
-          placeholder="Paste access token">
-        <button type="button" class="primary" data-save-access>Apply access token</button>
-        <button type="button" data-clear-access>${requirePrivateAccess
-    ? "Continue without area resolution" : "Use route fallback"}</button>
-      </div>
-      <p data-map-access-status role="status" aria-live="polite"></p>
-    </aside>`;
-}
+export { renderMapAccess } from "./map-access-view.mjs";
 
 export function bindMapAccess({
   root, credentials, surface, requirePrivateAccess = false,
@@ -47,7 +21,17 @@ export function bindMapAccess({
   toggleButton?.addEventListener("click", toggle);
   let accessReady = false;
   let declined = false;
+  let settleInitial;
+  let initialSettled = false;
+  const initialReady = new Promise(resolve => { settleInitial = resolve; });
   setOpen(requirePrivateAccess || !panel.hidden);
+
+  function settle(outcome) {
+    if (initialSettled) return outcome;
+    initialSettled = true;
+    settleInitial(outcome);
+    return outcome;
+  }
 
   function setOpen(value) {
     const expanded = Boolean(value);
@@ -87,7 +71,10 @@ export function bindMapAccess({
       const outcome = await surface.retryAccess(credentials.read("mapAccess"));
       accessReady = outcome?.status === "ready";
       handleLaunch(outcome, true, true);
-      if (accessReady) await onReady(outcome);
+      if (accessReady) {
+        await onReady(outcome);
+        settle(outcome);
+      }
     } catch (error) {
       accessReady = false;
       credentials.clear("mapAccess");
@@ -95,14 +82,31 @@ export function bindMapAccess({
     }
   }
 
-  function decline() {
+  async function decline() {
     accessReady = false;
     declined = true;
     credentials.clear("mapAccess");
     input.value = "";
     close(true);
-    if (requirePrivateAccess) onDecline();
-    else surface.declineAccess?.();
+    if (requirePrivateAccess) {
+      await onDecline();
+      const outcome = await surface.start();
+      handleLaunch(outcome, true);
+      return settle(outcome);
+    }
+    return surface.declineAccess?.();
+  }
+
+  async function start() {
+    if (requirePrivateAccess) {
+      open();
+      status.textContent =
+        "Enter private MazeMap access before the campus map and area data are loaded.";
+      return initialReady;
+    }
+    const outcome = await surface.start();
+    handleLaunch(outcome);
+    return outcome;
   }
 
   function handleLaunch(outcome, restoreFocus = false, privateAttempt = false) {
@@ -137,6 +141,7 @@ export function bindMapAccess({
     handleLaunch,
     open,
     retry,
+    start,
     toggle,
     get accessReady() { return accessReady; },
     get declined() { return declined; },

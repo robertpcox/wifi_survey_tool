@@ -23,22 +23,35 @@ test("required overview gate is visible and labels unscored area fallback", () =
   assert.match(html, /Continue without area resolution/);
 });
 
-test("only a successful private retry unlocks areas and stale public launch is ignored", async () => {
+test("required access blocks the first map launch until a private token succeeds", async () => {
   const fixture = fakeAccessRoot();
   let enabled = 0;
+  let publicStarts = 0;
+  const privateTokens = [];
   const binding = bindMapAccess({
     root: fixture.root,
     credentials: memoryCredentials(),
     requirePrivateAccess: true,
-    surface: { retryAccess: async () => ({ status: "ready" }) },
+    surface: {
+      start: async () => { publicStarts += 1; return { status: "ready" }; },
+      retryAccess: async token => {
+        privateTokens.push(token);
+        return { status: "ready" };
+      },
+    },
     onReady: () => { enabled += 1; },
   });
-  binding.handleLaunch({ status: "ready" });
+  const ready = binding.start();
+  await Promise.resolve();
   assert.equal(binding.accessReady, false);
+  assert.equal(publicStarts, 0);
   assert.equal(fixture.panel.hidden, false);
-  assert.match(fixture.status.textContent, /Public map active/);
+  assert.match(fixture.status.textContent, /before the campus map/i);
   fixture.input.value = "private-token";
   await binding.retry();
+  assert.equal((await ready).status, "ready");
+  assert.deepEqual(privateTokens, ["private-token"]);
+  assert.equal(publicStarts, 0);
   assert.equal(binding.accessReady, true);
   assert.equal(enabled, 1);
   assert.equal(fixture.panel.hidden, true);
@@ -47,22 +60,33 @@ test("only a successful private retry unlocks areas and stale public launch is i
   assert.equal(enabled, 1);
 });
 
-test("explicit area fallback marks unavailable without discarding the public map", () => {
+test("explicit area fallback starts public MazeMap only after the decision", async () => {
   const fixture = fakeAccessRoot();
   let unavailable = 0;
   let discarded = 0;
+  let enabled = 0;
   const binding = bindMapAccess({
     root: fixture.root,
     credentials: memoryCredentials(),
     requirePrivateAccess: true,
-    surface: { declineAccess: () => { discarded += 1; } },
+    surface: {
+      start: async () => { discarded += 1; return { status: "ready" }; },
+      retryAccess: async () => ({ status: "ready" }),
+      declineAccess: () => { throw new Error("required access must not discard the map"); },
+    },
+    onReady: () => { enabled += 1; },
     onDecline: () => { unavailable += 1; },
   });
-  binding.decline();
+  const ready = binding.start();
+  await binding.decline();
+  assert.equal((await ready).status, "ready");
   assert.equal(unavailable, 1);
-  assert.equal(discarded, 0);
+  assert.equal(discarded, 1);
   assert.equal(binding.declined, true);
   assert.equal(fixture.panel.hidden, true);
+  fixture.input.value = "corrected-private-token";
+  await binding.retry();
+  assert.equal(enabled, 1, "a later private retry reruns area resolution");
 });
 
 function memoryCredentials() {

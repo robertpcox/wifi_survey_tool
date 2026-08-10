@@ -81,6 +81,29 @@ test("an all-run room request supersedes concurrent current-only work", async ()
   assert.ok(direct.heatmaps.room.every(floor => floor.points.length === 0));
 });
 
+test("a failed private catalogue never injects an empty area overlay", async () => {
+  const current = structuredClone(result);
+  current.run.captureMode = "dynamic-room";
+  const analysis = analyzeReportResult(current, {
+    stickySeconds: 2, accuracyM: 5, noPositionSeconds: 30,
+  });
+  const state = {
+    result: current, analysis, thresholds: analysis.thresholds, exceptions: [],
+    manifest: { results: [] },
+  };
+  const controller = createReportCollectionController({
+    store: { snapshot: () => state },
+    manifestSource: { result: async () => { throw new Error("unexpected"); } },
+    surface: { adapter: {
+      resolveCampusRooms: async () => { throw new Error("private catalogue denied"); },
+    } },
+  });
+  await controller.loadOverview(() => {});
+  await controller.enableRoomLookup(() => {});
+  assert.equal(controller.roomStatus, "error");
+  assert.equal(controller.mapAnalysis("overview", analysis).areaResolution, null);
+});
+
 function room(lng, lat, z) {
   return { id: `${lng}:${lat}:${z}`, name: "Room", z,
     geometry: { type: "Polygon", coordinates: [[

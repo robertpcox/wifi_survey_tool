@@ -1,15 +1,15 @@
 // FEATURE:      MazeMap area-resolution map evidence
 // SURFACE:      node --test src/adapters/map/report-area-resolution-map-layer.test.mjs
-// WHY TOGETHER: Inside/outside points and paired unsnapped connectors prove the map contract.
+// WHY TOGETHER: Failed raw points and paired unsnapped connectors prove the map contract.
 // STATE:        In-memory map sources
-// RULES:        Orange expected points pair to blue raw Cisco points with outcome rims.
+// RULES:        Only outside/wrong-floor blue dots and their orange truth points are drawn.
 // PROVENANCE:   Dynamic room and long-corridor area resolution
 
 import assert from "node:assert/strict";
 import test from "node:test";
 
 import { createReportAreaResolutionMapLayer } from "./report-area-resolution-map-layer.mjs";
-test("corridor checkpoints fan into a repeated frozen raw Cisco fix", () => {
+test("area map hides inside pairs and retains only outside displacement", () => {
   const harness = mapHarness();
   const layer = createReportAreaResolutionMapLayer(harness.map, () => 2);
   const base = {
@@ -27,19 +27,17 @@ test("corridor checkpoints fan into a repeated frozen raw Cisco fix", () => {
       status: "wrong-room", point: { lng: 170.55, lat: -45.8, z: 2 },
       room: { id: "other-room", name: "Other room" },
     },
-  }] }), 2);
+  }] }), 1);
   const truth = features(harness, "report-area-resolution-truth");
   const cisco = features(harness, "report-area-resolution-cisco");
   const drift = features(harness, "report-area-resolution-drift");
-  assert.deepEqual(truth.map(item => item.properties.verdict), ["inside", "outside"]);
-  assert.deepEqual(cisco.map(item => item.properties.verdict), ["inside", "outside"]);
-  assert.equal(cisco[1].properties.resolvedAreaName, "Other room");
-  assert.deepEqual(cisco.map(item => item.geometry.coordinates),
-    [[170.55, -45.8], [170.55, -45.8]]);
-  assert.deepEqual(drift.map(item => item.properties.verdict), ["inside", "outside"]);
-  assert.deepEqual(drift.map(item => item.geometry.coordinates), [
-    [[170.5, -45.8], [170.55, -45.8]], [[170.51, -45.8], [170.55, -45.8]],
-  ]);
+  assert.deepEqual(truth.map(item => item.properties.verdict), ["outside"]);
+  assert.deepEqual(cisco.map(item => item.properties.verdict), ["outside"]);
+  assert.equal(cisco[0].properties.resolvedAreaName, "Other room");
+  assert.deepEqual(cisco[0].geometry.coordinates, [170.55, -45.8]);
+  assert.deepEqual(drift.map(item => item.properties.verdict), ["outside"]);
+  assert.deepEqual(drift[0].geometry.coordinates,
+    [[170.51, -45.8], [170.55, -45.8]]);
   const expectedPaint = harness.layers.get("report-area-resolution-truth-lyr").paint;
   const ciscoPaint = harness.layers.get("report-area-resolution-cisco-lyr").paint;
   const connectorPaint = harness.layers.get("report-area-resolution-drift-lyr").paint;
@@ -98,7 +96,7 @@ test("wrong-floor and no-position samples are not labelled outside", () => {
   }] });
   const truthVerdicts = features(harness, "report-area-resolution-truth")
     .map(item => item.properties.verdict);
-  assert.deepEqual(truthVerdicts, ["wrong-floor", "no-position"]);
+  assert.deepEqual(truthVerdicts, ["wrong-floor"]);
   assert.equal(features(harness, "report-area-resolution-cisco")[0]
     .properties.markerRole, "cisco-position");
   assert.equal(features(harness, "report-area-resolution-drift").length, 0);

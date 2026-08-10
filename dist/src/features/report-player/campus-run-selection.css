@@ -1,0 +1,44 @@
+/* FEATURE:      Consolidated report run selection
+ * SURFACE:      Compact eligible-run checklist above the campus map
+ * WHY TOGETHER: Selector rows, actions, and status form one responsive control.
+ * STATE:        Visual state only
+ * RULES:        Keep all devices readable without obscuring the map.
+ * PROVENANCE:   User-selected campus consolidation
+ */
+
+.campus-run-selection {
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid #c7d6e8;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+}
+
+.campus-run-selection summary { cursor: pointer; font-weight: 700; }
+.campus-run-selection summary strong { margin-left: 0.45rem; color: #275b9d; }
+.campus-run-selection > p { margin: 0.55rem 0; color: #52677f; }
+.campus-run-selection-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.campus-run-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 0.45rem;
+  margin-top: 0.75rem;
+}
+
+.campus-run-selection-grid label {
+  display: flex;
+  align-items: start;
+  gap: 0.55rem;
+  padding: 0.55rem;
+  border-radius: 0.5rem;
+  background: #fff;
+}
+
+.campus-run-selection-grid input { margin-top: 0.15rem; }
+.campus-run-selection-grid span { font-weight: 700; }
+.campus-run-selection-grid small {
+  display: block;
+  margin-top: 0.2rem;
+  color: #61758b;
+  font-weight: 400;
+}

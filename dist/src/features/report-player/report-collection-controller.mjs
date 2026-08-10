@@ -1,15 +1,19 @@
 // FEATURE:      Consolidated report collection
 // SURFACE:      createReportCollectionController(options)
 // WHY TOGETHER: Campus run loading, merged map, and asynchronous room evidence share one lifecycle.
-// STATE:        Cached run bundle, overview model, room lookup readiness, and room summary
-// RULES:        Reviewed exceptions travel with every run; room lookup starts only after map launch.
-// PROVENANCE:   Campus-level consolidated report and dynamic dwell room evidence
+// STATE:        Cached bundles, selected runs, overview model, and room lookup work
+// RULES:        One selected ID set filters route and area evidence; reviewed exceptions stay attached.
+// PROVENANCE:   User-selected campus report and area resolution
 
 import { assertReportResult, campusRunEntries } from "./result-loader.mjs";
 import { bindAllRunsAction, createAllRunsLoader } from "./all-runs.mjs";
 import { createCampusOverviewController } from "./campus-overview-controller.mjs";
+import { createCampusRunSelection } from "./campus-run-selection.mjs";
+import {
+  analysisWithAreaResolution, collectionAllRunsState, collectionRoomHtml,
+  selectedCampusReportStatus,
+} from "./report-collection-values.mjs";
 import { createRoomResolutionLoader } from "./room-resolution-loader.mjs";
-import { renderRoomResolutionView } from "./room-resolution-view.mjs";
 
 export function createReportCollectionController({
   store, manifestSource, floorInput, surface,
@@ -17,13 +21,19 @@ export function createReportCollectionController({
   const initial = store.snapshot();
   const currentEligible = !(initial.exceptions ?? [])
     .some(item => item.disposition === "exclude-run");
+  const entries = campusRunEntries(initial.manifest, initial.result);
+  const runSelection = createCampusRunSelection({
+    currentResult: initial.result,
+    entries,
+    surveys: initial.manifest?.surveys ?? [],
+    includeCurrent: currentEligible,
+  });
   const loader = createAllRunsLoader({
-    entries: campusRunEntries(initial.manifest, initial.result),
-    manifestSource,
-    assertResult: assertReportResult,
+    entries, manifestSource, assertResult: assertReportResult,
   });
   const overview = createCampusOverviewController({
     store, loader, floorInput, includeCurrent: currentEligible,
+    includedResultIds: runSelection.selectedIds,
   });
   const rooms = createRoomResolutionLoader({
     resolveRoomAt: surface.adapter?.resolveRoomAt,
@@ -33,26 +43,19 @@ export function createReportCollectionController({
   let roomLookupReady = false;
   let roomWork = null;
   let roomWorkAll = false;
-  function allRunsState(state) {
-    return {
-      entryCount: loader.entryCount,
-      loaded: loader.loaded,
-      failureCount: loader.failureCount,
-      rows: loader.loaded
-        ? loader.rows(state.result, state.thresholds, undefined, state.exceptions)
-        : [],
-    };
-  }
+  let roomWorkRevision = -1;
+  let selectionRevision = 0;
   function mapAnalysis(mode, fallback) {
     const selected = overview.mapAnalysis(mode, fallback);
     if (mode === "overview" || rooms.status !== "ready") return selected;
-    return withRoomHeat(selected, rooms.summary);
+    return analysisWithAreaResolution(selected, rooms.summary);
   }
   function bind(root, { refresh, status }) {
     root.querySelector("[data-load-overview]")?.addEventListener("click", async () => {
       await loadOverview(refresh, root.querySelector("[data-overview-status]"));
     });
     bindAllRunsAction(root, { loader, status, refresh });
+    runSelection.bind(root, ids => applyRunSelection(ids, refresh, status));
   }
 
   async function loadOverview(refresh, progress = null) {
@@ -62,10 +65,7 @@ export function createReportCollectionController({
       });
       if (roomLookupReady) await resolveRooms(true, refresh);
       else refresh();
-      if (progress) progress.textContent = reportStatus(
-        loader.loadedCount + Number(currentEligible),
-        loader.failureCount,
-      );
+      if (progress) progress.textContent = selectedCampusReportStatus(loader, runSelection);
       return overview.loaded;
     } catch (error) {
       if (progress) progress.textContent = error.message;
@@ -76,16 +76,24 @@ export function createReportCollectionController({
   async function resolveRooms(all, refresh) {
     if (!roomLookupReady) return rooms.summary;
     if (roomWork) {
-      if (!all || roomWorkAll) return roomWork;
+      if (roomWorkRevision === selectionRevision && (!all || roomWorkAll)) {
+        return roomWork;
+      }
       await roomWork;
     }
     const current = store.snapshot();
-    const bundles = currentEligible
+    const bundles = currentEligible && runSelection.includes(current.result.run.resultId)
       ? [{ result: current.result, exceptions: current.exceptions }] : [];
-    if (all) bundles.push(...loader.records());
+    if (all) bundles.push(...loader.records().filter(record => (
+      runSelection.includes(record.result.run.resultId)
+    )));
+    const revision = selectionRevision;
     roomWorkAll = all;
+    roomWorkRevision = revision;
     const work = rooms.load(bundles).then(summary => {
-      if (rooms.status === "ready") overview.setRoomSummary(summary);
+      if (revision === selectionRevision && rooms.status === "ready") {
+        overview.setRoomSummary(summary);
+      }
       return summary;
     });
     roomWork = work;
@@ -93,29 +101,34 @@ export function createReportCollectionController({
       if (roomWork === work) {
         roomWork = null;
         roomWorkAll = false;
-        refresh();
+        roomWorkRevision = -1;
+        if (revision === selectionRevision) refresh();
       }
     });
     refresh();
     return work;
   }
 
-  function roomHtml() {
-    return renderRoomResolutionView({
-      status: rooms.status,
-      summary: rooms.summary,
-      error: rooms.error,
-    });
+  async function applyRunSelection(ids, refresh, status) {
+    const selectedIds = runSelection.apply(ids);
+    if (!selectedIds) return false;
+    selectionRevision += 1;
+    overview.setIncludedResultIds(selectedIds);
+    if (status) status.textContent = selectedCampusReportStatus(loader, runSelection);
+    refresh();
+    return roomLookupReady ? resolveRooms(true, refresh) : true;
   }
 
   return Object.freeze({
-    allRunsState,
+    allRunsState: state => collectionAllRunsState(loader, state),
     bind,
     loadOverview,
     mapAnalysis,
-    overviewHtml: () => `${overview.panelHtml()}${roomHtml()}`,
+    overviewHtml: () => `${overview.panelHtml()}${collectionRoomHtml(rooms)}`,
     rebuild: overview.rebuild,
-    roomHtml,
+    runSelectionHtml: () => runSelection.html({ enabled: loader.loaded }),
+    setIncludedRuns: applyRunSelection,
+    roomHtml: () => collectionRoomHtml(rooms),
     async enableRoomLookup(refresh) {
       roomLookupReady = true;
       return resolveRooms(overview.loaded, refresh);
@@ -129,19 +142,4 @@ export function createReportCollectionController({
     get roomStatus() { return rooms.status; },
     get roomSummary() { return rooms.summary; },
   });
-}
-function withRoomHeat(analysis, summary) {
-  return {
-    ...analysis,
-    areaResolution: summary,
-    heatmaps: {
-      ...analysis.heatmaps,
-      room: analysis.floors.map(floor => ({ ...floor, points: [] })),
-    },
-  };
-}
-
-function reportStatus(runCount, failureCount) {
-  return `Campus report · ${runCount} eligible run(s) merged${failureCount
-    ? ` · ${failureCount} unavailable` : ""}`;
 }

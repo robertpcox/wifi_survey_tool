@@ -58,14 +58,14 @@ function renderConsolidated(model, reportPlayerBase) {
       </div>
       <a class="dashboard-consolidated-launch"
         href="${esc(consolidatedReportUrl(campus, reportPlayerBase))}">
-        Open consolidated report
+        Open report and choose runs
       </a>
     </li>`).join("");
   return `<section class="dashboard-consolidated" aria-labelledby="consolidated-title">
     <div>
       <p class="dashboard-kicker">First look</p>
       <h2 id="consolidated-title">Consolidated issue report</h2>
-      <p>Merge every eligible run by campus to find frozen path sections,
+      <p>Choose eligible runs by campus to find frozen path sections,
         held Cisco positions, lag, and room/corridor area failures.</p>
     </div>
     <ul>${actions || '<li class="dashboard-empty">No completed runs to consolidate.</li>'}</ul>

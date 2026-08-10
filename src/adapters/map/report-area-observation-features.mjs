@@ -1,8 +1,8 @@
 // FEATURE:      Paired expected and raw Cisco area observation features
-// SURFACE:      areaObservationFeatures(observation)
+// SURFACE:      areaObservationFeatures(observation), isDisplayedAreaFailure(observation)
 // WHY TOGETHER: One expected point, raw fix, and connector share one observation identity.
 // STATE:        None
-// RULES:        Pair every same-floor endpoint; never invent a raw fix or cross floors.
+// RULES:        Pair same-floor endpoints; classify only displayed raw fixes outside their truth.
 // PROVENANCE:   Room/corridor area-resolution map
 
 export function areaObservationFeatures(observation) {
@@ -24,6 +24,13 @@ export function areaObservationFeatures(observation) {
     },
   )] : [];
   return { truth, cisco, line: pairLine(observation, representative, shared) };
+}
+
+export function isDisplayedAreaFailure(observation) {
+  const moment = representativeMoment(observation)?.moment;
+  return Boolean(moment?.point) && [
+    "wrong-room", "unresolved", "wrong-floor",
+  ].includes(moment.status);
 }
 
 function observationProperties(observation) {

@@ -7,14 +7,18 @@
 
 import {
   buildCampusOverviewModel,
+  overviewMapAnalysis,
   renderCampusOverviewPanel,
 } from "./campus-overview.mjs";
 
 export function createCampusOverviewController({
   store, loader, floorInput = null, includeCurrent = true,
+  includedResultIds = null,
 }) {
   let built = null;
   let roomSummary = null;
+  let included = includedResultIds ? new Set(includedResultIds) : null;
+  const isIncluded = id => !included || included.has(id);
 
   function rebuild() {
     if (!loader.loaded) return null;
@@ -23,8 +27,10 @@ export function createCampusOverviewController({
       result: state.result,
       analysis: state.analysis,
       thresholds: state.thresholds,
-      others: loader.records?.() ?? loader.results(),
-      includeResult: includeCurrent,
+      others: (loader.records?.() ?? loader.results()).filter(record => (
+        isIncluded(record?.result?.run?.resultId ?? record?.run?.resultId)
+      )),
+      includeResult: includeCurrent && isIncluded(state.result.run.resultId),
     });
     built.mapAnalysis = overviewMapWithRooms(built, roomSummary);
     extendFloorOptions();
@@ -71,7 +77,16 @@ export function createCampusOverviewController({
     rebuild,
     setRoomSummary(value) {
       roomSummary = value;
-      if (built) built.mapAnalysis = overviewMapWithRooms(built, roomSummary);
+      if (built) {
+        built.mapAnalysis = overviewMapWithRooms({
+          ...built, mapAnalysis: overviewMapAnalysis(built.model),
+        }, roomSummary);
+      }
+    },
+    setIncludedResultIds(values) {
+      included = new Set(values);
+      roomSummary = null;
+      return rebuild();
     },
     mapAnalysis(mode, fallback) {
       if (mode !== "overview") return fallback;
@@ -81,9 +96,10 @@ export function createCampusOverviewController({
       return renderCampusOverviewPanel({
         overview: built?.model ?? null,
         entryCount: loader.entryCount,
-        failureCount: loader.failureCount ?? 0,
+        failureCount: (loader.failureIds ?? []).filter(isIncluded).length,
         includeCurrent,
         loaded: Boolean(built),
+        selectedCount: included?.size,
       });
     },
     get loaded() { return Boolean(built); },

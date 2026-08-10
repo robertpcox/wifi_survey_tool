@@ -1,12 +1,12 @@
 // FEATURE:      MazeMap area-resolution map evidence
 // SURFACE:      createReportAreaResolutionMapLayer(map, currentFloor)
-// WHY TOGETHER: Percentage fills and paired expected-versus-Cisco evidence form one overlay.
+// WHY TOGETHER: Issue-area fills and failed expected-versus-Cisco pairs form one overlay.
 // STATE:        Four stable GeoJSON sources filtered by displayed floor
-// RULES:        Pair every same-floor endpoint; never expand catch-up states into failures.
+// RULES:        Draw only displayed raw fixes outside truth; keep all evidence in report scores.
 // PROVENANCE:   Dynamic room and long-corridor area resolution
 
 import { createGeoJsonLayerGroup } from "./geojson-layer-group.mjs";
-import { areaObservationFeatures }
+import { areaObservationFeatures, isDisplayedAreaFailure }
   from "./report-area-observation-features.mjs";
 import { areaPolygonFeatures } from "./report-area-polygon-features.mjs";
 
@@ -77,12 +77,13 @@ export function createReportAreaResolutionMapLayer(map, currentFloor) {
 
   function draw(summary) {
     const observations = summary?.areaObservations ?? [];
-    const features = observations.map(areaObservationFeatures);
+    const features = observations.filter(isDisplayedAreaFailure)
+      .map(areaObservationFeatures);
     group.setData(DEFINITIONS[0].source, areaPolygonFeatures(summary?.areaPolygons));
     group.setData(DEFINITIONS[1].source, features.map(item => item.truth));
     group.setData(DEFINITIONS[2].source, features.flatMap(item => item.line ?? []));
     group.setData(DEFINITIONS[3].source, features.flatMap(item => item.cisco ?? []));
-    return observations.length;
+    return features.length;
   }
   return Object.freeze({
     applyFloor: group.applyFloor,

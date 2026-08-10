@@ -2,7 +2,7 @@
 // SURFACE:      areaPolygonFeatures(areas)
 // WHY TOGETHER: Polygon geometry and normalized resolution percentage form one fill contract.
 // STATE:        None
-// RULES:        Scored fills retain the full 0–100% scale; no scores stay grey.
+// RULES:        Preserve full rates but draw only areas with at least one scored failure.
 // PROVENANCE:   Campus area-resolution map
 
 const PROPERTIES = [
@@ -12,8 +12,9 @@ const PROPERTIES = [
 ];
 
 export function areaPolygonFeatures(areas = []) {
-  return areas.filter(area => ["Polygon", "MultiPolygon"]
-    .includes(area?.geometry?.type)).map(area => {
+  return areas.filter(hasOutsideEvidence)
+    .filter(area => ["Polygon", "MultiPolygon"]
+      .includes(area?.geometry?.type)).map(area => {
     const resolutionPercent = presentationResolutionPercent(area);
     return {
       type: "Feature",
@@ -25,6 +26,14 @@ export function areaPolygonFeatures(areas = []) {
       geometry: area.geometry,
     };
   });
+}
+
+function hasOutsideEvidence(area) {
+  const outside = count(area?.outsideSampleCount);
+  if (outside != null) return outside > 0;
+  const scored = count(area?.scoredSampleCount);
+  const percent = number(area?.resolutionPercent);
+  return Boolean(scored > 0 && percent != null && percent < 100);
 }
 
 export function presentationResolutionPercent(area) {

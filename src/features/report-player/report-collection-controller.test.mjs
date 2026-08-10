@@ -79,6 +79,17 @@ test("an all-run area request includes dynamic and planned survey evidence", asy
   assert.equal(controller.roomSummary.corridor.sampleCount, 2);
   assert.deepEqual(new Set(controller.roomSummary.observations.map(item => item.resultId)),
     new Set([current.run.resultId, other.run.resultId]));
+  await controller.setIncludedRuns([other.run.resultId], () => {});
+  assert.equal(controller.roomSummary.visitCount, 2);
+  assert.equal(controller.roomSummary.corridor.sampleCount, 1);
+  assert.deepEqual(new Set(controller.roomSummary.observations.map(item => item.resultId)),
+    new Set([other.run.resultId]));
+  assert.ok(controller.mapAnalysis("overview", analysis).stalePathSegments
+    .every(segment => segment.resultId === other.run.resultId));
+  await controller.setIncludedRuns(
+    [current.run.resultId, other.run.resultId], () => {},
+  );
+  assert.equal(controller.roomSummary.visitCount, 4);
   const direct = controller.mapAnalysis("analysis", analysis);
   assert.equal(direct.areaResolution.visitCount, 4);
   assert.ok(direct.heatmaps.room.every(floor => floor.points.length === 0));

@@ -21,7 +21,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - capture-spine 56/1871 T+ E captureSpineChoices, parseCaptureRecords, parseSpineResult, spineRunLabel I @d/survey-result-v3
 - dashboard-consolidated.css 59/1758 T-
 - dashboard.css 140/3029 T+
-- dashboard 118/4026 T+ E mountDashboard, renderDashboard I @d/dashboard-selection, @s/format
+- dashboard 118/4025 T+ E mountDashboard, renderDashboard I @d/dashboard-selection, @s/format
 ## definition-creator/
 - checkpoint-dwell 88/2818 T+ E applyCreatorCheckpointDwells, replaceCreatorCheckpointDwell
 - components.css 150/2547 T+
@@ -57,18 +57,20 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - workflow 92/2694 T+ E createCreatorWorkflow, shortLegWarning
   - I @d/creator-route-v3, @d/definition-authoring-v3, @d/route-duration-v3, workflow-route, workflow-routing
 ## report-player/
-- all-runs 142/5408 T+ E allRunsRow, bindAllRunsAction, createAllRunsLoader, renderAllRunsSection I @d/report-analysis, @d/report-comparison, @s/format
+- all-runs 143/5463 T+ E allRunsRow, bindAllRunsAction, createAllRunsLoader, renderAllRunsSection I @d/report-analysis, @d/report-comparison, @s/format
 - analysis-export 134/4803 T+ E buildAnalysisCsv, createAnalysisExports, createAnalysisSummary, downloadAnalysisExports
 - bounded-map 20/796 T- E mapWithConcurrency
 - campus-hotspot-view 56/2477 T+ E renderCampusHotspotTables I @s/format
-- campus-overview-controller 126/3773 T+ E createCampusOverviewController I campus-overview
-- campus-overview 129/5127 T+ E buildCampusOverviewModel, overviewMapAnalysis, renderCampusOverviewPanel
+- campus-overview-controller 142/4383 T+ E createCampusOverviewController I campus-overview
+- campus-overview 131/5234 T+ E buildCampusOverviewModel, overviewMapAnalysis, renderCampusOverviewPanel
   - I @d/report-analysis, @d/report-campus-overview, @s/format, campus-hotspot-view, campus-run-summary-view
+- campus-run-selection.css 44/1344 T+
+- campus-run-selection 131/5334 T+ E createCampusRunSelection I @s/format
 - campus-run-summary-view 49/2347 T+ E renderCampusRunSummary I @s/format
 - comparison-view 108/4465 T+ E bindComparisonAdd, renderComparisonView I @s/format, all-runs
 - corridor-resolution-view 104/4610 T- E renderCorridorResolution I @s/format
 - direction-view 129/5536 T+ E renderDirectionView I @d/report-direction-overlay, @s/format, report-chart-svg
-- floor-route-view 144/6556 T+ E renderFloorRouteView I @s/format
+- floor-route-view 145/6657 T+ E renderFloorRouteView I @s/format
 - heatmap-view 65/2314 T+ E renderHeatmapView I @s/format
 - identity-view 75/2867 T+ E renderIdentityView I @s/format
 - kpi-view 72/3306 T+ E renderKpiView I @s/format
@@ -99,17 +101,16 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - player-workspace.css 129/3294 T+
 - report-base-route 24/895 T+ E createReportBaseRoute
 - report-chart-svg 81/3093 T+ E CHART, bucketExtremes, chartX, chartY, renderChartGrid, renderCriticalDots, renderOutageBands, renderTimeAxis
-- report-collection-controller 147/5037 T+ E createReportCollectionController
-  - I all-runs, campus-overview-controller, result-loader, room-resolution-loader, room-resolution-view
+- report-collection-controller 145/5653 T+ E createReportCollectionController
+  - I all-runs, campus-overview-controller, campus-run-selection, report-collection-values, result-loader, room-resolution-loader
+- report-collection-values 51/1663 T+ E analysisWithAreaResolution, campusReportStatus, collectionAllRunsState, collectionRoomHtml, selectedCampusReportStatus
+  - I room-resolution-view
 - report-floor-controller 61/1882 T+ E bindReportFloor, renderPlayerFrame
 - report-insights-view 19/853 T+ E renderReportInsights I @d/report-insights, report-series-view, report-summary-view
 - report-insights.css 120/2108 T+
-- report-interactions 144/6092 T+ E bindReportInteractions, renderDynamicSections, renderPlayerFrame
+- report-interactions 146/6257 T+ E bindReportInteractions, renderDynamicSections, renderPlayerFrame
   - I @a/download, comparison-view, map-alert-view, map-highlight-controller, methodology-view, playback-view, report-collection-controller,
     report-floor-controller, report-mode-controller, report-sections, report-warning-view, result-loader
 - report-mode-controller 94/3025 T+ E bindReportModes
 - report-player.css 148/3552 T+
 - report-player 121/4339 T+ E mountReportPlayer I map-access, map-surface, report-interactions, report-shell, report-store, result-loader
-- report-sections 33/1397 T+ E renderDynamicSections
-  - I comparison-view, direction-view, heatmap-view, kpi-view, methodology-view, no-position-view, report-insights-view, report-warning-view
-- report-series-view 129/5499 T+ E renderReportSeries I @s/format, report-chart-svg

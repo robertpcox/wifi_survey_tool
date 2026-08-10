@@ -71,14 +71,17 @@ test("the panel offers lazy loading, then the merged table", () => {
     entryCount: 8,
     loaded: false,
   });
-  assert.match(idle, /Problem areas merged across every run/);
-  assert.match(idle, /Load and merge all 9 campus runs/);
+  assert.match(idle, /Problem areas across selected runs/);
+  assert.match(idle, /9 selected of 9 available/);
+  assert.match(idle, /Load and merge 9 selected campus runs/);
   assert.match(idle, /data-overview-status/);
   const loaded = renderCampusOverviewPanel({
     overview: built.model,
     entryCount: 1,
+    selectedCount: 1,
     loaded: true,
   });
+  assert.match(loaded, /1 selected of 2 available/);
   assert.match(loaded, /2 runs merged/);
   assert.match(loaded, /both-direction spots/);
   assert.match(loaded, /Both directions/);

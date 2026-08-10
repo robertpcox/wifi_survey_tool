@@ -69,6 +69,7 @@ export function createAllRunsLoader({ entries, manifestSource, assertResult }) {
     get loaded() { return loaded; },
     get entryCount() { return entries.length; },
     get failureCount() { return failures.size; },
+    get failureIds() { return [...failures.keys()]; },
     get loadedCount() { return cache.size; },
   });
 }

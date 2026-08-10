@@ -52,7 +52,7 @@ test("controller merges after load, extends floors, and serves overview mode", a
   assert.ok(Object.values(emptyOverview.heatmaps)
     .every(floors => floors.every(floor => floor.points.length === 0)));
   assert.equal(emptyOverview.areaResolution, null);
-  assert.match(controller.panelHtml(), /Load and merge all 2 campus runs/);
+  assert.match(controller.panelHtml(), /Load and merge 2 selected campus runs/);
 
   const progress = [];
   const listeners = {};
@@ -77,7 +77,14 @@ test("controller merges after load, extends floors, and serves overview mode", a
   assert.ok(roomAnalysis.heatmaps.room.every(floor => floor.points.length === 0));
   assert.equal(roomAnalysis.areaResolution, roomSummary);
   assert.ok(roomAnalysis.fitPoints.some(point => point.lng === 170.6));
+  controller.setIncludedResultIds([outAndBack.run.resultId]);
+  const selectedAnalysis = controller.mapAnalysis("overview", analysis);
+  assert.ok(selectedAnalysis.stalePathSegments.every(segment => (
+    segment.resultId === outAndBack.run.resultId
+  )));
+  assert.equal(selectedAnalysis.areaResolution, null);
+  assert.match(controller.panelHtml(), /1 selected of 2 available/);
   assert.equal(controller.mapAnalysis("analysis", analysis), analysis);
-  assert.match(controller.panelHtml(), /2 runs merged/);
+  assert.match(controller.panelHtml(), /1 runs merged/);
   assert.equal(progress.at(-1), "refreshed");
 });

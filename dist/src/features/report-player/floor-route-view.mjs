@@ -61,6 +61,7 @@ export function renderFloorRouteView(result, {
         </div>
       </div>
     </div>
+    ${consolidated ? '<div data-module="runSelection"></div>' : ""}
     <div class="map-stage">
       <div id="report-maze-map" class="maze-map" data-maze-map
         aria-label="MazeMap campus map"></div>
@@ -99,16 +100,16 @@ export function renderFloorRouteView(result, {
     : "Position error beyond the selected distance"}
       </span>
       <span class="map-room-legend" data-highlight-legend="room" hidden>
-        Whole-area resolved percentage:
+        Areas with one or more failures · resolved percentage:
         <i class="area-scale" aria-hidden="true"></i>
         red = 0% · amber = 50% · green = 100%
-        <i class="area-unscored" aria-hidden="true"></i> grey = unscored
         · <i class="expected-position" aria-hidden="true"></i> orange = surveyed position
         · <i class="cisco-position" aria-hidden="true"></i> blue = raw Cisco position returned
         (room window endpoint or corridor checkpoint)
-        · green/red/orange rim = inside/outside/wrong floor
+        · only outside/wrong-floor blue dots are shown; successful dots are hidden
+        · red/orange rim = outside/wrong floor
         · blue dotted connector = same-floor expected → raw displacement
-        · catch-up states stay in report detail
+        · no-fix and catch-up states stay in report detail
       </span>
       ${consolidated ? "" : `<span class="map-result-legend">
         <i aria-hidden="true"></i> Wi-Fi result position on its reported floor

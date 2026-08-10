@@ -88,6 +88,7 @@ test("consolidated shell exposes overview without seed-run modes", () => {
   assert.doesNotMatch(html, /data-report-view="playback"/);
   assert.match(html, /data-report-pane="overview" class="analysis-pane">/);
   assert.match(html, /data-report-context="analysis" hidden/);
+  assert.match(html, /data-module="runSelection"/);
   assert.match(html, /data-access-required="true"/);
   assert.match(html, /MazeMap access required for area resolution/);
   assert.match(html, /Continue without area resolution/);

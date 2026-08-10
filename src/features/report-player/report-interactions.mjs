@@ -93,6 +93,8 @@ export function bindReportInteractions({
     for (const [module, markup] of Object.entries(html)) {
       root.querySelector(`[data-module=${module}]`).innerHTML = markup;
     }
+    const runSelectionRoot = root.querySelector("[data-module=runSelection]");
+    if (runSelectionRoot) runSelectionRoot.innerHTML = collection.runSelectionHtml();
     root.querySelector("[data-module=overview]").innerHTML =
       collection.overviewHtml();
     root.querySelector("[data-module=rooms]").innerHTML = collection.roomHtml();

@@ -40,6 +40,7 @@ test("dashboard renders one customer's surveys, devices, and Report Player launc
   assert.match(html, /Customer &lt;A&gt;/);
   assert.ok(html.indexOf("Consolidated issue report") < html.indexOf("Ward walk"));
   assert.match(html, /4 completed runs/);
+  assert.match(html, /Open report and choose runs/);
   assert.match(html, /customer_id=customer-a&amp;campus_id=566&amp;view=overview/);
   assert.match(html, /Phone · mobile · OS 1 · 5 GHz/);
   assert.match(html, /Open Report Player/);

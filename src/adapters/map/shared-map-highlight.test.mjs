@@ -47,8 +47,8 @@ test("selected highlight colours Analysis and Player without leaking report evid
         },
       }],
       areaPolygons: [{
-        areaKey: "clinic", areaName: "Clinic", z: 2, severity: "bad",
-        geometry: { type: "Polygon", coordinates: [[
+        areaKey: "clinic", areaName: "Clinic", z: 2, severity: "bad", scoredSampleCount: 1,
+        insideSampleCount: 0, outsideSampleCount: 1, resolutionPercent: 0, geometry: { type: "Polygon", coordinates: [[
           [170.23, -45.25], [170.25, -45.25],
           [170.25, -45.23], [170.23, -45.25],
         ]] },

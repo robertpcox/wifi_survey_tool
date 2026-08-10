@@ -1,8 +1,8 @@
 // FEATURE:      Consolidated MazeMap area polygon presentation
 // SURFACE:      node --test src/adapters/map/report-area-polygon-features.test.mjs
-// WHY TOGETHER: Continuous resolved percentage and unscored fills share one visual contract.
+// WHY TOGETHER: Continuous failure-area percentages and hidden clean areas share one contract.
 // STATE:        Synthetic area aggregates
-// RULES:        Preserve 0–100%; never turn a partial majority into categorical green.
+// RULES:        Preserve 0–100% for issue areas; omit fully successful and unscored areas.
 // PROVENANCE:   Campus area-resolution map
 
 import assert from "node:assert/strict";
@@ -31,10 +31,13 @@ test("polygon fill preserves resolved percentage across the full scale", () => {
   }), 100);
 });
 
-test("polygon feature marks only genuinely unscored areas grey", () => {
+test("polygon feature hides fully successful and unscored areas", () => {
   const geometry = { type: "Polygon", coordinates: [] };
   const features = areaPolygonFeatures([{
     geometry, insideSampleCount: 0, outsideSampleCount: 0,
+    resolutionPercent: 100, severity: "good",
+  }, {
+    geometry, insideSampleCount: 4, outsideSampleCount: 0,
     resolutionPercent: 100, severity: "good",
   }, {
     geometry, scoredSampleCount: 4, resolutionPercent: 62.54,
@@ -42,7 +45,5 @@ test("polygon feature marks only genuinely unscored areas grey", () => {
   assert.deepEqual(features.map(item => ({
     resolutionPercent: item.properties.resolutionPercent,
     scored: item.properties.scored,
-  })), [{ resolutionPercent: null, scored: false }, {
-    resolutionPercent: 62.5, scored: true,
-  }]);
+  })), [{ resolutionPercent: 62.5, scored: true }]);
 });

@@ -73,26 +73,28 @@ export function renderCampusOverviewPanel({
   entryCount,
   failureCount = 0,
   includeCurrent = true,
+  selectedCount = null,
   loaded,
 }) {
   const availableCount = entryCount + Number(includeCurrent);
+  const includedCount = selectedCount ?? availableCount;
   return `
     <div class="section-heading">
       <div>
         <p class="section-kicker">Campus overview</p>
-        <h2>Problem areas merged across every run</h2>
+        <h2>Problem areas across selected runs</h2>
       </div>
-      <p>${esc(availableCount)} campus run(s) available</p>
+      <p>${esc(includedCount)} selected of ${esc(availableCount)} available</p>
     </div>
     <p class="diagnostic-intro">
-      Every eligible campus result is pooled per floor. Separate highlights show
+      Selected eligible campus results are pooled per floor. Separate highlights show
       frozen walked-path sections, the raw Cisco positions that stayed held,
       movement lag, distance error, and MazeMap room/corridor containment.
       Reviewed exclusions are applied before runs are merged.
     </p>
     ${loaded ? overviewTable(overview, failureCount) : `
       <button type="button" data-load-overview>
-        Load and merge all ${esc(availableCount)} campus runs</button>
+        Load and merge ${esc(includedCount)} selected campus runs</button>
       <p data-overview-status>Nothing is loaded yet.</p>`}`;
 }
 

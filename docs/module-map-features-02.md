@@ -4,6 +4,9 @@
 E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 
 ## report-player/
+- report-sections 33/1397 T+ E renderDynamicSections
+  - I comparison-view, direction-view, heatmap-view, kpi-view, methodology-view, no-position-view, report-insights-view, report-warning-view
+- report-series-view 129/5499 T+ E renderReportSeries I @s/format, report-chart-svg
 - report-shell 119/5416 T+ E renderLoadPanel, renderReportShell, requiresPrivateAreaAccess
   - I comparison-view, direction-view, floor-route-view, heatmap-view, identity-view, kpi-view, map-access, methodology-view, no-position-view, playback-view,
     report-insights-view, report-warning-view
@@ -100,6 +103,3 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - setup-init 28/1289 T- E initializeRunnerSetup I loader
 - setup-map 22/998 T+ E drawRunnerSelection
 - setup 143/4133 T+ E createRunnerSetup I definition-upload, entry, loader, poll-loop, preflight, runner-mode, setup-clear, setup-init, setup-map
-- survey-runner 143/5738 T+ E RUNNER_THREE_D, mountSurveyRunner
-  - I @a/map/mazemap, @a/memory-credentials, @a/positioning/mazemap-cloud-v3, dynamic-room-start, dynamic-room-view, form-view, map-3d-toggle,
-    note-controller, planned-run-start, result-download, result-upload, run-view, runner-preflight-action, runner-start-gate, setup

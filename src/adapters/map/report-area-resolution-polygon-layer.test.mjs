@@ -2,7 +2,7 @@
 // SURFACE:      node --test src/adapters/map/report-area-resolution-polygon-layer.test.mjs
 // WHY TOGETHER: Polygon geometry, percentage properties, and continuous paint share one contract.
 // STATE:        In-memory map sources
-// RULES:        Scored areas interpolate red-to-green; unscored areas stay neutral.
+// RULES:        Issue areas interpolate red-to-green; clean and unscored areas stay hidden.
 // PROVENANCE:   Dynamic room and long-corridor area resolution
 
 import assert from "node:assert/strict";

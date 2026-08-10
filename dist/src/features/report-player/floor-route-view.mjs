@@ -99,14 +99,15 @@ export function renderFloorRouteView(result, {
     : "Position error beyond the selected distance"}
       </span>
       <span class="map-room-legend" data-highlight-legend="room" hidden>
-        Whole-area majority verdict:
-        <i class="area-good" aria-hidden="true"></i> green = majority inside
-        <i class="area-mixed" aria-hidden="true"></i> amber = exact split / mixed
-        <i class="area-bad" aria-hidden="true"></i> red = majority outside
+        Whole-area resolved percentage:
+        <i class="area-scale" aria-hidden="true"></i>
+        red = 0% · amber = 50% · green = 100%
         <i class="area-unscored" aria-hidden="true"></i> grey = unscored
-        · room ring = Cisco at end of the 20 s / available dwell window
-        · corridor ring = one raw Cisco fix per walking checkpoint
-        · thin dashed line = room endpoint outside drift · no corridor connector lines
+        · <i class="expected-position" aria-hidden="true"></i> orange = surveyed position
+        · <i class="cisco-position" aria-hidden="true"></i> blue = raw Cisco position returned
+        (room window endpoint or corridor checkpoint)
+        · green/red/orange rim = inside/outside/wrong floor
+        · blue dotted connector = same-floor expected → raw displacement
         · catch-up states stay in report detail
       </span>
       ${consolidated ? "" : `<span class="map-result-legend">

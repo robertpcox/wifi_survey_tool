@@ -1,8 +1,8 @@
 // FEATURE:      MazeMap area-resolution map evidence
 // SURFACE:      createReportAreaResolutionMapLayer(map, currentFloor)
-// WHY TOGETHER: Majority area fills and one representative raw Cisco fix form one overlay.
+// WHY TOGETHER: Percentage fills and paired expected-versus-Cisco evidence form one overlay.
 // STATE:        Four stable GeoJSON sources filtered by displayed floor
-// RULES:        Polygon verdict is primary; never expand transient catch-up states into failures.
+// RULES:        Pair every same-floor endpoint; never expand catch-up states into failures.
 // PROVENANCE:   Dynamic room and long-corridor area resolution
 
 import { createGeoJsonLayerGroup } from "./geojson-layer-group.mjs";
@@ -15,36 +15,33 @@ const DEFINITIONS = [{
   source: "report-area-resolution-area",
   type: "fill",
   paint: {
-    "fill-color": ["match", ["get", "severity"],
-      "good", "#16a34a", "mixed", "#f59e0b",
-      "bad", "#dc2626", "#64748b"],
-    "fill-opacity": ["match", ["get", "severity"],
-      "good", 0.14, "mixed", 0.28, "bad", 0.36, 0.14],
-    "fill-outline-color": ["match", ["get", "severity"],
-      "good", "#15803d", "mixed", "#b45309",
-      "bad", "#991b1b", "#475569"],
+    "fill-color": resolutionColour(
+      "#b91c1c", "#d97706", "#15803d", "#64748b",
+    ),
+    "fill-opacity": ["case", ["boolean", ["get", "scored"], false], 0.5, 0.18],
+    "fill-outline-color": resolutionColour(
+      "#7f1d1d", "#92400e", "#166534", "#475569",
+    ),
   },
 }, {
   id: "report-area-resolution-truth-lyr",
   source: "report-area-resolution-truth",
   type: "circle",
   paint: {
-    "circle-color": ["match", ["get", "verdict"],
-      "inside", "#16a34a", "outside", "#dc2626",
-      "wrong-floor", "#f97316", "no-position", "#64748b", "#94a3b8"],
-    "circle-radius": ["match", ["get", "verdict"], "inside", 2.5, 4],
-    "circle-stroke-color": "#ffffff",
-    "circle-stroke-width": 1.5,
-    "circle-opacity": 0.55,
+    "circle-color": "#f59e0b",
+    "circle-radius": 4,
+    "circle-stroke-color": verdictColour(),
+    "circle-stroke-width": 2,
+    "circle-opacity": 0.92,
   },
 }, {
   id: "report-area-resolution-drift-lyr",
   source: "report-area-resolution-drift",
   type: "line",
   paint: {
-    "line-color": "#dc2626",
+    "line-color": "#2563eb",
     "line-width": 1.5,
-    "line-opacity": 0.3,
+    "line-opacity": 0.48,
     "line-dasharray": [2, 2],
   },
 }, {
@@ -52,15 +49,29 @@ const DEFINITIONS = [{
   source: "report-area-resolution-cisco",
   type: "circle",
   paint: {
-    "circle-color": "#ffffff",
-    "circle-radius": 4,
-    "circle-stroke-color": ["match", ["get", "verdict"],
-      "inside", "#16a34a", "outside", "#dc2626",
-      "wrong-floor", "#f97316", "no-position", "#64748b", "#94a3b8"],
+    "circle-color": "#2563eb",
+    "circle-radius": 4.5,
+    "circle-stroke-color": verdictColour(),
     "circle-stroke-width": 2,
-    "circle-opacity": 0.82,
+    "circle-opacity": 0.95,
   },
 }];
+
+function resolutionColour(red, amber, green, unscored) {
+  return ["case",
+    ["boolean", ["get", "scored"], false],
+    ["interpolate", ["linear"],
+      ["to-number", ["get", "resolutionPercent"], 0],
+      0, red, 50, amber, 100, green],
+    unscored];
+}
+
+function verdictColour() {
+  return ["match", ["get", "verdict"],
+    "inside", "#16a34a", "outside", "#dc2626",
+    "wrong-floor", "#f97316", "no-position", "#64748b", "#94a3b8"];
+}
+
 export function createReportAreaResolutionMapLayer(map, currentFloor) {
   const group = createGeoJsonLayerGroup(map, DEFINITIONS, currentFloor);
 

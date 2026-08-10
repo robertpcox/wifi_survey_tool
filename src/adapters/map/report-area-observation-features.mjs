@@ -1,8 +1,8 @@
-// FEATURE:      Low-clutter raw Cisco area observation features
+// FEATURE:      Paired expected and raw Cisco area observation features
 // SURFACE:      areaObservationFeatures(observation)
-// WHY TOGETHER: One visit endpoint ring and its optional room connector share one verdict.
+// WHY TOGETHER: One expected point, raw fix, and connector share one observation identity.
 // STATE:        None
-// RULES:        Never draw every catch-up state or corridor connector spaghetti.
+// RULES:        Pair every same-floor endpoint; never invent a raw fix or cross floors.
 // PROVENANCE:   Room/corridor area-resolution map
 
 export function areaObservationFeatures(observation) {
@@ -23,7 +23,7 @@ export function areaObservationFeatures(observation) {
       resolvedAreaName: representative.moment.room?.name ?? null,
     },
   )] : [];
-  return { truth, cisco, line: driftLine(observation, representative, shared) };
+  return { truth, cisco, line: pairLine(observation, representative, shared) };
 }
 
 function observationProperties(observation) {
@@ -58,16 +58,15 @@ function representativeMoment(observation) {
   } : null;
 }
 
-function driftLine(observation, representative, shared) {
+function pairLine(observation, representative, shared) {
   const point = representative?.moment?.point;
-  if (observation.observationKind === "corridor-point" || !point
-      || momentVerdict(representative.moment) !== "outside"
-      || Number(observation.target.z) !== Number(point.z)) return [];
+  if (!point || Number(observation.target.z) !== Number(point.z)) return [];
+  const verdict = momentVerdict(representative.moment);
   return [{
     type: "Feature",
     properties: {
-      ...shared, z: observation.target.z,
-      phase: representative.phase, verdict: "outside",
+      ...shared, z: observation.target.z, markerRole: "expected-cisco-connector",
+      phase: representative.phase, verdict,
     },
     geometry: { type: "LineString", coordinates: [
       [observation.target.lng, observation.target.lat], [point.lng, point.lat],

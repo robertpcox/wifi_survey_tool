@@ -1,8 +1,8 @@
-// FEATURE:      Low-clutter raw Cisco area observation features
+// FEATURE:      Paired expected and raw Cisco area observation features
 // SURFACE:      node --test src/adapters/map/report-area-observation-features.test.mjs
-// WHY TOGETHER: Window endpoint and corridor sample selection form one raw-ring contract.
+// WHY TOGETHER: Window endpoints and corridor samples share one paired-evidence contract.
 // STATE:        Synthetic scored observations
-// RULES:        Never substitute the majority representative for a missing dwell endpoint.
+// RULES:        Same-floor fixes connect; missing and wrong-floor fixes never do.
 // PROVENANCE:   Room/corridor area-resolution map
 
 import assert from "node:assert/strict";
@@ -32,5 +32,22 @@ test("a corridor checkpoint uses its one primary raw Cisco sample", () => {
   });
   assert.equal(features.cisco.length, 1);
   assert.equal(features.cisco[0].properties.phase, "sample");
+  assert.equal(features.line.length, 1);
+  assert.equal(features.line[0].properties.verdict, "inside");
+  assert.deepEqual(features.line[0].geometry.coordinates, [
+    [point.lng, point.lat], [point.lng, point.lat],
+  ]);
+});
+
+test("wrong-floor raw Cisco evidence stays on its reported floor without a connector", () => {
+  const features = areaObservationFeatures({
+    resultId: "run", checkpointId: "floor", observationKind: "corridor-point",
+    target: point, expectedRoom: { name: "Corridor" }, scored: true, resolved: false,
+    primary: {
+      status: "wrong-floor", point: { lng: 170.6, lat: -45.8, z: 3 },
+    },
+  });
+  assert.equal(features.cisco[0].properties.z, 3);
+  assert.equal(features.truth.properties.z, 2);
   assert.equal(features.line.length, 0);
 });

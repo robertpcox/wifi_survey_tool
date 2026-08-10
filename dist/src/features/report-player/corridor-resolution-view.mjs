@@ -15,12 +15,13 @@ export function renderCorridorResolution(summary) {
   return `<section class="corridor-resolution-report">
     <div class="section-heading"><div><h4>Corridor walking samples</h4>
       <p>Each intermediate mark contributes one raw Cisco containment sample.
-        The whole corridor colour shows the majority outcome across those samples.</p>
+        The whole corridor colour shows the exact resolved percentage across
+        those samples on the red-to-green scale.</p>
     </div><p>${esc(summary.sampleCount)} samples</p></div>
     <div class="room-resolution-kpis corridor-resolution-kpis">
       ${card("Inside expected area", rate(summary.resolutionPercent), `${summary.scoredSampleCount} scored`)}
       ${card("Outside expected area", summary.failedSampleCount, "raw Cisco point outside polygon")}
-      ${card("Inside samples", summary.resolvedSampleCount, "green points on the map")}
+      ${card("Inside samples", summary.resolvedSampleCount, "raw Cisco point inside polygon")}
       ${card("Unscored", summary.unscoredSampleCount, "missing polygon or lookup")}
     </div>
     ${corridorGraph(summary)}

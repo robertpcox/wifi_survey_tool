@@ -82,7 +82,7 @@ test("ready view renders corridor-only area evidence", () => {
   } });
   assert.match(html, /No eligible room stop\/dwell evidence/);
   assert.match(html, /Corridor walking samples/);
-  assert.match(html, /whole corridor colour shows the majority outcome/);
+  assert.match(html, /whole corridor colour shows the exact resolved percentage/);
   assert.match(html, /Outside expected area/);
   assert.match(html, /Ward corridor/);
   assert.match(html, /Reverse/);

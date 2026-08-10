@@ -26,9 +26,10 @@ export function renderRoomResolutionView({ status, summary, error = null }) {
       <p>Each room visit observes raw Cisco for up to 20 seconds and uses the
         majority of scored time for one visit verdict. Corridors use repeated
         walking marks. Catch-up states remain timing evidence, not extra failed
-        visits. Area fill shows the majority verdict; one hollow ring shows Cisco
-        at the end of the 20 s or available dwell window. Snap-to-path never
-        enters either score.</p>
+        visits. Area fill shows the exact resolved percentage. Orange points show
+        surveyed positions; blue points show raw Cisco at each corridor mark or
+        at the end of the 20 s / available room window. Dotted lines show their
+        same-floor displacement. Snap-to-path never enters either score.</p>
     </header>
     ${summary.visitCount ? `${summaryCards(summary)}${issueGraph(summary)}
       ${roomTable(summary)}${renderRoomResolutionEvidence(summary)}` : roomEmpty()}

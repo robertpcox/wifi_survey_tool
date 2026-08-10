@@ -38,18 +38,25 @@
   box-shadow: 0 0 0 3px rgb(100 116 139 / 18%);
 }
 
-.map-room-legend i.area-good,
-.map-room-legend i.area-mixed,
-.map-room-legend i.area-bad,
+.map-room-legend i.area-scale,
 .map-room-legend i.area-unscored {
   border-radius: 0.15rem;
   box-shadow: none;
 }
 
-.map-room-legend i.area-good { background: #16a34a; }
-.map-room-legend i.area-mixed { background: #f59e0b; }
-.map-room-legend i.area-bad { background: #dc2626; }
+.map-room-legend i.area-scale {
+  width: 5rem;
+  background: linear-gradient(90deg, #b91c1c 0%, #d97706 50%, #15803d 100%);
+}
 .map-room-legend i.area-unscored { background: #64748b; }
+
+.map-room-legend i.expected-position,
+.map-room-legend i.cisco-position {
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #dc2626;
+}
+.map-room-legend i.expected-position { background: #f59e0b; }
+.map-room-legend i.cisco-position { background: #2563eb; }
 
 .room-resolution-empty,
 .room-resolution-report {

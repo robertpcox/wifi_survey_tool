@@ -70,14 +70,20 @@ test("consolidated freeze mode describes continuous weighted path linework", () 
   });
   assert.match(html, /Path sections that froze/);
   assert.match(html, /Walked path freeze · thicker\/darker = more seconds/);
-  assert.match(html, /Whole-area majority verdict:/);
-  assert.match(html, /green = majority inside/);
-  assert.match(html, /amber = exact split \/ mixed/);
-  assert.match(html, /red = majority outside/);
+  assert.match(html, /Whole-area resolved percentage:/);
+  assert.match(html, /red = 0% · amber = 50% · green = 100%/);
   assert.match(html, /grey = unscored/);
-  assert.match(html, /room ring = Cisco at end of the 20 s \/ available dwell window/);
-  assert.match(html, /corridor ring = one raw Cisco fix per walking checkpoint/);
-  assert.match(html, /no corridor connector lines/);
+  assert.match(html, /orange = surveyed position/);
+  assert.match(html, /blue = raw Cisco position returned/);
+  assert.match(html, /room window endpoint or corridor checkpoint/);
+  assert.match(html, /green\/red\/orange rim = inside\/outside\/wrong floor/);
+  assert.match(html, /blue dotted connector = same-floor expected → raw displacement/);
   assert.match(html, /catch-up states stay in report detail/);
   assert.doesNotMatch(html, /background heat = repeated failed samples/);
+});
+
+test("area legend renders the same red-amber-green scale as the polygon layer", async () => {
+  const css = await readFile(new URL("room-resolution.css", import.meta.url), "utf8");
+  assert.match(css,
+    /linear-gradient\(90deg, #b91c1c 0%, #d97706 50%, #15803d 100%\)/);
 });

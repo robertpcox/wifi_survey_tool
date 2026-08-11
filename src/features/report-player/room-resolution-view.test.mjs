@@ -25,6 +25,11 @@ test("view clearly reports when private level polygons were not authorized", () 
 });
 
 test("ready view renders stationary KPIs, graph, room rank, and evidence", () => {
+  const matchedRooms = Array.from({ length: 21 }, (_, index) => ({
+    name: `North matched room ${index + 1}`, runCount: 1,
+    visits: 1, resolved: 1, failures: 0, unscored: 0,
+    settled: 0, drifted: 0, stuck: 0,
+  }));
   const observation = {
     checkpointId: "checkpoint-1",
     roomLabel: "Clinic",
@@ -38,7 +43,7 @@ test("ready view renders stationary KPIs, graph, room rank, and evidence", () =>
     },
   };
   const html = renderRoomResolutionView({ status: "ready", summary: {
-    runCount: 4, visitCount: 1, scoredVisitCount: 1, resolvedVisitCount: 0,
+    runCount: 4, visitCount: 22, scoredVisitCount: 22, resolvedVisitCount: 21,
     failedVisitCount: 1, resolutionPercent: 0,
     settledDuringDwellCount: 0, stuckAtDwellEndCount: 1,
     primaryFailures: {
@@ -47,7 +52,7 @@ test("ready view renders stationary KPIs, graph, room rank, and evidence", () =>
     rooms: [{
       name: "Clinic", runCount: 1, visits: 1, resolved: 0,
       failures: 1, unscored: 0, settled: 0, stuck: 1,
-    }],
+    }, ...matchedRooms],
     observations: [observation],
   } });
   assert.match(html, /observes raw Cisco for up to 20 seconds/);
@@ -55,6 +60,7 @@ test("ready view renders stationary KPIs, graph, room rank, and evidence", () =>
   assert.match(html, /One majority verdict and timing outcome/);
   assert.match(html, /4 contributing runs/);
   assert.match(html, /Room majority outcomes and timing/);
+  assert.match(html, /North matched room 21/);
   assert.match(html, /No eligible intermediate checkpoints/);
   assert.match(html, /Corridor/);
   assert.match(html, /Phone &lt;one&gt;/);

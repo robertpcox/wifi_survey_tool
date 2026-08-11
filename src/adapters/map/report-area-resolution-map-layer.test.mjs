@@ -27,10 +27,18 @@ test("area map hides inside pairs and retains only outside displacement", () => 
       status: "wrong-room", point: { lng: 170.55, lat: -45.8, z: 2 },
       room: { id: "other-room", name: "Other room" },
     },
+  }], areaPolygons: [{
+    areaKey: "north-room", areaName: "North matched room", z: 2,
+    geometry: { type: "Polygon", coordinates: [] },
+    scoredSampleCount: 1, insideSampleCount: 1, outsideSampleCount: 0,
+    resolutionPercent: 100,
   }] }), 1);
   const truth = features(harness, "report-area-resolution-truth");
   const cisco = features(harness, "report-area-resolution-cisco");
   const drift = features(harness, "report-area-resolution-drift");
+  const areas = features(harness, "report-area-resolution-area");
+  assert.equal(areas.length, 1, "matched room stays visible without its successful dot");
+  assert.equal(areas[0].properties.resolutionPercent, 100);
   assert.deepEqual(truth.map(item => item.properties.verdict), ["outside"]);
   assert.deepEqual(cisco.map(item => item.properties.verdict), ["outside"]);
   assert.equal(cisco[0].properties.resolvedAreaName, "Other room");

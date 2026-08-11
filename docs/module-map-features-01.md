@@ -70,7 +70,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - comparison-view 108/4465 T+ E bindComparisonAdd, renderComparisonView I @s/format, all-runs
 - corridor-resolution-view 104/4610 T- E renderCorridorResolution I @s/format
 - direction-view 129/5536 T+ E renderDirectionView I @d/report-direction-overlay, @s/format, report-chart-svg
-- floor-route-view 145/6657 T+ E renderFloorRouteView I @s/format
+- floor-route-view 146/6695 T+ E renderFloorRouteView I @s/format
 - heatmap-view 65/2314 T+ E renderHeatmapView I @s/format
 - identity-view 75/2867 T+ E renderIdentityView I @s/format
 - kpi-view 72/3306 T+ E renderKpiView I @s/format

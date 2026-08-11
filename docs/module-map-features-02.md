@@ -23,7 +23,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - room-resolution-loader 141/5504 T+ E createRoomResolutionLoader
   - I @d/report-area-summary, @d/report-corridor-observation, @d/report-corridor-summary, @d/report-room-geometry, @d/report-room-observation,
     @d/report-room-resolution, @d/report-room-summary, bounded-map, room-resolution-catalog
-- room-resolution-view 125/6242 T+ E renderRoomResolutionView I @s/format, corridor-resolution-view, room-resolution-evidence-view
+- room-resolution-view 122/6120 T+ E renderRoomResolutionView I @s/format, corridor-resolution-view, room-resolution-evidence-view
 - room-resolution.css 144/4001 T-
 - timeline-view 129/4181 T+ E renderTimelineView, reportTimelineItems I @s/format
 ## runner/

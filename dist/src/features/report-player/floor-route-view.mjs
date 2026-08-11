@@ -100,13 +100,14 @@ export function renderFloorRouteView(result, {
     : "Position error beyond the selected distance"}
       </span>
       <span class="map-room-legend" data-highlight-legend="room" hidden>
-        Areas with one or more failures · resolved percentage:
+        Scored room/corridor areas · resolved percentage:
         <i class="area-scale" aria-hidden="true"></i>
         red = 0% · amber = 50% · green = 100%
         · <i class="expected-position" aria-hidden="true"></i> orange = surveyed position
         · <i class="cisco-position" aria-hidden="true"></i> blue = raw Cisco position returned
         (room window endpoint or corridor checkpoint)
-        · only outside/wrong-floor blue dots are shown; successful dots are hidden
+        · matched areas remain green; only outside/wrong-floor blue dots are shown
+        · successful blue dots are hidden
         · red/orange rim = outside/wrong floor
         · blue dotted connector = same-floor expected → raw displacement
         · no-fix and catch-up states stay in report detail

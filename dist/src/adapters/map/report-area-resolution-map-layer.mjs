@@ -1,6 +1,6 @@
 // FEATURE:      MazeMap area-resolution map evidence
 // SURFACE:      createReportAreaResolutionMapLayer(map, currentFloor)
-// WHY TOGETHER: Issue-area fills and failed expected-versus-Cisco pairs form one overlay.
+// WHY TOGETHER: Scored-area fills and failed expected-versus-Cisco pairs form one overlay.
 // STATE:        Four stable GeoJSON sources filtered by displayed floor
 // RULES:        Draw only displayed raw fixes outside truth; keep all evidence in report scores.
 // PROVENANCE:   Dynamic room and long-corridor area resolution

@@ -95,10 +95,7 @@ function issueGraph(summary) {
   </figure>`;
 }
 function roomTable(summary) {
-  const rows = summary.rooms
-    .filter(room => room.failures || room.unscored || room.settled
-      || room.drifted || room.stuck)
-    .slice(0, 20);
+  const rows = summary.rooms;
   return `<div class="room-resolution-table">
     <h4>Room majority outcomes and timing</h4>
     <div class="report-table-scroll"><table><thead><tr>
@@ -110,7 +107,7 @@ function roomTable(summary) {
       <td>${esc(room.resolved)}</td><td>${esc(room.failures)}</td>
       <td>${esc(room.unscored)}</td><td>${esc(room.settled)}</td>
       <td>${esc(room.drifted ?? 0)}</td><td>${esc(room.stuck)}</td>
-    </tr>`).join("") || '<tr><td colspan="9">No room failures.</td></tr>'}
+    </tr>`).join("") || '<tr><td colspan="9">No room outcomes.</td></tr>'}
     </tbody></table></div>
   </div>`;
 }

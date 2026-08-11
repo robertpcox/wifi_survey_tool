@@ -2,7 +2,7 @@
 // SURFACE:      node --test src/adapters/map/report-area-resolution-polygon-layer.test.mjs
 // WHY TOGETHER: Polygon geometry, percentage properties, and continuous paint share one contract.
 // STATE:        In-memory map sources
-// RULES:        Issue areas interpolate red-to-green; clean and unscored areas stay hidden.
+// RULES:        Every scored area interpolates red-to-green; unscored geometry stays hidden.
 // PROVENANCE:   Dynamic room and long-corridor area resolution
 
 import assert from "node:assert/strict";
@@ -31,12 +31,18 @@ test("area layer fills Polygon and MultiPolygon areas on a continuous percentage
     geometry: multiPolygon, severity: "bad", observationCount: 2,
     scoredSampleCount: 2, insideSampleCount: 0, outsideSampleCount: 2,
     resolutionPercent: 0, runCount: 1,
+  }, {
+    areaKey: "poi:north:z:2", poiId: "north", areaName: "North room", z: 2,
+    geometry: polygon, severity: "good", observationCount: 3,
+    scoredSampleCount: 3, insideSampleCount: 3, outsideSampleCount: 0,
+    resolutionPercent: 100, runCount: 1,
   }] });
   const areas = features(harness, "report-area-resolution-area");
-  assert.deepEqual(areas.map(item => item.geometry.type), ["Polygon", "MultiPolygon"]);
-  assert.deepEqual(areas.map(item => item.properties.resolutionPercent), [75, 0]);
-  assert.deepEqual(areas.map(item => item.properties.scored), [true, true]);
-  assert.deepEqual(areas.map(item => item.properties.z), [2, 3]);
+  assert.deepEqual(areas.map(item => item.geometry.type),
+    ["Polygon", "MultiPolygon", "Polygon"]);
+  assert.deepEqual(areas.map(item => item.properties.resolutionPercent), [75, 0, 100]);
+  assert.deepEqual(areas.map(item => item.properties.scored), [true, true, true]);
+  assert.deepEqual(areas.map(item => item.properties.z), [2, 3, 2]);
   assert.equal(areas[0].geometry, polygon);
   const fill = harness.layers.get("report-area-resolution-area-lyr");
   assert.equal(fill.type, "fill");

@@ -36,8 +36,8 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - player-map-features 150/5779 T+ E buildPlayerFeatureCollections I map-geojson, note-features, player-fix-history, player-live-raw-fix
 - player-map-layers 53/1823 T+ E createPlayerMapLayers I evidence-interactions, geojson-layer-group, player-layer-definitions, player-map-features
 - report-area-observation-features 106/4338 T+ E areaObservationFeatures, isDisplayedAreaFailure
-- report-area-polygon-features 65/2235 T+ E areaPolygonFeatures, presentationResolutionPercent
-- report-area-resolution-map-layer 95/3239 T+ E createReportAreaResolutionMapLayer
+- report-area-polygon-features 57/1944 T+ E areaPolygonFeatures, presentationResolutionPercent
+- report-area-resolution-map-layer 95/3240 T+ E createReportAreaResolutionMapLayer
   - I geojson-layer-group, report-area-observation-features, report-area-polygon-features
 - report-concern-map-layer 102/3059 T+ E createReportConcernMapLayer I evidence-interactions, geojson-layer-group
 - report-map-layers 148/4477 T+ E createReportMapLayers I geojson-layer-group, map-layer-order, note-features

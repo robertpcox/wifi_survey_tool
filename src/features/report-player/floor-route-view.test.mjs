@@ -71,13 +71,14 @@ test("consolidated freeze mode describes continuous weighted path linework", () 
   assert.match(html, /Path sections that froze/);
   assert.match(html, /data-module="runSelection"/);
   assert.match(html, /Walked path freeze · thicker\/darker = more seconds/);
-  assert.match(html, /Areas with one or more failures · resolved percentage:/);
+  assert.match(html, /Scored room\/corridor areas · resolved percentage:/);
   assert.match(html, /red = 0% · amber = 50% · green = 100%/);
   assert.match(html, /orange = surveyed position/);
   assert.match(html, /blue = raw Cisco position returned/);
   assert.match(html, /room window endpoint or corridor checkpoint/);
+  assert.match(html, /matched areas remain green/);
   assert.match(html, /only outside\/wrong-floor blue dots are shown/);
-  assert.match(html, /successful dots are hidden/);
+  assert.match(html, /successful blue dots are hidden/);
   assert.match(html, /red\/orange rim = outside\/wrong floor/);
   assert.match(html, /blue dotted connector = same-floor expected → raw displacement/);
   assert.match(html, /no-fix and catch-up states stay in report detail/);

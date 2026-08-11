@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  mazeMapZ,
   normalizeCampusId,
   numericZ,
   waitForMapLoad,
@@ -12,6 +13,8 @@ test("runtime normalizes campus and floor identifiers", () => {
   assert.throws(() => normalizeCampusId(-1), /positive integer/);
   assert.equal(numericZ("3"), 3);
   assert.equal(numericZ("no floor"), null);
+  assert.equal(mazeMapZ(0, null, 3), 3);
+  assert.equal(mazeMapZ(undefined), 1);
 });
 
 test("map load resolves on load and rejects SDK errors or timeout", async () => {

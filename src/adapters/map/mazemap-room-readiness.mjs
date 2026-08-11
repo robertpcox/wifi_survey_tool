@@ -39,11 +39,26 @@ export function createMazeMapRoomReadiness({
 }
 
 export async function waitForRenderedMazeMap({ map, scheduleFrame, timeoutMs = 10000 }) {
+  if (typeof map?.campuses?.onceWhenLoaded === "function") {
+    await waitFor(map.campuses.onceWhenLoaded(), timeoutMs,
+      "MazeMap campus layers did not finish loading");
+  }
   if (map?.isMoving?.() === true) await waitForIdle(map, timeoutMs);
   const frame = scheduleFrame
     ?? globalThis.requestAnimationFrame
     ?? (callback => queueMicrotask(callback));
   await new Promise(resolve => frame(() => frame(resolve)));
+}
+
+function waitFor(work, timeoutMs, message) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(message)), timeoutMs);
+    Promise.resolve(work).then(value => {
+      clearTimeout(timer); resolve(value);
+    }, error => {
+      clearTimeout(timer); reject(error);
+    });
+  });
 }
 
 function waitForIdle(map, timeoutMs) {

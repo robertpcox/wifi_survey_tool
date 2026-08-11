@@ -30,6 +30,9 @@ test("bulk room POIs wait for a tokened loaded and rendered map", async () => {
   state.lifecycle.push("map:load");
   state.map.emit("load");
   await launch;
+  assert.equal(state.mapOptions.zLevel, 1);
+  assert.deepEqual(state.setZLevels, [1]);
+  assert.equal(state.map.getZLevel(), 1);
   assert.deepEqual(state.cameras, [], "the explicit runtime center is preserved");
   assert.deepEqual(state.lifecycle.slice(0, 6), [
     "token", "map:new", "map:load", "data:campus", "data:floors", "data:buildings",
@@ -55,10 +58,12 @@ test("bulk room POIs wait for a tokened loaded and rendered map", async () => {
 });
 
 function harness() {
-  const state = { lifecycle: [], clicks: [], getPoisCalls: [], cameras: [], map: null };
+  const state = { lifecycle: [], clicks: [], getPoisCalls: [], cameras: [],
+    setZLevels: [], map: null, mapOptions: null };
   class Map {
-    constructor() {
+    constructor(options) {
       state.lifecycle.push("map:new");
+      state.mapOptions = options;
       state.map = this;
       this.events = new globalThis.Map();
       this.layers = new globalThis.Map();
@@ -68,7 +73,8 @@ function harness() {
     on(name, callback) { this.events.set(name, callback); }
     once(name, callback) { this.events.set(name, callback); }
     emit(name) { this.events.get(name)?.(); }
-    getZLevel() { return 0; }
+    getZLevel() { return this.zLevel; }
+    setZLevel(value) { this.zLevel = value; state.setZLevels.push(value); }
     getZoom() { return 18; }
     getLayer(id) { return this.layers.get(id); }
     addLayer(layer) { this.layers.set(layer.id, layer); }

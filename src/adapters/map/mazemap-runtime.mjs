@@ -11,6 +11,10 @@ export function numericZ(value) {
   return Number.isFinite(number) ? number : null;
 }
 
+export function mazeMapZ(...values) {
+  return values.map(numericZ).find(value => value > 0) ?? 1;
+}
+
 export function waitForMapLoad(map, timeoutMs) {
   return new Promise((resolve, reject) => {
     let settled = false;

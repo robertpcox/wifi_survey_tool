@@ -27,12 +27,12 @@ test("no-token launch attempts a real campus map with meta and route fallback", 
         { lng: 170.7, lat: -45.3, z: 1 },
       ] }],
     },
-  }), 0);
+  }), 1);
   assert.equal(state.sdkLoads, 1);
   assert.deepEqual(state.tokens, []);
   assert.equal(adapter.campusId, 777);
   assert.equal(adapter.campusName, "Meta Campus");
-  assert.equal(state.map.options.container, state.container);
+  assert.equal(state.map.options.container, state.container); assert.equal(state.map.options.zLevel, 1);
   assert.equal("threeD" in state.map.options, false);
   assert.ok(Math.abs(state.map.options.center[0] - 170.4) < 1e-12);
   assert.ok(Math.abs(state.map.options.center[1] + 45.6) < 1e-12);

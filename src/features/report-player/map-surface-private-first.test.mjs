@@ -25,13 +25,15 @@ test("private access can be the first launch without touching public MazeMap", a
   });
   const outcome = await surface.retryAccess("private-first");
   assert.equal(outcome.status, "ready");
-  assert.deepEqual(launches, ["private-first"]);
+  assert.deepEqual(launches, [{ access: "private-first", zLevel: 0 }]);
   assert.equal(surface.mapMode, "mazemap");
 });
 
 function adapter(launches) {
   return {
-    launch: async token => { launches.push(token); return 1; },
+    launch: async (token, _click, runtime) => {
+      launches.push({ access: token, zLevel: runtime.zLevel }); return 1;
+    },
     drawRoute() {}, drawStops() {}, drawWaypoints() {}, drawReportHeat() {},
     fitRoute() {}, resizeMapSoon() {}, setMapZLevel() {}, setViewMode() {},
     getMapZLevel: () => 1,

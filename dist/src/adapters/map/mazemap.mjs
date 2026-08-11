@@ -12,7 +12,7 @@ import { createMapControls } from "./mazemap-controls.mjs";
 import { classifyMazeMapLaunchError } from "./mazemap-errors.mjs";
 import { campusForLaunch, createLoadedMazeMap, launchCenter, resolveLaunchContainer }
   from "./mazemap-launch.mjs";
-import { normalizeCampusId, numericZ } from "./mazemap-runtime.mjs";
+import { mazeMapZ, normalizeCampusId, numericZ } from "./mazemap-runtime.mjs";
 import { resolveMazemapSdk } from "./mazemap-sdk.mjs";
 import { createMazeMapQueries } from "./mazemap-queries.mjs";
 import { createMazeMapRoomReadiness } from "./mazemap-room-readiness.mjs";
@@ -30,8 +30,7 @@ export function createMazeMapAdapter(options = {}) {
   const threeD = createMazeMap3dState(options.threeD, options.threeDPitch);
   const floorControl = createMazeMapFloorControl(options.floorControl);
   const roomReadiness = createMazeMapRoomReadiness({
-    scheduleFrame: options.requestAnimationFrame, timeoutMs: options.mapLoadTimeoutMs,
-  });
+    scheduleFrame: options.requestAnimationFrame, timeoutMs: options.mapLoadTimeoutMs });
   const controls = createMapControls({
     currentZ: () => currentZLevel,
     focusPitch: () => threeD.pitch,
@@ -41,8 +40,7 @@ export function createMazeMapAdapter(options = {}) {
     setCurrentZ: value => { currentZLevel = value; },
   });
   const shared = createMazeMapSharedBoundary({ setFloor });
-  const queries = createMazeMapQueries(resolveSdk, () => activeCatalog,
-    () => campusId, () => map, roomReadiness.wait);
+  const queries = createMazeMapQueries(resolveSdk, () => activeCatalog, () => campusId, () => map, roomReadiness.wait);
   async function resolveSdk() {
     Mazemap = await resolveMazemapSdk(Mazemap, options);
     return Mazemap;
@@ -64,6 +62,7 @@ export function createMazeMapAdapter(options = {}) {
       const sdk = await resolveSdk();
       const nextCampusId = normalizeCampusId(runtime.campusId ?? campusId);
       const center = launchCenter(runtime, options.center);
+      const requestedZ = mazeMapZ(runtime.zLevel, currentZLevel);
       const preserveCenter = runtime.center || runtime.route || options.center;
       phase = "token-config";
       if (token) {
@@ -78,7 +77,7 @@ export function createMazeMapAdapter(options = {}) {
       layers = null;
       sharedLayers = null;
       phase = "map-load";
-      const mapOptions = threeD.mapOptions(container, nextCampusId, center);
+      const mapOptions = { ...threeD.mapOptions(container, nextCampusId, center), zLevel: requestedZ };
       map = await createLoadedMazeMap(sdk,
         floorControl.mapOptions(sdk, mapOptions), options.mapLoadTimeoutMs ?? 10000);
       phase = "catalog";
@@ -90,7 +89,8 @@ export function createMazeMapAdapter(options = {}) {
       campusId = nextCampusId; campusName = activeCatalog.name;
       threeD.apply(map);
       floorControl.attach(sdk, map);
-      currentZLevel = numericZ(controls.getMapZLevel()) ?? 1;
+      currentZLevel = mazeMapZ(runtime.zLevel, controls.getMapZLevel(), requestedZ);
+      controls.setMapZLevel(currentZLevel);
       phase = "layer-init";
       layers = createMapLayers(map, () => currentZLevel);
       layers.ensureLayers();

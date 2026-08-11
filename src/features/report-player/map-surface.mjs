@@ -50,6 +50,7 @@ export function createReportMapSurface({
         campusName: result.meta.campusName,
         center: routeCenter(result.route),
         route: result.route,
+        zLevel: result.meta.zLevels[0],
         container: mapElement,
       });
       configureMap(launchedFloor);

@@ -94,7 +94,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - map-surface-layout 57/1748 T+ E createMapSurfaceLayout, routeCenter, routeForMapAnalysis, safelyCreateMap I map-fit-route
 - map-surface-visibility 21/830 T+ E createMapSurfaceVisibility
 - map-surface.css 150/3437 T+
-- map-surface 147/6301 T+ E createReportMapSurface
+- map-surface 148/6341 T+ E createReportMapSurface
   - I @a/map/mazemap-errors, map-fallback, map-floor-sync, map-model, map-rendering-status, map-surface-layout, map-surface-visibility, report-base-route
 - methodology-view 72/2866 T+ E buildAnalysisCsv, createAnalysisExports, createAnalysisSummary, downloadAnalysisExports, renderMethodologyView
   - I @s/format, analysis-export

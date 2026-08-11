@@ -25,12 +25,12 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - mazemap-poi-position 38/1187 T+ E poiCenter
 - mazemap-queries 101/3170 T+ E createMazeMapQueries I mazemap-catalog, mazemap-room-catalog, mazemap-room
 - mazemap-room-catalog 120/4242 T+ E loadMazeMapRoomCatalog I mazemap-floor-area, mazemap-poi-pages, mazemap-room
-- mazemap-room-readiness 60/2082 T- E createMazeMapRoomReadiness, waitForRenderedMazeMap
+- mazemap-room-readiness 75/2588 T+ E createMazeMapRoomReadiness, waitForRenderedMazeMap
 - mazemap-room 49/1757 T+ E mergeMazeMapRooms, normalizeMazeMapRoom
-- mazemap-runtime 38/1032 T+ E errorMessage, normalizeCampusId, numericZ, waitForMapLoad
+- mazemap-runtime 42/1134 T+ E errorMessage, mazeMapZ, normalizeCampusId, numericZ, waitForMapLoad
 - mazemap-sdk 78/2763 T+ E MAZEMAP_CSS_URL, MAZEMAP_JS_URL, loadMazemapSdk, resolveMazemapSdk
 - mazemap-shared-boundary 78/2384 T+ E createMazeMapSharedBoundary
-- mazemap 150/6609 T+ E createMazeMapAdapter
+- mazemap 150/6772 T+ E createMazeMapAdapter
   - I @d/route-contract, layers, map-resize, mazemap-3d, mazemap-controls, mazemap-errors, mazemap-floor-control, mazemap-launch, mazemap-queries,
     mazemap-room-readiness, mazemap-runtime, mazemap-sdk, mazemap-shared-boundary, shared-map-layers
 - note-features 37/1262 T+ E notePointFeatures

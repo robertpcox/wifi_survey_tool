@@ -90,7 +90,7 @@ test("launch configures private access before Map and loads catalog afterward", 
   assert.deepEqual([adapter.campusId, adapter.campusName], [777, "Runtime Campus"]);
   assert.deepEqual(state.lifecycle, ["config:runtime-secret", "map:new", "data:campus", "data:floors", "data:buildings"]);
   assert.deepEqual(state.map.options, {
-    container: "map", campuses: 777, zoom: 18, center: [170.508292, -45.872428],
+    container: "map", campuses: 777, zoom: 18, center: [170.508292, -45.872428], zLevel: 1,
     threeD: { animateWalls: true, show3dAssets: true },
   });
   assert.deepEqual(state.map.easyCamera, { center: [12, 22], duration: 0 });

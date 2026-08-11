@@ -4,12 +4,14 @@
 E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 
 ## report-player/
-- report-interactions 146/6257 T+ E bindReportInteractions, renderDynamicSections, renderPlayerFrame
-  - I @a/download, comparison-view, map-alert-view, map-highlight-controller, methodology-view, playback-view, report-collection-controller,
-    report-floor-controller, report-mode-controller, report-sections, report-warning-view, result-loader
+- report-insights-view 19/853 T+ E renderReportInsights I @d/report-insights, report-series-view, report-summary-view
+- report-insights.css 120/2108 T+
+- report-interactions 147/6333 T+ E bindReportInteractions, renderDynamicSections, renderPlayerFrame
+  - I @a/download, comparison-view, map-alert-view, map-highlight-controller, methodology-view, playback-view, render-report-map,
+    report-collection-controller, report-floor-controller, report-mode-controller, report-sections, report-warning-view, result-loader
 - report-mode-controller 94/3025 T+ E bindReportModes
 - report-player.css 148/3552 T+
-- report-player 123/4416 T+ E mountReportPlayer I map-access, map-surface, report-interactions, report-shell, report-store, result-loader
+- report-player 124/4491 T+ E mountReportPlayer I map-access, map-surface, report-interactions, report-shell, report-store, result-loader
 - report-sections 33/1397 T+ E renderDynamicSections
   - I comparison-view, direction-view, heatmap-view, kpi-view, methodology-view, no-position-view, report-insights-view, report-warning-view
 - report-series-view 129/5499 T+ E renderReportSeries I @s/format, report-chart-svg
@@ -24,9 +26,11 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - report-warnings.css 150/3658 T-
 - result-loader 123/4594 T+ E assertReportResult, campusRunEntries, comparisonEntries, loadSelectedResult, readUploadedResult, resultSelectionFromUrl
   - I @a/files, @d/survey-result-v3
-- room-resolution-catalog 120/4259 T+ E createCampusRoomCatalog, expectedCatalogRoom, knownRoomIndex, observedKnownRoom I @d/report-room-geometry
+- room-resolution-catalog-points 22/929 T- E cataloguePoints
+- room-resolution-catalog 150/5313 T+ E createCampusRoomCatalog, expectedCatalogRoom, knownRoomIndex, observedKnownRoom
+  - I @d/report-room-geometry, room-resolution-catalog-points
 - room-resolution-evidence-view 97/4099 T+ E renderRoomResolutionEvidence I @s/format
-- room-resolution-loader 141/5504 T+ E createRoomResolutionLoader
+- room-resolution-loader 141/5516 T+ E createRoomResolutionLoader
   - I @d/report-area-summary, @d/report-corridor-observation, @d/report-corridor-summary, @d/report-room-geometry, @d/report-room-observation,
     @d/report-room-resolution, @d/report-room-summary, bounded-map, room-resolution-catalog
 - room-resolution-view 132/6647 T+ E renderRoomResolutionView I @s/format, corridor-resolution-view, room-resolution-evidence-view
@@ -99,7 +103,3 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - run-view 149/5431 T+ E checkpointDistanceText, createRunnerRunView, targetName I @d/geometry, note-view, run-safety-view
 - runner-active.css 150/3140 T+ I runner-note.css, runner-safety.css
 - runner-entry.css 39/889 T-
-- runner-mode 18/737 T+ E DYNAMIC_SURVEY_ID, dynamicTemplateEntry, runnerModeForSelection
-- runner-note.css 57/1348 T-
-- runner-preflight-action 42/1579 T- E performRunnerPreflight I dynamic-room-preflight, preflight
-- runner-safety.css 73/1602 T+

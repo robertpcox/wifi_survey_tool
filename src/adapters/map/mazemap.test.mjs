@@ -10,11 +10,11 @@ import { createMazeMapAdapter } from "./mazemap.mjs";
 function mazemapHarness(mode = "load") {
   const state = {
     buildingsCalls: [], campusCalls: [], floorsCalls: [], layers: new Map(),
-    markers: [], poiAtCalls: [], sources: new Map(), tokens: [],
+    lifecycle: [], markers: [], poiAtCalls: [], sources: new Map(),
   };
   class FakeMap {
     constructor(options) {
-      state.map = this;
+      state.lifecycle.push("map:new"); state.map = this;
       this.options = options;
       this.zLevel = "2";
       this.zoom = 18;
@@ -50,21 +50,21 @@ function mazemapHarness(mode = "load") {
   }
   const poi = { properties: { buildingId: 51, zLevel: 3, poiId: 91 } };
   state.Mazemap = {
-    Config: { setMazemapViewToken: token => state.tokens.push(token) },
+    Config: { setMazemapViewToken: token => state.lifecycle.push(`config:${token}`) },
     Data: {
       async getCampus(id) {
-        state.campusCalls.push(id);
+        state.lifecycle.push("data:campus"); state.campusCalls.push(id);
         return {
           properties: { name: "Runtime Campus" },
           geometry: { coordinates: [[[10, 20], [14, 20], [14, 24], [10, 24]]] },
         };
       },
       async getBuildingsByCampusId(id) {
-        state.buildingsCalls.push(id);
+        state.lifecycle.push("data:buildings"); state.buildingsCalls.push(id);
         return [{ properties: { id: 51, name: "Library" } }];
       },
       async getFloorsByCampusId(id) {
-        state.floorsCalls.push(id);
+        state.lifecycle.push("data:floors"); state.floorsCalls.push(id);
         return [{ properties: { id: 61, z: 3, name: "Level Three" } }];
       },
       async getPoiAt(point, z) { state.poiAtCalls.push([point, z]); return poi; },
@@ -75,7 +75,7 @@ function mazemapHarness(mode = "load") {
   };
   return state;
 }
-test("launch lazily loads the SDK and uses the selected campus catalog", async () => {
+test("launch configures private access before catalog and map construction", async () => {
   const state = mazemapHarness();
   let loads = 0;
   const adapter = createMazeMapAdapter({
@@ -89,7 +89,7 @@ test("launch lazily loads the SDK and uses the selected campus catalog", async (
   assert.equal(adapter.Mazemap, state.Mazemap);
   assert.equal(adapter.campusId, 777);
   assert.equal(adapter.campusName, "Runtime Campus");
-  assert.deepEqual(state.tokens, ["runtime-secret"]);
+  assert.deepEqual(state.lifecycle, ["config:runtime-secret", "data:campus", "data:floors", "data:buildings", "map:new"]);
   assert.deepEqual(state.map.options, {
     container: "map", campuses: 777, zoom: 18, center: [12, 22],
     threeD: { animateWalls: true, show3dAssets: true },

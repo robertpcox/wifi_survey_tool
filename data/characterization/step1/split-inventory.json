@@ -11,7 +11,7 @@
       "symbol": "addStopFromInput"
     },
     "advance": {
-      "path": "src/domain/runner-progress-v3.mjs",
+      "path": "src/adapters/map/mazemap-poi-pages.mjs",
       "symbol": "advance"
     },
     "alphaTag": {

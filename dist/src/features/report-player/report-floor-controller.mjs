@@ -5,6 +5,8 @@
 // RULES:        MazeMap owns observed floor; only explicit selection or Follow commands a floor.
 // PROVENANCE:   Scope/steps/05b_improve_report.md floor correction
 
+import { renderReportMap } from "./render-report-map.mjs";
+
 export function bindReportFloor({ surface, floorInput, initialFloor }) {
   let floor = numericFloor(initialFloor);
   const unsubscribe = surface.onFloorChange?.(syncFromMap) ?? (() => {});
@@ -12,7 +14,7 @@ export function bindReportFloor({ surface, floorInput, initialFloor }) {
     const selected = numericFloor(event.target.value);
     if (selected == null) return;
     floor = selected;
-    surface.render({ floor });
+    void renderReportMap(surface, { floor }, "Rendering selected floor…");
   });
 
   function syncFromMap(value) {

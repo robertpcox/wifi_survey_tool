@@ -91,6 +91,38 @@ test("a rejected catalogue is visible and can retry with corrected access", asyn
   assert.equal(calls, 2, "only rejected catalogue promises are cleared");
 });
 
+test("new observation points expand an already loaded catalogue", async () => {
+  const requested = [];
+  const load = createCampusRoomCatalog(async points => {
+    requested.push(points.map(point => point.lng));
+    return points.map(point => room(`room-${point.lng}`, point.lng, 1, 0, 0.1));
+  });
+  const first = await load([{ target: { lng: 1, lat: 1, z: 0 } }]);
+  const expanded = await load([
+    { target: { lng: 1, lat: 1, z: 0 } },
+    { target: { lng: 2, lat: 1, z: 0 } },
+  ]);
+  assert.deepEqual(first.map(item => item.id), ["room-1"]);
+  assert.deepEqual(expanded.map(item => item.id), ["room-1", "room-2"]);
+  assert.deepEqual(requested, [[1], [1, 2]]);
+  await load([{ target: { lng: 2, lat: 1, z: 0 } }]);
+  assert.equal(requested.length, 2, "known points do not reload the catalogue");
+});
+
+test("a provider cache revision reloads known points after access changes", async () => {
+  let calls = 0;
+  let revision = 1;
+  const resolve = async () => { calls += 1; return [room("room", 1, 1, 0, 0.1)]; };
+  resolve.cacheRevision = () => revision;
+  const load = createCampusRoomCatalog(resolve);
+  const observations = [{ target: { lng: 1, lat: 1, z: 0 } }];
+  await load(observations);
+  await load(observations);
+  revision += 1;
+  await load(observations);
+  assert.equal(calls, 2);
+});
+
 test("loader surfaces catalogue denial without falling back to target lookups", async () => {
   const result = structuredClone(source);
   result.run.captureMode = "dynamic-room";

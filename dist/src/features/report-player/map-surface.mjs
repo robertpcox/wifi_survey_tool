@@ -8,24 +8,22 @@ import { classifyMazeMapLaunchError } from "../../adapters/map/mazemap-errors.mj
 import { drawRouteFallback } from "./map-fallback.mjs";
 import { createMapFloorSync } from "./map-floor-sync.mjs";
 import { createMapFrame } from "./map-model.mjs";
+import { createMapRenderingStatus } from "./map-rendering-status.mjs";
 import { createMapSurfaceLayout, routeCenter, routeForMapAnalysis, safelyCreateMap } from "./map-surface-layout.mjs";
 import { createMapSurfaceVisibility } from "./map-surface-visibility.mjs";
 import { createReportBaseRoute } from "./report-base-route.mjs";
 export function createReportMapSurface({
-  result, canvas, mapElement, fallbackElement, statusElement,
+  result, canvas, mapElement, fallbackElement, statusElement, renderingElement,
   createMap, createPrivateMap,
   ResizeObserverRef = globalThis.ResizeObserver,
 }) {
-  let analysis = null;
-  let heatKind = "sticky";
-  let playerFrame = null;
-  let snap = null;
-  let viewMode = "analysis";
-  let mapMode = "launching";
-  let launchPromise = null;
+  let analysis = null, heatKind = "sticky";
+  let playerFrame = null, snap = null;
+  let viewMode = "analysis", mapMode = "launching", launchPromise = null;
   const { adapter, error: adapterError } = safelyCreateMap(createMap ?? createPrivateMap);
   const baseRoute = createReportBaseRoute(adapter, result);
   const visibility = createMapSurfaceVisibility({ mapElement, fallbackElement, statusElement });
+  const rendering = createMapRenderingStatus({ element: renderingElement, mapElement });
   const layout = createMapSurfaceLayout({
     adapter, mapElement, route: result.route, ResizeObserverRef,
   });
@@ -35,6 +33,7 @@ export function createReportMapSurface({
     onNativeChange() {
       if (mapMode === "mazemap" && viewMode !== "playback")
         adapter.drawReportHeat(heatKind, analysis);
+      syncFit();
     },
   });
   function start() {
@@ -72,19 +71,18 @@ export function createReportMapSurface({
     floorSync.start(launchedFloor);
     baseRoute.setVisible(viewMode !== "overview");
     adapter.setViewMode(viewMode === "overview" ? "analysis" : viewMode);
+    syncFit();
   }
   function render(next = {}) {
     const reportChanged = Object.hasOwn(next, "analysis") || Object.hasOwn(next, "heatKind");
+    const fitChanged = reportChanged || Object.hasOwn(next, "floor");
     if (Object.hasOwn(next, "floor"))
       floorSync.command(next.floor, mapMode === "mazemap");
-    if (Object.hasOwn(next, "analysis")) {
-      analysis = next.analysis;
-      layout.setRoute(routeForMapAnalysis(analysis, result.route));
-      if (mapMode === "mazemap") void layout.settle();
-    }
+    if (Object.hasOwn(next, "analysis")) analysis = next.analysis;
     if (Object.hasOwn(next, "heatKind")) heatKind = next.heatKind;
     if (Object.hasOwn(next, "frame")) playerFrame = next.frame;
     if (Object.hasOwn(next, "snap")) snap = next.snap;
+    if (fitChanged) syncFit();
     renderActive(reportChanged);
     return fallbackModel();
   }
@@ -105,8 +103,14 @@ export function createReportMapSurface({
       snap = null;
     }
     renderActive();
-    layout.settle();
+    syncFit();
     return viewMode;
+  }
+  function syncFit() {
+    layout.setRoute(routeForMapAnalysis(analysis, result.route, {
+      floor: floorSync.floor, heatKind, overview: viewMode === "overview",
+    }));
+    if (mapMode === "mazemap") void layout.settle();
   }
   function fallback(error) {
     floorSync.stop();
@@ -117,16 +121,13 @@ export function createReportMapSurface({
   }
   function fallbackModel() {
     return createMapFrame(result, {
-      floor: floorSync.floor,
-      analysis,
-      frame: playerFrame,
-      heatKind,
+      floor: floorSync.floor, analysis, frame: playerFrame, heatKind,
     });
   }
   return Object.freeze({
     destroy() {
       floorSync.destroy();
-      layout.disconnect();
+      layout.disconnect(); rendering.destroy();
       adapter?.disablePlayerLayers?.();
     },
     declineAccess: () => fallback(new Error("MazeMap access was declined")),
@@ -134,11 +135,8 @@ export function createReportMapSurface({
     focusEvidence: (id, trigger) => adapter?.focusEvidence?.(id, trigger),
     onEvidenceSelect: callback => adapter?.onEvidenceSelect?.(callback) ?? (() => {}),
     onFloorChange: floorSync.onChange,
-    render,
-    retryAccess: async token => {
-      await launchPromise;
-      return launch(token, "access-retry");
-    },
+    render, withRendering: rendering.run,
+    retryAccess: async token => { await launchPromise; return launch(token, "access-retry"); },
     setViewMode,
     settleLayout: layout.settle,
     start,

@@ -47,7 +47,7 @@ export function createRoomResolutionLoader({
     const observations = [...rooms, ...corridors];
     let done = 0;
     try {
-      const catalogRooms = await loadCampusRooms();
+      const catalogRooms = await loadCampusRooms(observations);
       const prepared = await mapWithConcurrency(observations, concurrency, async observation => {
         const result = await resolveExpectedRoom(observation, catalogRooms);
         onProgress(done += 1, observations.length);

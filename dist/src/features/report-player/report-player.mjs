@@ -69,6 +69,7 @@ export async function mountReportPlayer({
       mapElement: root.querySelector("[data-maze-map]"),
       fallbackElement: root.querySelector("[data-map-fallback]"),
       statusElement: root.querySelector("[data-map-runtime-status]"),
+      renderingElement: root.querySelector("[data-map-rendering-status]"),
       createMap: (createMap ?? createPrivateMap)
         ? () => (createMap ?? createPrivateMap)(payload.result)
         : null,

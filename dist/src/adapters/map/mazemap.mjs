@@ -40,7 +40,7 @@ export function createMazeMapAdapter(options = {}) {
   });
   const shared = createMazeMapSharedBoundary({ setFloor });
   const queries = createMazeMapQueries(
-    resolveSdk, () => activeCatalog, () => campusId,
+    resolveSdk, () => activeCatalog, () => campusId, () => map,
   );
   async function resolveSdk() {
     Mazemap = await resolveMazemapSdk(Mazemap, options);
@@ -68,6 +68,7 @@ export function createMazeMapAdapter(options = {}) {
         }
         sdk.Config.setMazemapViewToken(token);
       }
+      queries.clearRoomCatalogCache();
       phase = "catalog";
       activeCatalog = await campusForLaunch({
         cache: catalogCaches[token ? "token" : "public"],

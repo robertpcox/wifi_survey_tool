@@ -15,6 +15,7 @@ import { bindReportModes } from "./report-mode-controller.mjs";
 import { renderDynamicSections } from "./report-sections.mjs";
 import { bindReportWarningActions } from "./report-warning-view.mjs";
 import { createReportCollectionController } from "./report-collection-controller.mjs";
+import { renderReportMap } from "./render-report-map.mjs";
 import { assertReportResult } from "./result-loader.mjs";
 export { renderPlayerFrame } from "./report-floor-controller.mjs";
 export { renderDynamicSections } from "./report-sections.mjs";
@@ -55,7 +56,7 @@ export function bindReportInteractions({
     { root, store, surface, player, onModeChange: () => repaintMap() },
   );
   function repaintMap() {
-    surface.render({
+    return renderReportMap(surface, {
       analysis: collection.mapAnalysis(modes.mode, currentAnalysis),
       heatKind: highlight.kind,
     });

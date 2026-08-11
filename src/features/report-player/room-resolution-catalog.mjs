@@ -6,20 +6,50 @@
 // PROVENANCE:   Dynamic MazeMap room and corridor resolution
 
 import { roomContainsPoint } from "../../domain/report-room-geometry.mjs";
+import { cataloguePoints } from "./room-resolution-catalog-points.mjs";
 
 export function createCampusRoomCatalog(resolveCampusRooms) {
+  const points = new Map();
+  let rooms = [];
   let pending = null;
-  return function loadCampusRooms() {
+  let loadedPointCount = -1;
+  let loadedRevision = null;
+  return async function loadCampusRooms(observations = []) {
     if (typeof resolveCampusRooms !== "function") return Promise.resolve([]);
-    if (!pending) {
-      pending = Promise.resolve().then(() => resolveCampusRooms())
-        .then(roomList).catch(cause => {
-          pending = null;
-          throw cause;
-        });
+    for (const point of cataloguePoints(observations)) {
+      points.set(`${point.lng.toFixed(7)}:${point.lat.toFixed(7)}`, point);
     }
-    return pending;
+    if (pending) await pending;
+    const revision = resolveCampusRooms.cacheRevision?.() ?? 0;
+    if (revision !== loadedRevision) {
+      rooms = [];
+      loadedPointCount = -1;
+      loadedRevision = revision;
+    }
+    if (loadedPointCount === points.size) return rooms;
+    const requested = [...points.values()];
+    const requestedCount = requested.length;
+    const work = Promise.resolve().then(() => resolveCampusRooms(requested))
+      .then(roomList).then(nextRooms => {
+        rooms = mergeRoomLists(rooms, nextRooms);
+        loadedPointCount = requestedCount;
+        return rooms;
+      });
+    pending = work;
+    try {
+      return await work;
+    } finally {
+      if (pending === work) pending = null;
+    }
   };
+}
+
+function mergeRoomLists(current, additions) {
+  const unique = new Map();
+  for (const room of [...current, ...additions]) {
+    unique.set(roomKey(room), room);
+  }
+  return [...unique.values()];
 }
 
 export function expectedCatalogRoom(observation, catalogRooms) {

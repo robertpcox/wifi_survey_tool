@@ -19,6 +19,7 @@ export function createReportCollectionController({
   store, manifestSource, floorInput, surface,
 }) {
   const initial = store.snapshot();
+  const withRendering = surface.withRendering ?? ((_message, work) => work());
   const roomViewOptions = { showDevice: !initial.consolidated };
   const currentEligible = !(initial.exceptions ?? [])
     .some(item => item.disposition === "exclude-run");
@@ -53,7 +54,8 @@ export function createReportCollectionController({
   }
   function bind(root, { refresh, status }) {
     root.querySelector("[data-load-overview]")?.addEventListener("click", async () => {
-      await loadOverview(refresh, root.querySelector("[data-overview-status]"));
+      await withRendering("Loading consolidated runs…", () =>
+        loadOverview(refresh, root.querySelector("[data-overview-status]")));
     });
     bindAllRunsAction(root, { loader, status, refresh });
     runSelection.bind(root, ids => applyRunSelection(ids, refresh, status));
@@ -91,7 +93,8 @@ export function createReportCollectionController({
     const revision = selectionRevision;
     roomWorkAll = all;
     roomWorkRevision = revision;
-    const work = rooms.load(bundles).then(summary => {
+    const work = withRendering("Resolving MazeMap room data…", () =>
+      rooms.load(bundles)).then(summary => {
       if (revision === selectionRevision && rooms.status === "ready") {
         overview.setRoomSummary(summary);
       }
@@ -123,7 +126,8 @@ export function createReportCollectionController({
   return Object.freeze({
     allRunsState: state => collectionAllRunsState(loader, state),
     bind,
-    loadOverview,
+    loadOverview: (...args) => withRendering(
+      "Loading consolidated runs…", () => loadOverview(...args)),
     mapAnalysis,
     overviewHtml: () => `${overview.panelHtml()}${collectionRoomHtml(rooms, roomViewOptions)}`,
     rebuild: overview.rebuild,

@@ -77,8 +77,8 @@ test("campus room catalogue loads polygon POIs once per mapped building", async 
   }), () => 566);
   const rooms = await queries.resolveCampusRooms();
   assert.deepEqual(calls, [
-    { campusid: 566, buildingid: 2 },
-    { campusid: 566, buildingid: 3 },
+    { campusid: 566, buildingid: 2, limit: 2000, fromid: 0 },
+    { campusid: 566, buildingid: 3, limit: 2000, fromid: 0 },
   ]);
   assert.deepEqual(rooms.map(room => [room.id, room.name, room.z]), [
     ["room-2", "Room 2", 2],

@@ -5,6 +5,8 @@
 // RULES:        Resize then fit after two animation frames; never construct a map from this helper.
 // PROVENANCE:   Scope/steps/05a_recast_player.md
 
+export { routeForMapAnalysis } from "./map-fit-route.mjs";
+
 export function createMapSurfaceLayout({
   adapter,
   mapElement,
@@ -12,9 +14,12 @@ export function createMapSurfaceLayout({
   ResizeObserverRef,
 }) {
   let fittedRoute = route;
+  let fitRevision = 0;
   async function settle() {
+    const revision = ++fitRevision;
     await adapter?.resizeMapSoon();
-    adapter?.fitRoute(fittedRoute);
+    if (revision !== fitRevision) return false;
+    return adapter?.fitRoute(fittedRoute) ?? false;
   }
 
   let observer = null;
@@ -24,15 +29,12 @@ export function createMapSurfaceLayout({
   }
   return Object.freeze({
     disconnect: () => observer?.disconnect(),
-    setRoute(next) { fittedRoute = next ?? route; },
+    setRoute(next) {
+      fittedRoute = next ?? route;
+      fitRevision += 1;
+    },
     settle,
   });
-}
-
-export function routeForMapAnalysis(analysis, fallback) {
-  if (!analysis?.overview) return fallback;
-  return { legs: analysis.fitPoints?.length
-    ? [{ geometry: analysis.fitPoints }] : [] };
 }
 
 export function routeCenter(route) {

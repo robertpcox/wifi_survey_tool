@@ -44,6 +44,14 @@ test("Report Player shell CSS keeps the shared map and mobile context visible", 
   assert.match(map, /\.map-stage/);
   assert.match(consolidated, /\.map-section\.is-consolidated \.map-stage[\s\S]*55dvh/);
   assert.match(consolidated, /\.map-section\.is-consolidated \.maze-map[\s\S]*min-height: 0/);
+  assert.match(consolidated,
+    /\.map-section\.is-consolidated \.map-heading-actions select\s*\{[^}]*appearance: none/s);
+  assert.match(consolidated,
+    /\.map-section\.is-consolidated \[data-map-highlight\]\s*\{[^}]*min-width: 13\.5rem/s);
+  assert.match(consolidated,
+    /\.map-section\.is-consolidated \.map-heading-actions select:focus-visible/);
+  assert.match(consolidated,
+    /@media \(max-width: 520px\)[\s\S]*\.map-heading-actions select\s*\{[^}]*width: 100%/);
   assert.match(warnings, /\.map-alert-stack/);
   assert.match(map, /\.map-stale-legend/);
   assert.match(map, /\.map-fallback canvas/);

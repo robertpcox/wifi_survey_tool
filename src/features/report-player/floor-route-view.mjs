@@ -70,6 +70,9 @@ export function renderFloorRouteView(result, {
         <span><strong>Route fallback</strong> · MazeMap is unavailable</span>
       </div>
       <p class="map-runtime-status" data-map-runtime-status>Loading public campus map…</p>
+      ${consolidated ? `<p class="map-rendering-status" data-map-rendering-status
+        role="status" aria-live="polite" aria-atomic="true" hidden>
+        Rendering consolidated map…</p>` : ""}
       <div class="map-alert-stack" data-module="mapAlerts" role="status"
         aria-live="polite" aria-atomic="true"></div>
       <div class="player-transport-slot" data-player-transport hidden></div>

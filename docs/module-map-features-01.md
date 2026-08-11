@@ -72,10 +72,10 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - campus-run-selection 131/5334 T+ E createCampusRunSelection I @s/format
 - campus-run-summary-view 55/2483 T+ E renderCampusRunSummary I @s/format
 - comparison-view 108/4465 T+ E bindComparisonAdd, renderComparisonView I @s/format, all-runs
-- consolidated-map.css 21/711 T-
+- consolidated-map.css 75/2359 T-
 - corridor-resolution-view 123/5644 T- E renderCorridorResolution I @s/format
 - direction-view 129/5536 T+ E renderDirectionView I @d/report-direction-overlay, @s/format, report-chart-svg
-- floor-route-view 146/6695 T+ E renderFloorRouteView I @s/format
+- floor-route-view 149/6894 T+ E renderFloorRouteView I @s/format
 - heatmap-view 65/2314 T+ E renderHeatmapView I @s/format
 - identity-view 75/2867 T+ E renderIdentityView I @s/format
 - kpi-view 72/3306 T+ E renderKpiView I @s/format
@@ -85,14 +85,17 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - map-access 115/3961 T+ E bindMapAccess, renderMapAccess I map-access-attempt, map-access-controls, map-access-view
 - map-alert-view 116/4091 T+ E renderAnalysisMapAlerts, renderConcernDetail, renderPlayerMapAlerts I @d/geometry, @s/format
 - map-fallback 88/3144 T+ E drawRouteFallback
+- map-fit-route 114/3915 T- E routeForMapAnalysis
 - map-floor-sync 90/2423 T+ E createMapFloorSync
 - map-highlight-controller 51/1596 T+ E bindMapHighlight
 - map-model 114/4307 T+ E createMapFrame
-- map-surface-layout 55/1729 T+ E createMapSurfaceLayout, routeCenter, routeForMapAnalysis, safelyCreateMap
+- map-rendering-status.css 46/1209 T+
+- map-rendering-status 62/1897 T+ E createMapRenderingStatus
+- map-surface-layout 57/1748 T+ E createMapSurfaceLayout, routeCenter, routeForMapAnalysis, safelyCreateMap I map-fit-route
 - map-surface-visibility 21/830 T+ E createMapSurfaceVisibility
 - map-surface.css 150/3437 T+
-- map-surface 149/5910 T+ E createReportMapSurface
-  - I @a/map/mazemap-errors, map-fallback, map-floor-sync, map-model, map-surface-layout, map-surface-visibility, report-base-route
+- map-surface 147/6301 T+ E createReportMapSurface
+  - I @a/map/mazemap-errors, map-fallback, map-floor-sync, map-model, map-rendering-status, map-surface-layout, map-surface-visibility, report-base-route
 - methodology-view 72/2866 T+ E buildAnalysisCsv, createAnalysisExports, createAnalysisSummary, downloadAnalysisExports, renderMethodologyView
   - I @s/format, analysis-export
 - no-position-view 64/2611 T+ E renderNoPositionView I @s/format
@@ -106,12 +109,11 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - player-evidence-view 134/5902 T+ E playerEvidenceItems, renderPlayerEvidenceRail, updatePlayerEvidence I player-evidence-detail
 - player-transport 83/3432 T+ E bindPlayerTransport, renderPlayerTransport
 - player-workspace.css 129/3294 T+
+- render-report-map 14/672 T+ E renderReportMap
 - report-base-route 24/895 T+ E createReportBaseRoute
 - report-chart-svg 81/3093 T+ E CHART, bucketExtremes, chartX, chartY, renderChartGrid, renderCriticalDots, renderOutageBands, renderTimeAxis
-- report-collection-controller 146/5752 T+ E createReportCollectionController
+- report-collection-controller 150/6049 T+ E createReportCollectionController
   - I all-runs, campus-overview-controller, campus-run-selection, report-collection-values, result-loader, room-resolution-loader
 - report-collection-values 52/1707 T+ E analysisWithAreaResolution, campusReportStatus, collectionAllRunsState, collectionRoomHtml, selectedCampusReportStatus
   - I room-resolution-view
-- report-floor-controller 61/1882 T+ E bindReportFloor, renderPlayerFrame
-- report-insights-view 19/853 T+ E renderReportInsights I @d/report-insights, report-series-view, report-summary-view
-- report-insights.css 120/2108 T+
+- report-floor-controller 63/1988 T+ E bindReportFloor, renderPlayerFrame I render-report-map

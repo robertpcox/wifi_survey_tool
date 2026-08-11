@@ -61,14 +61,21 @@ test("an all-run area request includes dynamic and planned survey evidence", asy
   };
   let release;
   let first = true;
+  const renderingMessages = [];
   const gate = new Promise(resolve => { release = resolve; });
   const controller = createReportCollectionController({
     store: { snapshot: () => state },
     manifestSource: { result: async () => other },
-    surface: { adapter: { resolveRoomAt: async (lng, lat, z) => {
-      if (first) { first = false; await gate; }
-      return room(lng, lat, z);
-    } } },
+    surface: {
+      withRendering: async (message, work) => {
+        renderingMessages.push(message);
+        return work();
+      },
+      adapter: { resolveRoomAt: async (lng, lat, z) => {
+        if (first) { first = false; await gate; }
+        return room(lng, lat, z);
+      } },
+    },
   });
   const currentWork = controller.enableRoomLookup(() => {});
   await Promise.resolve();
@@ -77,6 +84,8 @@ test("an all-run area request includes dynamic and planned survey evidence", asy
   await Promise.all([currentWork, allWork]);
   assert.equal(controller.roomSummary.visitCount, 4);
   assert.equal(controller.roomSummary.corridor.sampleCount, 2);
+  assert.ok(renderingMessages.includes("Loading consolidated runs…"));
+  assert.ok(renderingMessages.includes("Resolving MazeMap room data…"));
   assert.deepEqual(new Set(controller.roomSummary.observations.map(item => item.resultId)),
     new Set([current.run.resultId, other.run.resultId]));
   await controller.setIncludedRuns([other.run.resultId], () => {});

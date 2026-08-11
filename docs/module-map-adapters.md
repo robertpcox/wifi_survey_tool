@@ -20,13 +20,15 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - mazemap-errors 117/4628 T+ E MAP_LAUNCH_CLASSIFICATIONS, MazeMapLaunchError, classifyMazeMapLaunchError
 - mazemap-floor-control 39/1319 T+ E createMazeMapFloorControl
 - mazemap-launch 144/4524 T+ E campusForLaunch, createLoadedMazeMap, launchCenter, resolveLaunchContainer, waitForMazeMapLoad I mazemap-catalog, mazemap-errors
+- mazemap-poi-pages 66/2393 T- E fetchAllPoiPages
 - mazemap-poi-position 38/1187 T+ E poiCenter
-- mazemap-queries 126/4491 T+ E createMazeMapQueries I mazemap-catalog, mazemap-room
+- mazemap-queries 99/3080 T+ E createMazeMapQueries I mazemap-catalog, mazemap-room-catalog, mazemap-room
+- mazemap-room-catalog 97/3432 T+ E loadMazeMapRoomCatalog I mazemap-poi-pages, mazemap-room
 - mazemap-room 49/1757 T+ E mergeMazeMapRooms, normalizeMazeMapRoom
 - mazemap-runtime 38/1032 T+ E errorMessage, normalizeCampusId, numericZ, waitForMapLoad
 - mazemap-sdk 78/2763 T+ E MAZEMAP_CSS_URL, MAZEMAP_JS_URL, loadMazemapSdk, resolveMazemapSdk
 - mazemap-shared-boundary 78/2384 T+ E createMazeMapSharedBoundary
-- mazemap 149/6110 T+ E createMazeMapAdapter
+- mazemap 150/6160 T+ E createMazeMapAdapter
   - I @d/route-contract, layers, map-resize, mazemap-3d, mazemap-controls, mazemap-errors, mazemap-floor-control, mazemap-launch, mazemap-queries,
     mazemap-runtime, mazemap-sdk, mazemap-shared-boundary, shared-map-layers
 - note-features 37/1262 T+ E notePointFeatures

@@ -57,12 +57,10 @@ export function expectedCatalogRoom(observation, catalogRooms) {
   const candidates = catalogRooms.filter(room => (
     room?.geometry && Number(room.z) === Number(observation.target.z)
   ));
-  if (expectedId) {
-    return smallestContaining(
-      candidates.filter(room => String(room.id ?? "") === expectedId),
-      observation.target,
-    );
-  }
+  const captured = expectedId ? smallestContaining(candidates.filter(room => (
+    String(room.id ?? "") === expectedId
+  )), observation.target) : null;
+  if (captured) return captured;
   return smallestContaining(candidates, observation.target);
 }
 

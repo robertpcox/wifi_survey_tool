@@ -38,8 +38,6 @@ export function createReportCollectionController({
     includedResultIds: runSelection.selectedIds,
   });
   const rooms = createRoomResolutionLoader({
-    resolveRoomAt: surface.adapter?.resolveRoomAt,
-    resolveRoomById: surface.adapter?.resolveRoomById,
     resolveCampusRooms: surface.adapter?.resolveCampusRooms,
   });
   let roomLookupReady = false;

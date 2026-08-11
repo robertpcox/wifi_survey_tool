@@ -1,8 +1,8 @@
 // FEATURE:      Report room-resolution loading
 // SURFACE:      createRoomResolutionLoader(options)
-// WHY TOGETHER: Cached MazeMap lookups and bounded stationary scoring share one async lifecycle.
-// STATE:        Point lookup promises, load status, and latest consolidated summary
-// RULES:        Query all eligible stops and corridor marks; lookup failures never become Cisco failures.
+// WHY TOGETHER: Bulk room loading and stationary scoring share one async lifecycle.
+// STATE:        Bulk room-catalogue status and latest consolidated summary
+// RULES:        Match every truth and Cisco point locally; never query a closest POI per point.
 // PROVENANCE:   Consolidated MazeMap area-resolution evidence
 
 import { combineAreaResolutionSummaries }
@@ -11,28 +11,21 @@ import { buildCorridorObservations }
   from "../../domain/report-corridor-observation.mjs";
 import { buildCorridorResolutionSummary }
   from "../../domain/report-corridor-summary.mjs";
-import { roomContainsPoint } from "../../domain/report-room-geometry.mjs";
 import { buildRoomObservations } from "../../domain/report-room-observation.mjs";
 import { scoreRoomObservation } from "../../domain/report-room-resolution.mjs";
 import { buildRoomResolutionSummary } from "../../domain/report-room-summary.mjs";
-import { mapWithConcurrency } from "./bounded-map.mjs";
 import {
   createCampusRoomCatalog, expectedCatalogRoom, knownRoomIndex, observedKnownRoom,
 } from "./room-resolution-catalog.mjs";
 
-export function createRoomResolutionLoader({
-  resolveRoomAt, resolveRoomById, resolveCampusRooms, concurrency = 6,
-}) {
-  const cache = new Map();
+export function createRoomResolutionLoader({ resolveCampusRooms } = {}) {
   const loadCampusRooms = createCampusRoomCatalog(resolveCampusRooms);
   let status = "idle";
   let summary = buildRoomResolutionSummary([]);
   let error = null;
 
   async function load(bundles, onProgress = () => {}) {
-    if (typeof resolveRoomAt !== "function"
-        && typeof resolveRoomById !== "function"
-        && typeof resolveCampusRooms !== "function") {
+    if (typeof resolveCampusRooms !== "function") {
       status = "unavailable";
       return summary;
     }
@@ -48,8 +41,8 @@ export function createRoomResolutionLoader({
     let done = 0;
     try {
       const catalogRooms = await loadCampusRooms(observations);
-      const prepared = await mapWithConcurrency(observations, concurrency, async observation => {
-        const result = await resolveExpectedRoom(observation, catalogRooms);
+      const prepared = observations.map(observation => {
+        const result = resolveExpectedRoom(observation, catalogRooms);
         onProgress(done += 1, observations.length);
         return result;
       });
@@ -70,24 +63,12 @@ export function createRoomResolutionLoader({
     return summary;
   }
 
-  async function resolveExpectedRoom(observation, catalogRooms) {
-    const catalogRoom = expectedCatalogRoom(observation, catalogRooms);
-    if (catalogRoom) {
-      return { observation, expected: catalogRoom, expectedError: null };
-    }
-    const expectedLookup = await fallbackExpectedLookup(observation);
-    const candidate = expectedLookup.room;
-    const expected = roomContainsPoint(candidate, observation.target)
-      ? candidate : null;
-    return { observation, expected, expectedError: expectedLookup.error };
-  }
-
-  function fallbackExpectedLookup(observation) {
-    if (observation.expectedPoiId && typeof resolveRoomById === "function") {
-      return lookupId(observation.expectedPoiId, observation.target.z);
-    }
-    if (typeof resolveRoomAt === "function") return lookup(observation.target);
-    return Promise.resolve({ room: null, error: null });
+  function resolveExpectedRoom(observation, catalogRooms) {
+    return {
+      observation,
+      expected: expectedCatalogRoom(observation, catalogRooms),
+      expectedError: null,
+    };
   }
 
   function scoreObservation(item, knownRooms) {
@@ -106,24 +87,6 @@ export function createRoomResolutionLoader({
     });
   }
 
-  function lookup(point) {
-    const key = pointKey(point);
-    if (!cache.has(key)) cache.set(key, Promise.resolve()
-      .then(() => resolveRoomAt(point.lng, point.lat, point.z))
-      .then(room => ({ room, error: null }))
-      .catch(cause => ({ room: null, error: cause })));
-    return cache.get(key);
-  }
-
-  function lookupId(id, z) {
-    const key = `poi:${z}:${id}`;
-    if (!cache.has(key)) cache.set(key, Promise.resolve()
-      .then(() => resolveRoomById(id, z))
-      .then(room => ({ room, error: null }))
-      .catch(cause => ({ room: null, error: cause })));
-    return cache.get(key);
-  }
-
   return Object.freeze({
     load,
     setUnavailable(cause = null) {
@@ -134,8 +97,4 @@ export function createRoomResolutionLoader({
     get status() { return status; },
     get summary() { return summary; },
   });
-}
-
-function pointKey(point) {
-  return `${point.z}:${point.lat.toFixed(7)}:${point.lng.toFixed(7)}`;
 }

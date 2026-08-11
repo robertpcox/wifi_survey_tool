@@ -112,7 +112,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - render-report-map 14/672 T+ E renderReportMap
 - report-base-route 24/895 T+ E createReportBaseRoute
 - report-chart-svg 81/3093 T+ E CHART, bucketExtremes, chartX, chartY, renderChartGrid, renderCriticalDots, renderOutageBands, renderTimeAxis
-- report-collection-controller 150/6049 T+ E createReportCollectionController
+- report-collection-controller 148/5943 T+ E createReportCollectionController
   - I all-runs, campus-overview-controller, campus-run-selection, report-collection-values, result-loader, room-resolution-loader
 - report-collection-values 52/1707 T+ E analysisWithAreaResolution, campusReportStatus, collectionAllRunsState, collectionRoomHtml, selectedCampusReportStatus
   - I room-resolution-view

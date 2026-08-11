@@ -36,7 +36,9 @@ async function roomHtml(consolidated) {
   const controller = createReportCollectionController({
     store: { snapshot: () => state },
     manifestSource: { result: async () => { throw new Error("unexpected"); } },
-    surface: { adapter: { resolveRoomAt: async (lng, lat, z) => room(lng, lat, z) } },
+    surface: { adapter: { resolveCampusRooms: async points => (
+      points.map(point => room(point.lng, point.lat, point.z))
+    ) } },
   });
   await controller.enableRoomLookup(() => {});
   return controller.roomHtml();

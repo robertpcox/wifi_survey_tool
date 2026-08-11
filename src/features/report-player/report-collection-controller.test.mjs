@@ -71,9 +71,9 @@ test("an all-run area request includes dynamic and planned survey evidence", asy
         renderingMessages.push(message);
         return work();
       },
-      adapter: { resolveRoomAt: async (lng, lat, z) => {
+      adapter: { resolveCampusRooms: async points => {
         if (first) { first = false; await gate; }
-        return room(lng, lat, z);
+        return points.map(point => room(point.lng, point.lat, point.z));
       } },
     },
   });

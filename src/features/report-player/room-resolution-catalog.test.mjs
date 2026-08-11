@@ -59,6 +59,7 @@ test("smallest containing polygon wins unless the captured POI id is authoritati
   assert.equal(expectedCatalogRoom({
     target, expectedPoiId: "parent",
   }, [parent, child]).id, "parent");
+  assert.equal(expectedCatalogRoom({ target, expectedPoiId: "stale" }, [child]).id, "child");
   const expected = room("expected", 5, 5, 0, 0.25);
   const known = knownRoomIndex([{ expected }], [parent, child]);
   assert.equal(observedKnownRoom(target, expected, known).room.id, "child");

@@ -27,12 +27,12 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - result-loader 123/4594 T+ E assertReportResult, campusRunEntries, comparisonEntries, loadSelectedResult, readUploadedResult, resultSelectionFromUrl
   - I @a/files, @d/survey-result-v3
 - room-resolution-catalog-points 22/929 T- E cataloguePoints
-- room-resolution-catalog 150/5313 T+ E createCampusRoomCatalog, expectedCatalogRoom, knownRoomIndex, observedKnownRoom
+- room-resolution-catalog 148/5341 T+ E createCampusRoomCatalog, expectedCatalogRoom, knownRoomIndex, observedKnownRoom
   - I @d/report-room-geometry, room-resolution-catalog-points
 - room-resolution-evidence-view 97/4099 T+ E renderRoomResolutionEvidence I @s/format
-- room-resolution-loader 141/5516 T+ E createRoomResolutionLoader
-  - I @d/report-area-summary, @d/report-corridor-observation, @d/report-corridor-summary, @d/report-room-geometry, @d/report-room-observation,
-    @d/report-room-resolution, @d/report-room-summary, bounded-map, room-resolution-catalog
+- room-resolution-loader 100/3742 T+ E createRoomResolutionLoader
+  - I @d/report-area-summary, @d/report-corridor-observation, @d/report-corridor-summary, @d/report-room-observation, @d/report-room-resolution,
+    @d/report-room-summary, room-resolution-catalog
 - room-resolution-view 132/6647 T+ E renderRoomResolutionView I @s/format, corridor-resolution-view, room-resolution-evidence-view
 - room-resolution.css 144/4001 T-
 - timeline-view 129/4181 T+ E renderTimelineView, reportTimelineItems I @s/format

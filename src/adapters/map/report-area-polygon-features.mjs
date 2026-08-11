@@ -6,13 +6,15 @@
 // PROVENANCE:   Campus area-resolution map
 
 const PROPERTIES = [
-  "areaKey", "poiId", "identifier", "areaName", "z", "severity", "observationCount",
+  "areaKey", "poiId", "identifier", "areaName", "areaKind", "z", "severity",
+  "observationCount",
   "scoredSampleCount", "insideSampleCount", "outsideSampleCount",
   "resolutionPercent", "runCount",
 ];
 
 export function areaPolygonFeatures(areas = []) {
-  return areas.filter(area => ["Polygon", "MultiPolygon"]
+  return areas.filter(area => area?.areaKind !== "common-area"
+    && ["Polygon", "MultiPolygon"]
     .includes(area?.geometry?.type)).flatMap(area => {
     const resolutionPercent = presentationResolutionPercent(area);
     if (resolutionPercent == null) return [];

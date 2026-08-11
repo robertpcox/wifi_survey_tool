@@ -6,6 +6,9 @@
 // PROVENANCE:   Dynamic MazeMap room and corridor resolution
 
 import { roomContainsPoint } from "../../domain/report-room-geometry.mjs";
+import {
+  catalogAreaKey, isCommonArea, smallestContainingArea,
+} from "./room-resolution-area-match.mjs";
 import { cataloguePoints } from "./room-resolution-catalog-points.mjs";
 
 export function createCampusRoomCatalog(resolveCampusRooms) {
@@ -47,32 +50,35 @@ export function createCampusRoomCatalog(resolveCampusRooms) {
 function mergeRoomLists(current, additions) {
   const unique = new Map();
   for (const room of [...current, ...additions]) {
-    unique.set(roomKey(room), room);
+    unique.set(catalogAreaKey(room), room);
   }
   return [...unique.values()];
 }
 
 export function expectedCatalogRoom(observation, catalogRooms) {
   const expectedId = String(observation.expectedPoiId ?? "").trim();
-  const candidates = catalogRooms.filter(room => (
+  const sameFloor = catalogRooms.filter(room => (
     room?.geometry && Number(room.z) === Number(observation.target.z)
   ));
-  const captured = expectedId ? smallestContaining(candidates.filter(room => (
+  const rooms = sameFloor.filter(room => !isCommonArea(room));
+  const captured = expectedId ? smallestContainingArea(rooms.filter(room => (
     String(room.id ?? "") === expectedId
   )), observation.target) : null;
   if (captured) return captured;
-  return smallestContaining(candidates, observation.target);
+  const named = smallestContainingArea(rooms, observation.target);
+  if (named || observation.observationKind !== "corridor-point") return named;
+  return smallestContainingArea(sameFloor.filter(isCommonArea), observation.target);
 }
 
 export function knownRoomIndex(prepared, catalogRooms = []) {
   const unique = new Map();
   for (const room of catalogRooms) {
-    if (room?.geometry) unique.set(roomKey(room), room);
+    if (room?.geometry) unique.set(catalogAreaKey(room), room);
   }
   for (const item of prepared) {
     const room = item.expected;
-    if (room?.geometry && !unique.has(roomKey(room))) {
-      unique.set(roomKey(room), room);
+    if (room?.geometry && !unique.has(catalogAreaKey(room))) {
+      unique.set(catalogAreaKey(room), room);
     }
   }
   const floors = new Map();
@@ -86,11 +92,28 @@ export function knownRoomIndex(prepared, catalogRooms = []) {
 
 export function observedKnownRoom(point, expected, knownRooms) {
   if (!point || !expected?.geometry) return { room: null, error: null };
+  const candidates = knownRooms.get(floorKey(point.z)) ?? [];
+  if (isCommonArea(expected)) {
+    const named = smallestContainingArea(candidates.filter(room => (
+      !isCommonArea(room)
+    )), point);
+    if (named) return { room: named, error: null };
+    const common = roomContainsPoint(expected, point) ? expected : null;
+    return { room: common, error: null };
+  }
   if (roomContainsPoint(expected, point)) return { room: expected, error: null };
-  const candidates = (knownRooms.get(floorKey(point.z)) ?? [])
-    .filter(room => roomKey(room) !== roomKey(expected));
-  const room = smallestContaining(candidates, point);
-  return { room: room ?? null, error: null };
+  const rooms = candidates.filter(room => (
+    !isCommonArea(room) && catalogAreaKey(room) !== catalogAreaKey(expected)
+  ));
+  const room = smallestContainingArea(rooms, point);
+  if (room) return { room, error: null };
+  const commonAreas = candidates.filter(isCommonArea);
+  const sameBuilding = expected.buildingId
+    ? commonAreas.filter(area => area.buildingId === expected.buildingId)
+    : commonAreas;
+  const common = smallestContainingArea(sameBuilding, point)
+    ?? smallestContainingArea(commonAreas, point);
+  return { room: common, error: null };
 }
 
 function roomList(value) {
@@ -101,48 +124,6 @@ function roomList(value) {
   return rooms.filter(room => room?.geometry);
 }
 
-function roomKey(room) {
-  const id = String(room?.id ?? "").trim();
-  return id
-    ? `${floorKey(room.z)}:poi:${id}`
-    : `${floorKey(room.z)}:geometry:${JSON.stringify(room.geometry)}`;
-}
-
 function floorKey(value) {
   return String(Number(value));
-}
-
-function smallestContaining(rooms, point) {
-  return rooms.filter(room => roomContainsPoint(room, point))
-    .sort((left, right) => geometryArea(left.geometry) - geometryArea(right.geometry)
-      || roomKey(left).localeCompare(roomKey(right)))[0] ?? null;
-}
-
-function geometryArea(geometry) {
-  const polygons = geometry?.type === "Polygon"
-    ? [geometry.coordinates]
-    : (geometry?.type === "MultiPolygon" ? geometry.coordinates : []);
-  return polygons.reduce((total, polygon) => total + polygonArea(polygon), 0);
-}
-
-function polygonArea(rings = []) {
-  if (!rings.length) return Infinity;
-  return Math.max(0, Math.abs(ringArea(rings[0]))
-    - rings.slice(1).reduce((total, ring) => total + Math.abs(ringArea(ring)), 0));
-}
-
-function ringArea(ring = []) {
-  const origin = ring[0];
-  if (!origin) return 0;
-  let area = 0;
-  for (let index = 1; index < ring.length - 1; index++) {
-    const current = ring[index];
-    const next = ring[index + 1];
-    const currentX = Number(current?.[0]) - Number(origin[0]);
-    const currentY = Number(current?.[1]) - Number(origin[1]);
-    const nextX = Number(next?.[0]) - Number(origin[0]);
-    const nextY = Number(next?.[1]) - Number(origin[1]);
-    area += currentX * nextY - nextX * currentY;
-  }
-  return area / 2;
 }

@@ -4,6 +4,9 @@
 E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 
 ## ./
+- runner-progress-v3 147/4952 T+
+  - E checkInCurrent, createRunnerProgress, finishRunnerProgress, skipCurrentCheckpoint, startRunnerProgress, tickRunnerDwell, undoLastCheckpointAction
+  - I checkpoint-dwell-v3
 - runner-result-v3 78/2139 T+ E buildSurveyResultV3, resultFilename I survey-result-v3
 - stop-targets 90/2469 T+ E outdoorsStop, poiToStop, pointToStop, stopName, stopTargetTitle, tagOf I route-model
 - survey-definition-v3 83/2561 T+ E DEFINITION_REQUIRED_PATHS, validateSurveyDefinitionV3 I route-snapshot-v3, survey-meta-v3, validation

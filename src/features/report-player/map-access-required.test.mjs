@@ -89,3 +89,33 @@ test("explicit area fallback starts public MazeMap only after the decision", asy
   await binding.retry();
   assert.equal(enabled, 1, "a later private retry reruns area resolution");
 });
+
+test("room catalogue work starts only after the authenticated map is ready", async () => {
+  const fixture = fakeAccessRoot();
+  const events = [];
+  let releaseMap;
+  const mapGate = new Promise(resolve => { releaseMap = resolve; });
+  const binding = bindMapAccess({
+    root: fixture.root,
+    credentials: memoryCredentials(),
+    requirePrivateAccess: true,
+    surface: { retryAccess: async token => {
+      events.push(`token:${token}`);
+      await mapGate;
+      events.push("map:ready");
+      return { status: "ready" };
+    } },
+    onReady: () => { events.push("catalogue:start"); },
+  });
+  const initial = binding.start();
+  fixture.input.value = "private-token";
+  const retry = binding.retry();
+  await Promise.resolve();
+  assert.deepEqual(events, ["token:private-token"]);
+  releaseMap();
+  await retry;
+  assert.equal((await initial).status, "ready");
+  assert.deepEqual(events, [
+    "token:private-token", "map:ready", "catalogue:start",
+  ]);
+});

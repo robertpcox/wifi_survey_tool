@@ -43,6 +43,7 @@ function observationProperties(observation) {
     areaName: observation.expectedRoom?.name ?? observation.roomLabel,
     areaId: observation.expectedRoom?.id ?? null,
     areaIdentifier: observation.expectedRoom?.identifier ?? null,
+    areaKind: observation.expectedRoom?.areaKind ?? null,
     observationKind: observation.observationKind,
     status: observation.primary.status,
     visitStatus: observation.primary.status,

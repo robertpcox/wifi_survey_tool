@@ -5,7 +5,10 @@
 // RULES:        MazeMap is room truth; raw Cisco positions are never snapped or corrected.
 // PROVENANCE:   Dynamic dwell room-resolution evidence
 
-import { distanceOutsideRoomM, roomContainsPoint } from "./report-room-geometry.mjs";
+import { roomContainsPoint } from "./report-room-geometry.mjs";
+import {
+  outsideDistanceForExpected, publicRoom,
+} from "./report-room-public.mjs";
 import { areaVisitVerdict, areaWindowMoments, UNSCORED_AREA_STATUSES as UNSCORED }
   from "./report-area-verdict.mjs";
 
@@ -17,6 +20,14 @@ export function scoreRoomMoment({
   if (!evidence?.point) return verdict("no-displayed-fix", evidence, observed, expected);
   if (Number(evidence.point.z) !== Number(expected.z)) {
     return verdict("wrong-floor", evidence, observed, expected);
+  }
+  if (expected.areaKind === "common-area") {
+    if (observedError) return verdict("lookup-unavailable", evidence, observed, expected);
+    if (observed?.areaKind === "common-area" && observed.id === expected.id) {
+      return verdict("resolved", evidence, expected, expected);
+    }
+    return verdict(observed && observed.areaKind !== "common-area"
+      ? "wrong-room" : "unresolved", evidence, observed, expected);
   }
   if (roomContainsPoint(expected, evidence.point)) {
     return verdict("resolved", evidence, expected, expected);
@@ -92,7 +103,7 @@ function verdict(status, evidence, room, expected) {
     ageSeconds: finite(evidence?.ageSeconds),
     point: evidence?.point ? { ...evidence.point } : null,
     room: publicRoom(room),
-    outsideDistanceM: distanceOutsideRoomM(expected, evidence?.point),
+    outsideDistanceM: outsideDistanceForExpected(expected, evidence?.point),
   });
 }
 function legacyMoments(observation) {
@@ -110,7 +121,6 @@ function firstResolutionLag(observation, moments) {
   return first && Number.isFinite(first.atMs) && Number.isFinite(observation.startMs)
     ? roundSeconds((first.atMs - observation.startMs) / 1000) : null;
 }
-
 function dwellDuration(moments) {
   let scored = 0;
   let resolved = 0;
@@ -121,16 +131,6 @@ function dwellDuration(moments) {
     if (moments[index].status === "resolved") resolved += seconds;
   }
   return { scored: roundSeconds(scored), resolved: roundSeconds(resolved) };
-}
-
-function publicRoom(room) {
-  return room ? Object.freeze({
-    id: room.id ?? null,
-    identifier: room.identifier ?? null,
-    name: room.name ?? null,
-    z: Number.isFinite(room.z) ? room.z : null,
-    geometry: ["Polygon", "MultiPolygon"].includes(room.geometry?.type) ? room.geometry : null,
-  }) : null;
 }
 function samePoint(left, right) {
   if (!left || !right) return left === right;

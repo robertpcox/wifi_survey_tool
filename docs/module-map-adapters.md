@@ -18,27 +18,29 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - mazemap-catalog 141/4695 T+ E describePoi, fetchCampusCatalog I mazemap-poi-position, mazemap-runtime
 - mazemap-controls 149/4557 T+ E createMapControls I @d/route-contract, camera-bearing, mazemap-runtime
 - mazemap-errors 117/4628 T+ E MAP_LAUNCH_CLASSIFICATIONS, MazeMapLaunchError, classifyMazeMapLaunchError
+- mazemap-floor-area 61/2170 T+ E normalizeMazeMapFloorAreas
 - mazemap-floor-control 39/1319 T+ E createMazeMapFloorControl
 - mazemap-launch 144/4524 T+ E campusForLaunch, createLoadedMazeMap, launchCenter, resolveLaunchContainer, waitForMazeMapLoad I mazemap-catalog, mazemap-errors
 - mazemap-poi-pages 66/2393 T- E fetchAllPoiPages
 - mazemap-poi-position 38/1187 T+ E poiCenter
-- mazemap-queries 99/3080 T+ E createMazeMapQueries I mazemap-catalog, mazemap-room-catalog, mazemap-room
-- mazemap-room-catalog 97/3432 T+ E loadMazeMapRoomCatalog I mazemap-poi-pages, mazemap-room
+- mazemap-queries 101/3170 T+ E createMazeMapQueries I mazemap-catalog, mazemap-room-catalog, mazemap-room
+- mazemap-room-catalog 120/4242 T+ E loadMazeMapRoomCatalog I mazemap-floor-area, mazemap-poi-pages, mazemap-room
+- mazemap-room-readiness 60/2082 T- E createMazeMapRoomReadiness, waitForRenderedMazeMap
 - mazemap-room 49/1757 T+ E mergeMazeMapRooms, normalizeMazeMapRoom
 - mazemap-runtime 38/1032 T+ E errorMessage, normalizeCampusId, numericZ, waitForMapLoad
 - mazemap-sdk 78/2763 T+ E MAZEMAP_CSS_URL, MAZEMAP_JS_URL, loadMazemapSdk, resolveMazemapSdk
 - mazemap-shared-boundary 78/2384 T+ E createMazeMapSharedBoundary
-- mazemap 150/6160 T+ E createMazeMapAdapter
+- mazemap 150/6609 T+ E createMazeMapAdapter
   - I @d/route-contract, layers, map-resize, mazemap-3d, mazemap-controls, mazemap-errors, mazemap-floor-control, mazemap-launch, mazemap-queries,
-    mazemap-runtime, mazemap-sdk, mazemap-shared-boundary, shared-map-layers
+    mazemap-room-readiness, mazemap-runtime, mazemap-sdk, mazemap-shared-boundary, shared-map-layers
 - note-features 37/1262 T+ E notePointFeatures
 - player-fix-history 41/1490 T+ E playerChangedFixHistory I map-geojson
 - player-layer-definitions 102/3710 T+ E PLAYER_EVIDENCE_LAYERS, playerLayerDefinitions
 - player-live-raw-fix 25/959 T+ E liveRawFixFeature I map-geojson
 - player-map-features 150/5779 T+ E buildPlayerFeatureCollections I map-geojson, note-features, player-fix-history, player-live-raw-fix
 - player-map-layers 53/1823 T+ E createPlayerMapLayers I evidence-interactions, geojson-layer-group, player-layer-definitions, player-map-features
-- report-area-observation-features 110/4604 T+ E areaObservationFeatures, isDisplayedAreaFailure
-- report-area-polygon-features 57/1958 T+ E areaPolygonFeatures, presentationResolutionPercent
+- report-area-observation-features 111/4662 T+ E areaObservationFeatures, isDisplayedAreaFailure
+- report-area-polygon-features 59/2012 T+ E areaPolygonFeatures, presentationResolutionPercent
 - report-area-resolution-map-layer 95/3240 T+ E createReportAreaResolutionMapLayer
   - I geojson-layer-group, report-area-observation-features, report-area-polygon-features
 - report-concern-map-layer 102/3059 T+ E createReportConcernMapLayer I evidence-interactions, geojson-layer-group

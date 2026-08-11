@@ -32,6 +32,7 @@ function corridorGroups(observations) {
       poiId: room?.id ?? null,
       identifier: room?.identifier ?? null,
       name: room?.name ?? "Unmapped corridor",
+      areaKind: room?.areaKind ?? null,
       z: room?.z ?? sample.target.z,
       point: sample.target,
       samples: 0, resolved: 0, failures: 0, unscored: 0,

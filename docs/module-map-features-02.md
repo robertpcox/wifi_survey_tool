@@ -26,9 +26,10 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - report-warnings.css 150/3658 T-
 - result-loader 123/4594 T+ E assertReportResult, campusRunEntries, comparisonEntries, loadSelectedResult, readUploadedResult, resultSelectionFromUrl
   - I @a/files, @d/survey-result-v3
+- room-resolution-area-match 55/2092 T- E catalogAreaKey, isCommonArea, smallestContainingArea I @d/report-room-geometry
 - room-resolution-catalog-points 22/929 T- E cataloguePoints
-- room-resolution-catalog 148/5341 T+ E createCampusRoomCatalog, expectedCatalogRoom, knownRoomIndex, observedKnownRoom
-  - I @d/report-room-geometry, room-resolution-catalog-points
+- room-resolution-catalog 129/4962 T+ E createCampusRoomCatalog, expectedCatalogRoom, knownRoomIndex, observedKnownRoom
+  - I @d/report-room-geometry, room-resolution-area-match, room-resolution-catalog-points
 - room-resolution-evidence-view 97/4099 T+ E renderRoomResolutionEvidence I @s/format
 - room-resolution-loader 100/3742 T+ E createRoomResolutionLoader
   - I @d/report-area-summary, @d/report-corridor-observation, @d/report-corridor-summary, @d/report-room-observation, @d/report-room-resolution,
@@ -100,6 +101,3 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - result-upload 16/553 T+ E validateRunnerResultFile I @a/files, @d/survey-result-v3
 - run-navigation 105/3358 T+ E NAVIGATION_DEBOUNCE_MS, createRunnerNavigation I @d/runner-progress-v3
 - run-safety-view 67/2640 T+ E awaitingEndText, createRunnerSafetyView
-- run-view 149/5431 T+ E checkpointDistanceText, createRunnerRunView, targetName I @d/geometry, note-view, run-safety-view
-- runner-active.css 150/3140 T+ I runner-note.css, runner-safety.css
-- runner-entry.css 39/889 T-

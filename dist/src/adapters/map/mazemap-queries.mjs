@@ -17,6 +17,7 @@ export function createMazeMapQueries(
   currentCatalog,
   currentCampusId = () => null,
   currentMap = () => null,
+  waitForRoomCatalogReady = () => Promise.resolve(),
 ) {
   const poiCache = new Map();
   const roomCatalogCache = new Map();
@@ -71,6 +72,7 @@ export function createMazeMapQueries(
   }
 
   async function resolveCampusRooms(points = []) {
+    await waitForRoomCatalogReady();
     const sdk = await resolveSdk();
     return loadMazeMapRoomCatalog({
       sdk,

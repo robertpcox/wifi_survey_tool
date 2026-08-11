@@ -5,6 +5,7 @@
 // RULES:        Query each discovered building; advance full pages by POI ID without per-point API calls.
 // PROVENANCE:   Consolidated MazeMap area-resolution evidence
 
+import { normalizeMazeMapFloorAreas } from "./mazemap-floor-area.mjs";
 import { normalizeMazeMapRoom } from "./mazemap-room.mjs";
 import { fetchAllPoiPages } from "./mazemap-poi-pages.mjs";
 
@@ -24,18 +25,35 @@ export async function loadMazeMapRoomCatalog({
   )));
   const unique = new Map();
   for (const poi of batches.flat()) {
-    const room = normalizeMazeMapRoom(poi);
+    const room = catalogRoom(poi);
     if (!room?.geometry || !Number.isFinite(room.z)) continue;
     const key = room.id
       ? `${room.z}:poi:${room.id}`
       : `${room.z}:geometry:${JSON.stringify(room.geometry)}`;
     if (!unique.has(key)) unique.set(key, room);
   }
+  const buildingIds = queries.map(query => query.buildingid).filter(Boolean);
+  for (const area of normalizeMazeMapFloorAreas(catalog?.floors, buildingIds)) {
+    unique.set(`${area.z}:area:${area.id}`, area);
+  }
   const rooms = [...unique.values()];
   if (!rooms.length) {
-    throw new Error("MazeMap campus room catalogue returned no polygon POIs");
+    throw new Error("MazeMap campus room catalogue returned no polygon POIs or floor outlines");
   }
   return rooms;
+}
+
+function catalogRoom(poi) {
+  const room = normalizeMazeMapRoom(poi);
+  if (!room) return null;
+  const data = poi?.properties ?? {};
+  return Object.freeze({
+    ...room,
+    areaKind: "room",
+    floorId: text(data.floorId ?? data.floor?.id ?? poi?.floorId),
+    buildingId: text(data.buildingId ?? data.building?.id ?? poi?.buildingId),
+    campusId: text(data.campusId ?? data.campus?.id ?? poi?.campusId),
+  });
 }
 function catalogQueries({ sdk, catalog, campusid, map, points }) {
   const unique = new Map();
@@ -94,4 +112,9 @@ function catalogId(item) {
 function positiveId(value) {
   const id = Number(value);
   return Number.isInteger(id) && id > 0 ? id : null;
+}
+
+function text(value) {
+  const result = String(value ?? "").trim();
+  return result || null;
 }

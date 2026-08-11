@@ -36,6 +36,8 @@ export function aggregateAreaPolygons(observations = []) {
   const groups = new Map();
   for (const observation of observations) {
     const room = observation.expectedRoom;
+    // Floor outlines score corridor samples but never colour over named room polygons.
+    if (room?.areaKind === "common-area") continue;
     if (!validGeometry(room?.geometry)) continue;
     const z = Number(room.z ?? observation.target?.z);
     if (!Number.isFinite(z)) continue;
@@ -45,6 +47,7 @@ export function aggregateAreaPolygons(observations = []) {
       poiId: room.id ?? null,
       identifier: room.identifier ?? null,
       areaName: room.name ?? observation.roomLabel ?? "MazeMap area",
+      areaKind: room.areaKind ?? "room",
       z,
       geometry: room.geometry,
       observationCount: 0,

@@ -75,7 +75,7 @@ function mazemapHarness(mode = "load") {
   };
   return state;
 }
-test("launch configures private access before catalog and map construction", async () => {
+test("launch configures private access before Map and loads catalog afterward", async () => {
   const state = mazemapHarness();
   let loads = 0;
   const adapter = createMazeMapAdapter({
@@ -87,13 +87,13 @@ test("launch configures private access before catalog and map construction", asy
   assert.equal(await adapter.launch("runtime-secret", onClick, { campusId: "777" }), 2);
   assert.equal(loads, 1);
   assert.equal(adapter.Mazemap, state.Mazemap);
-  assert.equal(adapter.campusId, 777);
-  assert.equal(adapter.campusName, "Runtime Campus");
-  assert.deepEqual(state.lifecycle, ["config:runtime-secret", "data:campus", "data:floors", "data:buildings", "map:new"]);
+  assert.deepEqual([adapter.campusId, adapter.campusName], [777, "Runtime Campus"]);
+  assert.deepEqual(state.lifecycle, ["config:runtime-secret", "map:new", "data:campus", "data:floors", "data:buildings"]);
   assert.deepEqual(state.map.options, {
-    container: "map", campuses: 777, zoom: 18, center: [12, 22],
+    container: "map", campuses: 777, zoom: 18, center: [170.508292, -45.872428],
     threeD: { animateWalls: true, show3dAssets: true },
   });
+  assert.deepEqual(state.map.easyCamera, { center: [12, 22], duration: 0 });
   adapter.focusWaypoint({ lng: 170.5, lat: -45.8, z: 2 });
   assert.deepEqual([state.threeD, state.map.easyCamera.pitch], ["enabled", 45]);
   assert.equal(state.map.events.click, onClick);

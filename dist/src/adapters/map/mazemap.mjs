@@ -10,26 +10,28 @@ import { createMazeMapFloorControl } from "./mazemap-floor-control.mjs";
 import { createMapLayers } from "./layers.mjs";
 import { createMapControls } from "./mazemap-controls.mjs";
 import { classifyMazeMapLaunchError } from "./mazemap-errors.mjs";
-import {
-  campusForLaunch, createLoadedMazeMap, launchCenter, resolveLaunchContainer,
-} from "./mazemap-launch.mjs";
+import { campusForLaunch, createLoadedMazeMap, launchCenter, resolveLaunchContainer }
+  from "./mazemap-launch.mjs";
 import { normalizeCampusId, numericZ } from "./mazemap-runtime.mjs";
 import { resolveMazemapSdk } from "./mazemap-sdk.mjs";
 import { createMazeMapQueries } from "./mazemap-queries.mjs";
+import { createMazeMapRoomReadiness } from "./mazemap-room-readiness.mjs";
 import { createMazeMapSharedBoundary } from "./mazemap-shared-boundary.mjs";
 import { resizeMapAfterLayout } from "./map-resize.mjs";
 import { createSharedMapLayers } from "./shared-map-layers.mjs";
 export function createMazeMapAdapter(options = {}) {
   let Mazemap = options.Mazemap ?? null;
   let campusId = normalizeCampusId(options.campusId ?? CAMPUS_ID);
-  let campusName = null;
-  let currentZLevel = 1;
+  let campusName = null, currentZLevel = 1;
   let layers = null, map = null;
   let resolvedContainer = null, sharedLayers = null;
   let activeCatalog = { buildings: [], floors: [] };
   const catalogCaches = { public: new Map(), token: new Map() };
   const threeD = createMazeMap3dState(options.threeD, options.threeDPitch);
   const floorControl = createMazeMapFloorControl(options.floorControl);
+  const roomReadiness = createMazeMapRoomReadiness({
+    scheduleFrame: options.requestAnimationFrame, timeoutMs: options.mapLoadTimeoutMs,
+  });
   const controls = createMapControls({
     currentZ: () => currentZLevel,
     focusPitch: () => threeD.pitch,
@@ -39,15 +41,15 @@ export function createMazeMapAdapter(options = {}) {
     setCurrentZ: value => { currentZLevel = value; },
   });
   const shared = createMazeMapSharedBoundary({ setFloor });
-  const queries = createMazeMapQueries(
-    resolveSdk, () => activeCatalog, () => campusId, () => map,
-  );
+  const queries = createMazeMapQueries(resolveSdk, () => activeCatalog,
+    () => campusId, () => map, roomReadiness.wait);
   async function resolveSdk() {
     Mazemap = await resolveMazemapSdk(Mazemap, options);
     return Mazemap;
   }
   async function launch(viewToken, onMapClick, runtime = {}) {
     const token = String(viewToken ?? "").trim();
+    roomReadiness.begin(token);
     let phase = "container";
     try {
       const containerInput = runtime.container
@@ -61,6 +63,8 @@ export function createMazeMapAdapter(options = {}) {
       phase = "sdk-load";
       const sdk = await resolveSdk();
       const nextCampusId = normalizeCampusId(runtime.campusId ?? campusId);
+      const center = launchCenter(runtime, options.center);
+      const preserveCenter = runtime.center || runtime.route || options.center;
       phase = "token-config";
       if (token) {
         if (typeof sdk.Config?.setMazemapViewToken !== "function") {
@@ -69,24 +73,21 @@ export function createMazeMapAdapter(options = {}) {
         sdk.Config.setMazemapViewToken(token);
       }
       queries.clearRoomCatalogCache();
-      phase = "catalog";
-      activeCatalog = await campusForLaunch({
-        cache: catalogCaches[token ? "token" : "public"],
-        campusId: nextCampusId,
-        campusName: runtime.campusName,
-        center: launchCenter(runtime, options.center),
-        sdk,
-      });
-      campusId = nextCampusId;
-      campusName = activeCatalog.name;
       controls.clearTargetMarker();
       map?.remove?.();
       layers = null;
       sharedLayers = null;
       phase = "map-load";
-      const mapOptions = threeD.mapOptions(container, campusId, activeCatalog.center);
+      const mapOptions = threeD.mapOptions(container, nextCampusId, center);
       map = await createLoadedMazeMap(sdk,
         floorControl.mapOptions(sdk, mapOptions), options.mapLoadTimeoutMs ?? 10000);
+      phase = "catalog";
+      activeCatalog = await campusForLaunch({
+        cache: catalogCaches[token ? "token" : "public"],
+        campusId: nextCampusId, campusName: runtime.campusName, center, sdk,
+      });
+      if (!preserveCenter) map.easeTo?.({ center: activeCatalog.center, duration: 0 });
+      campusId = nextCampusId; campusName = activeCatalog.name;
       threeD.apply(map);
       floorControl.attach(sdk, map);
       currentZLevel = numericZ(controls.getMapZLevel()) ?? 1;
@@ -96,8 +97,9 @@ export function createMazeMapAdapter(options = {}) {
       sharedLayers = createSharedMapLayers(map, () => currentZLevel);
       shared.bind(sharedLayers);
       if (onMapClick) map.on("click", onMapClick);
-      return currentZLevel;
+      roomReadiness.loaded(map); return currentZLevel;
     } catch (error) {
+      roomReadiness.fail();
       if (phase !== "map-load") map?.remove?.();
       if (!layers) map = null;
       throw classifyMazeMapLaunchError(error, phase);
@@ -115,9 +117,7 @@ export function createMazeMapAdapter(options = {}) {
     applyZStyling();
     return true;
   }
-  function fitRoute(route) {
-    return controls.fitRoute(route);
-  }
+  const fitRoute = route => controls.fitRoute(route);
   function drawPlayerFrame(frame, snap) {
     const drawn = shared.drawPlayerFrame(frame, snap);
     if (drawn) layers?.setActiveLeg(frame?.walker?.activeLegIndex ?? frame?.activeLegIndex);

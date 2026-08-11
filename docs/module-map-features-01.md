@@ -20,8 +20,10 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
   - I @d/capture-conversion-v3, @s/format
 - capture-spine 56/1871 T+ E captureSpineChoices, parseCaptureRecords, parseSpineResult, spineRunLabel I @d/survey-result-v3
 - dashboard-consolidated.css 59/1758 T-
+- dashboard-map-access.css 38/1345 T+
+- dashboard-map-access 105/4093 T+ E bindDashboardMapAccess, renderDashboardMapAccess I @a/window-map-access-transfer
 - dashboard.css 140/3029 T+
-- dashboard 118/4025 T+ E mountDashboard, renderDashboard I @d/dashboard-selection, @s/format
+- dashboard 121/4180 T+ E mountDashboard, renderDashboard I @d/dashboard-selection, @s/format, dashboard-map-access
 ## definition-creator/
 - checkpoint-dwell 88/2818 T+ E applyCreatorCheckpointDwells, replaceCreatorCheckpointDwell
 - components.css 150/2547 T+
@@ -56,6 +58,8 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - workflow-routing 112/3350 T+ E createCreatorRouting I checkpoint-dwell, workflow-route
 - workflow 92/2694 T+ E createCreatorWorkflow, shortLegWarning
   - I @d/creator-route-v3, @d/definition-authoring-v3, @d/route-duration-v3, workflow-route, workflow-routing
+## report-player/fixtures/
+- map-access-fixture 45/1782 T- E fakeAccessRoot, memoryCredentials
 ## report-player/
 - all-runs 143/5463 T+ E allRunsRow, bindAllRunsAction, createAllRunsLoader, renderAllRunsSection I @d/report-analysis, @d/report-comparison, @s/format
 - analysis-export 134/4803 T+ E buildAnalysisCsv, createAnalysisExports, createAnalysisSummary, downloadAnalysisExports
@@ -74,8 +78,10 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - heatmap-view 65/2314 T+ E renderHeatmapView I @s/format
 - identity-view 75/2867 T+ E renderIdentityView I @s/format
 - kpi-view 72/3306 T+ E renderKpiView I @s/format
-- map-access-view 33/1783 T- E renderMapAccess
-- map-access 149/4741 T+ E bindMapAccess, renderMapAccess I @s/format, map-access-view
+- map-access-attempt 62/1836 T- E createMapAccessAttempt
+- map-access-controls 102/3324 T- E createMapAccessControls I @s/format
+- map-access-view 36/1860 T- E renderMapAccess
+- map-access 115/3961 T+ E bindMapAccess, renderMapAccess I map-access-attempt, map-access-controls, map-access-view
 - map-alert-view 116/4091 T+ E renderAnalysisMapAlerts, renderConcernDetail, renderPlayerMapAlerts I @d/geometry, @s/format
 - map-fallback 88/3144 T+ E drawRouteFallback
 - map-floor-sync 90/2423 T+ E createMapFloorSync
@@ -108,9 +114,3 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - report-floor-controller 61/1882 T+ E bindReportFloor, renderPlayerFrame
 - report-insights-view 19/853 T+ E renderReportInsights I @d/report-insights, report-series-view, report-summary-view
 - report-insights.css 120/2108 T+
-- report-interactions 146/6257 T+ E bindReportInteractions, renderDynamicSections, renderPlayerFrame
-  - I @a/download, comparison-view, map-alert-view, map-highlight-controller, methodology-view, playback-view, report-collection-controller,
-    report-floor-controller, report-mode-controller, report-sections, report-warning-view, result-loader
-- report-mode-controller 94/3025 T+ E bindReportModes
-- report-player.css 148/3552 T+
-- report-player 121/4339 T+ E mountReportPlayer I map-access, map-surface, report-interactions, report-shell, report-store, result-loader

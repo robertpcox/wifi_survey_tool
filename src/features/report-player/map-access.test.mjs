@@ -9,6 +9,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
+import { fakeAccessRoot, memoryCredentials } from "./fixtures/map-access-fixture.mjs";
 import { bindMapAccess, renderMapAccess } from "./map-access.mjs";
 
 const result = JSON.parse(await readFile(
@@ -97,48 +98,3 @@ test("typed access is held in memory, cleared from the input, and retried", asyn
   assert.equal(fixture.toggleButton.focused, 1);
   assert.deepEqual(ready, ["ready"]);
 });
-
-function memoryCredentials() {
-  const values = new Map();
-  return {
-    clear: key => values.delete(key),
-    has: key => Boolean(values.get(key)),
-    read: key => values.get(key),
-    set: (key, value) => value ? values.set(key, value) : values.delete(key),
-  };
-}
-
-function fakeAccessRoot() {
-  const panel = { hidden: true };
-  const input = { value: "" };
-  const status = { textContent: "", innerHTML: "" };
-  const save = listenerNode();
-  const clear = listenerNode();
-  const toggleButton = listenerNode();
-  const nodes = new Map([
-    ["[data-map-access-panel]", panel],
-    ["[data-map-access]", input],
-    ["[data-map-access-status]", status],
-    ["[data-save-access]", save],
-    ["[data-clear-access]", clear],
-    ["[data-toggle-map-access]", toggleButton],
-  ]);
-  return {
-    panel,
-    input,
-    status,
-    toggleButton,
-    root: { querySelector: key => nodes.get(key) },
-  };
-}
-
-function listenerNode() {
-  return {
-    attributes: {},
-    hidden: false,
-    focused: 0,
-    addEventListener(name, listener) { this[name] = listener; },
-    focus() { this.focused += 1; },
-    setAttribute(name, value) { this.attributes[name] = value; },
-  };
-}

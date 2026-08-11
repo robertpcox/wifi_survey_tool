@@ -24,6 +24,7 @@ export async function mountReportPlayer({
   createMap,
   createPrivateMap,
   downloadFile,
+  dashboardSupplied = false,
 }) {
   root.innerHTML = renderLoadPanel();
   const upload = root.querySelector("[data-result-upload]");
@@ -61,7 +62,7 @@ export async function mountReportPlayer({
     const candidates = payload.manifest
       ? comparisonEntries(payload.manifest, payload.result)
       : [];
-    root.innerHTML = renderReportShell(state, candidates);
+    root.innerHTML = renderReportShell(state, candidates, { dashboardSupplied });
     const surface = createReportMapSurface({
       result: payload.result,
       canvas: root.querySelector("[data-report-map]"),
@@ -80,6 +81,7 @@ export async function mountReportPlayer({
       credentials,
       surface,
       requirePrivateAccess,
+      dashboardSupplied,
       onReady: () => player?.enableRoomLookup(),
       onDecline: () => player?.markRoomUnavailable(areaAccessError),
     });

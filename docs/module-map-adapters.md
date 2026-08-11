@@ -64,3 +64,4 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - memory-credentials 41/976 T+ E createMemoryCredentialStore
 - preferences 37/1062 T+ E PERSISTED_PREFERENCE_IDS, restorePrefs
 - route-storage 74/2339 T+ E createRouteRepository, savedRouteStops
+- window-map-access-transfer 111/3862 T+ E createWindowMapAccessSender, receiveWindowMapAccess

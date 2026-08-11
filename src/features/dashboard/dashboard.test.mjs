@@ -41,6 +41,8 @@ test("dashboard renders one customer's surveys, devices, and Report Player launc
   assert.ok(html.indexOf("Consolidated issue report") < html.indexOf("Ward walk"));
   assert.match(html, /4 completed runs/);
   assert.match(html, /Open report and choose runs/);
+  assert.equal((html.match(/data-report-launch/g) ?? []).length, 2);
+  assert.match(html, /Private MazeMap access/);
   assert.match(html, /customer_id=customer-a&amp;campus_id=566&amp;view=overview/);
   assert.match(html, /Phone · mobile · OS 1 · 5 GHz/);
   assert.match(html, /Open Report Player/);

@@ -11,6 +11,7 @@ import {
   reportPlayerUrl,
 } from "../../domain/dashboard-selection.mjs";
 import { esc } from "../../shared/format.mjs";
+import { renderDashboardMapAccess } from "./dashboard-map-access.mjs";
 
 export function renderDashboard(model, reportPlayerBase) {
   const consolidated = renderConsolidated(model, reportPlayerBase);
@@ -22,7 +23,8 @@ export function renderDashboard(model, reportPlayerBase) {
             <strong>${esc(result.deviceLabel)}</strong>
             <span>${esc(formatDate(result.exportedAt))}</span>
           </div>
-          <a class="dashboard-launch" href="${esc(reportPlayerUrl(result, reportPlayerBase))}">
+          <a class="dashboard-launch" data-report-launch
+            href="${esc(reportPlayerUrl(result, reportPlayerBase))}">
             Open Report Player
           </a>
         </li>`).join("")
@@ -43,6 +45,7 @@ export function renderDashboard(model, reportPlayerBase) {
       <h1>${esc(model.customerName)}</h1>
       <p>${model.surveys.length} available survey${model.surveys.length === 1 ? "" : "s"}</p>
     </section>
+    ${renderDashboardMapAccess()}
     ${consolidated}
     <section class="dashboard-grid">${surveyCards || emptyDashboard()}</section>`;
 }
@@ -56,7 +59,7 @@ function renderConsolidated(model, reportPlayerBase) {
         <span>${esc(campus.runCount)} completed runs ·
           ${esc(campus.surveyCount)} surveys</span>
       </div>
-      <a class="dashboard-consolidated-launch"
+      <a class="dashboard-consolidated-launch" data-report-launch
         href="${esc(consolidatedReportUrl(campus, reportPlayerBase))}">
         Open report and choose runs
       </a>

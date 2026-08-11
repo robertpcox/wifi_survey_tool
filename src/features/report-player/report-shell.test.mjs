@@ -115,3 +115,14 @@ test("an excluded direct result does not request private area access", () => {
   assert.match(html, /data-access-required="false"/);
   assert.doesNotMatch(html, /data-access-required="true"/);
 });
+
+test("dashboard-supplied access starts with its report controls concealed", () => {
+  const analysis = analyzeReportResult(result, { stickySeconds: 2, accuracyM: 5 });
+  const html = renderReportShell({
+    result, analysis, thresholds: analysis.thresholds,
+    comparison: null, view: "analysis", consolidated: false,
+  }, [], { dashboardSupplied: true });
+  assert.match(html, /data-toggle-map-access[^>]* hidden/);
+  assert.match(html, /data-map-access-panel[^>]*data-access-required="true"[^>]* hidden/);
+  assert.doesNotMatch(html, /<input[^>]*data-map-access[^>]*\bvalue=|dashboard-access/);
+});

@@ -6,29 +6,37 @@
 // PROVENANCE:   Scope/steps/05_dashboard_report_player.md
 
 import { createManifestSource } from "../../adapters/manifest-source.mjs";
+import { createMemoryCredentialStore } from "../../adapters/memory-credentials.mjs";
 import {
   customerIdFromUrl,
   reportPlayerBaseFromUrl,
 } from "../../domain/dashboard-selection.mjs";
 import { bindCaptureConvertPanel } from "../../features/dashboard/capture-convert-bind.mjs";
+import { bindDashboardMapAccess } from "../../features/dashboard/dashboard-map-access.mjs";
 import { mountDashboard } from "../../features/dashboard/dashboard.mjs";
 
 export function bootDashboard({
   documentRef = document,
   locationRef = globalThis.location,
   manifestSource = createManifestSource(),
+  credentials = createMemoryCredentialStore(),
+  windowRef = globalThis.window,
 } = {}) {
   const customerId = customerIdFromUrl(locationRef.href);
+  const root = documentRef.querySelector("[data-dashboard-root]");
   void bindCaptureConvertPanel({
     root: documentRef.querySelector("[data-capture-convert-root]"),
     customerId,
     manifestSource,
   });
   return mountDashboard({
-    root: documentRef.querySelector("[data-dashboard-root]"),
+    root,
     customerId,
     manifestSource,
     reportPlayerBase: reportPlayerBaseFromUrl(locationRef.href),
+  }).then(model => {
+    if (model) bindDashboardMapAccess({ root, credentials, windowRef });
+    return model;
   });
 }
 

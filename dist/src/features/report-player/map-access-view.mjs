@@ -5,12 +5,15 @@
 // RULES:        Never render, persist, or prefill a credential value.
 // PROVENANCE:   Scope/steps/05a_recast_player.md
 
-export function renderMapAccess(result, { requirePrivateAccess = false } = {}) {
+export function renderMapAccess(result, {
+  requirePrivateAccess = false, dashboardSupplied = false,
+} = {}) {
   const hint = Boolean(result.meta.credentialRequirements.mapAccess);
+  const hidden = dashboardSupplied || !requirePrivateAccess;
   return `
     <aside id="report-map-access" class="map-access"
       data-map-access-panel data-access-hint="${hint}"
-      data-access-required="${requirePrivateAccess}"${requirePrivateAccess ? "" : " hidden"}>
+      data-access-required="${requirePrivateAccess}"${hidden ? " hidden" : ""}>
       <div>
         <strong>${requirePrivateAccess
     ? "MazeMap access required for area resolution"

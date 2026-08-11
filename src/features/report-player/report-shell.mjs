@@ -30,7 +30,9 @@ export function renderLoadPanel(message = "Choose a generated result or upload a
     </section>`;
 }
 
-export function renderReportShell(state, candidates = []) {
+export function renderReportShell(state, candidates = [], {
+  dashboardSupplied = false,
+} = {}) {
   const { result, analysis, thresholds, comparison } = state;
   const overview = state.view === "overview";
   const requirePrivateAccess = requiresPrivateAreaAccess(state);
@@ -44,7 +46,7 @@ export function renderReportShell(state, candidates = []) {
     ? "Campus report · loading eligible runs"
     : "One result · one analysis · one map"}</p>
         <button type="button" data-toggle-map-access aria-expanded="false"
-          aria-controls="report-map-access">
+          aria-controls="report-map-access"${dashboardSupplied ? " hidden" : ""}>
           Map access token
         </button>
       </div>
@@ -53,7 +55,7 @@ export function renderReportShell(state, candidates = []) {
       ${renderIdentityView(result)}
       <section data-module="warnings">${renderReportWarnings(analysis)}</section>
     </div>
-    ${renderMapAccess(result, { requirePrivateAccess })}
+    ${renderMapAccess(result, { requirePrivateAccess, dashboardSupplied })}
     <div class="shared-map-workspace" data-player-workspace>
       <section class="report-section map-section" data-module="floor-route">
         ${renderFloorRouteView(result, {

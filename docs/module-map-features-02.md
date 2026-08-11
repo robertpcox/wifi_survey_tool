@@ -4,10 +4,16 @@
 E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 
 ## report-player/
+- report-interactions 146/6257 T+ E bindReportInteractions, renderDynamicSections, renderPlayerFrame
+  - I @a/download, comparison-view, map-alert-view, map-highlight-controller, methodology-view, playback-view, report-collection-controller,
+    report-floor-controller, report-mode-controller, report-sections, report-warning-view, result-loader
+- report-mode-controller 94/3025 T+ E bindReportModes
+- report-player.css 148/3552 T+
+- report-player 123/4416 T+ E mountReportPlayer I map-access, map-surface, report-interactions, report-shell, report-store, result-loader
 - report-sections 33/1397 T+ E renderDynamicSections
   - I comparison-view, direction-view, heatmap-view, kpi-view, methodology-view, no-position-view, report-insights-view, report-warning-view
 - report-series-view 129/5499 T+ E renderReportSeries I @s/format, report-chart-svg
-- report-shell 119/5416 T+ E renderLoadPanel, renderReportShell, requiresPrivateAreaAccess
+- report-shell 121/5511 T+ E renderLoadPanel, renderReportShell, requiresPrivateAreaAccess
   - I comparison-view, direction-view, floor-route-view, heatmap-view, identity-view, kpi-view, map-access, methodology-view, no-position-view, playback-view,
     report-insights-view, report-warning-view
 - report-store 138/3992 T+ E createReportPlayerStore I @d/report-analysis, @d/report-comparison, @d/report-concern-segments
@@ -97,9 +103,3 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - runner-note.css 57/1348 T-
 - runner-preflight-action 42/1579 T- E performRunnerPreflight I dynamic-room-preflight, preflight
 - runner-safety.css 73/1602 T+
-- runner-start-gate 16/830 T- E prepareRunnerStart
-- runner.css 150/4605 T+ I dynamic-room.css, runner-entry.css
-- setup-clear 25/910 T- E clearRunnerCaptureState
-- setup-init 28/1289 T- E initializeRunnerSetup I loader
-- setup-map 22/998 T+ E drawRunnerSelection
-- setup 143/4133 T+ E createRunnerSetup I definition-upload, entry, loader, poll-loop, preflight, runner-mode, setup-clear, setup-init, setup-map

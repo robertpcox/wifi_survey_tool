@@ -9,6 +9,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
+import { fakeAccessRoot, memoryCredentials } from "./fixtures/map-access-fixture.mjs";
 import { bindMapAccess, renderMapAccess } from "./map-access.mjs";
 
 const result = JSON.parse(await readFile(
@@ -88,32 +89,3 @@ test("explicit area fallback starts public MazeMap only after the decision", asy
   await binding.retry();
   assert.equal(enabled, 1, "a later private retry reruns area resolution");
 });
-
-function memoryCredentials() {
-  const values = new Map();
-  return {
-    clear: key => values.delete(key),
-    has: key => Boolean(values.get(key)),
-    read: key => values.get(key),
-    set: (key, value) => value ? values.set(key, value) : values.delete(key),
-  };
-}
-
-function fakeAccessRoot() {
-  const panel = { hidden: true };
-  const input = { value: "", focus() {} };
-  const status = { textContent: "", innerHTML: "" };
-  const nodes = new Map([
-    ["[data-map-access-panel]", panel], ["[data-map-access]", input],
-    ["[data-map-access-status]", status], ["[data-save-access]", node()],
-    ["[data-clear-access]", node()], ["[data-toggle-map-access]", node()],
-  ]);
-  return { panel, input, status, root: { querySelector: key => nodes.get(key) } };
-}
-
-function node() {
-  return {
-    addEventListener(name, listener) { this[name] = listener; },
-    setAttribute() {}, focus() {}, hidden: false,
-  };
-}

@@ -1,0 +1,38 @@
+/* FEATURE:      Dashboard map access handoff
+ * SURFACE:      Private access entry before report launch
+ * WHY TOGETHER: Form layout, state copy, and responsive controls form one dashboard component.
+ * STATE:        Responsive layout only
+ * RULES:        Keep credential controls distinct, readable, and keyboard accessible.
+ * PROVENANCE:   Customer dashboard report launch
+ */
+
+.dashboard-map-access {
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.9fr) minmax(18rem, 1.1fr);
+  gap: 2rem;
+  margin-bottom: 1rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid #cad8e8;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 1rem 2.5rem rgb(20 33 61 / 7%);
+}
+
+.dashboard-map-access h2 { margin: 0.2rem 0; }
+.dashboard-map-access p { margin: 0.35rem 0 0; color: #52677f; }
+.dashboard-map-access form { display: grid; align-content: center; gap: 0.45rem; }
+.dashboard-map-access form > label { font-weight: 700; }
+
+.dashboard-map-access-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dashboard-map-access-row input { min-width: 12rem; flex: 1 1 auto; }
+.dashboard-map-access [role="status"] { min-height: 1.25em; font-size: 0.85rem; }
+
+@media (max-width: 700px) {
+  .dashboard-map-access { grid-template-columns: 1fr; gap: 1rem; }
+  .dashboard-map-access-row { align-items: stretch; flex-direction: column; }
+}

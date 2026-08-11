@@ -16,6 +16,7 @@ test("Dashboard HTML exposes the customer-aware mount without inline result data
   assert.match(html, /type="module" src="\.\/main\.mjs"/);
   assert.match(html, /data-dashboard-root/);
   assert.match(html, /features\/dashboard\/dashboard\.css/);
+  assert.match(html, /features\/dashboard\/dashboard-map-access\.css/);
   assert.match(html, /features\/dashboard\/dashboard-consolidated\.css/);
   assert.doesNotMatch(html, /resultId|MAP_TOKEN/);
 });

@@ -7,7 +7,7 @@
 
 import { esc } from "../../shared/format.mjs";
 
-export function renderCorridorResolution(summary) {
+export function renderCorridorResolution(summary, { showDevice = true } = {}) {
   if (!summary?.sampleCount) return `<section class="corridor-resolution-empty">
     <h4>Corridor walking samples</h4>
     <p>No eligible intermediate checkpoints are present.</p>
@@ -26,7 +26,7 @@ export function renderCorridorResolution(summary) {
     </div>
     ${corridorGraph(summary)}
     ${corridorTable(summary)}
-    ${corridorEvidence(summary)}
+    ${corridorEvidence(summary, showDevice)}
   </section>`;
 }
 
@@ -43,31 +43,37 @@ function corridorGraph(summary) {
 
 function corridorTable(summary) {
   return `<div class="report-table-scroll"><table><thead><tr>
-    <th>MazeMap area</th><th>Runs</th><th>Samples</th><th>Inside</th>
+    <th>Room number / ID</th><th>Room / area name</th><th>Worst same-floor outside</th>
+    <th>Runs</th><th>Samples</th><th>Inside</th>
     <th>Outside</th><th>Rate</th><th>Failure directions</th>
   </tr></thead><tbody>${summary.corridors.map(area => `<tr>
-    <th>${esc(area.name)}</th><td>${esc(area.runCount)}</td>
+    <td>${esc(area.identifier || area.poiId || "—")}</td><th>${esc(area.name)}</th>
+    <td>${esc(distanceValue(area.maxOutsideDistanceM))}</td><td>${esc(area.runCount)}</td>
     <td>${esc(area.samples)}</td><td>${esc(area.resolved)}</td>
     <td>${esc(area.failures)}</td><td>${esc(rate(area.resolutionPercent))}</td>
     <td>${failureDirection(area)}</td>
   </tr>`).join("")}</tbody></table></div>`;
 }
 
-function corridorEvidence(summary) {
+function corridorEvidence(summary, showDevice) {
   const rows = summary.observations.filter(item => !item.resolved).slice(0, 50);
   return `<details class="room-resolution-evidence"><summary>
     Outside and unscored corridor evidence (${esc(rows.length)} shown)</summary>
     <div class="report-table-scroll"><table><thead><tr>
-      <th>Run</th><th>Time</th><th>Checkpoint</th><th>Device</th>
-      <th>MazeMap area</th><th>Cisco dot</th><th>Outcome</th><th>Direction</th>
+      <th>Run</th><th>Time</th><th>Checkpoint</th>
+      ${showDevice ? "<th>Device</th>" : ""}<th>Room number / ID</th>
+      <th>Expected room / area</th><th>Cisco resolved area</th>
+      <th>Distance outside</th><th>Outcome</th><th>Direction</th>
     </tr></thead><tbody>${rows.map(item => `<tr>
       <td><code title="${esc(item.resultId)}">${esc(shortId(item.resultId))}</code></td>
       <td>${esc(clock(item.checkedInAt))}</td><th>${esc(item.checkpointId)}</th>
-      <td>${esc(item.device?.name || "Unknown")}</td>
+      ${showDevice ? `<td>${esc(item.device?.name || "Unknown")}</td>` : ""}
+      <td>${esc(item.expectedRoom?.identifier || item.expectedRoom?.id || "—")}</td>
       <td>${esc(item.expectedRoom?.name || "Unmapped")}</td>
-      <td>${esc(observedArea(item.primary))}</td><td>${esc(item.primary.status)}</td>
+      <td>${esc(observedArea(item.primary))}</td>
+      <td>${esc(distanceLabel(item.primary))}</td><td>${esc(item.primary.status)}</td>
       <td>${esc(item.direction || "—")}</td>
-    </tr>`).join("") || '<tr><td colspan="8">Every scored sample was inside.</td></tr>'}
+    </tr>`).join("") || `<tr><td colspan="${9 + Number(showDevice)}">Every scored sample was inside.</td></tr>`}
     </tbody></table></div></details>`;
 }
 
@@ -77,6 +83,10 @@ function card(label, value, detail) {
 
 function rate(value) {
   return Number.isFinite(value) ? `${Number(value).toFixed(1)}%` : "—";
+}
+
+function distanceValue(value) {
+  return Number.isFinite(value) ? `${Number(value).toFixed(1)} m` : "—";
 }
 
 function failureDirection(area) {
@@ -91,7 +101,16 @@ function position(point) {
 }
 
 function observedArea(moment) {
-  return moment?.room?.name || moment?.room?.id || position(moment?.point);
+  const number = moment?.room?.identifier || moment?.room?.id;
+  const values = [...new Set([number, moment?.room?.name].filter(Boolean))];
+  return values.join(" · ") || position(moment?.point);
+}
+
+function distanceLabel(moment) {
+  if (moment?.status === "wrong-floor") return "Different floor";
+  if (moment?.status === "no-displayed-fix") return "No Cisco fix";
+  return Number.isFinite(moment?.outsideDistanceM)
+    ? `${moment.outsideDistanceM.toFixed(1)} m` : "—";
 }
 
 function shortId(value) {

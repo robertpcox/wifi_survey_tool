@@ -20,20 +20,25 @@ test("room normalization preserves provider identity and polygon geometry", () =
   };
   const room = normalizeMazeMapRoom({
     id: 42,
-    properties: { title: "Clinic", zLevel: 1 },
+    properties: { identifier: "K01.07", title: "Clinic", zLevel: 1 },
     geometry,
   }, 0);
-  assert.deepEqual(room, { id: "42", name: "Clinic", z: 1, geometry });
+  assert.deepEqual(room, {
+    id: "42", identifier: "K01.07", name: "Clinic", z: 1, geometry,
+  });
   geometry.coordinates[0][0][0] = 0;
   assert.equal(room.geometry.coordinates[0][0][0], 170);
 });
 
 test("detailed room values merge with point-lookup fallbacks", () => {
   assert.deepEqual(mergeMazeMapRooms(
-    { id: "42", name: null, z: 1, geometry: { type: "Polygon", coordinates: [] } },
-    { id: "42", name: "Clinic", z: 1, geometry: null },
+    {
+      id: "42", identifier: null, name: null, z: 1,
+      geometry: { type: "Polygon", coordinates: [] },
+    },
+    { id: "42", identifier: "K01.07", name: "Clinic", z: 1, geometry: null },
   ), {
-    id: "42", name: "Clinic", z: 1,
+    id: "42", identifier: "K01.07", name: "Clinic", z: 1,
     geometry: { type: "Polygon", coordinates: [] },
   });
 });

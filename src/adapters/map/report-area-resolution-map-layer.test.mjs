@@ -25,7 +25,8 @@ test("area map hides inside pairs and retains only outside displacement", () => 
     target: { lng: 170.51, lat: -45.8, z: 2 },
     primary: {
       status: "wrong-room", point: { lng: 170.55, lat: -45.8, z: 2 },
-      room: { id: "other-room", name: "Other room" },
+      outsideDistanceM: 2.6,
+      room: { id: "other-room", identifier: "K01.08", name: "Other room" },
     },
   }], areaPolygons: [{
     areaKey: "north-room", areaName: "North matched room", z: 2,
@@ -42,6 +43,8 @@ test("area map hides inside pairs and retains only outside displacement", () => 
   assert.deepEqual(truth.map(item => item.properties.verdict), ["outside"]);
   assert.deepEqual(cisco.map(item => item.properties.verdict), ["outside"]);
   assert.equal(cisco[0].properties.resolvedAreaName, "Other room");
+  assert.equal(cisco[0].properties.resolvedAreaIdentifier, "K01.08");
+  assert.equal(cisco[0].properties.outsideDistanceM, 2.6);
   assert.deepEqual(cisco[0].geometry.coordinates, [170.55, -45.8]);
   assert.deepEqual(drift.map(item => item.properties.verdict), ["outside"]);
   assert.deepEqual(drift[0].geometry.coordinates,

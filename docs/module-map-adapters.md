@@ -22,7 +22,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - mazemap-launch 144/4524 T+ E campusForLaunch, createLoadedMazeMap, launchCenter, resolveLaunchContainer, waitForMazeMapLoad I mazemap-catalog, mazemap-errors
 - mazemap-poi-position 38/1187 T+ E poiCenter
 - mazemap-queries 126/4491 T+ E createMazeMapQueries I mazemap-catalog, mazemap-room
-- mazemap-room 45/1581 T+ E mergeMazeMapRooms, normalizeMazeMapRoom
+- mazemap-room 49/1757 T+ E mergeMazeMapRooms, normalizeMazeMapRoom
 - mazemap-runtime 38/1032 T+ E errorMessage, normalizeCampusId, numericZ, waitForMapLoad
 - mazemap-sdk 78/2763 T+ E MAZEMAP_CSS_URL, MAZEMAP_JS_URL, loadMazemapSdk, resolveMazemapSdk
 - mazemap-shared-boundary 78/2384 T+ E createMazeMapSharedBoundary
@@ -35,8 +35,8 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - player-live-raw-fix 25/959 T+ E liveRawFixFeature I map-geojson
 - player-map-features 150/5779 T+ E buildPlayerFeatureCollections I map-geojson, note-features, player-fix-history, player-live-raw-fix
 - player-map-layers 53/1823 T+ E createPlayerMapLayers I evidence-interactions, geojson-layer-group, player-layer-definitions, player-map-features
-- report-area-observation-features 106/4338 T+ E areaObservationFeatures, isDisplayedAreaFailure
-- report-area-polygon-features 57/1944 T+ E areaPolygonFeatures, presentationResolutionPercent
+- report-area-observation-features 110/4604 T+ E areaObservationFeatures, isDisplayedAreaFailure
+- report-area-polygon-features 57/1958 T+ E areaPolygonFeatures, presentationResolutionPercent
 - report-area-resolution-map-layer 95/3240 T+ E createReportAreaResolutionMapLayer
   - I geojson-layer-group, report-area-observation-features, report-area-polygon-features
 - report-concern-map-layer 102/3059 T+ E createReportConcernMapLayer I evidence-interactions, geojson-layer-group

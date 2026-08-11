@@ -6,7 +6,7 @@
 // PROVENANCE:   Campus area-resolution map
 
 const PROPERTIES = [
-  "areaKey", "poiId", "areaName", "z", "severity", "observationCount",
+  "areaKey", "poiId", "identifier", "areaName", "z", "severity", "observationCount",
   "scoredSampleCount", "insideSampleCount", "outsideSampleCount",
   "resolutionPercent", "runCount",
 ];

@@ -15,11 +15,12 @@ function sample(resultId, resolved, direction, poiId = "corridor-a") {
   return {
     resultId, checkpointId: `${resultId}-${direction}`,
     target: { lng: 170.5, lat: -45.8, z: 1 },
-    expectedRoom: { id: poiId, name: "Main corridor", z: 1 },
+    expectedRoom: { id: poiId, identifier: "C01", name: "Main corridor", z: 1 },
     device: { name: resultId }, direction,
     scored: true, resolved,
     primary: {
       status: resolved ? "resolved" : "wrong-room",
+      outsideDistanceM: resolved ? 0 : 3.6,
       point: { lng: resolved ? 170.5 : 170.6, lat: -45.8, z: 1 },
     },
   };
@@ -38,6 +39,8 @@ test("corridor summary scores many points and preserves both directions", () => 
   assert.equal(summary.corridors[0].bothDirections, true);
   assert.equal(summary.corridors[0].bothFailureDirections, false);
   assert.equal(summary.corridors[0].reverseFailures, 1);
+  assert.equal(summary.corridors[0].identifier, "C01");
+  assert.equal(summary.corridors[0].maxOutsideDistanceM, 3.6);
   assert.equal(summary.ciscoIssuePoints[0].lng, 170.6);
 });
 

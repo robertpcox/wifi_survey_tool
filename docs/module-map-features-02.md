@@ -13,7 +13,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - report-sections 33/1397 T+ E renderDynamicSections
   - I comparison-view, direction-view, heatmap-view, kpi-view, methodology-view, no-position-view, report-insights-view, report-warning-view
 - report-series-view 129/5499 T+ E renderReportSeries I @s/format, report-chart-svg
-- report-shell 121/5511 T+ E renderLoadPanel, renderReportShell, requiresPrivateAreaAccess
+- report-shell 122/5562 T+ E renderLoadPanel, renderReportShell, requiresPrivateAreaAccess
   - I comparison-view, direction-view, floor-route-view, heatmap-view, identity-view, kpi-view, map-access, methodology-view, no-position-view, playback-view,
     report-insights-view, report-warning-view
 - report-store 138/3992 T+ E createReportPlayerStore I @d/report-analysis, @d/report-comparison, @d/report-concern-segments
@@ -24,12 +24,12 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - report-warnings.css 150/3658 T-
 - result-loader 123/4594 T+ E assertReportResult, campusRunEntries, comparisonEntries, loadSelectedResult, readUploadedResult, resultSelectionFromUrl
   - I @a/files, @d/survey-result-v3
-- room-resolution-catalog 121/4341 T+ E createCampusRoomCatalog, expectedCatalogRoom, knownRoomIndex, observedKnownRoom I @d/report-room-geometry
-- room-resolution-evidence-view 80/3314 T+ E renderRoomResolutionEvidence I @s/format
+- room-resolution-catalog 120/4259 T+ E createCampusRoomCatalog, expectedCatalogRoom, knownRoomIndex, observedKnownRoom I @d/report-room-geometry
+- room-resolution-evidence-view 97/4099 T+ E renderRoomResolutionEvidence I @s/format
 - room-resolution-loader 141/5504 T+ E createRoomResolutionLoader
   - I @d/report-area-summary, @d/report-corridor-observation, @d/report-corridor-summary, @d/report-room-geometry, @d/report-room-observation,
     @d/report-room-resolution, @d/report-room-summary, bounded-map, room-resolution-catalog
-- room-resolution-view 122/6120 T+ E renderRoomResolutionView I @s/format, corridor-resolution-view, room-resolution-evidence-view
+- room-resolution-view 132/6647 T+ E renderRoomResolutionView I @s/format, corridor-resolution-view, room-resolution-evidence-view
 - room-resolution.css 144/4001 T-
 - timeline-view 129/4181 T+ E renderTimelineView, reportTimelineItems I @s/format
 ## runner/
@@ -81,9 +81,9 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - entry 69/2011 T+ E RUNNER_ENTRY_FIELDS, RUNNER_OPTIONAL_FIELDS, normalizeRunnerEntry, runnerEntryIssues, runnerPositionRequest, syncRunnerCredentials
   - I dynamic-room-devices
 - feature-flags 8/416 T- E RUNNER_NOTES_ENABLED
-- form-view-dynamic-options 76/3707 T+ E DYNAMIC_OPTION_NAMES, ensureDynamicOptionsMarkup
+- form-view-dynamic-options 76/3725 T+ E DYNAMIC_OPTION_NAMES, ensureDynamicOptionsMarkup
 - form-view-format 37/1242 T+ E formatDuration, preflightMetrics, preflightReasonText
-- form-view 150/6407 T+ E createRunnerFormView, preflightMetrics I @s/format, form-view-dynamic-options, form-view-format, runner-mode
+- form-view 150/6742 T+ E createRunnerFormView, preflightMetrics I @s/format, form-view-dynamic-options, form-view-format, runner-mode
 - loader 41/1668 T+ E loadRunnerDefinition, loadRunnerManifest, surveyIdFromUrl I @d/survey-definition-v3
 - map-3d-toggle 71/2418 T+ E mountRunnerMap3dToggle
 - note-capture 120/3881 T+ E createRunnerNoteCapture

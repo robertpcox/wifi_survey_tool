@@ -58,7 +58,6 @@ export function knownRoomIndex(prepared, catalogRooms = []) {
 
 export function observedKnownRoom(point, expected, knownRooms) {
   if (!point || !expected?.geometry) return { room: null, error: null };
-  if (Number(point.z) !== Number(expected.z)) return { room: null, error: null };
   if (roomContainsPoint(expected, point)) return { room: expected, error: null };
   const candidates = (knownRooms.get(floorKey(point.z)) ?? [])
     .filter(room => roomKey(room) !== roomKey(expected));

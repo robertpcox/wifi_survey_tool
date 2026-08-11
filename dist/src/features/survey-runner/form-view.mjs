@@ -11,14 +11,12 @@ import {
 } from "./form-view-dynamic-options.mjs";
 
 export { preflightMetrics } from "./form-view-format.mjs";
-
 const VALUE_NAMES = ["deviceType", "deviceOs", "deviceName", "clientIp", "band", "mapAccess",
   "appId", "appKey", ...DYNAMIC_OPTION_NAMES];
 export function createRunnerFormView(documentRef) {
   const find = selector => documentRef.querySelector(selector);
   const form = find("[data-runner-entry]");
   ensureDynamicOptionsMarkup(form);
-
   function readValues() {
     const values = Object.fromEntries(VALUE_NAMES.map(name => [
       name,
@@ -29,7 +27,6 @@ export function createRunnerFormView(documentRef) {
       ?? form?.elements?.namedItem("override")?.checked);
     return values;
   }
-
   function populateSurveys(surveys, selectedSurveyId = null) {
     const select = find("[data-survey-select]");
     if (!select) return;
@@ -40,9 +37,13 @@ export function createRunnerFormView(documentRef) {
       + `${esc(entry.customerName)} — ${esc(entry.surveyName)}</option>`).join("");
     if (selectedSurveyId) select.value = selectedSurveyId;
   }
-
   function showDefinition(definition, { dynamic = false } = {}) {
     const requirements = definition.meta.credentialRequirements;
+    setText("[data-entry-title]", dynamic
+      ? "Dynamic room survey settings" : "One-time run details");
+    setText("[data-entry-help]", dynamic
+      ? "Primary device, positioning, capture options, and optional additional devices. Kept in this tab only."
+      : "Kept for the next run in this tab; never saved to browser storage.");
     setText("[data-survey-name]", dynamic ? "Dynamic room survey" : definition.meta.surveyName);
     setText("[data-campus-name]", definition.meta.campusName);
     setText("[data-route-distance]",
@@ -58,7 +59,6 @@ export function createRunnerFormView(documentRef) {
     setHidden('[data-credential-group="map-access"]', !requirements.mapAccess);
     setHidden('[data-credential-group="cloud"]', !requirements.appId && !requirements.appKey);
   }
-
   function setActions({ entryComplete, preflight, busy = false }) {
     const check = find('[data-action="preflight"]');
     const go = find('[data-action="go"]');

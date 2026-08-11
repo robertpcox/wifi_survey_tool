@@ -5,27 +5,27 @@
 // RULES:        MazeMap is room truth; raw Cisco positions are never snapped or corrected.
 // PROVENANCE:   Dynamic dwell room-resolution evidence
 
-import { roomContainsPoint } from "./report-room-geometry.mjs";
+import { distanceOutsideRoomM, roomContainsPoint } from "./report-room-geometry.mjs";
 import { areaVisitVerdict, areaWindowMoments, UNSCORED_AREA_STATUSES as UNSCORED }
   from "./report-area-verdict.mjs";
 
 export function scoreRoomMoment({
   evidence, expected, observed, expectedError, observedError,
 }) {
-  if (expectedError) return verdict("lookup-unavailable", evidence, observed);
-  if (!expected?.geometry) return verdict("truth-unavailable", evidence, observed);
-  if (!evidence?.point) return verdict("no-displayed-fix", evidence, observed);
+  if (expectedError) return verdict("lookup-unavailable", evidence, observed, expected);
+  if (!expected?.geometry) return verdict("truth-unavailable", evidence, observed, expected);
+  if (!evidence?.point) return verdict("no-displayed-fix", evidence, observed, expected);
   if (Number(evidence.point.z) !== Number(expected.z)) {
-    return verdict("wrong-floor", evidence, observed);
+    return verdict("wrong-floor", evidence, observed, expected);
   }
   if (roomContainsPoint(expected, evidence.point)) {
-    return verdict("resolved", evidence, expected);
+    return verdict("resolved", evidence, expected, expected);
   }
-  if (observedError) return verdict("lookup-unavailable", evidence, observed);
+  if (observedError) return verdict("lookup-unavailable", evidence, observed, expected);
   const status = observed?.id && observed.id !== expected.id
     ? "wrong-room"
     : "unresolved";
-  return verdict(status, evidence, observed);
+  return verdict(status, evidence, observed, expected);
 }
 export function scoreRoomObservation(observation, lookups) {
   const evidenceMoments = observation.moments?.length
@@ -84,7 +84,7 @@ function settleState(observation, moments) {
   if (middle.includes("resolved")) return "temporary-resolution";
   return "not-resolved-at-exit";
 }
-function verdict(status, evidence, room) {
+function verdict(status, evidence, room, expected) {
   return Object.freeze({
     status,
     atMs: finite(evidence?.atMs),
@@ -92,20 +92,19 @@ function verdict(status, evidence, room) {
     ageSeconds: finite(evidence?.ageSeconds),
     point: evidence?.point ? { ...evidence.point } : null,
     room: publicRoom(room),
+    outsideDistanceM: distanceOutsideRoomM(expected, evidence?.point),
   });
 }
 function legacyMoments(observation) {
   return observation.observationKind !== "dwell" && observation.exit === observation.entry
     ? [observation.entry] : [observation.entry, observation.exit];
 }
-
 function momentLookup(lookups, index, length) {
   if (lookups.moments?.[index]) return lookups.moments[index];
   if (index === 0) return { room: lookups.entry, error: lookups.entryError };
   if (index === length - 1) return { room: lookups.exit, error: lookups.exitError };
   return { room: null, error: null };
 }
-
 function firstResolutionLag(observation, moments) {
   const first = moments.find(item => item.status === "resolved");
   return first && Number.isFinite(first.atMs) && Number.isFinite(observation.startMs)
@@ -127,6 +126,7 @@ function dwellDuration(moments) {
 function publicRoom(room) {
   return room ? Object.freeze({
     id: room.id ?? null,
+    identifier: room.identifier ?? null,
     name: room.name ?? null,
     z: Number.isFinite(room.z) ? room.z : null,
     geometry: ["Polygon", "MultiPolygon"].includes(room.geometry?.type) ? room.geometry : null,

@@ -14,9 +14,10 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
   - I @a/manifest-source, @a/memory-credentials, @d/dashboard-selection, @f/dashboard/capture-convert-bind, @f/dashboard/dashboard-map-access,
     @f/dashboard/dashboard
 ## report-player/
-- index.html 40/1894 T+ I @f/report-player/campus-run-selection.css, @f/report-player/map-surface.css, @f/report-player/player-components.css,
-    @f/report-player/player-workspace.css, @f/report-player/report-insights.css, @f/report-player/report-player.css, @f/report-player/report-summary.css,
-    @f/report-player/report-visuals.css, @f/report-player/report-warnings.css, @f/report-player/room-resolution.css, @s/app-shell.css, main
+- index.html 41/1977 T+ I @f/report-player/campus-run-selection.css, @f/report-player/consolidated-map.css, @f/report-player/map-surface.css,
+    @f/report-player/player-components.css, @f/report-player/player-workspace.css, @f/report-player/report-insights.css, @f/report-player/report-player.css,
+    @f/report-player/report-summary.css, @f/report-player/report-visuals.css, @f/report-player/report-warnings.css, @f/report-player/room-resolution.css,
+    @s/app-shell.css, main
 - main 44/1907 T+ E bootReportPlayer, reportPlayerReady
   - I @a/manifest-source, @a/map/mazemap, @a/memory-credentials, @a/window-map-access-transfer, @f/report-player/report-player, @f/report-player/result-loader
 ## route-survey/
@@ -29,5 +30,5 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - main 118/3674 T+ E bootRouteSurvey I @a/map/mazemap, @a/preferences, @a/route-storage, @d/survey-state, @f/creator/creator, @f/runner/runner, app-ui
 - shell.css 106/2568 T+
 ## runner/
-- index.html 150/8881 T+ I @f/survey-runner/runner-active.css, @f/survey-runner/runner.css, @s/app-shell.css, main
+- index.html 150/8914 T+ I @f/survey-runner/runner-active.css, @f/survey-runner/runner.css, @s/app-shell.css, main
 - main 22/736 T+ E bootRunner I @a/memory-credentials, @f/survey-runner/survey-runner, @s/shell-boot

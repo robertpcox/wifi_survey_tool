@@ -36,12 +36,14 @@ test("Report Player offers local upload when no generated result is selected", a
 });
 
 test("Report Player shell CSS keeps the shared map and mobile context visible", async () => {
-  const [shell, map, workspace, components, warnings] = await Promise.all([
-    "report-player.css", "map-surface.css", "player-workspace.css",
+  const [shell, map, consolidated, workspace, components, warnings] = await Promise.all([
+    "report-player.css", "map-surface.css", "consolidated-map.css", "player-workspace.css",
     "player-components.css", "report-warnings.css",
   ].map(file => readFile(new URL(file, import.meta.url), "utf8")));
   assert.match(shell, /\.report-toolbar/);
   assert.match(map, /\.map-stage/);
+  assert.match(consolidated, /\.map-section\.is-consolidated \.map-stage[\s\S]*55dvh/);
+  assert.match(consolidated, /\.map-section\.is-consolidated \.maze-map[\s\S]*min-height: 0/);
   assert.match(warnings, /\.map-alert-stack/);
   assert.match(map, /\.map-stale-legend/);
   assert.match(map, /\.map-fallback canvas/);
@@ -49,4 +51,5 @@ test("Report Player shell CSS keeps the shared map and mobile context visible", 
   assert.match(workspace, /overflow: hidden/);
   assert.match(components, /\.player-evidence-rail[\s\S]*overflow-y: auto/);
   assert.match(workspace, /@media \(max-width: 760px\)/);
+  assert.match(workspace, /\.is-player \.map-stage[\s\S]*height: 100%/);
 });

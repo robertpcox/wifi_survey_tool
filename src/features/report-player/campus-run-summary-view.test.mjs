@@ -19,6 +19,7 @@ test("run summary renders aggregate KPIs and lag evidence", () => {
       medianRunNoPositionPercent: 4.5,
     },
     runs: [{
+      resultId: "run-12345678",
       surveyName: "Dynamic <rooms>", startedAt: "2026-08-01T00:00:00Z",
       deviceName: "Phone", stickySeconds: 42, medianLagBehindM: 3.2,
       noPositionPercent: 4.5,
@@ -26,6 +27,7 @@ test("run summary renders aggregate KPIs and lag evidence", () => {
   });
   assert.match(html, /No-update time/);
   assert.match(html, /Cisco lag behind route by run/);
-  assert.match(html, /Dynamic &lt;rooms&gt;/);
+  assert.match(html, /Dynamic &lt;rooms&gt; · run-1234/);
   assert.match(html, /3\.2 m/);
+  assert.doesNotMatch(html, /<th>Device<\/th>|Phone/);
 });

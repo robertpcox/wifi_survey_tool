@@ -57,6 +57,7 @@ test("one map and one loaded context compose the Report and full Player", () => 
   assert.equal(count(html, "data-maze-map"), 1);
   assert.equal(count(html, "data-report-map"), 1);
   assert.equal(count(html, 'data-report-context="analysis"'), 1);
+  assert.doesNotMatch(html, /map-section is-consolidated/);
   assert.match(html, /data-toggle-map-access/);
   assert.match(html, /data-warning-kind="stale-position"/);
   assert.match(html, /NO POSITION UPDATE/i);
@@ -89,6 +90,7 @@ test("consolidated shell exposes overview without seed-run modes", () => {
   assert.match(html, /data-report-pane="overview" class="analysis-pane">/);
   assert.match(html, /data-report-context="analysis" hidden/);
   assert.match(html, /data-module="runSelection"/);
+  assert.match(html, /class="report-section map-section is-consolidated"/);
   assert.match(html, /data-access-required="true"/);
   assert.match(html, /MazeMap access required for area resolution/);
   assert.match(html, /Continue without area resolution/);

@@ -57,7 +57,8 @@ export function renderReportShell(state, candidates = [], {
     </div>
     ${renderMapAccess(result, { requirePrivateAccess, dashboardSupplied })}
     <div class="shared-map-workspace" data-player-workspace>
-      <section class="report-section map-section" data-module="floor-route">
+      <section class="report-section map-section${state.consolidated
+    ? " is-consolidated" : ""}" data-module="floor-route">
         ${renderFloorRouteView(result, {
     analysis, thresholds, consolidated: state.consolidated,
   })}

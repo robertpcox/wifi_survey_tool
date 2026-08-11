@@ -30,11 +30,13 @@ function corridorGroups(observations) {
     const key = room?.id ? `poi:${room.id}` : `point:${pointKey(sample.target)}`;
     if (!groups.has(key)) groups.set(key, {
       poiId: room?.id ?? null,
+      identifier: room?.identifier ?? null,
       name: room?.name ?? "Unmapped corridor",
       z: room?.z ?? sample.target.z,
       point: sample.target,
       samples: 0, resolved: 0, failures: 0, unscored: 0,
       forward: 0, reverse: 0, forwardFailures: 0, reverseFailures: 0,
+      maxOutsideDistanceM: null,
       runIds: new Set(), devices: new Set(),
     });
     const group = groups.get(key);
@@ -49,6 +51,11 @@ function corridorGroups(observations) {
     }
     if (sample.scored && !sample.resolved && sample.direction === "reverse") {
       group.reverseFailures += 1;
+    }
+    if (Number.isFinite(sample.primary?.outsideDistanceM)) {
+      group.maxOutsideDistanceM = Math.max(
+        group.maxOutsideDistanceM ?? 0, sample.primary.outsideDistanceM,
+      );
     }
     group.runIds.add(sample.resultId);
     group.devices.add(deviceLabel(sample.device));

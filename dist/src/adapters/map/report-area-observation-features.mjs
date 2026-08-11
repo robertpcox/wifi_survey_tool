@@ -19,7 +19,9 @@ export function areaObservationFeatures(observation) {
       status: representative.moment.status,
       verdict: momentVerdict(representative.moment),
       representedSampleCount: representative.sampleCount,
+      outsideDistanceM: representative.moment.outsideDistanceM ?? null,
       resolvedAreaId: representative.moment.room?.id ?? null,
+      resolvedAreaIdentifier: representative.moment.room?.identifier ?? null,
       resolvedAreaName: representative.moment.room?.name ?? null,
     },
   )] : [];
@@ -39,6 +41,8 @@ function observationProperties(observation) {
     resultId: observation.resultId,
     checkpointId: observation.checkpointId,
     areaName: observation.expectedRoom?.name ?? observation.roomLabel,
+    areaId: observation.expectedRoom?.id ?? null,
+    areaIdentifier: observation.expectedRoom?.identifier ?? null,
     observationKind: observation.observationKind,
     status: observation.primary.status,
     visitStatus: observation.primary.status,

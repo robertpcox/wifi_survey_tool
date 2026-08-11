@@ -14,7 +14,7 @@ import {
 } from "./report-room-resolution.mjs";
 
 const expected = {
-  id: "room-a", name: "Clinic", z: 1,
+  id: "room-a", identifier: "K01.07", name: "Clinic", z: 1,
   geometry: { type: "Polygon", coordinates: [[
     [0, 0], [2, 0], [2, 2], [0, 2], [0, 0],
   ]] },
@@ -22,16 +22,22 @@ const expected = {
 const evidence = point => ({ point, pollId: "poll", ageSeconds: 3 });
 
 test("moment verdicts distinguish room, floor, position, and truth failures", () => {
-  assert.equal(scoreRoomMoment({
+  const resolved = scoreRoomMoment({
     evidence: evidence({ lng: 1, lat: 1, z: 1 }), expected,
-  }).status, "resolved");
-  assert.equal(scoreRoomMoment({
+  });
+  assert.equal(resolved.status, "resolved");
+  assert.equal(resolved.outsideDistanceM, 0);
+  const wrongRoom = scoreRoomMoment({
     evidence: evidence({ lng: 3, lat: 1, z: 1 }), expected,
     observed: { id: "room-b", name: "Next room", z: 1 },
-  }).status, "wrong-room");
-  assert.equal(scoreRoomMoment({
+  });
+  assert.equal(wrongRoom.status, "wrong-room");
+  assert.ok(wrongRoom.outsideDistanceM > 100_000);
+  const wrongFloor = scoreRoomMoment({
     evidence: evidence({ lng: 1, lat: 1, z: 2 }), expected,
-  }).status, "wrong-floor");
+  });
+  assert.equal(wrongFloor.status, "wrong-floor");
+  assert.equal(wrongFloor.outsideDistanceM, null);
   assert.equal(scoreRoomMoment({ evidence: evidence(null), expected }).status,
     "no-displayed-fix");
   assert.equal(scoreRoomMoment({ evidence, expected: null }).status,
@@ -60,6 +66,7 @@ test("dwell verdict uses persisted time while retaining settlement diagnostics",
   assert.equal(settled.settleState, "resolved-during-dwell");
   assert.equal(settled.expectedRoom.geometry, expected.geometry,
     "the MazeMap polygon remains available for consolidated area fills");
+  assert.equal(settled.expectedRoom.identifier, "K01.07");
   const stuckEntry = { ...evidence({ lng: 3, lat: 1, z: 1 }), atMs: 0 };
   const stuckExit = { ...stuckEntry, atMs: 4_000 };
   const stuck = scoreRoomObservation({ ...base, entry: stuckEntry, exit: stuckExit }, {

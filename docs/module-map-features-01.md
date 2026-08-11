@@ -70,9 +70,10 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
   - I @d/report-analysis, @d/report-campus-overview, @s/format, campus-hotspot-view, campus-run-summary-view
 - campus-run-selection.css 44/1344 T+
 - campus-run-selection 131/5334 T+ E createCampusRunSelection I @s/format
-- campus-run-summary-view 49/2347 T+ E renderCampusRunSummary I @s/format
+- campus-run-summary-view 55/2483 T+ E renderCampusRunSummary I @s/format
 - comparison-view 108/4465 T+ E bindComparisonAdd, renderComparisonView I @s/format, all-runs
-- corridor-resolution-view 104/4610 T- E renderCorridorResolution I @s/format
+- consolidated-map.css 21/711 T-
+- corridor-resolution-view 123/5644 T- E renderCorridorResolution I @s/format
 - direction-view 129/5536 T+ E renderDirectionView I @d/report-direction-overlay, @s/format, report-chart-svg
 - floor-route-view 146/6695 T+ E renderFloorRouteView I @s/format
 - heatmap-view 65/2314 T+ E renderHeatmapView I @s/format
@@ -107,9 +108,9 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - player-workspace.css 129/3294 T+
 - report-base-route 24/895 T+ E createReportBaseRoute
 - report-chart-svg 81/3093 T+ E CHART, bucketExtremes, chartX, chartY, renderChartGrid, renderCriticalDots, renderOutageBands, renderTimeAxis
-- report-collection-controller 145/5653 T+ E createReportCollectionController
+- report-collection-controller 146/5752 T+ E createReportCollectionController
   - I all-runs, campus-overview-controller, campus-run-selection, report-collection-values, result-loader, room-resolution-loader
-- report-collection-values 51/1663 T+ E analysisWithAreaResolution, campusReportStatus, collectionAllRunsState, collectionRoomHtml, selectedCampusReportStatus
+- report-collection-values 52/1707 T+ E analysisWithAreaResolution, campusReportStatus, collectionAllRunsState, collectionRoomHtml, selectedCampusReportStatus
   - I room-resolution-view
 - report-floor-controller 61/1882 T+ E bindReportFloor, renderPlayerFrame
 - report-insights-view 19/853 T+ E renderReportInsights I @d/report-insights, report-series-view, report-summary-view

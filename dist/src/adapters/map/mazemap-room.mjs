@@ -9,13 +9,16 @@ export function normalizeMazeMapRoom(poi, requestedZ) {
   if (!poi || typeof poi !== "object") return null;
   const properties = poi.properties ?? {};
   const id = text(properties.poiId ?? properties.id ?? poi.id);
+  const identifier = text(
+    properties.identifier ?? properties.roomNumber ?? properties.number,
+  );
   const name = text(
     properties.title ?? properties.name ?? properties.names?.[0] ?? poi.name,
   );
   const geometry = roomGeometry(poi.geometry ?? properties.geometry);
   const z = numeric(properties.zLevel ?? properties.z ?? requestedZ);
   if (!id && !name && !geometry) return null;
-  return Object.freeze({ id, name, z, geometry });
+  return Object.freeze({ id, identifier, name, z, geometry });
 }
 
 export function mergeMazeMapRooms(primary, fallback) {
@@ -23,6 +26,7 @@ export function mergeMazeMapRooms(primary, fallback) {
   if (!fallback) return primary;
   return Object.freeze({
     id: primary.id ?? fallback.id,
+    identifier: primary.identifier ?? fallback.identifier,
     name: primary.name ?? fallback.name,
     z: primary.z ?? fallback.z,
     geometry: primary.geometry ?? fallback.geometry,

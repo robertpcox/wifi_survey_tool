@@ -37,7 +37,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - report-analysis 149/5490 T+ E REPORT_THRESHOLDS, analyzeReportResult
   - I report-analysis-options, report-fix-metrics, report-fix-samples, report-ground-truth, report-heat, report-reviewed-exceptions, report-samples,
     report-stale-path, report-warnings
-- report-area-summary 123/3918 T+ E aggregateAreaPolygons, combineAreaResolutionSummaries
+- report-area-summary 124/3961 T+ E aggregateAreaPolygons, combineAreaResolutionSummaries
 - report-area-verdict 141/5394 T+ E AREA_WINDOW_SECONDS, UNSCORED_AREA_STATUSES, areaVisitVerdict, areaWindowMoments
 - report-campus-grid 81/2562 T- E createCampusGrid I report-samples
 - report-campus-overview 108/3980 T+ E buildCampusOverview
@@ -48,7 +48,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - report-comparison 121/4216 T+ E compareReportResults, reportDeviceLabel I report-analysis
 - report-concern-segments 78/2740 T+ E buildConcernSegments I report-direction-overlay, report-ground-truth
 - report-corridor-observation 44/1890 T+ E buildCorridorObservations I report-displayed-fix, report-ground-truth, report-reviewed-exceptions, report-route-axis
-- report-corridor-summary 96/3879 T+ E buildCorridorResolutionSummary
+- report-corridor-summary 103/4149 T+ E buildCorridorResolutionSummary
 - report-direction-bins 59/2288 T+ E directionOverlaySummary, publicDirectionBin I report-samples
 - report-direction-overlay 106/3635 T+ E buildDirectionOverlay I report-direction-bins, report-ground-truth, report-route-axis
 - report-displayed-fix 36/1424 T- E displayedCiscoFix, displayedCiscoFixSeries I report-playback-timeline, report-playback
@@ -67,10 +67,10 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - report-poll-timeline 107/3847 T+ E buildPlaybackPollTimeline I geometry
 - report-request-insights 99/3615 T+ E buildReportCaptureSeries
 - report-reviewed-exceptions 106/4198 T+ E applyReportCoverage, buildReportCoverage I report-ground-truth, reviewed-exceptions-v3
-- report-room-geometry 60/2335 T+ E roomContainsPoint
-- report-room-groups 72/2776 T- E groupRoomRuns, groupRoomVisits
+- report-room-geometry 119/4478 T+ E distanceOutsideRoomM, roomContainsPoint I geometry
+- report-room-groups 89/3455 T- E groupRoomRuns, groupRoomVisits
 - report-room-observation 75/3072 T+ E buildRoomObservations I checkpoint-dwell-v3, report-area-verdict, report-displayed-fix, report-reviewed-exceptions
-- report-room-resolution 150/6059 T+ E scoreRoomMoment, scoreRoomObservation I report-area-verdict, report-room-geometry
+- report-room-resolution 150/6271 T+ E scoreRoomMoment, scoreRoomObservation I report-area-verdict, report-room-geometry
 - report-room-summary 109/4480 T+ E buildRoomResolutionSummary I report-room-groups, report-samples
 - report-route-axis 49/2103 T+ E createReportRouteAxis, travelDirectionAt
 - report-route-geometry 150/6536 T+ E projectToReportRoute, reportRouteInterval, reportRoutePointAt I geometry

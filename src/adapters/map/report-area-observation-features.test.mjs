@@ -27,12 +27,16 @@ test("an explicit missing window endpoint never falls back to primary", () => {
 test("a corridor checkpoint uses its one primary raw Cisco sample", () => {
   const observation = {
     resultId: "run", checkpointId: "corridor", observationKind: "corridor-point",
-    target: point, expectedRoom: { name: "Corridor" }, scored: true, resolved: true,
-    primary: { status: "resolved", point },
+    target: point,
+    expectedRoom: { id: "poi-1", identifier: "C01", name: "Corridor" },
+    scored: true, resolved: true,
+    primary: { status: "resolved", outsideDistanceM: 0, point },
   };
   const features = areaObservationFeatures(observation);
   assert.equal(features.cisco.length, 1);
   assert.equal(features.cisco[0].properties.phase, "sample");
+  assert.equal(features.cisco[0].properties.outsideDistanceM, 0);
+  assert.equal(features.cisco[0].properties.areaIdentifier, "C01");
   assert.equal(features.line.length, 1);
   assert.equal(features.line[0].properties.verdict, "inside");
   assert.deepEqual(features.line[0].geometry.coordinates, [
@@ -61,8 +65,13 @@ test("a dwell is filtered by its displayed window endpoint, not its majority", (
     resultId: "run", checkpointId: "room", observationKind: "dwell",
     target: point, expectedRoom: { name: "Clinic" }, scored: true, resolved: true,
     primary: { status: "resolved", point },
-    windowExit: { status: "wrong-room", point: { ...point, lng: 170.6 } },
+    windowExit: {
+      status: "wrong-room", outsideDistanceM: 2.75,
+      point: { ...point, lng: 170.6 },
+    },
   };
+  assert.equal(areaObservationFeatures(observation)
+    .cisco[0].properties.outsideDistanceM, 2.75);
   assert.equal(isDisplayedAreaFailure(observation), true);
   observation.resolved = false;
   observation.primary = { status: "wrong-room", point: { ...point, lng: 170.6 } };

@@ -1,0 +1,21 @@
+/* FEATURE:      Consolidated report map layout
+ * SURFACE:      Bounded campus map stage
+ * WHY TOGETHER: Run selection and report detail need viewport space beneath the campus map.
+ * STATE:        Consolidated desktop and mobile report flow
+ * RULES:        Never change normal single-run or full-screen Player map sizing.
+ * PROVENANCE:   Consolidated Problem Areas layout cleanup
+ */
+
+.map-section.is-consolidated .map-stage {
+  height: clamp(360px, 55dvh, 620px);
+  min-height: 0;
+}
+
+.map-section.is-consolidated .maze-map,
+.map-section.is-consolidated .map-fallback { min-height: 0; }
+
+@media (max-width: 520px) {
+  .map-section.is-consolidated .map-stage {
+    height: clamp(320px, 48dvh, 440px);
+  }
+}

@@ -64,6 +64,20 @@ test("smallest containing polygon wins unless the captured POI id is authoritati
   assert.equal(observedKnownRoom(target, expected, known).room.id, "child");
 });
 
+test("wrong-floor dots retain the room identity resolved on their actual floor", () => {
+  const expected = room("expected", 1, 1, 0, 0.25);
+  const destination = {
+    ...room("destination", 1, 1, 1, 0.25),
+    identifier: "L1.07",
+    name: "Ward store",
+  };
+  const known = knownRoomIndex([{ expected }], [destination]);
+  const observed = observedKnownRoom({ lng: 1, lat: 1, z: 1 }, expected, known);
+  assert.equal(observed.room.id, "destination");
+  assert.equal(observed.room.identifier, "L1.07");
+  assert.equal(observed.room.name, "Ward store");
+});
+
 test("a rejected catalogue is visible and can retry with corrected access", async () => {
   let calls = 0;
   const load = createCampusRoomCatalog(async () => {

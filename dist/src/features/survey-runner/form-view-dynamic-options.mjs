@@ -24,7 +24,7 @@ export function ensureDynamicOptionsMarkup(form) {
   if (form.querySelector?.("[data-dynamic-options]")) return false;
   form.insertAdjacentHTML("beforeend", `
     <fieldset class="credential-group dynamic-options" data-dynamic-options hidden>
-      <legend>Dynamic room capture</legend>
+      <legend>Capture options and additional devices</legend>
       <p id="dynamic-options-help">Dwell length applies to every dwell check-in on this run.
         Extra devices are polled alongside the device under test and download their own result files.
         Point the proxy override at a locally hosted positioning proxy to survey off the VPN.</p>

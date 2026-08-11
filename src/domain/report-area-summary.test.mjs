@@ -51,7 +51,10 @@ test("area polygons count one majority verdict per room visit and corridor sampl
   ]]] };
   const areas = aggregateAreaPolygons([{
     resultId: "run-a", observationKind: "dwell",
-    expectedRoom: { id: "clinic", name: "Clinic", z: 2, geometry: polygon },
+    expectedRoom: {
+      id: "clinic", identifier: "K02.07", name: "Clinic", z: 2,
+      geometry: polygon,
+    },
     moments: [{ status: "resolved" }, { status: "wrong-room" },
       { status: "resolved" }],
     primary: { status: "resolved" },
@@ -70,6 +73,7 @@ test("area polygons count one majority verdict per room visit and corridor sampl
   assert.equal(clinic.insideSampleCount, 2);
   assert.equal(clinic.outsideSampleCount, 0);
   assert.equal(clinic.runCount, 2);
+  assert.equal(clinic.identifier, "K02.07");
   assert.equal(clinic.geometry, polygon);
   const hall = areas.find(item => item.poiId === "hall");
   assert.equal(hall.severity, "bad");

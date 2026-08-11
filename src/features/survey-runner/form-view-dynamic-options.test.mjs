@@ -26,6 +26,7 @@ test("the dynamic fieldset injects once with every option field", () => {
   assert.equal(ensureDynamicOptionsMarkup(form), true);
   assert.equal(ensureDynamicOptionsMarkup(form), false);
   assert.match(markup, /data-dynamic-options hidden/);
+  assert.match(markup, /Capture options and additional devices/);
   assert.match(markup, /<option value="45" selected>45 seconds<\/option>/);
   assert.match(markup, /<option value="5" selected>Every 5 m<\/option>/);
   assert.match(markup, /<option value="0">No marks<\/option>/);

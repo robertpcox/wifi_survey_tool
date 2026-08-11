@@ -38,15 +38,16 @@ test("polygon feature restores fully matched rooms and hides only unscored areas
     resolutionPercent: 100, severity: "good",
   }, {
     geometry, insideSampleCount: 4, outsideSampleCount: 0,
-    resolutionPercent: 100, severity: "good",
+    resolutionPercent: 100, severity: "good", identifier: "K02.07",
   }, {
     geometry, scoredSampleCount: 4, resolutionPercent: 62.54,
   }]);
   assert.deepEqual(features.map(item => ({
     resolutionPercent: item.properties.resolutionPercent,
     scored: item.properties.scored,
+    identifier: item.properties.identifier,
   })), [
-    { resolutionPercent: 100, scored: true },
-    { resolutionPercent: 62.5, scored: true },
+    { resolutionPercent: 100, scored: true, identifier: "K02.07" },
+    { resolutionPercent: 62.5, scored: true, identifier: undefined },
   ]);
 });

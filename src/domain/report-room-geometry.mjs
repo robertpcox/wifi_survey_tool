@@ -1,9 +1,14 @@
 // FEATURE:      Room polygon evidence
-// SURFACE:      roomContainsPoint(room, point)
-// WHY TOGETHER: Floor-aware Polygon and MultiPolygon containment define room membership.
+// SURFACE:      roomContainsPoint(room, point), distanceOutsideRoomM(room, point)
+// WHY TOGETHER: Floor-aware containment and boundary distance share the same room geometry.
 // STATE:        None
 // RULES:        Test exact captured coordinates; treat outer boundaries as inside.
 // PROVENANCE:   Dynamic dwell room-resolution evidence
+
+import { haversine } from "./geometry.mjs";
+
+const EARTH_RADIUS_M = 6_371_000;
+const RADIANS = Math.PI / 180;
 
 export function roomContainsPoint(room, point) {
   if (!room || !finitePoint(point)) return false;
@@ -16,6 +21,60 @@ export function roomContainsPoint(room, point) {
     return geometry.coordinates.some(polygon => polygonContains(polygon, point));
   }
   return false;
+}
+
+export function distanceOutsideRoomM(room, point) {
+  if (!room || !finitePoint(point)) return null;
+  if (Number.isFinite(room.z) && Number(room.z) !== Number(point.z)) return null;
+  const polygons = geometryPolygons(room.geometry);
+  if (!polygons) return null;
+  if (roomContainsPoint(room, point)) return 0;
+  let closestM = Infinity;
+  for (const polygon of polygons) {
+    if (!Array.isArray(polygon)) continue;
+    for (const ring of polygon) {
+      closestM = Math.min(closestM, ringDistanceM(ring, point));
+    }
+  }
+  return Number.isFinite(closestM) ? closestM : null;
+}
+
+function geometryPolygons(geometry) {
+  if (geometry?.type === "Polygon" && Array.isArray(geometry.coordinates)) {
+    return [geometry.coordinates];
+  }
+  if (geometry?.type === "MultiPolygon" && Array.isArray(geometry.coordinates)) {
+    return geometry.coordinates;
+  }
+  return null;
+}
+
+function ringDistanceM(ring, point) {
+  if (!Array.isArray(ring) || ring.length < 2) return Infinity;
+  let closestM = Infinity;
+  for (let index = 0; index < ring.length; index++) {
+    const left = coordinate(ring[index]);
+    const right = coordinate(ring[(index + 1) % ring.length]);
+    if (!left || !right) continue;
+    closestM = Math.min(closestM, segmentDistanceM(left, right, point));
+  }
+  return closestM;
+}
+
+function segmentDistanceM(left, right, point) {
+  const longitudeScale = EARTH_RADIUS_M * Math.cos(point.lat * RADIANS) * RADIANS;
+  const latitudeScale = EARTH_RADIUS_M * RADIANS;
+  const ax = (left.lng - point.lng) * longitudeScale;
+  const ay = (left.lat - point.lat) * latitudeScale;
+  const dx = (right.lng - left.lng) * longitudeScale;
+  const dy = (right.lat - left.lat) * latitudeScale;
+  const lengthSquared = dx * dx + dy * dy;
+  const fraction = lengthSquared > 0
+    ? Math.min(1, Math.max(0, -(ax * dx + ay * dy) / lengthSquared)) : 0;
+  return haversine(point, {
+    lng: left.lng + (right.lng - left.lng) * fraction,
+    lat: left.lat + (right.lat - left.lat) * fraction,
+  });
 }
 
 function polygonContains(rings, point) {

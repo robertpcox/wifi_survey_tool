@@ -19,6 +19,7 @@ export function createReportCollectionController({
   store, manifestSource, floorInput, surface,
 }) {
   const initial = store.snapshot();
+  const roomViewOptions = { showDevice: !initial.consolidated };
   const currentEligible = !(initial.exceptions ?? [])
     .some(item => item.disposition === "exclude-run");
   const entries = campusRunEntries(initial.manifest, initial.result);
@@ -124,11 +125,11 @@ export function createReportCollectionController({
     bind,
     loadOverview,
     mapAnalysis,
-    overviewHtml: () => `${overview.panelHtml()}${collectionRoomHtml(rooms)}`,
+    overviewHtml: () => `${overview.panelHtml()}${collectionRoomHtml(rooms, roomViewOptions)}`,
     rebuild: overview.rebuild,
     runSelectionHtml: () => runSelection.html({ enabled: loader.loaded }),
     setIncludedRuns: applyRunSelection,
-    roomHtml: () => collectionRoomHtml(rooms),
+    roomHtml: () => collectionRoomHtml(rooms, roomViewOptions),
     async enableRoomLookup(refresh) {
       roomLookupReady = true;
       return resolveRooms(overview.loaded, refresh);

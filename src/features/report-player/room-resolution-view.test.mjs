@@ -33,12 +33,13 @@ test("ready view renders stationary KPIs, graph, room rank, and evidence", () =>
   const observation = {
     checkpointId: "checkpoint-1",
     roomLabel: "Clinic",
-    expectedRoom: { name: "Clinic" },
     device: { name: "Phone <one>" },
+    expectedRoom: { id: "poi-42", identifier: "K01.07", name: "Clinic" },
     resolved: false,
     settleState: "not-resolved-at-exit",
     primary: {
       status: "wrong-room", ageSeconds: 21,
+      outsideDistanceM: 2.4,
       room: { name: "Corridor" }, point: { lng: 1, lat: 2, z: 0 },
     },
   };
@@ -50,7 +51,8 @@ test("ready view renders stationary KPIs, graph, room rank, and evidence", () =>
       "wrong-room": 1, unresolved: 0, "wrong-floor": 0, "no-displayed-fix": 0,
     },
     rooms: [{
-      name: "Clinic", runCount: 1, visits: 1, resolved: 0,
+      poiId: "poi-42", identifier: "K01.07", name: "Clinic",
+      maxOutsideDistanceM: 2.4, runCount: 1, visits: 1, resolved: 0,
       failures: 1, unscored: 0, settled: 0, stuck: 1,
     }, ...matchedRooms],
     observations: [observation],
@@ -59,10 +61,14 @@ test("ready view renders stationary KPIs, graph, room rank, and evidence", () =>
   assert.match(html, /not extra failed\s+visits/);
   assert.match(html, /One majority verdict and timing outcome/);
   assert.match(html, /4 contributing runs/);
-  assert.match(html, /Room majority outcomes and timing/);
+  assert.match(html, /Room majority outcomes, identity, and boundary distance/);
+  assert.match(html, /Room number \/ ID/);
+  assert.match(html, /K01\.07/);
+  assert.match(html, /2\.4 m/);
   assert.match(html, /North matched room 21/);
   assert.match(html, /No eligible intermediate checkpoints/);
   assert.match(html, /Corridor/);
+  assert.match(html, /<th>Device<\/th>/);
   assert.match(html, /Phone &lt;one&gt;/);
 });
 
@@ -73,16 +79,21 @@ test("ready view renders corridor-only area evidence", () => {
       sampleCount: 2, scoredSampleCount: 2, resolvedSampleCount: 1,
       failedSampleCount: 1, unscoredSampleCount: 0, resolutionPercent: 50,
       corridors: [{
-        name: "Ward corridor", runCount: 2, samples: 2, resolved: 1,
+        poiId: "corridor-42", identifier: "C02", name: "Ward corridor",
+        maxOutsideDistanceM: 1.8, runCount: 2, samples: 2, resolved: 1,
         failures: 1, resolutionPercent: 50, forward: 1, reverse: 1,
         forwardFailures: 0, reverseFailures: 1,
         bothDirections: true, bothFailureDirections: false,
       }],
       observations: [{
         checkpointId: "corridor-1", resolved: false, direction: "reverse",
-        expectedRoom: { name: "Ward corridor" }, device: { name: "Tablet" },
+        device: { name: "Tablet" },
+        expectedRoom: {
+          id: "corridor-42", identifier: "C02", name: "Ward corridor",
+        },
         primary: {
-          status: "wrong-room", point: { lng: 170.6, lat: -45.8, z: 0 },
+          status: "wrong-room", outsideDistanceM: 1.8,
+          point: { lng: 170.6, lat: -45.8, z: 0 },
         },
       }],
     },
@@ -92,5 +103,9 @@ test("ready view renders corridor-only area evidence", () => {
   assert.match(html, /whole corridor colour shows the exact resolved percentage/);
   assert.match(html, /Outside expected area/);
   assert.match(html, /Ward corridor/);
+  assert.match(html, /C02/);
+  assert.match(html, /1\.8 m/);
   assert.match(html, /Reverse/);
+  assert.match(html, /<th>Device<\/th>/);
+  assert.match(html, /Tablet/);
 });

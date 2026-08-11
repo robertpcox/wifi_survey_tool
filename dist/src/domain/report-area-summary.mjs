@@ -43,6 +43,7 @@ export function aggregateAreaPolygons(observations = []) {
     if (!groups.has(key)) groups.set(key, {
       areaKey: key,
       poiId: room.id ?? null,
+      identifier: room.identifier ?? null,
       areaName: room.name ?? observation.roomLabel ?? "MazeMap area",
       z,
       geometry: room.geometry,

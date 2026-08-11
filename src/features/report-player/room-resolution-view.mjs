@@ -11,7 +11,9 @@ import { renderCorridorResolution }
 import { renderRoomResolutionEvidence }
   from "./room-resolution-evidence-view.mjs";
 
-export function renderRoomResolutionView({ status, summary, error = null }) {
+export function renderRoomResolutionView({
+  status, summary, error = null, showDevice = true,
+}) {
   if (status !== "ready") return pending(status, error);
   if (!summary.visitCount && !summary.corridor?.sampleCount) {
     return `<div class="room-resolution-empty">
@@ -29,14 +31,16 @@ export function renderRoomResolutionView({ status, summary, error = null }) {
         visits. Area fill shows the exact resolved percentage. Orange points show
         surveyed positions; blue points show raw Cisco at each corridor mark or
         at the end of the 20 s / available room window. Dotted lines show their
-        same-floor displacement. Snap-to-path never enters either score.</p>
+        same-floor displacement. Distance outside is the shortest same-floor
+        distance from the blue dot to the expected area boundary; wrong-floor
+        and no-fix outcomes are labelled separately. Snap-to-path never enters either score.</p>
       <p><strong>${esc(summary.runCount ?? 0)} contributing runs:</strong>
         ${esc(summary.visitCount)} room stops and
         ${esc(summary.corridor?.sampleCount ?? 0)} corridor checkpoints.</p>
     </header>
     ${summary.visitCount ? `${summaryCards(summary)}${issueGraph(summary)}
-      ${roomTable(summary)}${renderRoomResolutionEvidence(summary)}` : roomEmpty()}
-    ${renderCorridorResolution(summary.corridor)}
+      ${roomTable(summary)}${renderRoomResolutionEvidence(summary, { showDevice })}` : roomEmpty()}
+    ${renderCorridorResolution(summary.corridor, { showDevice })}
   </div>`;
 }
 function pending(status, error) {
@@ -97,17 +101,20 @@ function issueGraph(summary) {
 function roomTable(summary) {
   const rows = summary.rooms;
   return `<div class="room-resolution-table">
-    <h4>Room majority outcomes and timing</h4>
+    <h4>Room majority outcomes, identity, and boundary distance</h4>
     <div class="report-table-scroll"><table><thead><tr>
-      <th>MazeMap room</th><th>Runs</th><th>Visits</th><th>Majority inside</th>
+      <th>Room number / ID</th><th>Room / area name</th><th>Worst same-floor outside</th>
+      <th>Runs</th><th>Visits</th><th>Majority inside</th>
       <th>Majority outside</th><th>Unscored</th><th>Caught up</th><th>Transient drift</th><th>Stuck</th>
     </tr></thead><tbody>${rows.map(room => `<tr>
-      <th>${esc(room.name || room.poiId || "Unmapped target")}</th>
+      <td>${esc(room.identifier || room.poiId || "—")}</td>
+      <th>${esc(room.name || "Unmapped target")}</th>
+      <td>${esc(metres(room.maxOutsideDistanceM))}</td>
       <td>${esc(room.runCount)}</td><td>${esc(room.visits)}</td>
       <td>${esc(room.resolved)}</td><td>${esc(room.failures)}</td>
       <td>${esc(room.unscored)}</td><td>${esc(room.settled)}</td>
       <td>${esc(room.drifted ?? 0)}</td><td>${esc(room.stuck)}</td>
-    </tr>`).join("") || '<tr><td colspan="9">No room outcomes.</td></tr>'}
+    </tr>`).join("") || '<tr><td colspan="11">No room outcomes.</td></tr>'}
     </tbody></table></div>
   </div>`;
 }
@@ -119,4 +126,7 @@ function one(value) {
 }
 function seconds(value) {
   return Number.isFinite(value) ? `${Number(value).toFixed(1)} s` : "—";
+}
+function metres(value) {
+  return Number.isFinite(value) ? `${Number(value).toFixed(1)} m` : "—";
 }

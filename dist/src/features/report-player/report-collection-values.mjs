@@ -42,10 +42,11 @@ export function selectedCampusReportStatus(loader, selection) {
   );
 }
 
-export function collectionRoomHtml(rooms) {
+export function collectionRoomHtml(rooms, { showDevice = true } = {}) {
   return renderRoomResolutionView({
     status: rooms.status,
     summary: rooms.summary,
     error: rooms.error,
+    showDevice,
   });
 }

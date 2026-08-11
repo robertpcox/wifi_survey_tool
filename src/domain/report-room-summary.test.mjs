@@ -14,7 +14,7 @@ const visit = (resultId, resolved, overrides = {}) => ({
   resultId,
   roomLabel: "Clinic",
   target: { lng: 170.5, lat: -45.8, z: 1 },
-  expectedRoom: { id: "poi-1", name: "Clinic", z: 1 },
+  expectedRoom: { id: "poi-1", identifier: "K01.07", name: "Clinic", z: 1 },
   observationKind: "dwell",
   settleState: resolved ? "already-resolved" : "not-resolved-at-exit",
   stuckThroughDwell: !resolved,
@@ -22,6 +22,7 @@ const visit = (resultId, resolved, overrides = {}) => ({
   resolved,
   primary: {
     status: resolved ? "resolved" : "wrong-room",
+    outsideDistanceM: resolved ? 0 : 4.2,
     point: { lng: resolved ? 170.5 : 170.6, lat: -45.8, z: 1 },
   },
   device: { name: resultId },
@@ -44,6 +45,8 @@ test("summary ranks POI rooms and separates truth from Cisco issue positions", (
   assert.equal(summary.resolutionPercent, 66.7);
   assert.equal(summary.rooms.length, 1);
   assert.equal(summary.rooms[0].runCount, 3);
+  assert.equal(summary.rooms[0].identifier, "K01.07");
+  assert.equal(summary.rooms[0].maxOutsideDistanceM, 4.2);
   assert.equal(summary.truthIssuePoints[0].lng, 170.5);
   assert.equal(summary.ciscoIssuePoints[0].lng, 170.6);
   assert.ok(summary.ciscoIssuePoints.some(point => point.lng === 170.7));
@@ -57,9 +60,11 @@ test("intermediate dwell failures remain geographic issues after a resolved exit
     dwellFailureMomentCount: 1,
     settleState: "resolved-during-dwell",
     moments: [{
-      status: "wrong-room", point: { lng: 170.8, lat: -45.8, z: 1 },
+      status: "wrong-room", outsideDistanceM: 8.7,
+      point: { lng: 170.8, lat: -45.8, z: 1 },
     }, {
-      status: "resolved", point: { lng: 170.5, lat: -45.8, z: 1 },
+      status: "resolved", outsideDistanceM: 0,
+      point: { lng: 170.5, lat: -45.8, z: 1 },
     }],
   });
   const summary = buildRoomResolutionSummary([resolved]);
@@ -68,4 +73,6 @@ test("intermediate dwell failures remain geographic issues after a resolved exit
   assert.equal(summary.dwellResolutionPercent, 40);
   assert.equal(summary.ciscoIssuePoints[0].lng, 170.8);
   assert.equal(summary.rooms[0].drifted, 1);
+  assert.equal(summary.rooms[0].maxOutsideDistanceM, 8.7,
+    "worst distance scans the whole dwell instead of its resolved endpoint");
 });

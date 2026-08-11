@@ -12,6 +12,8 @@ import { createRunnerFormView } from "./form-view.mjs";
 test("Dynamic room survey appears first and shows a live-built summary", () => {
   const selectors = [
     "[data-survey-select]",
+    "[data-entry-title]",
+    "[data-entry-help]",
     "[data-survey-name]",
     "[data-campus-name]",
     "[data-route-distance]",
@@ -51,7 +53,20 @@ test("Dynamic room survey appears first and shows a live-built summary", () => {
     route: { checkpoints: [{}, {}] },
   }, { dynamic: true });
   assert.equal(nodes.get("[data-survey-name]").textContent, "Dynamic room survey");
+  assert.equal(nodes.get("[data-entry-title]").textContent,
+    "Dynamic room survey settings");
+  assert.match(nodes.get("[data-entry-help]").textContent,
+    /Primary device, positioning, capture options/);
   assert.equal(nodes.get("[data-route-distance]").textContent, "Built live");
   assert.equal(nodes.get("[data-route-duration]").textContent, "Built live");
   assert.equal(nodes.get("[data-checkpoint-count]").textContent, "0");
+  view.showDefinition({
+    meta: {
+      surveyName: "Planned route", campusName: "Campus",
+      route: { distanceM: 99, estimatedDurationSeconds: 99 },
+      credentialRequirements: {},
+    },
+    route: { checkpoints: [] },
+  });
+  assert.equal(nodes.get("[data-entry-title]").textContent, "One-time run details");
 });

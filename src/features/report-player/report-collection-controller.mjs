@@ -48,7 +48,7 @@ export function createReportCollectionController({
   function mapAnalysis(mode, fallback) {
     const selected = overview.mapAnalysis(mode, fallback);
     if (mode === "overview" || rooms.status !== "ready") return selected;
-    return analysisWithAreaResolution(selected, rooms.summary);
+    return analysisWithAreaResolution(selected, rooms.summary, rooms.summaries);
   }
   function bind(root, { refresh, status }) {
     root.querySelector("[data-load-overview]")?.addEventListener("click", async () => {
@@ -94,7 +94,7 @@ export function createReportCollectionController({
     const work = withRendering("Resolving MazeMap room data…", () =>
       rooms.load(bundles)).then(summary => {
       if (revision === selectionRevision && rooms.status === "ready") {
-        overview.setRoomSummary(summary);
+        overview.setAreaResolutions(rooms.summaries);
       }
       return summary;
     });

@@ -52,6 +52,7 @@ test("controller merges after load, extends floors, and serves overview mode", a
   assert.ok(Object.values(emptyOverview.heatmaps)
     .every(floors => floors.every(floor => floor.points.length === 0)));
   assert.equal(emptyOverview.areaResolution, null);
+  assert.deepEqual(emptyOverview.areaResolutions, { room: null, zone: null });
   assert.match(controller.panelHtml(), /Load and merge 2 selected campus runs/);
 
   const progress = [];
@@ -77,6 +78,15 @@ test("controller merges after load, extends floors, and serves overview mode", a
   assert.ok(roomAnalysis.heatmaps.room.every(floor => floor.points.length === 0));
   assert.equal(roomAnalysis.areaResolution, roomSummary);
   assert.ok(roomAnalysis.fitPoints.some(point => point.lng === 170.6));
+  const zoneSummary = {
+    truthIssuePoints: [{ lng: 170.7, lat: -45.87, z: 0, weight: 1 }],
+    ciscoIssuePoints: [], areaPolygons: [{ areaKey: "zone", severity: "bad" }],
+  };
+  controller.setAreaResolutions({ room: roomSummary, zone: zoneSummary });
+  const zoneAnalysis = controller.mapAnalysis("overview", analysis);
+  assert.equal(zoneAnalysis.areaResolutions.room, roomSummary);
+  assert.equal(zoneAnalysis.areaResolutions.zone, zoneSummary);
+  assert.ok(zoneAnalysis.fitPoints.some(point => point.lng === 170.7));
   controller.setIncludedResultIds([outAndBack.run.resultId]);
   const selectedAnalysis = controller.mapAnalysis("overview", analysis);
   assert.ok(selectedAnalysis.stalePathSegments.every(segment => (

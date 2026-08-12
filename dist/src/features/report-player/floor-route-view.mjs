@@ -6,6 +6,7 @@
 // PROVENANCE:   Scope/steps/05a_recast_player.md
 
 import { esc } from "../../shared/format.mjs";
+import { renderAreaResolutionLegends } from "./map-area-legend-view.mjs";
 
 const TIMELINESS_PRESETS = Object.freeze([10, 15, 20, 30]);
 const ACCURACY_PRESETS = Object.freeze([5, 10, 15, 20, 25]);
@@ -38,7 +39,10 @@ export function renderFloorRouteView(result, {
     : '<option value="sticky" selected>Time since last update</option>'}
               ${consolidated ? '<option value="lag">Lag behind while walking</option>' : ""}
               <option value="accuracy">Distance off route</option>
-              <option value="room">MazeMap area resolution</option>
+              <optgroup label="MazeMap area resolution">
+                <option value="room">Match to the room</option>
+                <option value="zone">Match to the zone</option>
+              </optgroup>
             </select>
           </label>
           ${thresholdSelect({
@@ -101,19 +105,7 @@ export function renderFloorRouteView(result, {
     ? "Error beyond limit · hotter = greater metres"
     : "Position error beyond the selected distance"}
       </span>
-      <span class="map-room-legend" data-highlight-legend="room" hidden>
-        Scored room/corridor areas · resolved percentage:
-        <i class="area-scale" aria-hidden="true"></i>
-        red = 0% · amber = 50% · green = 100%
-        · <i class="expected-position" aria-hidden="true"></i> orange = surveyed position
-        · <i class="cisco-position" aria-hidden="true"></i> blue = raw Cisco position returned
-        (room window endpoint or corridor checkpoint)
-        · matched areas remain green; only outside/wrong-floor blue dots are shown
-        · successful blue dots are hidden
-        · red/orange rim = outside/wrong floor
-        · blue dotted connector = same-floor expected → raw displacement
-        · no-fix and catch-up states stay in report detail
-      </span>
+      ${renderAreaResolutionLegends()}
       ${consolidated ? "" : `<span class="map-result-legend">
         <i aria-hidden="true"></i> Wi-Fi result position on its reported floor
       </span>

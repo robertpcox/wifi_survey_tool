@@ -6,5 +6,6 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 ## ./
 - app-shell.css 80/1379 T+
 - format 15/413 T+ E csvCell, esc, tsName
+- report-area-selection 18/753 T+ E isAreaHighlight, selectedAreaResolution
 - shell-boot 31/1107 T+ E mountAppShell
 - time 3/108 T+ E sleep

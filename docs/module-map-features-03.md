@@ -4,6 +4,14 @@
 E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 
 ## survey-runner/
+- map-3d-toggle 71/2418 T+ E mountRunnerMap3dToggle
+- note-capture 120/3881 T+ E createRunnerNoteCapture
+- note-controller 47/1934 T+ E createRunnerNoteController I feature-flags
+- note-view 116/4245 T- E createRunnerNoteView I feature-flags
+- planned-run-start 37/1332 T- E startPlannedRunner I active-run
+- poll-loop 52/1578 T+ E createRunnerPollLoop I @a/positioning/source-contract
+- preflight 53/1595 T+ E createPreflightPollLoopOptions, runRunnerPreflight I @d/runner-preflight-v3, entry
+- result-download 30/1068 T+ E downloadRunnerResult I @a/files, @d/runner-result-v3
 - result-upload 16/553 T+ E validateRunnerResultFile I @a/files, @d/survey-result-v3
 - run-navigation 105/3358 T+ E NAVIGATION_DEBOUNCE_MS, createRunnerNavigation I @d/runner-progress-v3
 - run-safety-view 67/2640 T+ E awaitingEndText, createRunnerSafetyView

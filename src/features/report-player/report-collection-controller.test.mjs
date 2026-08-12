@@ -73,7 +73,10 @@ test("an all-run area request includes dynamic and planned survey evidence", asy
       },
       adapter: { resolveCampusRooms: async points => {
         if (first) { first = false; await gate; }
-        return points.map(point => room(point.lng, point.lat, point.z));
+        return points.flatMap(point => [
+          room(point.lng, point.lat, point.z),
+          room(point.lng, point.lat, point.z, "zone"),
+        ]);
       } },
     },
   });
@@ -101,6 +104,8 @@ test("an all-run area request includes dynamic and planned survey evidence", asy
   assert.equal(controller.roomSummary.visitCount, 4);
   const direct = controller.mapAnalysis("analysis", analysis);
   assert.equal(direct.areaResolution.visitCount, 4);
+  assert.equal(direct.areaResolutions.room.visitCount, 4);
+  assert.equal(direct.areaResolutions.zone.visitCount, 4);
   assert.ok(direct.heatmaps.room.every(floor => floor.points.length === 0));
 });
 
@@ -127,8 +132,9 @@ test("a failed private catalogue never injects an empty area overlay", async () 
   assert.equal(controller.mapAnalysis("overview", analysis).areaResolution, null);
 });
 
-function room(lng, lat, z) {
-  return { id: `${lng}:${lat}:${z}`, name: "Room", z,
+function room(lng, lat, z, kind = "room") {
+  return { id: `${kind}:${lng}:${lat}:${z}`, name: kind, z, kind,
+    areaKind: kind,
     geometry: { type: "Polygon", coordinates: [[
       [lng - 1, lat - 1], [lng + 1, lat - 1], [lng + 1, lat + 1],
       [lng - 1, lat + 1], [lng - 1, lat - 1],

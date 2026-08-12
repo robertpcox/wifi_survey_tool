@@ -24,9 +24,9 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - mazemap-poi-pages 66/2393 T- E fetchAllPoiPages
 - mazemap-poi-position 38/1187 T+ E poiCenter
 - mazemap-queries 101/3170 T+ E createMazeMapQueries I mazemap-catalog, mazemap-room-catalog, mazemap-room
-- mazemap-room-catalog 120/4242 T+ E loadMazeMapRoomCatalog I mazemap-floor-area, mazemap-poi-pages, mazemap-room
+- mazemap-room-catalog 119/4220 T+ E loadMazeMapRoomCatalog I mazemap-floor-area, mazemap-poi-pages, mazemap-room
 - mazemap-room-readiness 75/2588 T+ E createMazeMapRoomReadiness, waitForRenderedMazeMap
-- mazemap-room 49/1757 T+ E mergeMazeMapRooms, normalizeMazeMapRoom
+- mazemap-room 68/2317 T+ E mergeMazeMapRooms, normalizeMazeMapRoom
 - mazemap-runtime 42/1134 T+ E errorMessage, mazeMapZ, normalizeCampusId, numericZ, waitForMapLoad
 - mazemap-sdk 78/2763 T+ E MAZEMAP_CSS_URL, MAZEMAP_JS_URL, loadMazemapSdk, resolveMazemapSdk
 - mazemap-shared-boundary 78/2384 T+ E createMazeMapSharedBoundary
@@ -49,9 +49,9 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - report-warning-map-layer 118/3224 T+ E createReportWarningMapLayer I geojson-layer-group
 - report-wifi-map-layer 59/1880 T+ E createReportWifiMapLayer I geojson-layer-group
 - routing 41/1295 T+ E fetchLegGeoJSON, getPoi, getPoiAt
-- shared-map-layers 139/4587 T+ E createSharedMapLayers
-  - I map-camera-follow, player-map-layers, report-area-resolution-map-layer, report-concern-map-layer, report-map-layers, report-stale-path-map-layer,
-    report-warning-map-layer, report-wifi-map-layer
+- shared-map-layers 146/4827 T+ E createSharedMapLayers
+  - I @s/report-area-selection, map-camera-follow, player-map-layers, report-area-resolution-map-layer, report-concern-map-layer, report-map-layers,
+    report-stale-path-map-layer, report-warning-map-layer, report-wifi-map-layer
 ## positioning/
 - cloud 16/528 T+ E fetchCloudPosition
 - lipi 11/300 T+ E fetchLipiPosition

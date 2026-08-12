@@ -34,6 +34,7 @@ test("queries resolve lazily and describe provider POIs with current catalog nam
   assert.deepEqual(await queries.lookupPoi(9), { id: 9 });
   assert.deepEqual(await queries.resolveRoomById(9, 4), {
     id: "9", identifier: null, name: null, z: 4, geometry: null,
+    kind: null, areaKind: "room",
   });
 });
 
@@ -49,6 +50,7 @@ test("room lookup fetches missing full geometry and handles no nearby POI", asyn
   } }), () => ({}));
   assert.deepEqual(await queries.resolveRoomAt(1, 2, 3), {
     id: "9", identifier: null, name: "Room", z: 3, geometry,
+    kind: null, areaKind: "room",
   });
   nearby = false;
   assert.equal(await queries.resolveRoomAt(1, 2, 3), null);

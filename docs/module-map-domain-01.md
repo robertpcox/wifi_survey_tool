@@ -70,7 +70,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - report-room-geometry 119/4478 T+ E distanceOutsideRoomM, roomContainsPoint I geometry
 - report-room-groups 135/5011 T- E groupRoomRuns, groupRoomVisits
 - report-room-observation 76/3145 T+ E buildRoomObservations I checkpoint-dwell-v3, report-area-verdict, report-displayed-fix, report-reviewed-exceptions
-- report-room-public 27/1066 T- E outsideDistanceForExpected, publicRoom I report-room-geometry
+- report-room-public 28/1095 T- E outsideDistanceForExpected, publicRoom I report-room-geometry
 - report-room-resolution 150/6449 T+ E scoreRoomMoment, scoreRoomObservation I report-area-verdict, report-room-geometry, report-room-public
 - report-room-summary 109/4480 T+ E buildRoomResolutionSummary I report-room-groups, report-samples
 - report-route-axis 49/2103 T+ E createReportRouteAxis, travelDirectionAt

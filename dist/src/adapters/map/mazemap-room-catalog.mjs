@@ -49,7 +49,6 @@ function catalogRoom(poi) {
   const data = poi?.properties ?? {};
   return Object.freeze({
     ...room,
-    areaKind: "room",
     floorId: text(data.floorId ?? data.floor?.id ?? poi?.floorId),
     buildingId: text(data.buildingId ?? data.building?.id ?? poi?.buildingId),
     campusId: text(data.campusId ?? data.campus?.id ?? poi?.campusId),

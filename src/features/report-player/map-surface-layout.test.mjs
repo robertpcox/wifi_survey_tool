@@ -124,6 +124,7 @@ test("freeze and room fits use their visible geometry rather than hidden heat", 
   assert.ok(room.legs[0].geometry.some(point => point.lng === 16));
   assert.ok(!room.legs[0].geometry.some(point => point.lng === 50));
   assert.ok(!room.legs[0].geometry.some(point => point.lng === 70));
+
 });
 
 test("a superseded layout fit cannot move the camera to stale data", async () => {

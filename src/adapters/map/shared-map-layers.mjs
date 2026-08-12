@@ -14,6 +14,9 @@ import { createReportStalePathMapLayer } from "./report-stale-path-map-layer.mjs
 import { createReportWarningMapLayer } from "./report-warning-map-layer.mjs";
 import { createReportWifiMapLayer } from "./report-wifi-map-layer.mjs";
 import { followMapPoint } from "./map-camera-follow.mjs";
+import {
+  isAreaHighlight, selectedAreaResolution,
+} from "../../shared/report-area-selection.mjs";
 
 export function createSharedMapLayers(map, currentFloor) {
   const report = createReportMapLayers(map, currentFloor);
@@ -30,14 +33,14 @@ export function createSharedMapLayers(map, currentFloor) {
 
   function applyVisibility() {
     const analysisVisible = mode === "analysis";
-    report.setHeatVisible(!["none", "room"].includes(highlightKind));
+    report.setHeatVisible(!["none", "room", "zone"].includes(highlightKind));
     report.setNotesVisible(analysisVisible);
     concern.setVisible(analysisVisible);
     stalePath.setVisible(highlightKind === "freeze"
       || (!reportOverview && highlightKind === "sticky"));
     warnings.setVisible(analysisVisible);
     wifi.setVisible(analysisVisible);
-    area.setVisible(analysisVisible && highlightKind === "room");
+    area.setVisible(analysisVisible && isAreaHighlight(highlightKind));
     player.setVisible(playerEnabled);
   }
 
@@ -59,14 +62,18 @@ export function createSharedMapLayers(map, currentFloor) {
   }
 
   function drawReportHeat(kind, pointsOrAnalysis) {
-    const count = report.draw(kind, pointsOrAnalysis);
+    const count = isAreaHighlight(kind)
+      ? (report.select("none"), 0)
+      : report.draw(kind, pointsOrAnalysis);
     highlightKind = kind;
     reportOverview = pointsOrAnalysis?.overview === true;
     concern.draw(pointsOrAnalysis);
     stalePath.draw(pointsOrAnalysis);
     wifi.draw(pointsOrAnalysis);
     warnings.draw(pointsOrAnalysis?.warnings?.floorMismatch);
-    area.draw(pointsOrAnalysis?.areaResolution);
+    area.draw(selectedAreaResolution(
+      pointsOrAnalysis, isAreaHighlight(kind) ? kind : "room",
+    ));
     applyVisibility();
     return count;
   }

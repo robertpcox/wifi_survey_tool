@@ -12,10 +12,14 @@ import { renderRoomResolutionEvidence }
   from "./room-resolution-evidence-view.mjs";
 import { renderRoomResolutionTable }
   from "./room-resolution-table-view.mjs";
+import { renderZoneResolutionView } from "./zone-resolution-view.mjs";
 
 export function renderRoomResolutionView({
-  status, summary, error = null, showDevice = true,
+  status, summary, error = null, showDevice = true, areaKind = "room",
 }) {
+  if (areaKind === "zone" && status === "ready") {
+    return renderZoneResolutionView({ summary, showDevice });
+  }
   if (status !== "ready") return pending(status, error);
   if (!summary.visitCount && !summary.corridor?.sampleCount) {
     return `<div class="room-resolution-empty">

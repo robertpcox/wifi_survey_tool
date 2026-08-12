@@ -5,6 +5,10 @@
 // RULES:        Fit only visible overview evidence; never fall back to the hidden seed route.
 // PROVENANCE:   Campus report bounding-box feedback
 
+import {
+  isAreaHighlight, selectedAreaResolution,
+} from "../../shared/report-area-selection.mjs";
+
 export function routeForMapAnalysis(analysis, fallback, {
   floor = null, heatKind = "sticky", overview = analysis?.overview === true,
 } = {}) {
@@ -20,8 +24,8 @@ export function routeForMapAnalysis(analysis, fallback, {
 function overviewFitPoints(analysis, heatKind) {
   const points = heatKind === "freeze"
     ? segmentPoints(analysis.stalePathSegments)
-    : heatKind === "room"
-      ? roomPoints(analysis.areaResolution)
+    : isAreaHighlight(heatKind)
+      ? roomPoints(selectedAreaResolution(analysis, heatKind))
       : heatPoints(analysis.heatmaps?.[heatKind]);
   const unique = new Map();
   points.filter(finitePoint).forEach(point => {

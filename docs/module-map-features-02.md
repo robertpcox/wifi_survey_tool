@@ -4,6 +4,9 @@
 E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 
 ## report-player/
+- report-collection-values 63/2108 T+ E analysisWithAreaResolution, campusReportStatus, collectionAllRunsState, collectionRoomHtml, selectedCampusReportStatus
+  - I room-resolution-view
+- report-floor-controller 63/1988 T+ E bindReportFloor, renderPlayerFrame I render-report-map
 - report-insights-view 19/853 T+ E renderReportInsights I @d/report-insights, report-series-view, report-summary-view
 - report-insights.css 120/2108 T+
 - report-interactions 150/6519 T+ E bindReportInteractions, renderDynamicSections, renderPlayerFrame
@@ -27,20 +30,24 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - report-warnings.css 150/3658 T-
 - result-loader 123/4594 T+ E assertReportResult, campusRunEntries, comparisonEntries, loadSelectedResult, readUploadedResult, resultSelectionFromUrl
   - I @a/files, @d/survey-result-v3
-- room-resolution-area-match 55/2092 T- E catalogAreaKey, isCommonArea, smallestContainingArea I @d/report-room-geometry
+- room-resolution-area-match 63/2406 T- E catalogAreaKey, isAreaKind, isCommonArea, smallestContainingArea I @d/report-room-geometry
 - room-resolution-catalog-points 22/929 T- E cataloguePoints
-- room-resolution-catalog 129/4962 T+ E createCampusRoomCatalog, expectedCatalogRoom, knownRoomIndex, observedKnownRoom
+- room-resolution-catalog 134/5241 T+ E createCampusRoomCatalog, expectedCatalogRoom, knownRoomIndex, observedKnownRoom
   - I @d/report-room-geometry, room-resolution-area-match, room-resolution-catalog-points
 - room-resolution-evidence-view 97/4099 T+ E renderRoomResolutionEvidence I @s/format
-- room-resolution-loader 100/3742 T+ E createRoomResolutionLoader
+- room-resolution-loader 123/4593 T+ E createRoomResolutionLoader
   - I @d/report-area-summary, @d/report-corridor-observation, @d/report-corridor-summary, @d/report-room-observation, @d/report-room-resolution,
     @d/report-room-summary, room-resolution-catalog
 - room-resolution-sort 56/2163 T+ E bindRoomResolutionSort, compareRoomRows
 - room-resolution-table-view 103/4269 T- E renderRoomResolutionTable I @s/format
 - room-resolution-table.css 54/1518 T-
-- room-resolution-view 111/5553 T+ E renderRoomResolutionView I @s/format, corridor-resolution-view, room-resolution-evidence-view, room-resolution-table-view
+- room-resolution-view 115/5760 T+ E renderRoomResolutionView
+  - I @s/format, corridor-resolution-view, room-resolution-evidence-view, room-resolution-table-view, zone-resolution-view
 - room-resolution.css 144/4001 T-
 - timeline-view 129/4181 T+ E renderTimelineView, reportTimelineItems I @s/format
+- zone-resolution-evidence-view 61/2989 T- E renderZoneResolutionEvidence I @s/format
+- zone-resolution-table-view 84/4502 T- E renderZoneResolutionTable, zoneGroupCount I @s/format
+- zone-resolution-view 51/2722 T+ E renderZoneResolutionView I @s/format, zone-resolution-evidence-view, zone-resolution-table-view
 ## runner/
 - capture-view 110/3811 T+ E createCaptureView I @s/format
 - playback-frame 49/1515 T+ E buildPlaybackFrame, playbackTimes
@@ -94,11 +101,3 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - form-view-format 37/1242 T+ E formatDuration, preflightMetrics, preflightReasonText
 - form-view 150/6742 T+ E createRunnerFormView, preflightMetrics I @s/format, form-view-dynamic-options, form-view-format, runner-mode
 - loader 41/1668 T+ E loadRunnerDefinition, loadRunnerManifest, surveyIdFromUrl I @d/survey-definition-v3
-- map-3d-toggle 71/2418 T+ E mountRunnerMap3dToggle
-- note-capture 120/3881 T+ E createRunnerNoteCapture
-- note-controller 47/1934 T+ E createRunnerNoteController I feature-flags
-- note-view 116/4245 T- E createRunnerNoteView I feature-flags
-- planned-run-start 37/1332 T- E startPlannedRunner I active-run
-- poll-loop 52/1578 T+ E createRunnerPollLoop I @a/positioning/source-contract
-- preflight 53/1595 T+ E createPreflightPollLoopOptions, runRunnerPreflight I @d/runner-preflight-v3, entry
-- result-download 30/1068 T+ E downloadRunnerResult I @a/files, @d/runner-result-v3

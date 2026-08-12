@@ -21,13 +21,16 @@ import {
 export function createRoomResolutionLoader({ resolveCampusRooms } = {}) {
   const loadCampusRooms = createCampusRoomCatalog(resolveCampusRooms);
   let status = "idle";
-  let summary = buildRoomResolutionSummary([]);
+  let summaries = Object.freeze({
+    room: emptyAreaSummary(),
+    zone: emptyAreaSummary(),
+  });
   let error = null;
 
   async function load(bundles, onProgress = () => {}) {
     if (typeof resolveCampusRooms !== "function") {
       status = "unavailable";
-      return summary;
+      return summaries.room;
     }
     status = "loading";
     error = null;
@@ -41,44 +44,54 @@ export function createRoomResolutionLoader({ resolveCampusRooms } = {}) {
     let done = 0;
     try {
       const catalogRooms = await loadCampusRooms(observations);
-      const prepared = observations.map(observation => {
-        const result = resolveExpectedRoom(observation, catalogRooms);
-        onProgress(done += 1, observations.length);
-        return result;
-      });
-      const knownRooms = knownRoomIndex(prepared, catalogRooms);
-      const scored = prepared.map(item => scoreObservation(item, knownRooms));
-      const roomSummary = buildRoomResolutionSummary(
-        scored.filter(item => item.observationKind !== "corridor-point"),
-      );
-      const corridorSummary = buildCorridorResolutionSummary(
-        scored.filter(item => item.observationKind === "corridor-point"),
-      );
-      summary = combineAreaResolutionSummaries(roomSummary, corridorSummary);
+      const total = observations.length * 2;
+      summaries = Object.freeze(Object.fromEntries(["room", "zone"].map(areaKind => {
+        const prepared = observations.map(observation => {
+          const result = resolveExpectedRoom(observation, catalogRooms, areaKind);
+          onProgress(done += 1, total);
+          return result;
+        });
+        return [areaKind, scoreAreaKind(prepared, catalogRooms, areaKind)];
+      })));
       status = "ready";
     } catch (cause) {
       error = cause;
       status = "error";
     }
-    return summary;
+    return summaries.room;
   }
 
-  function resolveExpectedRoom(observation, catalogRooms) {
+  function resolveExpectedRoom(observation, catalogRooms, areaKind) {
     return {
       observation,
-      expected: expectedCatalogRoom(observation, catalogRooms),
+      expected: expectedCatalogRoom(observation, catalogRooms, areaKind),
       expectedError: null,
     };
   }
 
-  function scoreObservation(item, knownRooms) {
+  function scoreAreaKind(prepared, catalogRooms, areaKind) {
+    const eligible = areaKind === "zone"
+      ? prepared.filter(item => item.expected)
+      : prepared;
+    const knownRooms = knownRoomIndex(eligible, catalogRooms, areaKind);
+    const scored = eligible.map(item => scoreObservation(item, knownRooms, areaKind));
+    const room = buildRoomResolutionSummary(
+      scored.filter(item => item.observationKind !== "corridor-point"),
+    );
+    const corridor = buildCorridorResolutionSummary(
+      scored.filter(item => item.observationKind === "corridor-point"),
+    );
+    return combineAreaResolutionSummaries(room, corridor);
+  }
+
+  function scoreObservation(item, knownRooms, areaKind) {
     const { observation, expected, expectedError } = item;
     const evidenceMoments = observation.moments?.length
       ? observation.moments
       : (observation.exit === observation.entry
         ? [observation.entry] : [observation.entry, observation.exit]);
     const moments = evidenceMoments.map(evidence => (
-      observedKnownRoom(evidence?.point, expected, knownRooms)
+      observedKnownRoom(evidence?.point, expected, knownRooms, areaKind)
     ));
     return scoreRoomObservation(observation, {
       expected,
@@ -95,6 +108,16 @@ export function createRoomResolutionLoader({ resolveCampusRooms } = {}) {
     },
     get error() { return error; },
     get status() { return status; },
-    get summary() { return summary; },
+    get summary() { return summaries.room; },
+    get summaries() { return summaries; },
+    get roomSummary() { return summaries.room; },
+    get zoneSummary() { return summaries.zone; },
+    summaryFor(areaKind) { return summaries[areaKind] ?? summaries.room; },
   });
+}
+
+function emptyAreaSummary() {
+  return combineAreaResolutionSummaries(
+    buildRoomResolutionSummary([]), buildCorridorResolutionSummary([]),
+  );
 }

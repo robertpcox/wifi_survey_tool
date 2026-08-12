@@ -7,7 +7,7 @@
 
 import { roomContainsPoint } from "../../domain/report-room-geometry.mjs";
 import {
-  catalogAreaKey, isCommonArea, smallestContainingArea,
+  catalogAreaKey, isAreaKind, isCommonArea, smallestContainingArea,
 } from "./room-resolution-area-match.mjs";
 import { cataloguePoints } from "./room-resolution-catalog-points.mjs";
 
@@ -55,25 +55,29 @@ function mergeRoomLists(current, additions) {
   return [...unique.values()];
 }
 
-export function expectedCatalogRoom(observation, catalogRooms) {
+export function expectedCatalogRoom(observation, catalogRooms, areaKind = "room") {
   const expectedId = String(observation.expectedPoiId ?? "").trim();
   const sameFloor = catalogRooms.filter(room => (
     room?.geometry && Number(room.z) === Number(observation.target.z)
   ));
-  const rooms = sameFloor.filter(room => !isCommonArea(room));
+  const rooms = sameFloor.filter(room => isAreaKind(room, areaKind));
   const captured = expectedId ? smallestContainingArea(rooms.filter(room => (
     String(room.id ?? "") === expectedId
   )), observation.target) : null;
   if (captured) return captured;
   const named = smallestContainingArea(rooms, observation.target);
-  if (named || observation.observationKind !== "corridor-point") return named;
+  if (named || observation.observationKind !== "corridor-point"
+    || areaKind !== "room") return named;
   return smallestContainingArea(sameFloor.filter(isCommonArea), observation.target);
 }
 
-export function knownRoomIndex(prepared, catalogRooms = []) {
+export function knownRoomIndex(prepared, catalogRooms = [], areaKind = "room") {
   const unique = new Map();
   for (const room of catalogRooms) {
-    if (room?.geometry) unique.set(catalogAreaKey(room), room);
+    if (room?.geometry && (isAreaKind(room, areaKind)
+      || (areaKind === "room" && isCommonArea(room)))) {
+      unique.set(catalogAreaKey(room), room);
+    }
   }
   for (const item of prepared) {
     const room = item.expected;
@@ -90,12 +94,12 @@ export function knownRoomIndex(prepared, catalogRooms = []) {
   return floors;
 }
 
-export function observedKnownRoom(point, expected, knownRooms) {
+export function observedKnownRoom(point, expected, knownRooms, areaKind = "room") {
   if (!point || !expected?.geometry) return { room: null, error: null };
   const candidates = knownRooms.get(floorKey(point.z)) ?? [];
   if (isCommonArea(expected)) {
     const named = smallestContainingArea(candidates.filter(room => (
-      !isCommonArea(room)
+      isAreaKind(room, areaKind)
     )), point);
     if (named) return { room: named, error: null };
     const common = roomContainsPoint(expected, point) ? expected : null;
@@ -103,10 +107,11 @@ export function observedKnownRoom(point, expected, knownRooms) {
   }
   if (roomContainsPoint(expected, point)) return { room: expected, error: null };
   const rooms = candidates.filter(room => (
-    !isCommonArea(room) && catalogAreaKey(room) !== catalogAreaKey(expected)
+    isAreaKind(room, areaKind) && catalogAreaKey(room) !== catalogAreaKey(expected)
   ));
   const room = smallestContainingArea(rooms, point);
   if (room) return { room, error: null };
+  if (areaKind !== "room") return { room: null, error: null };
   const commonAreas = candidates.filter(isCommonArea);
   const sameBuilding = expected.buildingId
     ? commonAreas.filter(area => area.buildingId === expected.buildingId)

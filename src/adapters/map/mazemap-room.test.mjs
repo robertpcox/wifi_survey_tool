@@ -20,11 +20,14 @@ test("room normalization preserves provider identity and polygon geometry", () =
   };
   const room = normalizeMazeMapRoom({
     id: 42,
-    properties: { identifier: "K01.07", title: "Clinic", zLevel: 1 },
+    properties: {
+      identifier: "K01.07", title: "Clinic", zLevel: 1, kind: "zone",
+    },
     geometry,
   }, 0);
   assert.deepEqual(room, {
     id: "42", identifier: "K01.07", name: "Clinic", z: 1, geometry,
+    kind: "zone", areaKind: "zone",
   });
   geometry.coordinates[0][0][0] = 0;
   assert.equal(room.geometry.coordinates[0][0][0], 170);
@@ -34,11 +37,39 @@ test("detailed room values merge with point-lookup fallbacks", () => {
   assert.deepEqual(mergeMazeMapRooms(
     {
       id: "42", identifier: null, name: null, z: 1,
-      geometry: { type: "Polygon", coordinates: [] },
+      geometry: { type: "Polygon", coordinates: [] }, kind: "circulation_room",
+      areaKind: "room",
     },
-    { id: "42", identifier: "K01.07", name: "Clinic", z: 1, geometry: null },
+    { id: "42", identifier: "K01.07", name: "Clinic", z: 1, geometry: null,
+      kind: null, areaKind: "room" },
   ), {
     id: "42", identifier: "K01.07", name: "Clinic", z: 1,
     geometry: { type: "Polygon", coordinates: [] },
+    kind: "circulation_room", areaKind: "room",
   });
+});
+
+test("blank provider titles fall through while non-zone kinds remain rooms", () => {
+  const room = normalizeMazeMapRoom({
+    properties: {
+      poiId: 7, title: "  ", name: "Main corridor",
+      identifier: "  ", roomNumber: "C01", kind: "circulation_room", zLevel: 0,
+    },
+  });
+  assert.deepEqual(room, {
+    id: "7", identifier: "C01", name: "Main corridor", z: 0,
+    geometry: null, kind: "circulation_room", areaKind: "room",
+  });
+});
+
+test("only an exact provider zone kind is classified as a zone", () => {
+  const normalized = kind => normalizeMazeMapRoom({
+    properties: { poiId: kind, kind },
+  });
+  assert.deepEqual([normalized("zone"), normalized("circulation_room")]
+    .map(room => [room.kind, room.areaKind]), [
+    ["zone", "zone"], ["circulation_room", "room"],
+  ]);
+  assert.equal(normalizeMazeMapRoom({ id: "root-zone", kind: "zone" }).areaKind,
+    "zone");
 });

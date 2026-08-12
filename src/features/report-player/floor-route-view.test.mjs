@@ -37,6 +37,9 @@ test("floor route view uses only ordered meta floor names and one map surface", 
   assert.match(html, /data-map-highlight/);
   assert.match(html, />Time since last update</);
   assert.match(html, />Distance off route</);
+  assert.match(html, /<optgroup label="MazeMap area resolution">/);
+  assert.match(html, /<option value="room">Match to the room<\/option>/);
+  assert.match(html, /<option value="zone">Match to the zone<\/option>/);
   assert.match(html, /data-threshold="stickySeconds"/);
   assert.match(html, /data-threshold="accuracyM"/);
   assert.match(html, /data-highlight-threshold="accuracy" hidden/);
@@ -74,6 +77,9 @@ test("consolidated freeze mode describes continuous weighted path linework", () 
   assert.match(html, /Rendering consolidated map…/);
   assert.match(html, /Walked path freeze · thicker\/darker = more seconds/);
   assert.match(html, /Scored room\/corridor areas · resolved percentage:/);
+  assert.match(html, /data-highlight-legend="zone" hidden/);
+  assert.match(html, /Scored MazeMap zones · resolved percentage:/);
+  assert.match(html, /zone observation endpoint/);
   assert.match(html, /red = 0% · amber = 50% · green = 100%/);
   assert.match(html, /orange = surveyed position/);
   assert.match(html, /blue = raw Cisco position returned/);

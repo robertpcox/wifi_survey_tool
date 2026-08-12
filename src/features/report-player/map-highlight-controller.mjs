@@ -46,6 +46,7 @@ export function bindMapHighlight({
 function normalize(value) {
   if (value === "freeze") return "freeze";
   if (value === "room") return "room";
+  if (value === "zone") return "zone";
   if (value === "lag") return "lag";
   return value === "accuracy" ? "accuracy" : "sticky";
 }

@@ -11,11 +11,19 @@ export function isCommonArea(area) {
   return area?.areaKind === "common-area";
 }
 
+export function isAreaKind(area, kind) {
+  if (isCommonArea(area)) return kind === "common-area";
+  const providerKind = String(area?.kind ?? "").trim().toLowerCase();
+  const zone = providerKind ? providerKind === "zone" : area?.areaKind === "zone";
+  if (kind === "zone") return zone;
+  return kind === "room" && !zone;
+}
+
 export function catalogAreaKey(area) {
   const id = String(area?.id ?? "").trim();
   const floor = String(Number(area?.z));
   return id
-    ? `${floor}:${isCommonArea(area) ? "area" : "poi"}:${id}`
+    ? `${floor}:${area?.areaKind ?? "room"}:${id}`
     : `${floor}:geometry:${JSON.stringify(area?.geometry)}`;
 }
 

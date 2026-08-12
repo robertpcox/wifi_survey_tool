@@ -10,13 +10,14 @@ import {
   overviewMapAnalysis,
   renderCampusOverviewPanel,
 } from "./campus-overview.mjs";
+import { overviewWithAreaResolutions } from "./campus-overview-area.mjs";
 
 export function createCampusOverviewController({
   store, loader, floorInput = null, includeCurrent = true,
   includedResultIds = null,
 }) {
   let built = null;
-  let roomSummary = null;
+  let areaSummaries = null;
   let included = includedResultIds ? new Set(includedResultIds) : null;
   const isIncluded = id => !included || included.has(id);
 
@@ -32,7 +33,7 @@ export function createCampusOverviewController({
       )),
       includeResult: includeCurrent && isIncluded(state.result.run.resultId),
     });
-    built.mapAnalysis = overviewMapWithRooms(built, roomSummary);
+    built.mapAnalysis = overviewWithAreaResolutions(built.mapAnalysis, built.model, areaSummaries);
     extendFloorOptions();
     return built;
   }
@@ -76,16 +77,24 @@ export function createCampusOverviewController({
     load,
     rebuild,
     setRoomSummary(value) {
-      roomSummary = value;
+      areaSummaries = value ? { room: value, zone: null } : null;
       if (built) {
-        built.mapAnalysis = overviewMapWithRooms({
-          ...built, mapAnalysis: overviewMapAnalysis(built.model),
-        }, roomSummary);
+        built.mapAnalysis = overviewWithAreaResolutions(
+          overviewMapAnalysis(built.model), built.model, areaSummaries,
+        );
+      }
+    },
+    setAreaResolutions(value) {
+      areaSummaries = value;
+      if (built) {
+        built.mapAnalysis = overviewWithAreaResolutions(
+          overviewMapAnalysis(built.model), built.model, areaSummaries,
+        );
       }
     },
     setIncludedResultIds(values) {
       included = new Set(values);
-      roomSummary = null;
+      areaSummaries = null;
       return rebuild();
     },
     mapAnalysis(mode, fallback) {
@@ -107,23 +116,6 @@ export function createCampusOverviewController({
   });
 }
 
-function overviewMapWithRooms(built, roomSummary) {
-  if (!roomSummary) return built.mapAnalysis;
-  return {
-    ...built.mapAnalysis,
-    areaResolution: roomSummary,
-    fitPoints: [
-      ...built.mapAnalysis.fitPoints,
-      ...roomSummary.truthIssuePoints,
-      ...roomSummary.ciscoIssuePoints,
-    ],
-    heatmaps: {
-      ...built.mapAnalysis.heatmaps,
-      room: built.model.floors.map(floor => ({ ...floor, points: [] })),
-    },
-  };
-}
-
 function emptyOverviewAnalysis(fallback) {
   const floors = fallback?.floors ?? [];
   const empty = () => floors.map(floor => ({ ...floor, points: [] }));
@@ -139,5 +131,6 @@ function emptyOverviewAnalysis(fallback) {
     timeline: [],
     warnings: { floorMismatch: { points: [] } },
     areaResolution: null,
+    areaResolutions: { room: null, zone: null },
   };
 }

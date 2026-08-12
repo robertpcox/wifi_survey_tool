@@ -18,10 +18,12 @@ export function collectionAllRunsState(loader, state) {
   };
 }
 
-export function analysisWithAreaResolution(analysis, summary) {
+export function analysisWithAreaResolution(analysis, summary, summaries = null) {
+  const areaResolutions = summaries ?? { room: summary, zone: null };
   return {
     ...analysis,
     areaResolution: summary,
+    areaResolutions,
     heatmaps: {
       ...analysis.heatmaps,
       room: analysis.floors.map(floor => ({ ...floor, points: [] })),
@@ -43,10 +45,19 @@ export function selectedCampusReportStatus(loader, selection) {
 }
 
 export function collectionRoomHtml(rooms, { showDevice = true } = {}) {
-  return renderRoomResolutionView({
+  const roomHtml = renderRoomResolutionView({
     status: rooms.status,
     summary: rooms.summary,
     error: rooms.error,
     showDevice,
   });
+  const zone = rooms.summaries?.zone ?? rooms.zoneSummary;
+  if (rooms.status !== "ready" || !zone) return roomHtml;
+  return `${roomHtml}${renderRoomResolutionView({
+    status: rooms.status,
+    summary: zone,
+    error: rooms.error,
+    showDevice,
+    areaKind: "zone",
+  })}`;
 }

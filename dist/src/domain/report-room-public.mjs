@@ -15,6 +15,7 @@ export function publicRoom(room) {
     z: Number.isFinite(room.z) ? room.z : null,
     geometry: ["Polygon", "MultiPolygon"].includes(room.geometry?.type)
       ? room.geometry : null,
+    kind: room.kind ?? null,
     areaKind: room.areaKind ?? "room",
     floorId: room.floorId ?? null,
     buildingId: room.buildingId ?? null,

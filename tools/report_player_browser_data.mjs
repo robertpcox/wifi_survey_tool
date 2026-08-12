@@ -6,11 +6,15 @@
 // PROVENANCE:   Report Player fixture decoupling after production survey replacement
 
 const RESULT_PATH = "results/report-player-browser.result.v3.json";
+const MAZEMAP_LAYOUT_CSS =
+  ".mapboxgl-map{--browser-provider-layout:loaded;overflow:hidden;position:relative}";
 
 export async function respondReportPlayerRequest(request, origin, fixture) {
   const url = request.url();
   if (url.endsWith("mazemap.min.css")) {
-    await request.respond({ status: 200, contentType: "text/css", body: "" });
+    await request.respond({
+      status: 200, contentType: "text/css", body: MAZEMAP_LAYOUT_CSS,
+    });
   } else if (url.endsWith("/favicon.ico")) {
     await request.respond({ status: 204 });
   } else if (fixture && url.endsWith(customerManifestPath(fixture))) {

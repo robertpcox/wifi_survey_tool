@@ -9,6 +9,7 @@ import { comparisonEntries, loadSelectedResult, readUploadedResult } from "./res
 import { bindMapAccess } from "./map-access.mjs";
 import { createReportMapSurface } from "./map-surface.mjs";
 import { bindReportInteractions } from "./report-interactions.mjs";
+import { createReportStartup } from "./report-startup.mjs";
 import {
   renderLoadPanel,
   renderReportShell,
@@ -76,6 +77,7 @@ export async function mountReportPlayer({
     });
     surface.render({ analysis: state.analysis });
     let player = null;
+    let startup = null;
     const access = bindMapAccess({
       root,
       result: payload.result,
@@ -83,7 +85,7 @@ export async function mountReportPlayer({
       surface,
       requirePrivateAccess,
       dashboardSupplied,
-      onReady: () => player?.enableRoomLookup(),
+      onReady: () => startup?.onAccessReady(),
       onDecline: () => player?.markRoomUnavailable(areaAccessError),
     });
     player = bindReportInteractions({
@@ -94,16 +96,12 @@ export async function mountReportPlayer({
       manifestSource,
       downloadFile,
     });
-    const overviewReady = payload.initialView === "overview"
-      ? player.prepareOverview()
-      : Promise.resolve(false);
-    const mapReady = access.start();
-    const roomReady = Promise.all([mapReady, overviewReady]).then(() => {
-      if (requirePrivateAccess) return access.accessReady
-        ? true : player.markRoomUnavailable(areaAccessError);
-      return surface.mapMode === "mazemap"
-        ? player.enableRoomLookup() : player.markRoomUnavailable();
+    startup = createReportStartup({
+      access, player, surface, requirePrivateAccess,
+      initialView: payload.initialView,
+      unavailableError: areaAccessError,
     });
+    const { mapReady, overviewReady, roomReady } = startup.start();
     return Object.freeze({
       mapReady,
       overviewReady,

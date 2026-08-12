@@ -37,6 +37,7 @@ function installMazemap(scenario) {
     constructor(options) {
       state.instances += 1;
       state.map = this;
+      options.container?.classList?.add("mapboxgl-map");
       this.events = {};
       this.layers = new Map();
       this.options = options;

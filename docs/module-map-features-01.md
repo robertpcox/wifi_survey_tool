@@ -89,11 +89,11 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - map-floor-sync 90/2423 T+ E createMapFloorSync
 - map-highlight-controller 51/1596 T+ E bindMapHighlight
 - map-model 114/4307 T+ E createMapFrame
-- map-rendering-status.css 46/1209 T+
+- map-rendering-status.css 50/1350 T+
 - map-rendering-status 62/1897 T+ E createMapRenderingStatus
 - map-surface-layout 57/1748 T+ E createMapSurfaceLayout, routeCenter, routeForMapAnalysis, safelyCreateMap I map-fit-route
 - map-surface-visibility 21/830 T+ E createMapSurfaceVisibility
-- map-surface.css 150/3437 T+
+- map-surface.css 150/3490 T+
 - map-surface 148/6341 T+ E createReportMapSurface
   - I @a/map/mazemap-errors, map-fallback, map-floor-sync, map-model, map-rendering-status, map-surface-layout, map-surface-visibility, report-base-route
 - methodology-view 72/2866 T+ E buildAnalysisCsv, createAnalysisExports, createAnalysisSummary, downloadAnalysisExports, renderMethodologyView
@@ -112,7 +112,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - render-report-map 14/672 T+ E renderReportMap
 - report-base-route 24/895 T+ E createReportBaseRoute
 - report-chart-svg 81/3093 T+ E CHART, bucketExtremes, chartX, chartY, renderChartGrid, renderCriticalDots, renderOutageBands, renderTimeAxis
-- report-collection-controller 148/5943 T+ E createReportCollectionController
+- report-collection-controller 148/5949 T+ E createReportCollectionController
   - I all-runs, campus-overview-controller, campus-run-selection, report-collection-values, result-loader, room-resolution-loader
 - report-collection-values 52/1707 T+ E analysisWithAreaResolution, campusReportStatus, collectionAllRunsState, collectionRoomHtml, selectedCampusReportStatus
   - I room-resolution-view

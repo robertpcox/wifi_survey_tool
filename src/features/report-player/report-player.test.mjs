@@ -42,6 +42,8 @@ test("Report Player shell CSS keeps the shared map and mobile context visible", 
   ].map(file => readFile(new URL(file, import.meta.url), "utf8")));
   assert.match(shell, /\.report-toolbar/);
   assert.match(map, /\.map-stage/);
+  assert.match(map,
+    /\.map-stage > \.maze-map,[\s\S]*\.map-stage > \.map-fallback\s*\{[^}]*position: absolute;[^}]*height: 100%/s);
   assert.match(consolidated, /\.map-section\.is-consolidated \.map-stage[\s\S]*55dvh/);
   assert.match(consolidated, /\.map-section\.is-consolidated \.maze-map[\s\S]*min-height: 0/);
   assert.match(consolidated,

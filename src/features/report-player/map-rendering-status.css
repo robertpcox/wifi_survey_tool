@@ -9,14 +9,18 @@
 .map-rendering-status {
   position: absolute;
   z-index: 7;
-  inset: 0;
-  display: grid;
-  place-items: center;
+  top: 50%;
+  left: 50%;
+  max-width: calc(100% - 2rem);
   margin: 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid #cad8e8;
+  border-radius: 0.75rem;
   color: #14213d;
   font-weight: 750;
-  background: rgb(241 245 249 / 56%);
-  backdrop-filter: blur(1px);
+  background: rgb(255 255 255 / 94%);
+  box-shadow: 0 0.75rem 2rem rgb(20 33 61 / 18%);
+  transform: translate(-50%, -50%);
   pointer-events: none;
 }
 

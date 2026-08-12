@@ -25,6 +25,7 @@ const FLOOR_LAYER_IDS = [
 ];
 export async function exerciseReportAnalysis(page, fixture) {
   const failures = [];
+  failures.push(...await inspectAnalysisMapLayout(page));
   await page.click("[data-toggle-map-access]");
   await page.type("[data-map-access]", ["report", "runtime", "value"].join("-"));
   const access = await page.evaluate(() => ({
@@ -41,6 +42,25 @@ export async function exerciseReportAnalysis(page, fixture) {
   failures.push(...await exerciseWarningHandoff(page));
   failures.push(...await exerciseNativeFloor(page, fixture.meta.zLevels));
   return failures;
+}
+
+async function inspectAnalysisMapLayout(page) {
+  const bounds = await page.evaluate(() => {
+    const stage = document.querySelector(".map-stage")?.getBoundingClientRect();
+    const mapElement = document.querySelector("[data-maze-map]");
+    const map = mapElement?.getBoundingClientRect();
+    return {
+      mapHeight: map?.height ?? 0,
+      providerCss: mapElement
+        ? getComputedStyle(mapElement).getPropertyValue("--browser-provider-layout").trim()
+        : "",
+      stageHeight: stage?.height ?? 0,
+    };
+  });
+  return bounds.providerCss === "loaded" && bounds.stageHeight > 0
+      && Math.abs(bounds.stageHeight - bounds.mapHeight) <= 1
+    ? []
+    : [`MazeMap does not fill its Report stage: ${JSON.stringify(bounds)}`];
 }
 
 async function exerciseWarningHandoff(page) {

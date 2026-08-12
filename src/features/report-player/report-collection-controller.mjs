@@ -65,7 +65,7 @@ export function createReportCollectionController({
         if (progress) progress.textContent = `Loading run ${done} of ${total}…`;
       });
       if (roomLookupReady) await resolveRooms(true, refresh);
-      else refresh();
+      else await refresh();
       if (progress) progress.textContent = selectedCampusReportStatus(loader, runSelection);
       return overview.loaded;
     } catch (error) {

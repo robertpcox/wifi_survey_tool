@@ -6,18 +6,19 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 ## report-player/
 - report-insights-view 19/853 T+ E renderReportInsights I @d/report-insights, report-series-view, report-summary-view
 - report-insights.css 120/2108 T+
-- report-interactions 147/6333 T+ E bindReportInteractions, renderDynamicSections, renderPlayerFrame
+- report-interactions 148/6369 T+ E bindReportInteractions, renderDynamicSections, renderPlayerFrame
   - I @a/download, comparison-view, map-alert-view, map-highlight-controller, methodology-view, playback-view, render-report-map,
     report-collection-controller, report-floor-controller, report-mode-controller, report-sections, report-warning-view, result-loader
 - report-mode-controller 94/3025 T+ E bindReportModes
 - report-player.css 148/3552 T+
-- report-player 124/4491 T+ E mountReportPlayer I map-access, map-surface, report-interactions, report-shell, report-store, result-loader
+- report-player 122/4343 T+ E mountReportPlayer I map-access, map-surface, report-interactions, report-shell, report-startup, report-store, result-loader
 - report-sections 33/1397 T+ E renderDynamicSections
   - I comparison-view, direction-view, heatmap-view, kpi-view, methodology-view, no-position-view, report-insights-view, report-warning-view
 - report-series-view 129/5499 T+ E renderReportSeries I @s/format, report-chart-svg
 - report-shell 122/5562 T+ E renderLoadPanel, renderReportShell, requiresPrivateAreaAccess
   - I comparison-view, direction-view, floor-route-view, heatmap-view, identity-view, kpi-view, map-access, methodology-view, no-position-view, playback-view,
     report-insights-view, report-warning-view
+- report-startup 70/2030 T+ E createReportStartup
 - report-store 138/3992 T+ E createReportPlayerStore I @d/report-analysis, @d/report-comparison, @d/report-concern-segments
 - report-summary-view 122/4513 T+ E renderReportSummary I @s/format
 - report-summary.css 81/1927 T+

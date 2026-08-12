@@ -6,9 +6,20 @@
 // PROVENANCE:   Consolidated report rendering feedback
 
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import { createMapRenderingStatus } from "./map-rendering-status.mjs";
+
+test("busy feedback is a compact pill that leaves the map visible", async () => {
+  const css = await readFile(new URL("map-rendering-status.css", import.meta.url), "utf8");
+  const rule = css.match(/\.map-rendering-status\s*\{([^}]*)\}/s)?.[1] ?? "";
+  assert.match(rule, /top:\s*50%/);
+  assert.match(rule, /left:\s*50%/);
+  assert.match(rule, /max-width:\s*calc\(100% - 2rem\)/);
+  assert.doesNotMatch(rule, /\binset:\s*0/);
+  assert.doesNotMatch(rule, /backdrop-filter/);
+});
 
 test("overlapping renders stay busy until the newest token completes", async () => {
   const frames = [];

@@ -103,9 +103,10 @@ export function bindReportInteractions({
       const input = root.querySelector(`[data-threshold=${key}]`);
       if (input) input.value = String(value);
     }
-    repaintMap();
+    const mapWork = repaintMap();
     bindDynamic(state, remaining);
     if (modes.mode === "playback") player.seek(player.atMs);
+    return mapWork;
   }
 
   function bindDynamic(state, remaining) {

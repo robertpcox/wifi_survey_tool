@@ -46,7 +46,7 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - room-resolution.css 144/4001 T-
 - timeline-view 129/4181 T+ E renderTimelineView, reportTimelineItems I @s/format
 - zone-resolution-evidence-view 61/2989 T- E renderZoneResolutionEvidence I @s/format
-- zone-resolution-table-view 84/4502 T- E renderZoneResolutionTable, zoneGroupCount I @s/format
+- zone-resolution-table-view 84/4501 T- E renderZoneResolutionTable, zoneGroupCount I @s/format
 - zone-resolution-view 51/2722 T+ E renderZoneResolutionView I @s/format, zone-resolution-evidence-view, zone-resolution-table-view
 ## runner/
 - capture-view 110/3811 T+ E createCaptureView I @s/format

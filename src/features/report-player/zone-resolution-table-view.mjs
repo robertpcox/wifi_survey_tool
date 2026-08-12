@@ -31,7 +31,7 @@ function header(key, label) {
 
 function zoneRow(zone) {
   const rate = percent(zone.inside, zone.inside + zone.outside);
-  return `<tr data-room-number="${esc(zone.identifier || zone.poiId || "—")}" 
+  return `<tr data-room-number="${esc(zone.identifier || zone.poiId || "—")}"
     data-room-name="${esc(zone.name || "Unnamed zone")}" data-room-level="${esc(number(zone.z))}"
     data-room-resolution="${esc(rate ?? -1)}" data-room-inside="${esc(zone.inside)}"
     data-room-outside="${esc(zone.outside)}" data-room-visits="${esc(zone.observations)}">

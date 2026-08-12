@@ -64,7 +64,7 @@ export function createCampusRunSelection({
 
   function html({ enabled = true } = {}) {
     const disabled = enabled ? "" : " disabled";
-    return `<details class="campus-run-selection" open>
+    return `<details class="campus-run-selection">
       <summary>Runs included <strong data-campus-run-count>${draft.size} of ${rows.length} selected</strong></summary>
       <p>Only checked runs enter the map, graphs, and room/corridor scores.</p>
       <div class="campus-run-selection-actions">

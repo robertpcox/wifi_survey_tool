@@ -75,6 +75,7 @@ export function renderCampusOverviewPanel({
   includeCurrent = true,
   selectedCount = null,
   loaded,
+  priorityHtml = "",
 }) {
   const availableCount = entryCount + Number(includeCurrent);
   const includedCount = selectedCount ?? availableCount;
@@ -92,6 +93,7 @@ export function renderCampusOverviewPanel({
       movement lag, distance error, and MazeMap room/corridor containment.
       Reviewed exclusions are applied before runs are merged.
     </p>
+    ${priorityHtml}
     ${loaded ? overviewTable(overview, failureCount) : `
       <button type="button" data-load-overview>
         Load and merge ${esc(includedCount)} selected campus runs</button>

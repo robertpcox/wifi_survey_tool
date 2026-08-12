@@ -11,7 +11,7 @@ export { renderMapAccess } from "./map-access-view.mjs";
 
 export function bindMapAccess({
   root, credentials, surface, requirePrivateAccess = false,
-  dashboardSupplied = false, onReady = () => {}, onDecline = () => {},
+  onReady = () => {}, onDecline = () => {},
 }) {
   const preloaded = credentials.has("mapAccess");
   let declined = false;
@@ -21,7 +21,7 @@ export function bindMapAccess({
   const initialReady = new Promise(resolve => { settleInitial = resolve; });
   const controls = createMapAccessControls({
     root, requirePrivateAccess, preloaded,
-    concealOnSuccess: dashboardSupplied && preloaded,
+    concealOnSuccess: preloaded,
   });
   const attempts = createMapAccessAttempt({
     credentials, surface, onReady,

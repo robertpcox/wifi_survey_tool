@@ -35,6 +35,7 @@ test("selector starts with every eligible run checked and labelled", () => {
   assert.match(html, /Room survey/);
   assert.match(html, /Corridor survey/);
   assert.match(html, /Update consolidated report/);
+  assert.doesNotMatch(html, /<details[^>]*\sopen(?:\s|>)/);
 });
 
 test("draft IDs are sanitized while applied IDs change only through controls", () => {

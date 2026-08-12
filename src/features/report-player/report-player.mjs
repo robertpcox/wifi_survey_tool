@@ -63,7 +63,10 @@ export async function mountReportPlayer({
     const candidates = payload.manifest
       ? comparisonEntries(payload.manifest, payload.result)
       : [];
-    root.innerHTML = renderReportShell(state, candidates, { dashboardSupplied });
+    const accessPreloaded = Boolean(credentials.has?.("mapAccess"));
+    root.innerHTML = renderReportShell(state, candidates, {
+      dashboardSupplied, accessPreloaded,
+    });
     const surface = createReportMapSurface({
       result: payload.result,
       canvas: root.querySelector("[data-report-map]"),
@@ -84,7 +87,6 @@ export async function mountReportPlayer({
       credentials,
       surface,
       requirePrivateAccess,
-      dashboardSupplied,
       onReady: () => startup?.onAccessReady(),
       onDecline: () => player?.markRoomUnavailable(areaAccessError),
     });

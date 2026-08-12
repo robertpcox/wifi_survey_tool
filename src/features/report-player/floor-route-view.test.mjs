@@ -69,7 +69,7 @@ test("consolidated freeze mode describes continuous weighted path linework", () 
     consolidated: true,
   });
   assert.match(html, /Path sections that froze/);
-  assert.match(html, /data-module="runSelection"/);
+  assert.doesNotMatch(html, /data-module="runSelection"/);
   assert.match(html, /data-map-rendering-status/);
   assert.match(html, /Rendering consolidated map…/);
   assert.match(html, /Walked path freeze · thicker\/darker = more seconds/);

@@ -90,6 +90,11 @@ test("consolidated shell exposes overview without seed-run modes", () => {
   assert.match(html, /data-report-pane="overview" class="analysis-pane">/);
   assert.match(html, /data-report-context="analysis" hidden/);
   assert.match(html, /data-module="runSelection"/);
+  assert.doesNotMatch(html, /data-module="rooms"/);
+  assert.ok(
+    html.indexOf('data-module="runSelection"') < html.indexOf("Campus surface"),
+    "run selection renders before the campus map surface",
+  );
   assert.match(html, /class="report-section map-section is-consolidated"/);
   assert.match(html, /data-access-required="true"/);
   assert.match(html, /MazeMap access required for area resolution/);
@@ -127,4 +132,15 @@ test("dashboard-supplied access starts with its report controls concealed", () =
   assert.match(html, /data-toggle-map-access[^>]* hidden/);
   assert.match(html, /data-map-access-panel[^>]*data-access-required="true"[^>]* hidden/);
   assert.doesNotMatch(html, /<input[^>]*data-map-access[^>]*\bvalue=|dashboard-access/);
+});
+
+test("any preloaded access starts with its report controls concealed", () => {
+  const analysis = analyzeReportResult(result, { stickySeconds: 2, accuracyM: 5 });
+  const html = renderReportShell({
+    result, analysis, thresholds: analysis.thresholds,
+    comparison: null, view: "overview", consolidated: true,
+  }, [], { accessPreloaded: true });
+  assert.match(html, /data-toggle-map-access[^>]* hidden/);
+  assert.match(html, /data-map-access-panel[^>]* hidden/);
+  assert.doesNotMatch(html, /<input[^>]*data-map-access[^>]*\bvalue=/);
 });

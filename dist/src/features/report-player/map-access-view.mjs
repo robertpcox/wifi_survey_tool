@@ -6,10 +6,10 @@
 // PROVENANCE:   Scope/steps/05a_recast_player.md
 
 export function renderMapAccess(result, {
-  requirePrivateAccess = false, dashboardSupplied = false,
+  requirePrivateAccess = false, accessPreloaded = false,
 } = {}) {
   const hint = Boolean(result.meta.credentialRequirements.mapAccess);
-  const hidden = dashboardSupplied || !requirePrivateAccess;
+  const hidden = accessPreloaded || !requirePrivateAccess;
   return `
     <aside id="report-map-access" class="map-access"
       data-map-access-panel data-access-hint="${hint}"

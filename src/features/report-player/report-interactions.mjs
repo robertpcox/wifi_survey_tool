@@ -17,6 +17,7 @@ import { bindReportWarningActions } from "./report-warning-view.mjs";
 import { createReportCollectionController } from "./report-collection-controller.mjs";
 import { renderReportMap } from "./render-report-map.mjs";
 import { assertReportResult } from "./result-loader.mjs";
+import { bindRoomResolutionSort } from "./room-resolution-sort.mjs";
 export { renderPlayerFrame } from "./report-floor-controller.mjs";
 export { renderDynamicSections } from "./report-sections.mjs";
 export function bindReportInteractions({
@@ -98,13 +99,15 @@ export function bindReportInteractions({
     if (runSelectionRoot) runSelectionRoot.innerHTML = collection.runSelectionHtml();
     root.querySelector("[data-module=overview]").innerHTML =
       collection.overviewHtml();
-    root.querySelector("[data-module=rooms]").innerHTML = collection.roomHtml();
+    const roomsRoot = root.querySelector("[data-module=rooms]");
+    if (roomsRoot) roomsRoot.innerHTML = collection.roomHtml();
     for (const [key, value] of Object.entries(state.thresholds)) {
       const input = root.querySelector(`[data-threshold=${key}]`);
       if (input) input.value = String(value);
     }
     const mapWork = repaintMap();
     bindDynamic(state, remaining);
+    bindRoomResolutionSort(root);
     if (modes.mode === "playback") player.seek(player.atMs);
     return mapWork;
   }
@@ -130,7 +133,6 @@ export function bindReportInteractions({
       markLoaded: id => loadedIds.add(id),
     });
   }
-
   refresh();
   return Object.freeze({
     enableRoomLookup: () => collection.enableRoomLookup(refresh),

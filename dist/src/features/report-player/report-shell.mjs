@@ -32,6 +32,7 @@ export function renderLoadPanel(message = "Choose a generated result or upload a
 
 export function renderReportShell(state, candidates = [], {
   dashboardSupplied = false,
+  accessPreloaded = dashboardSupplied,
 } = {}) {
   const { result, analysis, thresholds, comparison } = state;
   const overview = state.view === "overview";
@@ -46,7 +47,7 @@ export function renderReportShell(state, candidates = [], {
     ? "Campus report · loading eligible runs"
     : "One result · one analysis · one map"}</p>
         <button type="button" data-toggle-map-access aria-expanded="false"
-          aria-controls="report-map-access"${dashboardSupplied ? " hidden" : ""}>
+          aria-controls="report-map-access"${accessPreloaded ? " hidden" : ""}>
           Map access token
         </button>
       </div>
@@ -55,7 +56,8 @@ export function renderReportShell(state, candidates = [], {
       ${renderIdentityView(result)}
       <section data-module="warnings">${renderReportWarnings(analysis)}</section>
     </div>
-    ${renderMapAccess(result, { requirePrivateAccess, dashboardSupplied })}
+    ${renderMapAccess(result, { requirePrivateAccess, accessPreloaded })}
+    ${state.consolidated ? '<div data-module="runSelection"></div>' : ""}
     <div class="shared-map-workspace" data-player-workspace>
       <section class="report-section map-section${state.consolidated
     ? " is-consolidated" : ""}" data-module="floor-route">
@@ -84,7 +86,7 @@ export function renderReportShell(state, candidates = [], {
       <section class="report-section" data-module="noPosition">
         ${renderNoPositionView(state)}
       </section>
-      <section class="report-section" data-module="rooms"></section>
+      ${state.consolidated ? "" : '<section class="report-section" data-module="rooms"></section>'}
       <section class="report-section" data-module="comparison">
         ${renderComparisonView({ entries: candidates, comparison })}
       </section>

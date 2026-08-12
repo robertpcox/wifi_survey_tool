@@ -80,6 +80,7 @@ test("the panel offers lazy loading, then the merged table", () => {
     entryCount: 1,
     selectedCount: 1,
     loaded: true,
+    priorityHtml: '<div data-priority-room-results>Room results</div>',
   });
   assert.match(loaded, /1 selected of 2 available/);
   assert.match(loaded, /2 runs merged/);
@@ -87,6 +88,9 @@ test("the panel offers lazy loading, then the merged table", () => {
   assert.match(loaded, /Both directions/);
   assert.match(loaded, /Ground/);
   assert.doesNotMatch(loaded, /data-load-overview/);
+  assert.ok(loaded.indexOf("data-priority-room-results")
+    < loaded.indexOf("Positive Cisco lag behind route by run"));
+  assert.equal(loaded.match(/data-priority-room-results/g)?.length, 1);
 });
 
 test("non-seed overview runs carry their reviewed exceptions into analysis", () => {

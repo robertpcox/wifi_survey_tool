@@ -1,0 +1,54 @@
+/* FEATURE:      Sortable room-resolution outcome table
+ * SURFACE:      Sort affordances, outcome labels, and actual MazeMap-area details
+ * WHY TOGETHER: Table-only presentation stays separate from the wider resolution report.
+ * STATE:        aria-sort values style the active direction
+ * RULES:        Status copy and arrows keep sorting and outcomes clear without colour alone.
+ * PROVENANCE:   Consolidated MazeMap room report
+ */
+
+.room-resolution-table caption {
+  overflow: hidden;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.room-resolution-table [data-room-sort] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  background: transparent;
+  cursor: pointer;
+}
+
+.room-resolution-table [data-room-sort]::after {
+  color: #64748b;
+  content: "↕";
+}
+
+.room-resolution-table th[aria-sort="ascending"] [data-room-sort]::after {
+  color: #1d4ed8;
+  content: "↑";
+}
+
+.room-resolution-table th[aria-sort="descending"] [data-room-sort]::after {
+  color: #1d4ed8;
+  content: "↓";
+}
+
+.room-outcome,
+.room-reached-area { display: grid; gap: 0.15rem; }
+.room-outcome small,
+.room-reached-area small { color: #64748b; white-space: nowrap; }
+.room-outcome.is-good strong { color: #15803d; }
+.room-outcome.is-bad strong { color: #b91c1c; }
+.room-outcome.is-mixed strong { color: #a16207; }
+.room-outcome.is-unscored strong { color: #475569; }

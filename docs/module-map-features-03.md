@@ -4,6 +4,9 @@
 E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 
 ## survey-runner/
+- result-upload 16/553 T+ E validateRunnerResultFile I @a/files, @d/survey-result-v3
+- run-navigation 105/3358 T+ E NAVIGATION_DEBOUNCE_MS, createRunnerNavigation I @d/runner-progress-v3
+- run-safety-view 67/2640 T+ E awaitingEndText, createRunnerSafetyView
 - run-view 149/5431 T+ E checkpointDistanceText, createRunnerRunView, targetName I @d/geometry, note-view, run-safety-view
 - runner-active.css 150/3140 T+ I runner-note.css, runner-safety.css
 - runner-entry.css 39/889 T-

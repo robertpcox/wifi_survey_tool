@@ -68,8 +68,8 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - report-request-insights 99/3615 T+ E buildReportCaptureSeries
 - report-reviewed-exceptions 106/4198 T+ E applyReportCoverage, buildReportCoverage I report-ground-truth, reviewed-exceptions-v3
 - report-room-geometry 119/4478 T+ E distanceOutsideRoomM, roomContainsPoint I geometry
-- report-room-groups 89/3455 T- E groupRoomRuns, groupRoomVisits
-- report-room-observation 75/3072 T+ E buildRoomObservations I checkpoint-dwell-v3, report-area-verdict, report-displayed-fix, report-reviewed-exceptions
+- report-room-groups 135/5011 T- E groupRoomRuns, groupRoomVisits
+- report-room-observation 76/3145 T+ E buildRoomObservations I checkpoint-dwell-v3, report-area-verdict, report-displayed-fix, report-reviewed-exceptions
 - report-room-public 27/1066 T- E outsideDistanceForExpected, publicRoom I report-room-geometry
 - report-room-resolution 150/6449 T+ E scoreRoomMoment, scoreRoomObservation I report-area-verdict, report-room-geometry, report-room-public
 - report-room-summary 109/4480 T+ E buildRoomResolutionSummary I report-room-groups, report-samples

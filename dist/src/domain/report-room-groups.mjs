@@ -15,11 +15,12 @@ export function groupRoomVisits(visits) {
       identifier: room?.identifier ?? null,
       name: room?.name ?? visit.roomLabel,
       z: room?.z ?? visit.target.z,
+      floorName: visit.floorName ?? null,
       point: visit.target,
       visits: 0, resolved: 0, failures: 0, unscored: 0,
       settled: 0, stuck: 0, drifted: 0,
       maxOutsideDistanceM: null,
-      runIds: new Set(), devices: new Set(),
+      runIds: new Set(), devices: new Set(), reachedAreas: new Map(),
     });
     const group = groups.get(key);
     group.visits += 1;
@@ -39,16 +40,61 @@ export function groupRoomVisits(visits) {
     }
     group.runIds.add(visit.resultId);
     group.devices.add(deviceLabel(visit.device));
+    recordReachedArea(group.reachedAreas, visit);
   }
-  return [...groups.values()].map(group => ({
-    ...group,
-    runCount: group.runIds.size,
-    failedPercent: percent(group.failures, group.visits),
-    runIds: [...group.runIds].sort(),
-    devices: [...group.devices].sort(),
-  })).sort((left, right) => right.failures - left.failures
+  return [...groups.values()].map(finalizeRoom).sort((left, right) => right.failures - left.failures
     || right.drifted - left.drifted || right.stuck - left.stuck
     || left.name.localeCompare(right.name));
+}
+
+function finalizeRoom(group) {
+  const { reachedAreas, ...room } = group;
+  const scored = group.resolved + group.failures;
+  return {
+    ...room,
+    runCount: group.runIds.size,
+    resolutionPercent: percent(group.resolved, scored),
+    failedPercent: percent(group.failures, scored),
+    closestAreas: [...reachedAreas.values()].sort((left, right) => (
+      right.count - left.count || areaLabel(left).localeCompare(areaLabel(right))
+    )),
+    runIds: [...group.runIds].sort(),
+    devices: [...group.devices].sort(),
+  };
+}
+
+function recordReachedArea(areas, visit) {
+  if (!visit.scored || visit.resolved) return;
+  const representative = visit.primary;
+  if (!["wrong-room", "unresolved", "wrong-floor", "no-displayed-fix"]
+    .includes(representative?.status)) return;
+  const room = representative.room;
+  const fallback = fallbackArea(representative.status);
+  const area = {
+    id: room?.id ?? null,
+    identifier: room?.identifier ?? null,
+    name: room?.name ?? fallback,
+    z: Number.isFinite(room?.z) ? room.z : null,
+    status: representative.status,
+  };
+  const key = room?.id
+    ? `poi:${room.id}`
+    : `${area.identifier ?? ""}:${area.name}:${area.z ?? ""}:${area.status}`;
+  const current = areas.get(key) ?? { ...area, count: 0 };
+  current.count += 1;
+  areas.set(key, current);
+}
+
+function fallbackArea(status) {
+  return {
+    "wrong-floor": "Different floor",
+    "no-displayed-fix": "No Cisco fix",
+    unresolved: "Outside mapped areas",
+  }[status] ?? "Unknown MazeMap area";
+}
+
+function areaLabel(area) {
+  return [area.identifier || area.id, area.name].filter(Boolean).join(" ");
 }
 
 export function groupRoomRuns(visits) {

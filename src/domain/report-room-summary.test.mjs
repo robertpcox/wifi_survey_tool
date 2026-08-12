@@ -76,3 +76,50 @@ test("intermediate dwell failures remain geographic issues after a resolved exit
   assert.equal(summary.rooms[0].maxOutsideDistanceM, 8.7,
     "worst distance scans the whole dwell instead of its resolved endpoint");
 });
+
+test("room groups retain successful rooms and the plurality actual failed endpoint area", () => {
+  const actual = (id, identifier, name) => ({ id, identifier, name, z: 1 });
+  const failed = (resultId, room) => visit(resultId, false, {
+    windowExit: {
+      status: "wrong-room", outsideDistanceM: 3,
+      point: { lng: 170.6, lat: -45.8, z: 1 }, room,
+    },
+    primary: {
+      status: "wrong-room", outsideDistanceM: 3,
+      point: { lng: 170.6, lat: -45.8, z: 1 }, room,
+    },
+  });
+  const successfulRoom = visit("run-ok", true, {
+    floorName: "Level 0",
+    expectedRoom: { id: "poi-ok", identifier: "K01.08", name: "Working", z: 1 },
+  });
+  const summary = buildRoomResolutionSummary([
+    successfulRoom,
+    failed("run-a", actual("hall", "C01", "Main corridor")),
+    failed("run-b", actual("hall", "C01", "Main corridor")),
+    failed("run-c", actual("store", "S01", "Store")),
+  ]);
+  assert.equal(summary.rooms.length, 2, "rooms with only successful visits remain visible");
+  const clinic = summary.rooms.find(item => item.poiId === "poi-1");
+  assert.equal(clinic.resolutionPercent, 0);
+  assert.deepEqual(clinic.closestAreas.map(item => [item.identifier, item.name, item.count]), [
+    ["C01", "Main corridor", 2], ["S01", "Store", 1],
+  ], "failed endpoint areas sort by plurality then stable identity");
+  const working = summary.rooms.find(item => item.poiId === "poi-ok");
+  assert.equal(working.resolutionPercent, 100);
+  assert.equal(working.floorName, "Level 0");
+});
+
+test("failed-room destination follows the majority representative, not the exit", () => {
+  const summary = buildRoomResolutionSummary([visit("run-fail", false, {
+    primary: {
+      status: "wrong-room", room: { id: "hall", name: "Main corridor", z: 1 },
+      point: { lng: 170.6, lat: -45.8, z: 1 }, outsideDistanceM: 3,
+    },
+    windowExit: {
+      status: "resolved", room: { id: "poi-1", name: "Clinic", z: 1 },
+      point: { lng: 170.5, lat: -45.8, z: 1 }, outsideDistanceM: 0,
+    },
+  })]);
+  assert.equal(summary.rooms[0].closestAreas[0].name, "Main corridor");
+});

@@ -127,7 +127,9 @@ export function createReportCollectionController({
     loadOverview: (...args) => withRendering(
       "Loading consolidated runs…", () => loadOverview(...args)),
     mapAnalysis,
-    overviewHtml: () => `${overview.panelHtml()}${collectionRoomHtml(rooms, roomViewOptions)}`,
+    overviewHtml: () => initial.consolidated
+      ? overview.panelHtml({ priorityHtml: collectionRoomHtml(rooms, roomViewOptions) })
+      : `${overview.panelHtml()}${collectionRoomHtml(rooms, roomViewOptions)}`,
     rebuild: overview.rebuild,
     runSelectionHtml: () => runSelection.html({ enabled: loader.loaded }),
     setIncludedRuns: applyRunSelection,

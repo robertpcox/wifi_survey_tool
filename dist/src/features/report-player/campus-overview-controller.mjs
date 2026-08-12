@@ -92,7 +92,7 @@ export function createCampusOverviewController({
       if (mode !== "overview") return fallback;
       return built?.mapAnalysis ?? emptyOverviewAnalysis(fallback);
     },
-    panelHtml() {
+    panelHtml({ priorityHtml = "" } = {}) {
       return renderCampusOverviewPanel({
         overview: built?.model ?? null,
         entryCount: loader.entryCount,
@@ -100,6 +100,7 @@ export function createCampusOverviewController({
         includeCurrent,
         loaded: Boolean(built),
         selectedCount: included?.size,
+        priorityHtml,
       });
     },
     get loaded() { return Boolean(built); },

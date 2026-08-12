@@ -61,7 +61,6 @@ export function renderFloorRouteView(result, {
         </div>
       </div>
     </div>
-    ${consolidated ? '<div data-module="runSelection"></div>' : ""}
     <div class="map-stage">
       <div id="report-maze-map" class="maze-map" data-maze-map
         aria-label="MazeMap campus map"></div>

@@ -51,6 +51,7 @@ export function buildRoomObservations(result, reviewedExceptions = []) {
       checkpointId: checkpoint.id,
       stopId: stop.id,
       roomLabel: stop.poiName ?? stop.name,
+      floorName: result.meta.zLevelNames[String(checkIn.groundTruth.z)],
       expectedPoiId: text(stop.poiId),
       target: { ...checkIn.groundTruth },
       checkedInAt: checkIn.at,

@@ -17,7 +17,7 @@ test("dashboard access launches an optional report privately first and stays con
   const privateTokens = [];
   let publicStarts = 0;
   const binding = bindMapAccess({
-    root: fixture.root, credentials, dashboardSupplied: true,
+    root: fixture.root, credentials,
     surface: {
       start: async () => { publicStarts += 1; return { status: "ready" }; },
       retryAccess: async token => { privateTokens.push(token); return { status: "ready" }; },
@@ -32,6 +32,21 @@ test("dashboard access launches an optional report privately first and stays con
   assert.equal(credentials.read("mapAccess"), "dashboard-access");
   assert.equal(fixture.input.value, "");
   assert.equal(fixture.input.focused, 0);
+  assert.equal(fixture.panel.hidden, true);
+  assert.equal(fixture.toggleButton.hidden, true);
+});
+
+test("preloaded access from any in-memory source stays concealed after success", async () => {
+  const fixture = fakeAccessRoot();
+  const binding = bindMapAccess({
+    root: fixture.root,
+    credentials: memoryCredentials("preloaded-access"),
+    requirePrivateAccess: true,
+    surface: { retryAccess: async () => ({ status: "ready" }) },
+  });
+  assert.equal(fixture.panel.hidden, true);
+  assert.equal(fixture.toggleButton.hidden, true);
+  assert.equal((await binding.start()).status, "ready");
   assert.equal(fixture.panel.hidden, true);
   assert.equal(fixture.toggleButton.hidden, true);
 });
@@ -60,7 +75,7 @@ test("a failed dashboard credential clears and reveals a focused correction prom
   const privateTokens = [];
   let publicStarts = 0;
   const binding = bindMapAccess({
-    root: fixture.root, credentials, dashboardSupplied: true,
+    root: fixture.root, credentials,
     requirePrivateAccess: true,
     surface: {
       start: async () => { publicStarts += 1; return { status: "ready" }; },

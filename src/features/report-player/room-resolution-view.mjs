@@ -10,6 +10,8 @@ import { renderCorridorResolution }
   from "./corridor-resolution-view.mjs";
 import { renderRoomResolutionEvidence }
   from "./room-resolution-evidence-view.mjs";
+import { renderRoomResolutionTable }
+  from "./room-resolution-table-view.mjs";
 
 export function renderRoomResolutionView({
   status, summary, error = null, showDevice = true,
@@ -39,7 +41,7 @@ export function renderRoomResolutionView({
         ${esc(summary.corridor?.sampleCount ?? 0)} corridor checkpoints.</p>
     </header>
     ${summary.visitCount ? `${summaryCards(summary)}${issueGraph(summary)}
-      ${roomTable(summary)}${renderRoomResolutionEvidence(summary, { showDevice })}` : roomEmpty()}
+      ${renderRoomResolutionTable(summary)}${renderRoomResolutionEvidence(summary, { showDevice })}` : roomEmpty()}
     ${renderCorridorResolution(summary.corridor, { showDevice })}
   </div>`;
 }
@@ -98,26 +100,6 @@ function issueGraph(summary) {
     </div>`).join("")}
   </figure>`;
 }
-function roomTable(summary) {
-  const rows = summary.rooms;
-  return `<div class="room-resolution-table">
-    <h4>Room majority outcomes, identity, and boundary distance</h4>
-    <div class="report-table-scroll"><table><thead><tr>
-      <th>Room number / ID</th><th>Room / area name</th><th>Worst same-floor outside</th>
-      <th>Runs</th><th>Visits</th><th>Majority inside</th>
-      <th>Majority outside</th><th>Unscored</th><th>Caught up</th><th>Transient drift</th><th>Stuck</th>
-    </tr></thead><tbody>${rows.map(room => `<tr>
-      <td>${esc(room.identifier || room.poiId || "—")}</td>
-      <th>${esc(room.name || "Unmapped target")}</th>
-      <td>${esc(metres(room.maxOutsideDistanceM))}</td>
-      <td>${esc(room.runCount)}</td><td>${esc(room.visits)}</td>
-      <td>${esc(room.resolved)}</td><td>${esc(room.failures)}</td>
-      <td>${esc(room.unscored)}</td><td>${esc(room.settled)}</td>
-      <td>${esc(room.drifted ?? 0)}</td><td>${esc(room.stuck)}</td>
-    </tr>`).join("") || '<tr><td colspan="11">No room outcomes.</td></tr>'}
-    </tbody></table></div>
-  </div>`;
-}
 function percent(value) {
   return Number.isFinite(value) ? `${Number(value).toFixed(1)}%` : "—";
 }
@@ -126,7 +108,4 @@ function one(value) {
 }
 function seconds(value) {
   return Number.isFinite(value) ? `${Number(value).toFixed(1)} s` : "—";
-}
-function metres(value) {
-  return Number.isFinite(value) ? `${Number(value).toFixed(1)} m` : "—";
 }

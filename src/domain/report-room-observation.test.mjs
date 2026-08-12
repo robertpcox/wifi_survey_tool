@@ -26,6 +26,7 @@ test("dynamic room observations use entry/exit displayed fixes at stop dwells", 
     "checkpoint-a", "checkpoint-c",
   ]);
   assert.equal(observations[0].observationKind, "dwell");
+  assert.equal(observations[0].floorName, "Ground");
   assert.equal(observations[0].entry.pollId, null);
   assert.equal(observations[0].entry.point, null);
   assert.equal(observations[0].moments.length, 3);

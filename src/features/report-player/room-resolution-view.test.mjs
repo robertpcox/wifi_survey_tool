@@ -52,8 +52,12 @@ test("ready view renders stationary KPIs, graph, room rank, and evidence", () =>
     },
     rooms: [{
       poiId: "poi-42", identifier: "K01.07", name: "Clinic",
+      floorName: "Level 0",
       maxOutsideDistanceM: 2.4, runCount: 1, visits: 1, resolved: 0,
       failures: 1, unscored: 0, settled: 0, stuck: 1,
+      closestAreas: [{
+        id: "corridor", identifier: "C01", name: "Corridor", z: 0, count: 1,
+      }],
     }, ...matchedRooms],
     observations: [observation],
   } });
@@ -61,10 +65,18 @@ test("ready view renders stationary KPIs, graph, room rank, and evidence", () =>
   assert.match(html, /not extra failed\s+visits/);
   assert.match(html, /One majority verdict and timing outcome/);
   assert.match(html, /4 contributing runs/);
-  assert.match(html, /Room majority outcomes, identity, and boundary distance/);
-  assert.match(html, /Room number \/ ID/);
+  assert.match(html, /Room outcomes/);
+  assert.match(html, /Room number/);
+  assert.match(html, /Room name/);
+  assert.match(html, /Level 0/);
+  assert.match(html, /Blue dot resolved in room/);
+  assert.match(html, /Closest point \/ MazeMap area reached/);
+  assert.match(html, /Count inside/);
+  assert.match(html, /Count outside/);
+  assert.match(html, /aria-sort="ascending"/);
+  assert.match(html, /C01 · Corridor/);
+  assert.match(html, /1 failed endpoint/);
   assert.match(html, /K01\.07/);
-  assert.match(html, /2\.4 m/);
   assert.match(html, /North matched room 21/);
   assert.match(html, /No eligible intermediate checkpoints/);
   assert.match(html, /Corridor/);

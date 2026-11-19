@@ -26,7 +26,7 @@ test("the dynamic fieldset injects once with every option field", () => {
   assert.equal(ensureDynamicOptionsMarkup(form), true);
   assert.equal(ensureDynamicOptionsMarkup(form), false);
   assert.match(markup, /data-dynamic-options hidden/);
-  assert.match(markup, /Capture options and additional devices/);
+  assert.match(markup, /Site and capture options/);
   assert.match(markup, /<option value="45" selected>45 seconds<\/option>/);
   assert.match(markup, /<option value="5" selected>Every 5 m<\/option>/);
   assert.match(markup, /<option value="0">No marks<\/option>/);
@@ -36,7 +36,24 @@ test("the dynamic fieldset injects once with every option field", () => {
   for (const name of DYNAMIC_OPTION_NAMES) {
     assert.match(markup, new RegExp(`name="${name}"`));
   }
-  assert.match(markup, /polled alongside the device under test/);
+  for (const removed of ["extraDevice", "proxyBase"]) {
+    assert.equal(markup.includes(removed), false);
+  }
+});
+
+test("the fieldset is placed above the credential groups when present", () => {
+  const placed = [];
+  const credentialGroups = {
+    insertAdjacentHTML: (position, value) => placed.push([position, value]),
+  };
+  const form = {
+    insertAdjacentHTML: () => placed.push(["form"]),
+    querySelector: selector => (selector === ".credential-groups" ? credentialGroups : null),
+  };
+  assert.equal(ensureDynamicOptionsMarkup(form), true);
+  assert.equal(placed.length, 1);
+  assert.equal(placed[0][0], "beforebegin");
+  assert.match(placed[0][1], /name="siteCampusId"/);
 });
 
 test("forms without injection support are left untouched", () => {

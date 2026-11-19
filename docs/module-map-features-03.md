@@ -4,6 +4,7 @@
 E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 
 ## survey-runner/
+- loader 41/1668 T+ E loadRunnerDefinition, loadRunnerManifest, surveyIdFromUrl I @d/survey-definition-v3
 - map-3d-toggle 71/2418 T+ E mountRunnerMap3dToggle
 - note-capture 120/3881 T+ E createRunnerNoteCapture
 - note-controller 47/1934 T+ E createRunnerNoteController I feature-flags
@@ -20,14 +21,18 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - runner-entry.css 39/889 T-
 - runner-mode 18/737 T+ E DYNAMIC_SURVEY_ID, dynamicTemplateEntry, runnerModeForSelection
 - runner-note.css 57/1348 T-
-- runner-preflight-action 42/1579 T- E performRunnerPreflight I dynamic-room-preflight, preflight
+- runner-preflight-action 43/1614 T- E performRunnerPreflight I dynamic-room-preflight, preflight
 - runner-safety.css 73/1602 T+
+- runner-site 113/3583 T+
+  - E RUNNER_SITE_FIELDS, adoptMapCampusName, applyRunnerSite, placeholderCampusName, runnerSiteFromUrl, runnerSiteIssues, runnerSiteValues, sameRunnerSite,
+    templateSite
 - runner-start-gate 16/830 T- E prepareRunnerStart
 - runner.css 150/4605 T+ I dynamic-room.css, runner-entry.css
 - setup-clear 25/910 T- E clearRunnerCaptureState
-- setup-init 28/1289 T- E initializeRunnerSetup I loader
+- setup-init 34/1597 T- E initializeRunnerSetup I loader, runner-mode
 - setup-map 22/998 T+ E drawRunnerSelection
-- setup 143/4133 T+ E createRunnerSetup I definition-upload, entry, loader, poll-loop, preflight, runner-mode, setup-clear, setup-init, setup-map
+- setup-site 104/3982 T+ E SITE_MAP_DELAY_MS, createRunnerSiteControl I runner-site
+- setup 150/4521 T+ E createRunnerSetup I definition-upload, entry, loader, poll-loop, preflight, runner-mode, setup-clear, setup-init, setup-map, setup-site
 - survey-runner 143/5738 T+ E RUNNER_THREE_D, mountSurveyRunner
   - I @a/map/mazemap, @a/memory-credentials, @a/positioning/mazemap-cloud-v3, dynamic-room-start, dynamic-room-view, form-view, map-3d-toggle,
     note-controller, planned-run-start, result-download, result-upload, run-view, runner-preflight-action, runner-start-gate, setup

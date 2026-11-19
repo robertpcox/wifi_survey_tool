@@ -63,3 +63,18 @@ test("live click coverage and dwell become stop-only authoring input", () => {
   );
   assert.equal(input.checkpointSpacingM, 0);
 });
+
+test("a retargeted campus with no clicked building falls back to the campus", () => {
+  const stops = [stop("stop-1", 170.5, "Room one"), stop("stop-2", 170.6, "Room two")];
+  for (const item of stops) item._mapContext.building = { id: null, name: null };
+  const input = dynamicDefinitionInput({
+    definitionInput: {
+      meta: { campusId: "700", campusName: "North Campus", buildings: [], zLevels: [], zLevelNames: {} },
+      routeId: "dynamic-route",
+    },
+  }, {
+    stops,
+    legs: [{ fromStopId: "stop-1", toStopId: "stop-2", geometry: [stops[0], stops[1]] }],
+  });
+  assert.deepEqual(input.meta.buildings, [{ id: "700", name: "North Campus" }]);
+});

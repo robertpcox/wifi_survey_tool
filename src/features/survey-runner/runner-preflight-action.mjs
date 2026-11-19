@@ -28,6 +28,7 @@ export async function performRunnerPreflight(options) {
       nowMs: () => options.nowDate().getTime(),
     });
     state.preflight = result.outcome;
+    setup.site?.adoptCampusName();
     formView.renderPreflight(result.outcome, result.sample);
     formView.setStatus(
       `${result.outcome.verdict.toUpperCase()} preflight.`,

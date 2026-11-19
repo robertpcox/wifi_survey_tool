@@ -2,7 +2,7 @@
 // SURFACE:      Dropdown selection through Go and safe Stop
 // WHY TOGETHER: Mount wiring must dispatch the mode-specific preflight and active runner.
 // STATE:        One complete entry, site definition, and source sample
-// RULES:        Dynamic Go starts polling without planned progress.
+// RULES:        Dynamic Go starts polling only the device under test, without planned progress.
 // PROVENANCE:   Step 4 Runner dynamic-room extension
 
 import assert from "node:assert/strict";
@@ -34,6 +34,9 @@ test("mounted Dynamic room survey reuses setup and starts a route-free session",
     override: false,
     extraDevice1Label: "iPhone B",
     extraDevice1Ip: "192.0.2.9",
+    siteCustomerId: "",
+    siteCampusId: "",
+    siteConfigId: "",
   };
   const formView = {
     bind: value => { actions = value; },
@@ -115,11 +118,8 @@ test("mounted Dynamic room survey reuses setup and starts a route-free session",
   assert.equal(runner.state.activeRun.session.dwellSeconds, 45);
   assert.equal(runner.state.activeRun.state.polls, runner.state.polls);
   await new Promise(resolve => setTimeout(resolve, 0));
-  assert.deepEqual(polled.slice(-2).sort(), ["192.0.2.8", "192.0.2.9"]);
-  assert.deepEqual(
-    runner.state.activeRun.state.extraDevices.map(device => device.label),
-    ["iPhone B"],
-  );
+  assert.deepEqual([...new Set(polled)], ["192.0.2.8"]);
+  assert.deepEqual(runner.state.activeRun.state.extraDevices, []);
   assert.equal(running.at(-1), true);
   assert.equal(actions.stop(), true);
   assert.equal(runner.state.activeRun.state.completionStatus, "aborted");

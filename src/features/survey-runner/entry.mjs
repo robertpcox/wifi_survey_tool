@@ -8,17 +8,8 @@ export const RUNNER_ENTRY_FIELDS = Object.freeze([
   "band",
 ]);
 export const RUNNER_OPTIONAL_FIELDS = Object.freeze([
-  "proxyBase",
   "dynamicDwellSeconds",
   "dynamicMarkSpacingM",
-  "extraDevice1Label",
-  "extraDevice1Ip",
-  "extraDevice1Type",
-  "extraDevice1Os",
-  "extraDevice2Label",
-  "extraDevice2Ip",
-  "extraDevice2Type",
-  "extraDevice2Os",
 ]);
 
 export function normalizeRunnerEntry(values) {
@@ -56,7 +47,7 @@ export function syncRunnerCredentials(values, credentials) {
 
 export function runnerPositionRequest(definition, entry, credentials) {
   return {
-    proxyBase: entry.proxyBase || definition.meta.sourceConfig.proxyBase,
+    proxyBase: definition.meta.sourceConfig.proxyBase,
     configId: definition.meta.sourceConfig.configId,
     clientIp: entry.clientIp,
     appId: credentials.read("appId"),

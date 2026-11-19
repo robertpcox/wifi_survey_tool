@@ -61,6 +61,10 @@ function dynamicCoverage(meta, stops, legs) {
     const floorName = clean(context?.floor?.name);
     if (floorName) floorNames.set(String(stop.z), floorName);
   }
+  if (!buildings.size && meta.campusId && meta.campusName) {
+    const campusId = String(meta.campusId);
+    buildings.set(campusId, { id: campusId, name: meta.campusName });
+  }
   const levels = new Set(stops.map(stop => Number(stop.z)));
   for (const leg of legs) {
     for (const point of leg.geometry ?? []) levels.add(Number(point.z));

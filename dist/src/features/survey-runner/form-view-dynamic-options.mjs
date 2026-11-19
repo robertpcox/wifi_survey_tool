@@ -1,33 +1,36 @@
 // FEATURE:      Dynamic room Runner entry options
 // SURFACE:      DYNAMIC_OPTION_NAMES, ensureDynamicOptionsMarkup(form)
-// WHY TOGETHER: The dwell choice, proxy override, and extra devices form one injected fieldset.
+// WHY TOGETHER: Site identity, dwell choice, and mark spacing form one injected fieldset.
 // STATE:        None
-// RULES:        Options stay hidden for planned routes and default to a 45-second dwell.
-// PROVENANCE:   Dynamic room multi-device capture request
+// RULES:        Hidden for planned routes; sits above credentials; only the device under test is polled.
+// PROVENANCE:   Dynamic room capture request; Runner customer/campus entry request
+
+import { RUNNER_SITE_FIELDS } from "./runner-site.mjs";
 
 export const DYNAMIC_OPTION_NAMES = Object.freeze([
-  "proxyBase",
+  ...RUNNER_SITE_FIELDS,
   "dynamicDwellSeconds",
   "dynamicMarkSpacingM",
-  "extraDevice1Label",
-  "extraDevice1Ip",
-  "extraDevice1Type",
-  "extraDevice1Os",
-  "extraDevice2Label",
-  "extraDevice2Ip",
-  "extraDevice2Type",
-  "extraDevice2Os",
 ]);
 
-export function ensureDynamicOptionsMarkup(form) {
-  if (typeof form?.insertAdjacentHTML !== "function") return false;
-  if (form.querySelector?.("[data-dynamic-options]")) return false;
-  form.insertAdjacentHTML("beforeend", `
+const MARKUP = `
     <fieldset class="credential-group dynamic-options" data-dynamic-options hidden>
-      <legend>Capture options and additional devices</legend>
-      <p id="dynamic-options-help">Dwell length applies to every dwell check-in on this run.
-        Extra devices are polled alongside the device under test and download their own result files.
-        Point the proxy override at a locally hosted positioning proxy to survey off the VPN.</p>
+      <legend>Site and capture options</legend>
+      <p id="dynamic-site-help">Customer and campus default to the site template.
+        Change them to run a dynamic room survey at another MazeMap customer or campus.
+        The positioning config ID must belong to that customer.</p>
+      <div class="entry-grid">
+        <label>Customer ID
+          <input name="siteCustomerId" inputmode="numeric" autocomplete="off"
+            spellcheck="false" aria-describedby="dynamic-site-help"></label>
+        <label>Campus ID
+          <input name="siteCampusId" inputmode="numeric" autocomplete="off"
+            spellcheck="false" aria-describedby="dynamic-site-help"></label>
+        <label>Positioning config ID
+          <input name="siteConfigId" inputmode="numeric" autocomplete="off"
+            spellcheck="false" aria-describedby="dynamic-site-help"></label>
+      </div>
+      <p id="dynamic-options-help">Dwell length applies to every dwell check-in on this run.</p>
       <div class="entry-grid">
         <label>Dwell duration at each checkpoint
           <select name="dynamicDwellSeconds" aria-describedby="dynamic-options-help">
@@ -43,34 +46,17 @@ export function ensureDynamicOptionsMarkup(form) {
             <option value="10">Every 10 m</option>
             <option value="15">Every 15 m</option>
           </select></label>
-        <label>Positioning proxy base override (optional)
-          <input name="proxyBase" autocomplete="off" autocapitalize="none" spellcheck="false"
-            placeholder="/mm-positioning-proxy"></label>
-        <label>Extra device 1 label (optional)
-          <input name="extraDevice1Label" autocomplete="off" placeholder="iPhone B"></label>
-        <label>Extra device 1 client IP
-          <input name="extraDevice1Ip" inputmode="decimal" autocomplete="off"></label>
-        <label>Extra device 1 type
-          <select name="extraDevice1Type">
-            <option value="mobile" selected>Mobile</option>
-            <option value="laptop">Laptop</option>
-            <option value="asset">Asset</option>
-          </select></label>
-        <label>Extra device 1 OS (optional, defaults to the label)
-          <input name="extraDevice1Os" autocomplete="off" placeholder="iOS 18"></label>
-        <label>Extra device 2 label (optional)
-          <input name="extraDevice2Label" autocomplete="off" placeholder="iPhone C"></label>
-        <label>Extra device 2 client IP
-          <input name="extraDevice2Ip" inputmode="decimal" autocomplete="off"></label>
-        <label>Extra device 2 type
-          <select name="extraDevice2Type">
-            <option value="mobile" selected>Mobile</option>
-            <option value="laptop">Laptop</option>
-            <option value="asset">Asset</option>
-          </select></label>
-        <label>Extra device 2 OS (optional, defaults to the label)
-          <input name="extraDevice2Os" autocomplete="off" placeholder="Spectralink"></label>
       </div>
-    </fieldset>`);
+    </fieldset>`;
+
+export function ensureDynamicOptionsMarkup(form) {
+  if (typeof form?.insertAdjacentHTML !== "function") return false;
+  if (form.querySelector?.("[data-dynamic-options]")) return false;
+  const credentials = form.querySelector?.(".credential-groups");
+  if (typeof credentials?.insertAdjacentHTML === "function") {
+    credentials.insertAdjacentHTML("beforebegin", MARKUP);
+  } else {
+    form.insertAdjacentHTML("beforeend", MARKUP);
+  }
   return true;
 }

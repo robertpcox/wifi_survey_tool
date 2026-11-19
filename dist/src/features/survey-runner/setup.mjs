@@ -14,6 +14,7 @@ import {
   runnerModeForSelection,
 } from "./runner-mode.mjs";
 import { drawRunnerSelection } from "./setup-map.mjs";
+import { createRunnerSiteControl } from "./setup-site.mjs";
 
 export function createRunnerSetup(options) {
   const {
@@ -26,12 +27,17 @@ export function createRunnerSetup(options) {
     runtime,
   } = options;
   let pollLoop = null;
+  const site = createRunnerSiteControl({ state, formView, mapAdapter, credentials, runtime });
 
   function entryChanged() {
     if (state.busy || state.activeRun) return;
     const values = formView.readValues();
     syncRunnerCredentials(values, credentials);
     state.entry = normalizeRunnerEntry(values);
+    if (site.retarget(values)) {
+      pollLoop?.stop();
+      pollLoop = createPollLoop();
+    }
     if (!state.activeRun) state.preflight = null;
     updateActions();
   }
@@ -76,6 +82,7 @@ export function createRunnerSetup(options) {
     state.preflight = null;
     state.activeRun = null;
     formView.setRunning(false);
+    site.install(definition, mode);
     formView.showDefinition(definition, { dynamic: mode === "dynamic-room" });
     drawRunnerSelection(mapAdapter, definition, mode);
     entryChanged();
@@ -101,11 +108,10 @@ export function createRunnerSetup(options) {
 
   function entryComplete() {
     if (!state.definition) return false;
-    return runnerEntryIssues(
-      formView.readValues(),
-      credentials,
-      state.definition.meta.credentialRequirements,
-    ).length === 0;
+    const values = formView.readValues();
+    const requirements = state.definition.meta.credentialRequirements;
+    return runnerEntryIssues(values, credentials, requirements).length === 0
+      && site.issues(values).length === 0;
   }
 
   function clearCapture(message = "Capture cleared. Choose the next survey.") {
@@ -127,13 +133,14 @@ export function createRunnerSetup(options) {
   }
 
   function initialize() {
-    return initializeRunnerSetup({ state, formView, runtime, selectSurvey });
+    return initializeRunnerSetup({ state, formView, runtime, selectSurvey, site });
   }
 
   return Object.freeze({
     entryChanged,
     entryComplete,
     initialize,
+    site,
     get pollLoop() { return pollLoop; },
     clearCapture,
     selectSurvey,

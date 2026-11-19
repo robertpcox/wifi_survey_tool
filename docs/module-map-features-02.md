@@ -91,13 +91,12 @@ E exports; I imports; @a/, @d/, @f/, @s/ are source-layer aliases.
 - dynamic-room.css 106/2504 T+
 - dynamic-route-author-values 71/2213 T+ E dynamicRouteFinaliseError, newDynamicRouteJob, sameDynamicRoutePair, validatedDynamicGeometry, validatedDynamicStops
 - dynamic-route-author 150/4220 T+ E createDynamicRouteAuthor I dynamic-route-author-values
-- dynamic-survey-definition 94/3035 T+ E dynamicDefinitionInput I @d/creator-route-v3
+- dynamic-survey-definition 98/3214 T+ E dynamicDefinitionInput I @d/creator-route-v3
 - dynamic-survey-export 104/3632 T+ E assertDynamicExportIdentity, finaliseDynamicSurvey
   - I @d/definition-authoring-v3, @d/runner-result-v3, @d/survey-definition-v3, @d/survey-result-v3, dynamic-device-results, dynamic-survey-definition
-- entry 69/2011 T+ E RUNNER_ENTRY_FIELDS, RUNNER_OPTIONAL_FIELDS, normalizeRunnerEntry, runnerEntryIssues, runnerPositionRequest, syncRunnerCredentials
+- entry 60/1807 T+ E RUNNER_ENTRY_FIELDS, RUNNER_OPTIONAL_FIELDS, normalizeRunnerEntry, runnerEntryIssues, runnerPositionRequest, syncRunnerCredentials
   - I dynamic-room-devices
 - feature-flags 8/416 T- E RUNNER_NOTES_ENABLED
-- form-view-dynamic-options 76/3725 T+ E DYNAMIC_OPTION_NAMES, ensureDynamicOptionsMarkup
+- form-view-dynamic-options 62/2918 T+ E DYNAMIC_OPTION_NAMES, ensureDynamicOptionsMarkup I runner-site
 - form-view-format 37/1242 T+ E formatDuration, preflightMetrics, preflightReasonText
 - form-view 150/6742 T+ E createRunnerFormView, preflightMetrics I @s/format, form-view-dynamic-options, form-view-format, runner-mode
-- loader 41/1668 T+ E loadRunnerDefinition, loadRunnerManifest, surveyIdFromUrl I @d/survey-definition-v3
